@@ -8,7 +8,7 @@ import org.xmlbeam.Xpath;
  * type conversion to primitives as integer and double and even a projection to
  * a structured sub-projection.
  * 
- * @author sven
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
 public interface WeatherData {

@@ -13,7 +13,7 @@ import org.xmlbeam.Xpath;
  * component type for Lists in contrast to arrays. This is because type erasure
  * hits here.
  * 
- * @author sven
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
 @org.xmlbeam.URI("resource://config.xml")

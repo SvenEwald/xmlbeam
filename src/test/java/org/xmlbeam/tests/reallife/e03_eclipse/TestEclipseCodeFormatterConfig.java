@@ -14,7 +14,7 @@ import org.xmlbeam.XMLProjector;
  * 
  * See {@link EclipseFormatterConfigFile} for further description.
  * 
- * @author sven
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
 public class TestEclipseCodeFormatterConfig {

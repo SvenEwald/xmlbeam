@@ -20,25 +20,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xmlbeam.config.Configuration;
-import org.xmlbeam.config.DefaultConfiguration;
+import org.xmlbeam.config.FactoriesConfiguration;
+import org.xmlbeam.config.DefaultFactoriesConfiguration;
 import org.xmlbeam.util.TypeConverter;
 
 public class XMLProjector {
 
-	//final Configuration configuration;
 	private final Transformer transformer;
 	private final DocumentBuilder documentBuilder;
 
 	public XMLProjector() {
-		Configuration configuration = new DefaultConfiguration();
-		this.transformer = configuration.createTransformer();
-		this.documentBuilder = configuration.createDocumentBuilder();
+		FactoriesConfiguration factoriesConfiguration = new DefaultFactoriesConfiguration();
+		this.transformer = factoriesConfiguration.createTransformer();
+		this.documentBuilder = factoriesConfiguration.createDocumentBuilder();
 	}
 
-	public XMLProjector(Configuration configuration) {
-		this.transformer = configuration.createTransformer();
-		this.documentBuilder = configuration.createDocumentBuilder();
+	public XMLProjector(FactoriesConfiguration factoriesConfiguration) {
+		this.transformer = factoriesConfiguration.createTransformer();
+		this.documentBuilder = factoriesConfiguration.createDocumentBuilder();
 	}
 
 	/**
