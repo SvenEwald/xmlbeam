@@ -223,7 +223,7 @@ public class XMLProjectorTest {
     @Test
     public void getXMLDocument() throws Exception {
         suite.setDescription("This is my description");
-		Document document = new XMLProjector().getXMLSourceForProjection(suite);
+		Document document = new XMLProjector().getXMLDocForProjection(suite);
 		System.out.println(suite.toString());
 		// TransformerFactory tf = TransformerFactory.newInstance();
 		// Transformer transformer = tf.newTransformer();
@@ -235,7 +235,7 @@ public class XMLProjectorTest {
 
     @Test
     public void getXMLDocumentFromInnerStructure() throws Exception {
-		Document document = new XMLProjector().getXMLSourceForProjection(suite.getFirstInnerStructure());
+		Document document = new XMLProjector().getXMLDocForProjection(suite.getFirstInnerStructure());
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();

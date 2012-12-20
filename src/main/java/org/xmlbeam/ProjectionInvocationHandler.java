@@ -34,6 +34,7 @@ import org.xmlbeam.util.DOMUtils;
 import org.xmlbeam.util.TypeConverter;
 
 class ProjectionInvocationHandler implements InvocationHandler {
+	private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/[a-zA-Z]+)+(/@[a-z:A-Z]+)?$";
 	private final Node node;
 	private final Class<?> projectionInterface;
 	final private Projection projectionInvoker;
@@ -91,29 +92,34 @@ class ProjectionInvocationHandler implements InvocationHandler {
 
 	private Object invokeSetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
 		final String path = getXPathExpression(method, args);
-		if (!path.matches("^(/[a-zA-Z]+)+(/@[a-zA-Z])?$")) {
+		if (!path.matches(LEGAL_XPATH_SELECTORS_FOR_SETTERS)) {
 			throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
 		}
 		final String pathToElement = path.replaceAll("/@.*", "");
 		Node settingNode = getDocumentForMethod(method, args);
-		Element rootelement = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode).getDocumentElement() : settingNode.getOwnerDocument().getDocumentElement();
-		
+		Element rootElement = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode).getDocumentElement() : settingNode.getOwnerDocument().getDocumentElement();
+		if (rootElement==null) {
+			assert Node.DOCUMENT_NODE == settingNode.getNodeType();
+			String rootElementName=path.replaceAll("(^/)|(/.*$)"	, "");
+			rootElement = ((Document) settingNode).createElement(rootElementName);
+			settingNode.appendChild(rootElement);
+		}
 		if (path.contains("@")) {
 			String attributeName = path.replaceAll(".*@", "");
-			Element element = ensureElementExists(rootelement, pathToElement);
+			Element element = ensureElementExists(rootElement, pathToElement);
 			element.setAttribute(attributeName, args[0].toString());
 		} else {
 			if (args[0] instanceof Projection) {
-				Element element = ensureElementExists(rootelement, pathToElement);
+				Element element = ensureElementExists(rootElement, pathToElement);
 				applySingleSetProjectionOnElement((Projection) args[0], element, method.getDeclaringClass());
 			}
 			if (args[0] instanceof Collection) {
-				Element parent = ensureElementExists(rootelement, pathToElement.replaceAll("/[^/]+$", ""));
+				Element parent = ensureElementExists(rootElement, pathToElement.replaceAll("/[^/]+$", ""));
 				String elementName= pathToElement.replaceAll("^.*/", "");
 				applyCollectionSetProjectionOnelement((Collection<?>) args[0], parent,elementName);
 
 			} else {
-				Element element = ensureElementExists(rootelement, pathToElement);
+				Element element = ensureElementExists(rootElement, pathToElement);
 				element.setTextContent(args[0].toString());
 			}
 		}
