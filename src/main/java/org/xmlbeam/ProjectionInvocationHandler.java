@@ -56,7 +56,7 @@ class ProjectionInvocationHandler implements InvocationHandler {
 			public String toString() {
 				try {
 					StringWriter writer = new StringWriter();
-					xmlProjector.configuration.getTransformerFactory().newTransformer().transform(new DOMSource(node), new StreamResult(writer));
+					xmlProjector.getTransformer().transform(new DOMSource(node), new StreamResult(writer));
 					String output = writer.getBuffer().toString();
 					return output;
 				} catch (TransformerConfigurationException e) {
@@ -82,14 +82,14 @@ class ProjectionInvocationHandler implements InvocationHandler {
 		if ((!hasReturnType(method)) && (!hasParameters(method))) {
 			throw new IllegalArgumentException("Invoking void method " + method + " without parameters. What should I do?");
 		}
-
+		
 		if (isSetter(method) || (!hasReturnType(method))) {
 			return invokeSetter(proxy, method, args);
 		}
 		return invokeGetter(proxy, method, args);
 	}
 
-	public Object invokeSetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
+	private Object invokeSetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
 		final String path = getXPathExpression(method, args);
 		if (!path.matches("^(/[a-zA-Z]+)+(/@[a-zA-Z])?$")) {
 			throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
@@ -97,18 +97,23 @@ class ProjectionInvocationHandler implements InvocationHandler {
 		final String pathToElement = path.replaceAll("/@.*", "");
 		Node settingNode = getDocumentForMethod(method, args);
 		Element rootelement = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode).getDocumentElement() : settingNode.getOwnerDocument().getDocumentElement();
-		Element element = ensureElementExists(rootelement, pathToElement);
+		
 		if (path.contains("@")) {
 			String attributeName = path.replaceAll(".*@", "");
+			Element element = ensureElementExists(rootelement, pathToElement);
 			element.setAttribute(attributeName, args[0].toString());
 		} else {
 			if (args[0] instanceof Projection) {
+				Element element = ensureElementExists(rootelement, pathToElement);
 				applySingleSetProjectionOnElement((Projection) args[0], element, method.getDeclaringClass());
 			}
 			if (args[0] instanceof Collection) {
-				applyCollectionSetProjectionOnelement((Collection<?>) args[0], element);
+				Element parent = ensureElementExists(rootelement, pathToElement.replaceAll("/[^/]+$", ""));
+				String elementName= pathToElement.replaceAll("^.*/", "");
+				applyCollectionSetProjectionOnelement((Collection<?>) args[0], parent,elementName);
 
 			} else {
+				Element element = ensureElementExists(rootelement, pathToElement);
 				element.setTextContent(args[0].toString());
 			}
 		}
@@ -122,22 +127,14 @@ class ProjectionInvocationHandler implements InvocationHandler {
 		throw new IllegalArgumentException("Method " + method + " has unknown return type \"" + method.getReturnType() + "\". I don't know what do return");
 	}
 
-	private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element element) {
-		Set<String> childrenToBeRemoved = new HashSet<String>();
-		List<Projection> projections = new LinkedList<Projection>();
+	private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement, String elementName) {
+		DOMUtils.removeAllChildrenByName(parentElement, elementName);
 		for (Object o : collection) {
 			if (!(o instanceof Projection)) {
 				throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
 			}
 			Projection p = (Projection) o;
-			childrenToBeRemoved.add(p.getXMLNode().getNodeName());
-			projections.add(p);
-		}
-		for (String child : childrenToBeRemoved) {
-			DOMUtils.removeAllChildrenByName(element, child);
-		}
-		for (Projection p : projections) {
-			element.appendChild(p.getXMLNode());
+			parentElement.appendChild(p.getXMLNode());
 		}
 	}
 
@@ -183,7 +180,7 @@ class ProjectionInvocationHandler implements InvocationHandler {
 		return evaluationNode;
 	}
 
-	public Object invokeGetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
+	private Object invokeGetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
 		final String path = getXPathExpression(method, args);
 		final XPath xPath = XPathFactory.newInstance().newXPath();
 		final XPathExpression expression = xPath.compile(path);

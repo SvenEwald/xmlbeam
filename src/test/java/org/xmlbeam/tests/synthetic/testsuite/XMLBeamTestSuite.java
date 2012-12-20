@@ -56,6 +56,9 @@ public interface XMLBeamTestSuite {
 
     @org.xmlbeam.Xpath("nothing")
     void notSupportedReturnType();
+    
+    @org.xmlbeam.Xpath("nothing/")
+    void setterWithTrailingSlash(String param);
 
     @org.xmlbeam.Xpath("/gluerootnode/intermediate/firstelement/@glueattribute")
     String getAttributeValue();
