@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gluerootnode>
+	<intermediate>
+		<firstelement glueattribute="with Attribute">
+			<innerElement1>String content öäüÖÄÜß</innerElement1>
+			<innerElement2>0</innerElement2>
+			<innerElement3>1</innerElement3>
+			<innerElement4>65536</innerElement4>
+			<innerElement5>-1</innerElement5>
+			<innerElement6 boolAttribute="false">true</innerElement6>
+		</firstelement>
+		<secondElement>
+			<list>
+				<entry>a</entry>
+				<entry>b</entry>
+				<entry>c</entry>
+			</list>
+		</secondElement>
+		<thirdElement a="a" b="b" c="c" />
+		<fourthElement>
+			<innerStructureA>A</innerStructureA>
+			<innerStructureB>
+				<item>A</item>
+				<item>B</item>
+				<item>C</item>
+			</innerStructureB>
+		</fourthElement>
+		      <fourthElement annotherone="true">
+            <innerStructureA>A2</innerStructureA>
+            <innerStructureB>
+                <item>A2</item>
+                <item>B2</item>
+                <item>C2</item>
+            </innerStructureB>
+        </fourthElement>
+	</intermediate>
+</gluerootnode>
