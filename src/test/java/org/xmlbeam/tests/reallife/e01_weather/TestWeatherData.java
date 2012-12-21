@@ -23,7 +23,9 @@ public class TestWeatherData {
 		try {
 		printWeatherData("Monschau,DE");
 		} catch (IOException e) {
-			// As this is more an example than a unit test, silently drop it when no Internet connection is available.
+			// As this is more an example than a unit test, drop it when no Internet connection is available.
+			// Maybe set your proxy via -Dhttp.proxyHost=myproxyserver.com  -Dhttp.proxyPort=80 
+			e.printStackTrace();
 		}
 	}
 
