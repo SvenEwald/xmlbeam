@@ -70,7 +70,7 @@ public class XMLProjector {
 		return ((T) java.lang.reflect.Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class }, new ProjectionInvocationHandler(this, node, projectionInterface)));
 	};
 
-	public Document getXMLSourceForProjection(final Object projection) {
+	public Document getXMLDocForProjection(final Object projection) {
 		if (!(projection instanceof Projection)) {
 			throw new IllegalArgumentException("Given projection " + projection + " was not created by me.");
 		}

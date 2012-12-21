@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
 import org.xmlbeam.config.DefaultFactoriesConfiguration;
-import org.xmlbeam.tests.reallife.e05_rss.SlashdotRSSFeed.Item;
+import org.xmlbeam.tests.reallife.e05_rss.SlashdotRSSFeed.Story;
 
 public class TestFilterRSSFeed {
 
@@ -24,8 +24,8 @@ public class TestFilterRSSFeed {
 		XMLProjector projector = new XMLProjector();
 		SlashdotRSSFeed feed = projector
 				.readFromURIAnnotation(SlashdotRSSFeed.class);
-		List<Item> filteredItems = new LinkedList<Item>();
-		for (Item item : feed.getItems()) {
+		List<Story> filteredItems = new LinkedList<Story>();
+		for (Story item : feed.getItems()) {
 			filteredItems.add(item);
 			if (filteredItems.size() == 3) {
 				break;
@@ -37,8 +37,7 @@ public class TestFilterRSSFeed {
 		feed.setItems(filteredItems);
 
 		// Enable some pretty printing of the resulting xml.
-		projector.getTransformer().setOutputProperty(
-				"{http://xml.apache.org/xslt}indent-amount", "2");
+		projector.getTransformer().setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		projector.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
 
 		System.out.println(feed.toString());
