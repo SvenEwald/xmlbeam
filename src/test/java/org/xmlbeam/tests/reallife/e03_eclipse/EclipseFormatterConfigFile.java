@@ -12,8 +12,7 @@ import org.xmlbeam.Xpath;
  * be applied as a {@lik MessageFormat} on the Xpath expression. (This is
  * possible on URI annotations, too).
  * 
- * @author sven
- * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @URI("resource://eclipsecodeformatprofile.xml")
 public interface EclipseFormatterConfigFile {

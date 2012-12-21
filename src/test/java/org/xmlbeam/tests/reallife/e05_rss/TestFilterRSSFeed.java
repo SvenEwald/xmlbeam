@@ -10,7 +10,7 @@ import javax.xml.transform.OutputKeys;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
-import org.xmlbeam.config.DefaultConfiguration;
+import org.xmlbeam.config.DefaultFactoriesConfiguration;
 import org.xmlbeam.tests.reallife.e05_rss.SlashdotRSSFeed.Item;
 
 public class TestFilterRSSFeed {
