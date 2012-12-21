@@ -36,6 +36,11 @@ public class XMLProjectorTest {
     public void testIllegalReturnType() {
         suite.notSupportedReturnType();
     }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testSetterWithTrailingSlash() {
+        suite.setterWithTrailingSlash("nope");
+    }
 
     @Test
     public void testStringContent() {

@@ -11,6 +11,7 @@ import java.io.IOException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -25,14 +26,19 @@ import org.xmlbeam.util.TypeConverter;
 
 public class XMLProjector {
 
-	final Configuration configuration;
+	//final Configuration configuration;
+	private final Transformer transformer;
+	private final DocumentBuilder documentBuilder;
 
 	public XMLProjector() {
-		this.configuration = new DefaultConfiguration();
+		Configuration configuration = new DefaultConfiguration();
+		this.transformer = configuration.createTransformer();
+		this.documentBuilder = configuration.createDocumentBuilder();
 	}
 
-	public XMLProjector(Configuration config) {
-		this.configuration = config;
+	public XMLProjector(Configuration configuration) {
+		this.transformer = configuration.createTransformer();
+		this.documentBuilder = configuration.createDocumentBuilder();
 	}
 
 	/**
@@ -44,8 +50,7 @@ public class XMLProjector {
 	}
 
 	public <T> T readFromURI(final String uri, final Class<T> clazz) throws SAXException, IOException, ParserConfigurationException {
-		DocumentBuilderFactory dbf = configuration.getDocumentBuilderFactory();
-		Document document = dbf.newDocumentBuilder().parse(uri);
+		Document document = getDocumentBuilder().parse(uri);
 		return projectXML(document, clazz);
 	}
 
@@ -77,19 +82,22 @@ public class XMLProjector {
 		return node.getOwnerDocument();
 	}
 
-	protected Document getXMLNodeFromURI(final String uri, final Class<?> resourceAwareClass) throws SAXException, IOException, ParserConfigurationException {
-		DocumentBuilderFactory newInstance = DocumentBuilderFactory.newInstance();
+	protected Document getXMLNodeFromURI(final String uri, final Class<?> resourceAwareClass) throws IOException {
+		try {
 		if (uri.startsWith("resource://")) {
-			return newInstance.newDocumentBuilder().parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
+			return getDocumentBuilder().parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
 		}
-		Document document = newInstance.newDocumentBuilder().parse(uri);
+		Document document = getDocumentBuilder().parse(uri);
 		if (document == null) {
 			throw new IOException("Document could not be created form uri " + uri);
 		}
 		return document;
+		} catch (SAXException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	public <T> T readFromURIAnnotation(final Class<T> projectionInterface) throws SAXException, IOException, ParserConfigurationException {
+	public <T> T readFromURIAnnotation(final Class<T> projectionInterface) throws IOException {
 		org.xmlbeam.URI doc = projectionInterface.getAnnotation(org.xmlbeam.URI.class);
 		if (doc == null) {
 			throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the xml.Doc annotation linking to the document source.");
@@ -129,10 +137,16 @@ public class XMLProjector {
 		throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + ". Try one of " + TypeConverter.CONVERTERS.keySet());
 	}
 
-	public <T> T createEmptyDocumentProjection(Class<T> projection) throws ParserConfigurationException {
-		DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document document = documentBuilder.newDocument();
+	public <T> T createEmptyDocumentProjection(Class<T> projection)  {
+		Document document = getDocumentBuilder().newDocument();
 		return projectXML(document, projection);
 	}
 
+	public Transformer getTransformer() {
+		return transformer;
+	}
+	
+	public DocumentBuilder getDocumentBuilder() {
+		return documentBuilder;
+	}
 }
