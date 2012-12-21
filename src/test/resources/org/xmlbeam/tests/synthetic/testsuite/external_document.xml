@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+	<setting name="A1" value="B1" />
+	<setting name="A2" value="B2">
+		<option>false</option>
+	</setting>
+	<setting name="A3" value="B3">
+		<option>true</option>
+	</setting>
+</settings>
