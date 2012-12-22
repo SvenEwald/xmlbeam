@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.reallife.e02_jenkins;
+package org.xmlbeam.tutorial.e02_jenkins;
 import java.util.List;
 
 import org.xmlbeam.Xpath;

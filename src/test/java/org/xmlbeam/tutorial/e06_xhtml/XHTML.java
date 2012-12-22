@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.reallife.e06_xhtml;
+package org.xmlbeam.tutorial.e06_xhtml;
 
 import org.xmlbeam.Xpath;
 

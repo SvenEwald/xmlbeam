@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.reallife.e03_eclipse;
+package org.xmlbeam.tutorial.e03_eclipse;
 
 import java.util.List;
 

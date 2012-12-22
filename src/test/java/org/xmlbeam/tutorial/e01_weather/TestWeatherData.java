@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.reallife.e01_weather;
+package org.xmlbeam.tutorial.e01_weather;
 
 import java.io.IOException;
 import java.net.UnknownHostException;

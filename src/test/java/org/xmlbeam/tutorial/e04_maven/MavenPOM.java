@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.reallife.e04_maven;
+package org.xmlbeam.tutorial.e04_maven;
 
 import org.xmlbeam.URI;
 import org.xmlbeam.Xpath;
