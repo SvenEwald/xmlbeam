@@ -132,7 +132,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 		if (method.getReturnType().equals(method.getDeclaringClass())) {
 			return proxy;
 		}
-		throw new IllegalArgumentException("Method " + method + " has unknown return type \"" + method.getReturnType() + "\". I don't know what do return");
+		throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what do return");
 	}
 
 	private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement, String elementName) {
