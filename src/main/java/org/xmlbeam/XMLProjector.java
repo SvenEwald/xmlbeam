@@ -92,7 +92,10 @@ public class XMLProjector {
 	 * Projector. This will be applied automatically to projections.
 	 */
 	interface Projection extends Serializable {
+
 		Node getXMLNode();
+
+		Class<?> getProjectionInterface();
 	}
 
 	/**

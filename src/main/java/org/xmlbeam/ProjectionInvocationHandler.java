@@ -43,7 +43,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 	private final FactoriesConfiguration factoriesConfiguration;
 
 
-	ProjectionInvocationHandler(final FactoriesConfiguration factoriesConfiguration, final Node node, Class<?> projectionInterface) {
+	ProjectionInvocationHandler(final FactoriesConfiguration factoriesConfiguration, final Node node, final Class<?> projectionInterface) {
 		this.factoriesConfiguration = factoriesConfiguration;
 		this.node = node;
 		this.projectionInterface = projectionInterface;
@@ -52,6 +52,12 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 			public Node getXMLNode() {
 				return node;
 			}
+
+			@Override
+			public Class<?> getProjectionInterface() {
+				return projectionInterface;
+			}
+			
 		};
 		objectInvoker = new Serializable() {
 
@@ -68,6 +74,24 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 					throw new RuntimeException(e);
 				}
 			}
+
+			@Override
+			public boolean equals(Object o) {
+				if (!(o instanceof Projection)) {
+					return false;
+				}
+				Projection op = (Projection) o;
+				if (!ProjectionInvocationHandler.this.projectionInterface.equals(op.getProjectionInterface())) {
+					return false;
+				}
+				return node.equals(op.getXMLNode());
+			}
+
+			@Override
+			public int hashCode() {
+				return 31 * ProjectionInvocationHandler.this.projectionInterface.hashCode() + 27 * node.hashCode();
+			}
+
 		};
 	}
 
