@@ -1,9 +1,13 @@
 package org.xmlbeam.config;
 
+import java.io.Serializable;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+
+import org.xmlbeam.XMLProjector;
 
 /**
  * A Configuration defines factories for the underlying Java XML
@@ -13,7 +17,7 @@ import javax.xml.transform.TransformerFactory;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public interface FactoriesConfiguration {
+public interface FactoriesConfiguration extends Serializable {
 
 	/**
 	 * Factory method to provide a {@link TransfomerFactory}.

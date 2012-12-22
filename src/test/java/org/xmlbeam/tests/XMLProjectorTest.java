@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.synthetic.testsuite;
+package org.xmlbeam.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -18,8 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xmlbeam.XMLProjector;
-import org.xmlbeam.tests.synthetic.testsuite.XMLBeamTestSuite.InnerStructure;
-import org.xmlbeam.tests.synthetic.testsuite.XMLBeamTestSuite.Setting;
+import org.xmlbeam.tests.XMLBeamTestSuite.InnerStructure;
+import org.xmlbeam.tests.XMLBeamTestSuite.Setting;
 
 
 public class XMLProjectorTest {

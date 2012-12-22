@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.reallife.e05_rss;
+package org.xmlbeam.tutorial.e05_rss;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
 import org.xmlbeam.config.DefaultFactoriesConfiguration;
-import org.xmlbeam.tests.reallife.e05_rss.SlashdotRSSFeed.Story;
+import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 
 public class TestFilterRSSFeed {
 

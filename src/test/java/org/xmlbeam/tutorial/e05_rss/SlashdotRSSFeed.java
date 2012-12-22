@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.reallife.e05_rss;
+package org.xmlbeam.tutorial.e05_rss;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.xmlbeam.tests.synthetic.testsuite;
+package org.xmlbeam.tests;
 
 import java.util.List;
 
