@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<gluerootnode>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><gluerootnode>
 	<intermediate>
 		<firstelement glueattribute="with Attribute">
 			<innerElement1>String content öäüÖÄÜß</innerElement1>
