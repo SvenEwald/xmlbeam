@@ -2,12 +2,15 @@ package org.xmlbeam;
 
 import java.text.MessageFormat;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,16 +41,17 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 	private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/[a-zA-Z]+)+(/@[a-z:A-Z]+)?$";
 	private final Node node;
 	private final Class<?> projectionInterface;
-	transient final private Projection projectionInvoker;
-	transient final private Object objectInvoker;
+	// transient final private Projection projectionInvoker;
+	// transient final private Object objectInvoker;
 	private final FactoriesConfiguration factoriesConfiguration;
-
+	private final Map<Class<?>, Object> defaultInvokers = new HashMap<Class<?>, Object>();
+	private final Map<Class<?>, Object> customInvokers = new HashMap<Class<?>, Object>();
 
 	ProjectionInvocationHandler(final FactoriesConfiguration factoriesConfiguration, final Node node, final Class<?> projectionInterface) {
 		this.factoriesConfiguration = factoriesConfiguration;
 		this.node = node;
 		this.projectionInterface = projectionInterface;
-		projectionInvoker = new Projection() {
+		Projection projectionInvoker = new Projection() {
 			@Override
 			public Node getXMLNode() {
 				return node;
@@ -57,9 +61,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 			public Class<?> getProjectionInterface() {
 				return projectionInterface;
 			}
+
+			@Override
+			public Map<Class<?>, Object> getInvokers() {
+				return customInvokers;
+			}
 			
 		};
-		objectInvoker = new Serializable() {
+		Object objectInvoker = new Serializable() {
 
 			@Override
 			public String toString() {
@@ -93,17 +102,23 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 			}
 
 		};
+
+		defaultInvokers.put(Projection.class, projectionInvoker);
+		defaultInvokers.put(Object.class, objectInvoker);
+		defaultInvokers.put(ProjectionInvocationHandler.class, this);
 	}
 
 	@Override
 	public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
-		if (Projection.class.equals(method.getDeclaringClass())) {
-			return method.invoke(projectionInvoker, args);
+		Object defaultInvoker = defaultInvokers.get(method.getDeclaringClass());
+		if (defaultInvoker != null) {
+			return method.invoke(defaultInvoker, args);
 		}
-
-		if (Object.class.equals(method.getDeclaringClass())) {
-			return method.invoke(objectInvoker, args);
+		Object customInvoker = customInvokers.get(method.getDeclaringClass());
+		if (customInvoker != null) {
+			injectMeAttribute((Projection) proxy, customInvoker);
+			return method.invoke(customInvoker, args);
 		}
 
 		if ((!hasReturnType(method)) && (!hasParameters(method))) {
@@ -114,6 +129,31 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 			return invokeSetter(proxy, method, args);
 		}
 		return invokeGetter(proxy, method, args);
+	}
+
+	private void injectMeAttribute(Projection me, Object target) {
+
+		for (Field field : target.getClass().getDeclaredFields()) {
+			if (!me.getProjectionInterface().equals(field.getType())) {
+				continue;
+			}
+			if (!"me".equalsIgnoreCase(field.getName())) {
+				continue;
+			}
+			if (!field.isAccessible()) {
+				field.setAccessible(true);
+			}
+			try {
+				field.set(target, me);
+				return;
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 	}
 
 	private Object invokeSetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -234,9 +274,19 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 		}
 		if (returnType.isInterface()) {
 			Node newNode = (Node) expression.evaluate(getDocumentForMethod(method, args), XPathConstants.NODE);
-			return new XMLProjector(factoriesConfiguration).projectXML(newNode, returnType);
+			Projection subprojection = (Projection) new XMLProjector(factoriesConfiguration).projectXML(newNode, returnType);
+
+
+			return copyInvokers(customInvokers, subprojection);
 		}
 		throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an interface, a List, an Array or one of " + TypeConverter.CONVERTERS.keySet());
+	}
+
+	private Object copyInvokers(Map<Class<?>, Object> invokerMap, Projection target) {
+		for (Class<?> c : invokerMap.keySet()) {
+			target.getInvokers().put(c, invokerMap.get(c));
+		}
+		return target;
 	}
 
 	private boolean isSetter(final Method method) {
@@ -281,7 +331,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 		if (targetType.isInterface()) {
 			for (int i = 0; i < nodes.getLength(); ++i) {
 				Node n = nodes.item(i).cloneNode(true);
-				linkedList.add(new XMLProjector(factoriesConfiguration).projectXML(n, method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType()));
+				Projection subprojection = (Projection) new XMLProjector(factoriesConfiguration).projectXML(n, method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType());
+				linkedList.add(copyInvokers(customInvokers, subprojection));
 			}
 			return linkedList;
 		}
