@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 
 import java.lang.reflect.Modifier;
 
+import java.util.Map;
+
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -88,6 +90,8 @@ public class XMLProjector {
 		Node getXMLNode();
 
 		Class<?> getProjectionInterface();
+
+		Map<Class<?>, Object> getInvokers();
 	}
 
 	/**
@@ -182,6 +186,13 @@ public class XMLProjector {
 	public <T> T createEmptyDocumentProjection(Class<T> projection) {
 		Document document = factoriesConfiguration.createDocumentBuilder().newDocument();
 		return projectXML(document, projection);
+	}
+
+	public <T> XMLProjector addTypeImplementation(Object projection, Class<T> type, T implementation) {
+		Projection p = (Projection) projection;
+		p.getInvokers().put(type, implementation);
+		return this;
+
 	}
 
 }
