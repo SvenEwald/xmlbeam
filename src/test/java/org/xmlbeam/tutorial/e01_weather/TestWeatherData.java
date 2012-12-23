@@ -1,7 +1,6 @@
 package org.xmlbeam.tutorial.e01_weather;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -19,8 +18,7 @@ import org.xmlbeam.XMLProjector;
 public class TestWeatherData {
 
 	@Test
-	public void getWeatherData() throws SAXException, IOException,
-			ParserConfigurationException {
+	public void getWeatherData() throws SAXException, IOException, ParserConfigurationException {
 		try {
 			printWeatherData("Monschau,DE");
 		} catch (IOException e) {
@@ -32,18 +30,13 @@ public class TestWeatherData {
 		}
 	}
 
-	private void printWeatherData(String location) throws SAXException,
-			IOException, ParserConfigurationException {
+	private void printWeatherData(String location) throws SAXException, IOException, ParserConfigurationException {
 		String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
-		WeatherData weatherData = new XMLProjector().readFromURI(BaseURL
-				+ location, WeatherData.class);
+		WeatherData weatherData = new XMLProjector().readFromURI(BaseURL + location, WeatherData.class);
 		System.out.println("The weather in " + weatherData.getLocation() + ":");
 		System.out.println(weatherData.getSkytext());
-		System.out.println("Temperature: " + weatherData.getTemperature() + "°"
-				+ weatherData.getDegreeType());
-		System.out.println("The place is located at "
-				+ weatherData.getCoordinates().getLatitude() + ","
-				+ weatherData.getCoordinates().getLongitude());
+		System.out.println("Temperature: " + weatherData.getTemperature() + "°" + weatherData.getDegreeType());
+		System.out.println("The place is located at " + weatherData.getCoordinates().getLatitude() + "," + weatherData.getCoordinates().getLongitude());
 	}
 
 }

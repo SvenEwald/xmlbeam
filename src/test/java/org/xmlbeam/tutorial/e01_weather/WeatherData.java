@@ -25,6 +25,10 @@ public interface WeatherData {
 	@Xpath("/weatherdata/weather/current/@skytext")
 	String getSkytext();
 
+	/**
+	 * This would be our "sub projection". A structure grouping two attribute
+	 * values in one object.
+	 */
 	interface Location {
 		@Xpath("@lon")
 		double getLongitude();

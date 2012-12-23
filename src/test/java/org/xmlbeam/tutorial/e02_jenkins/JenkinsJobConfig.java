@@ -2,6 +2,10 @@ package org.xmlbeam.tutorial.e02_jenkins;
 import java.util.List;
 
 import org.xmlbeam.Xpath;
+import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
+import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
+import org.xmlbeam.tutorial.e02_jenkins.model.SCM;
+import org.xmlbeam.tutorial.e02_jenkins.model.Trigger;
 
 /**
  * This example demonstrates a more advanced capability of projections: A
@@ -22,9 +26,19 @@ public interface JenkinsJobConfig {
     @Xpath( "/project/description")
     String getDescription();
 
-    @Xpath(value="/project/builders/*",targetComponentType=Builder.class)
-    List<Builder> getBuilders();
-
 	@Xpath("//hudson.security.AuthorizationMatrixProperty/permission")
     String[] getPermissions();
+
+	@Xpath("/project/scm")
+	List<SCM> getSCMs();
+
+	@Xpath(value = "/projects/triggers/*", targetComponentType = Trigger.class)
+	List<Trigger> getTriggers();
+
+	@Xpath(value = "/project/builders/*", targetComponentType = Builder.class)
+	List<Builder> getBuilders();
+
+	@Xpath(value = "/project/publishers/*", targetComponentType = Publisher.class)
+	List<Publisher> getPublishers();
+
 }
