@@ -1,9 +1,11 @@
 package org.xmlbeam.tutorial.e06_xhtml;
 
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
 
 import org.junit.Test;
 import org.xmlbeam.XMLProjector;
+import org.xmlbeam.config.DefaultFactoriesConfiguration;
 
 /**
  * Create and print some XHTML text. 
@@ -14,7 +16,18 @@ import org.xmlbeam.XMLProjector;
  */
 public class TestCreationOfXHTMLDocument {
 
-	private XMLProjector projector = new XMLProjector();
+	private final XMLProjector projector = new XMLProjector(new DefaultFactoriesConfiguration() {
+		@Override
+		public Transformer createTransformer() {
+			Transformer transformer = super.createTransformer();
+			// Enable some pretty printing of the resulting xml.
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+			return transformer;
+
+		}
+	});
 
 	@Test
 	public void testCreateWellFormedXHTML() {
@@ -24,9 +37,6 @@ public class TestCreationOfXHTMLDocument {
 		xhtml.setTitle("This Is My Fine Title");
 		xhtml.setBody("Here some text...");
 		
-		// Enable some pretty printing of the resulting xml.
-		projector.getTransformer().setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-		projector.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
 				
 		System.out.println(xhtml.toString());
 	}

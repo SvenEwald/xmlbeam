@@ -7,9 +7,7 @@ import java.lang.reflect.Modifier;
 import java.io.IOException;
 import java.io.Serializable;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -71,19 +69,13 @@ import org.xmlbeam.util.DOMUtils;
  */
 public class XMLProjector {
 
-	private final Transformer transformer;
-	private final DocumentBuilder documentBuilder;
 	private final FactoriesConfiguration factoriesConfiguration;
 
 	public XMLProjector() {
 		factoriesConfiguration = new DefaultFactoriesConfiguration();
-		this.transformer = factoriesConfiguration.createTransformer();
-		this.documentBuilder = factoriesConfiguration.createDocumentBuilder();
 	}
 
 	public XMLProjector(FactoriesConfiguration factoriesConfiguration) {
-		this.transformer = factoriesConfiguration.createTransformer();
-		this.documentBuilder = factoriesConfiguration.createDocumentBuilder();
 		this.factoriesConfiguration = factoriesConfiguration;
 	}
 
@@ -111,7 +103,7 @@ public class XMLProjector {
 	 * @throws ParserConfigurationException
 	 */
 	public <T> T readFromURI(final String uri, final Class<T> clazz) throws SAXException, IOException, ParserConfigurationException {
-		Document document = getDocumentBuilder().parse(uri);
+		Document document = factoriesConfiguration.createDocumentBuilder().parse(uri);
 		return projectXML(document, clazz);
 	}
 
@@ -181,22 +173,15 @@ public class XMLProjector {
 	}
 
 	/**
-	 * Create a new projection for en empty document. Use this to create new
+	 * Create a new projection for an empty document. Use this to create new
 	 * documents.
 	 * 
 	 * @param projection
 	 * @return a new projection instance
 	 */
 	public <T> T createEmptyDocumentProjection(Class<T> projection) {
-		Document document = getDocumentBuilder().newDocument();
+		Document document = factoriesConfiguration.createDocumentBuilder().newDocument();
 		return projectXML(document, projection);
 	}
 
-	public Transformer getTransformer() {
-		return transformer;
-	}
-
-	public DocumentBuilder getDocumentBuilder() {
-		return documentBuilder;
-	}
 }
