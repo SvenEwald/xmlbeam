@@ -8,7 +8,7 @@ import org.xmlbeam.Xpath;
 /**
  * This example shows the modification of a SVG Graphic. A list of elements
  * should be sorted by an user defined criteria. We like to archive this by
- * adding behavior (made them compareable) to our projections.
+ * adding behavior to our projections (made them comparable).
  * 
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
