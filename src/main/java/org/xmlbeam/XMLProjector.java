@@ -4,12 +4,18 @@ import java.text.MessageFormat;
 
 import java.lang.reflect.Modifier;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import java.io.IOException;
 import java.io.Serializable;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -65,13 +71,22 @@ import org.xmlbeam.util.DOMUtils;
  * final XPath expression. The first parameter of a setter will be used for
  * both, setting the document value and replacing the placeholder "{0}".
  * </p>
+ * <p>
+ * Projection Mixins<br>
+ * A mixin is defined as an object implementing a super interface of a
+ * projection. You may associate a mixin with a projection type to add your own
+ * code to a projection. This way you can implement validators, make a
+ * projection comparable or even share common business logic between multiple
+ * projections.
+ * </p>
  * 
  * @author sven
  * 
  */
-public class XMLProjector {
+public class XMLProjector implements Serializable {
 
 	private final FactoriesConfiguration factoriesConfiguration;
+	private final Map<Class<?>, Map<Class<?>, Object>> customInvokers = new HashMap<Class<?>, Map<Class<?>, Object>>();
 
 	public XMLProjector() {
 		factoriesConfiguration = new DefaultFactoriesConfiguration();
@@ -90,8 +105,6 @@ public class XMLProjector {
 		Node getXMLNode();
 
 		Class<?> getProjectionInterface();
-
-		Map<Class<?>, Object> getInvokers();
 	}
 
 	/**
@@ -107,7 +120,7 @@ public class XMLProjector {
 	 * @throws ParserConfigurationException
 	 */
 	public <T> T readFromURI(final String uri, final Class<T> clazz) throws SAXException, IOException, ParserConfigurationException {
-		Document document = factoriesConfiguration.createDocumentBuilder().parse(uri);
+		Document document = getDocumentBuilder().parse(uri);
 		return projectXML(document, clazz);
 	}
 
@@ -125,7 +138,7 @@ public class XMLProjector {
 		if (!isValidProjectionInterface(projectionInterface)) {
 			throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
 		}
-		return ((T) java.lang.reflect.Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(factoriesConfiguration, node, projectionInterface)));
+		return ((T) java.lang.reflect.Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(this, node, projectionInterface)));
 	}
 
 	/**
@@ -171,7 +184,7 @@ public class XMLProjector {
 		if (doc == null) {
 			throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + URI.class.getName() + " annotation linking to the document source.");
 		}
-		final Document document = DOMUtils.getXMLNodeFromURI(factoriesConfiguration.createDocumentBuilder(), doc.value(), projectionInterface);
+		final Document document = DOMUtils.getXMLNodeFromURI(getDocumentBuilder(), doc.value(), projectionInterface);
 
 		return projectXML(document, projectionInterface);
 	}
@@ -184,15 +197,69 @@ public class XMLProjector {
 	 * @return a new projection instance
 	 */
 	public <T> T createEmptyDocumentProjection(Class<T> projection) {
-		Document document = factoriesConfiguration.createDocumentBuilder().newDocument();
+		Document document = getDocumentBuilder().newDocument();
 		return projectXML(document, projection);
 	}
 
-	public <T> XMLProjector addTypeImplementation(Object projection, Class<T> type, T implementation) {
-		Projection p = (Projection) projection;
-		p.getInvokers().put(type, implementation);
+	/**
+	 * Register a new mixin for a projection interface. By letting a projection
+	 * extend another interface you are able to add custom behavior to
+	 * projections by registering an implementation (called a mixin) of this
+	 * interface here. Notice that a mixin is registered per projection type.
+	 * All existing and all future projection instances will change.
+	 * 
+	 * Notice that you will break projection serialization if you register a non
+	 * serializeable mixin.
+	 * 
+	 * 
+	 * @param projectionInterface
+	 * @param mixinImplementation
+	 * @return
+	 */
+	public <S, T extends S, P extends S> XMLProjector addProjectionMixin(Class<P> projectionInterface, T mixinImplementation) {
+		if (!isValidProjectionInterface(projectionInterface)) {
+			throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+		}
+		Map<Class<?>, Object> map = customInvokers.containsKey(projectionInterface) ? customInvokers.get(projectionInterface) : new HashMap<Class<?>, Object>();
+		for (Class<?> type : findAllCommonSuperInterfaces(projectionInterface, mixinImplementation.getClass())) {
+			map.put(type, mixinImplementation);
+		}
+		customInvokers.put(projectionInterface, map);
 		return this;
 
+	}
+
+	private Set<Class<?>> findAllCommonSuperInterfaces(Class<?> a, Class<?> b) {
+		Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
+		Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));
+		seta.retainAll(setb);
+		return seta;
+	}
+
+	private Collection<? extends Class<?>> findAllSuperInterfaces(Class<?> a) {
+		Set<Class<?>> set = new HashSet<Class<?>>();
+		if (a.isInterface()) {
+			set.add(a);
+		}
+		for (Class<?> i : a.getInterfaces()) {
+			set.addAll(findAllSuperInterfaces(i));
+		}
+		return set;
+	}
+
+	public Transformer getTransformer() {
+		return factoriesConfiguration.createTransformer();
+	}
+
+	public Object getCustomInvoker(Class<?> projectionInterface, Class<?> declaringClass) {
+		if (!customInvokers.containsKey(projectionInterface)) {
+			return null;
+		}
+		return customInvokers.get(projectionInterface).get(declaringClass);
+	}
+
+	public DocumentBuilder getDocumentBuilder() {
+		return factoriesConfiguration.createDocumentBuilder();
 	}
 
 }
