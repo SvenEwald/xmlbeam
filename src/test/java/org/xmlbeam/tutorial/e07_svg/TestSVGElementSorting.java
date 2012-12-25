@@ -56,7 +56,7 @@ public class TestSVGElementSorting {
 
 			@Override
 			public int compareTo(GraphicElement o) {
-				return me.getPosition().compareTo(o.getPosition());
+				return me.getYPosition().compareTo(o.getYPosition());
 			}
 
 		});
