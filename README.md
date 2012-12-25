@@ -49,7 +49,13 @@ XMLBeam Feature List:
  - Your XML documents won't fit into memory. (XMLBeam works with DOM parsers only)
  - Performance by hook or by crook. (XMLBeam surly is not the fastest way to handle XML)
   
-What XMBeam does not:
+What XMBLeam does not:
 - Parse XML. It will use the parser that comes with the JRE (since Java6) as a default. You may specify other parsers.
 - Being thread safe. Access to different XML Documents and different XMLProjectors are thread safe. But concurrent access
-  to a single XML document is not promised.   
+  to a single XML document is not promised.
+  
+What next?
+- More Documentation.
+- API refinements.
+- Version 1.0 Release. 
+- Implement option to externalize projection declaration to runtime configuration files.
