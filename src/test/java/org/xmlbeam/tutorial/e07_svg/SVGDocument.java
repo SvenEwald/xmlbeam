@@ -25,16 +25,21 @@ import org.xmlbeam.Xpath;
  * should be sorted by an user defined criteria. We like to archive this by
  * adding behavior to our projections (made them comparable).
  * 
- * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
 @URI("resource://svg.xml")
 public interface SVGDocument {
 	
+	/**
+	 * We define a sub projection here to reflect the XML {@code <rect>} element
+	 * behind it. Notice: Although we only define a getter to one attribute, we
+	 * will work with the complete element when changing the order of the
+	 * rectangles.
+	 */
 	public interface GraphicElement extends Comparable<GraphicElement> {
 		@Xpath("@y")
-		Integer getPosition();
+		Integer getYPosition();
 	}
 	
 	@Xpath(value = "/svg/rect", targetComponentType = GraphicElement.class)
