@@ -15,15 +15,20 @@
  */
 package org.xmlbeam.util;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import java.io.IOException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -53,6 +58,28 @@ public class DOMUtils {
 		} catch (SAXException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * @param document
+	 * @return
+	 */
+	public static Map<String, String> getNamespaceMapping(Document document) {
+		Map<String, String> map = new HashMap<String, String>();
+		Element root = document.getDocumentElement();
+		NamedNodeMap attributes = root.getAttributes();
+		for (int i = 0; i < attributes.getLength(); i++) {
+			Node attribute = attributes.item(i);
+			System.out.println(attribute.getPrefix() + " " + attribute.getLocalName());
+			String localName = attribute.getLocalName();
+
+			if (!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix())) {
+				continue;
+			}
+			map.put(attribute.getLocalName(), attribute.getNodeValue());
+
+		}
+		return map;
 	}
 
 }

@@ -40,7 +40,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -265,11 +264,13 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
 	private Object invokeGetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
 		final String path = getXPathExpression(method, args);
-		final XPath xPath = XPathFactory.newInstance().newXPath();
+		final Node node = getDocumentForMethod(method, args);
+		final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
+		final XPath xPath = xmlProjector.getXPath(document);
 		final XPathExpression expression = xPath.compile(path);
 		final Class<?> returnType = method.getReturnType();
 		if (TypeConverter.CONVERTERS.containsKey(returnType)) {
-			String data = (String) expression.evaluate(getDocumentForMethod(method, args), XPathConstants.STRING);
+			String data = (String) expression.evaluate(document, XPathConstants.STRING);
 			if (data == null) {
 				return null;
 			}
@@ -277,14 +278,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 			return convert;
 		}
 		if (List.class.equals(returnType)) {
-			return evaluateAsList(expression, getDocumentForMethod(method, args), method);
+			return evaluateAsList(expression, document, method);
 		}
 		if (returnType.isArray()) {
-			List<?> list = evaluateAsList(expression, getDocumentForMethod(method, args), method);
+			List<?> list = evaluateAsList(expression, document, method);
 			return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
 		}
 		if (returnType.isInterface()) {
-			Node newNode = (Node) expression.evaluate(getDocumentForMethod(method, args), XPathConstants.NODE);
+			Node newNode = (Node) expression.evaluate(document, XPathConstants.NODE);
 			Projection subprojection = (Projection) xmlProjector.projectXML(newNode, returnType);
 
 

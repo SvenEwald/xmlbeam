@@ -19,6 +19,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 
 import org.junit.Test;
+import org.w3c.dom.Document;
 import org.xmlbeam.XMLProjector;
 import org.xmlbeam.config.DefaultFactoriesConfiguration;
 
@@ -33,7 +34,7 @@ public class TestCreationOfXHTMLDocument {
 
 	private final XMLProjector projector = new XMLProjector(new DefaultFactoriesConfiguration() {
 		@Override
-		public Transformer createTransformer() {
+		public Transformer createTransformer(Document... doc) {
 			Transformer transformer = super.createTransformer();
 			// Enable some pretty printing of the resulting xml.
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
