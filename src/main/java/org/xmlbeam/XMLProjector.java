@@ -31,6 +31,7 @@ import java.io.Serializable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.xpath.XPath;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -262,10 +263,6 @@ public class XMLProjector implements Serializable {
 		return set;
 	}
 
-	public Transformer getTransformer() {
-		return factoriesConfiguration.createTransformer();
-	}
-
 	public Object getCustomInvoker(Class<?> projectionInterface, Class<?> declaringClass) {
 		if (!customInvokers.containsKey(projectionInterface)) {
 			return null;
@@ -273,8 +270,19 @@ public class XMLProjector implements Serializable {
 		return customInvokers.get(projectionInterface).get(declaringClass);
 	}
 
-	public DocumentBuilder getDocumentBuilder() {
+	DocumentBuilder getDocumentBuilder() {
 		return factoriesConfiguration.createDocumentBuilder();
+	}
+
+	Transformer getTransformer() {
+		return factoriesConfiguration.createTransformer();
+	}
+
+	/**
+	 * @return
+	 */
+	XPath getXPath(Document document) {
+		return factoriesConfiguration.createXPath(document);
 	}
 
 }

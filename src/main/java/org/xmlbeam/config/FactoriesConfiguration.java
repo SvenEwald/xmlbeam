@@ -21,7 +21,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 
+import org.w3c.dom.Document;
 import org.xmlbeam.XMLProjector;
 
 /**
@@ -47,13 +50,23 @@ public interface FactoriesConfiguration extends Serializable {
 	 * @return a new instance.
 	 */
 	DocumentBuilderFactory createDocumentBuilderFactory();
-	
+
 	/**
-	 * Factory method to provide a {@link Transformer}.
+	 * Factory method to provide a {@link XPathFactory}.
 	 * 
 	 * @return a new instance.
 	 */
-	Transformer createTransformer();
+	XPathFactory createXPathFactory();
+
+	/**
+	 * Factory method to provide a {@link Transformer}. Creation and
+	 * configuration may depend on the content of a document.
+	 * 
+	 * @param document
+	 *            (optional)
+	 * @return a new instance.
+	 */
+	Transformer createTransformer(Document... document);
 
 	/**
 	 * Factory method to provide a {@link DocumentBuilder}.
@@ -61,5 +74,16 @@ public interface FactoriesConfiguration extends Serializable {
 	 * @return a new instance.
 	 */
 	DocumentBuilder createDocumentBuilder();
+
+	/**
+	 * Factory method to provide a {@link XPath}. Creation and configuration may
+	 * depend on the content of a document.
+	 * 
+	 * @param document
+	 *            (optional)
+	 * 
+	 * @return a new instance.
+	 */
+	XPath createXPath(Document... document);
 
 }

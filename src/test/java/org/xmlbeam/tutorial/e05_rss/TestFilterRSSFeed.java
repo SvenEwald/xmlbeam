@@ -15,15 +15,19 @@
  */
 package org.xmlbeam.tutorial.e05_rss;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import java.io.IOException;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Document;
 import org.xmlbeam.XMLProjector;
 import org.xmlbeam.config.DefaultFactoriesConfiguration;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
@@ -36,9 +40,9 @@ public class TestFilterRSSFeed {
 	 * transformer create some formatted XML.
 	 * 
 	 */
-	private final class PrettyPrintingFactoryConfiguration extends DefaultFactoriesConfiguration {
+	private final static class PrettyPrintingFactoryConfiguration extends DefaultFactoriesConfiguration {
 		@Override
-		public Transformer createTransformer() {
+		public Transformer createTransformer(Document... doc) {
 			Transformer transformer = super.createTransformer();
 			// Enable some pretty printing of the resulting xml.
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -49,16 +53,28 @@ public class TestFilterRSSFeed {
 		}
 	}
 
+	private static SlashdotRSSFeed feed;
+
+	@BeforeClass
+	public static void readFeed() throws IOException {
+		XMLProjector projector = new XMLProjector(new PrettyPrintingFactoryConfiguration());
+		feed = projector.readFromURIAnnotation(SlashdotRSSFeed.class);
+	}
+
+	@Test
+	public void printSomeStats() {
+		Set<String> creators = new HashSet(feed.getCreators());
+		System.out.println("There are " + feed.getAllItems().size() + " stories by " + creators.size() + " different creators.");
+
+	}
+
+
 	/**
 	 * Remove all but the first three stories from a Slashdot RSS feed. Result
 	 * is formatted by standard Transformer capabilities.
 	 */
 	@Test
 	public void filterSomeArticles() throws IOException {
-		XMLProjector projector = new XMLProjector(new PrettyPrintingFactoryConfiguration());
-
-		SlashdotRSSFeed feed = projector.readFromURIAnnotation(SlashdotRSSFeed.class);
-
 		List<Story> filteredItems = new LinkedList<Story>();
 		for (Story item : feed.getAllItems()) {
 			filteredItems.add(item);
