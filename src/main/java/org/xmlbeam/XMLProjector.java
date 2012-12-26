@@ -185,9 +185,9 @@ public class XMLProjector implements Serializable {
 
 	/**
 	 * Create a new projection using a {@link URI} annotation on this interface.
-	 * When the uri starts with the protocol identifier "resource://" the
-	 * classloader of projection interface will be used to read the resource
-	 * from the current class path.
+	 * When the URI starts with the protocol identifier "resource://" the class
+	 * loader of the projection interface will be used to read the resource from
+	 * the current class path.
 	 * 
 	 * @param projectionInterface
 	 *            a public interface.

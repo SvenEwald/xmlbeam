@@ -27,22 +27,71 @@ import org.xmlbeam.Xpath;
  * subprojection. This time there is a setter for a collection of Stories which
  * will replace the existing sequence of rss items.
  * 
- *  @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @URI("http://rss.slashdot.org/Slashdot/slashdot")
 public interface SlashdotRSSFeed {
 
+	/**
+	 * We like to access each story as a java object, so we define a sub
+	 * projection here. Notice that this does not have to be an inner interface,
+	 * thats just to compact this tutorial.
+	 */
 	interface Story {
 		@Xpath("child::title")
 		String getTitle();
 
 		@Xpath("child::pubDate")
 		String getDate();
+
+		@Xpath("child::description")
+		String getDescription();
 	}
 
+	/**
+	 * Our getter method with an XPath expression to select all RSS items. The
+	 * target type definition specifies this getter as returning a list of sub
+	 * projections.
+	 * 
+	 * @return List of all stories
+	 */
 	@Xpath(value = "/rss/channel/item", targetComponentType = Story.class)
-	List<Story> getItems();
+	List<Story> getAllItems();
 
-	@Xpath(value = "/rss/channel/item")
-	void setItems(Collection<Story> items);
+	/**
+	 * Our setter uses exact the same XPath expression as the getter. Thus it
+	 * will replace the items returned by getAllItems(). Notice that it will
+	 * only replace XML elements named "item", because that is exactly what the
+	 * XPath is selecting. Other child elements of the channel element won't be
+	 * touched.
+	 * 
+	 * Notice that we could define another setter which could project a story to
+	 * other elements than "item" in the document hierarchy. I just have no real
+	 * life example for this right now...
+	 * 
+	 * @param items
+	 */
+	@Xpath("/rss/channel/item")
+	void setAllItems(Collection<Story> items);
+
+	/**
+	 * This is not part of this lesson about modifying documents. Just to
+	 * demonstrate the flexibility of projections. There is no need to strictly
+	 * keep the object oriented way to the stories. We just define a getter for
+	 * all creator elements of all stories without a sub projection.
+	 * 
+	 * @return A list of all creators.
+	 */
+	@Xpath(value = "//dc:creator", targetComponentType = String.class)
+	List<String> getCreators();
+
+	/**
+	 * Another getter not part of this lesson. This time we let the projection
+	 * declaration do some filtering. Usually you would have to code this in
+	 * java.
+	 * 
+	 * @return A filtered list of stories.
+	 */
+	@Xpath(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
+	List<Story> getOpenSourceStories();
 }
