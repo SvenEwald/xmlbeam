@@ -61,8 +61,11 @@ public class DOMUtils {
 	}
 
 	/**
+	 * Parse namespace prefixes defined in the documents root element.
+	 * 
 	 * @param document
-	 * @return
+	 *            source document.
+	 * @return map with prefix->uri relationships.
 	 */
 	public static Map<String, String> getNamespaceMapping(Document document) {
 		Map<String, String> map = new HashMap<String, String>();
@@ -70,14 +73,10 @@ public class DOMUtils {
 		NamedNodeMap attributes = root.getAttributes();
 		for (int i = 0; i < attributes.getLength(); i++) {
 			Node attribute = attributes.item(i);
-			System.out.println(attribute.getPrefix() + " " + attribute.getLocalName());
-			String localName = attribute.getLocalName();
-
 			if (!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix())) {
 				continue;
 			}
 			map.put(attribute.getLocalName(), attribute.getNodeValue());
-
 		}
 		return map;
 	}

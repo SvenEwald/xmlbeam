@@ -270,7 +270,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 		final XPathExpression expression = xPath.compile(path);
 		final Class<?> returnType = method.getReturnType();
 		if (TypeConverter.CONVERTERS.containsKey(returnType)) {
-			String data = (String) expression.evaluate(document, XPathConstants.STRING);
+			String data = (String) expression.evaluate(node, XPathConstants.STRING);
 			if (data == null) {
 				return null;
 			}
@@ -278,14 +278,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 			return convert;
 		}
 		if (List.class.equals(returnType)) {
-			return evaluateAsList(expression, document, method);
+			return evaluateAsList(expression, node, method);
 		}
 		if (returnType.isArray()) {
-			List<?> list = evaluateAsList(expression, document, method);
+			List<?> list = evaluateAsList(expression, node, method);
 			return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
 		}
 		if (returnType.isInterface()) {
-			Node newNode = (Node) expression.evaluate(document, XPathConstants.NODE);
+			Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
 			Projection subprojection = (Projection) xmlProjector.projectXML(newNode, returnType);
 
 

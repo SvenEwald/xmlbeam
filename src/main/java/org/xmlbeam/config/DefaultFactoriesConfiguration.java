@@ -82,7 +82,7 @@ public class DefaultFactoriesConfiguration implements FactoriesConfiguration {
 		HEDONISTIC
 	};
 
-	private final NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
+	private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
 
 	/**
 	 * Empty default constructor, a Configuration has no state.
@@ -187,5 +187,13 @@ public class DefaultFactoriesConfiguration implements FactoriesConfiguration {
 	 */
 	public NamespacePhilosophy getNamespacePhilosophy() {
 		return namespacePhilosophy;
+	}
+
+	/**
+	 * @return
+	 */
+	public FactoriesConfiguration setNamespacePhilosophy(NamespacePhilosophy namespacePhilosophy) {
+		this.namespacePhilosophy = namespacePhilosophy;
+		return this;
 	}
 }
