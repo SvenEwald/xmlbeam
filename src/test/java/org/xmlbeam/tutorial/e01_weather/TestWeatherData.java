@@ -22,6 +22,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
+import org.xmlbeam.config.DefaultFactoriesConfiguration;
+import org.xmlbeam.config.DefaultFactoriesConfiguration.NamespacePhilosophy;
 
 /**
  * This test demonstrates simple reading and printing of live weather data.
@@ -47,7 +49,7 @@ public class TestWeatherData {
 
 	private void printWeatherData(String location) throws SAXException, IOException, ParserConfigurationException {
 		String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
-		WeatherData weatherData = new XMLProjector().readFromURI(BaseURL + location, WeatherData.class);
+		WeatherData weatherData = new XMLProjector(new DefaultFactoriesConfiguration().setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC)).readFromURI(BaseURL + location, WeatherData.class);
 		System.out.println("The weather in " + weatherData.getLocation() + ":");
 		System.out.println(weatherData.getSkytext());
 		System.out.println("Temperature: " + weatherData.getTemperature() + "°" + weatherData.getDegreeType());
