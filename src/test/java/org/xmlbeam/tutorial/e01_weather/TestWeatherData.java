@@ -20,10 +20,10 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
-import org.xmlbeam.config.DefaultFactoriesConfiguration;
-import org.xmlbeam.config.DefaultFactoriesConfiguration.NamespacePhilosophy;
+import org.xmlbeam.tutorial.Tutorial;
 
 /**
  * This test demonstrates simple reading and printing of live weather data.
@@ -32,6 +32,7 @@ import org.xmlbeam.config.DefaultFactoriesConfiguration.NamespacePhilosophy;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
+@Category(Tutorial.class)
 public class TestWeatherData {
 
 	@Test
@@ -48,12 +49,14 @@ public class TestWeatherData {
 	}
 
 	private void printWeatherData(String location) throws SAXException, IOException, ParserConfigurationException {
+		// START SNIPPET: WeatherDataCode
 		String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
-		WeatherData weatherData = new XMLProjector(new DefaultFactoriesConfiguration().setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC)).readFromURI(BaseURL + location, WeatherData.class);
+		WeatherData weatherData = new XMLProjector().readFromURI(BaseURL + location, WeatherData.class);
 		System.out.println("The weather in " + weatherData.getLocation() + ":");
 		System.out.println(weatherData.getSkytext());
 		System.out.println("Temperature: " + weatherData.getTemperature() + "°" + weatherData.getDegreeType());
 		System.out.println("The place is located at " + weatherData.getCoordinates().getLatitude() + "," + weatherData.getCoordinates().getLongitude());
+		// END SNIPPET: WeatherDataCode
 	}
 
 }

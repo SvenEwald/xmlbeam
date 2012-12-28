@@ -22,9 +22,12 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
+import org.xmlbeam.tutorial.Tutorial;
 
+@Category(Tutorial.class)
 public class TestMavenPOM {
 
 	/**

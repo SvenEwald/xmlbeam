@@ -21,7 +21,9 @@ import java.util.List;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.xmlbeam.XMLProjector;
+import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e07_svg.SVGDocument.GraphicElement;
 
 /**
@@ -44,6 +46,7 @@ import org.xmlbeam.tutorial.e07_svg.SVGDocument.GraphicElement;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
+@Category(Tutorial.class)
 public class TestSVGElementSorting {
 
 	@Test
