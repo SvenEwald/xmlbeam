@@ -35,6 +35,7 @@ import org.xmlbeam.Xpath;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
+// START SNIPPET: WeatherDataInterface
 public interface WeatherData {
 
 	@Xpath("/weatherdata/weather/@searchlocation")
@@ -64,3 +65,4 @@ public interface WeatherData {
 	@Xpath("/weatherdata/weather")
 	Location getCoordinates();
 }
+// END SNIPPET: WeatherDataInterface

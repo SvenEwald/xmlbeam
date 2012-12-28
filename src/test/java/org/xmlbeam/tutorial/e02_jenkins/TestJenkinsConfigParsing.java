@@ -23,10 +23,13 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.xmlbeam.XMLProjector;
+import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
 import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 
+@Category(Tutorial.class)
 public class TestJenkinsConfigParsing {
 	private JenkinsJobConfig config;
 

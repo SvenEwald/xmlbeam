@@ -20,8 +20,10 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
+import org.xmlbeam.tutorial.Tutorial;
 
 /**
  * This example is about accessing eclipse configuration profiles with a
@@ -32,6 +34,7 @@ import org.xmlbeam.XMLProjector;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
+@Category(Tutorial.class)
 public class TestEclipseCodeFormatterConfig {
 
 	@Test
