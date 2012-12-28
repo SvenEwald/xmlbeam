@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e04_maven;
 
-import org.xmlbeam.URI;
+import org.xmlbeam.URL;
 import org.xmlbeam.Xpath;
 
 /**
@@ -25,7 +25,7 @@ import org.xmlbeam.Xpath;
  * A simple setter is defined to modify a maven project name.
  * 
  */
-@URI("resource://pom.xml")
+@URL("resource://pom.xml")
 public interface MavenPOM {
 
 	@Xpath("/project/name")

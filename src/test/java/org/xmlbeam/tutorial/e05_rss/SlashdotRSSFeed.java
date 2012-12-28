@@ -18,7 +18,7 @@ package org.xmlbeam.tutorial.e05_rss;
 import java.util.Collection;
 import java.util.List;
 
-import org.xmlbeam.URI;
+import org.xmlbeam.URL;
 import org.xmlbeam.Xpath;
 
 /**
@@ -29,7 +29,7 @@ import org.xmlbeam.Xpath;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-@URI("http://rss.slashdot.org/Slashdot/slashdot")
+@URL("http://rss.slashdot.org/Slashdot/slashdot")
 public interface SlashdotRSSFeed {
 
 	/**

@@ -17,11 +17,11 @@ package org.xmlbeam.tests;
 
 import java.util.List;
 
-import org.xmlbeam.URI;
+import org.xmlbeam.URL;
 import org.xmlbeam.Xpath;
 
 
-@org.xmlbeam.URI("resource://testsuite.xml")
+@org.xmlbeam.URL("resource://testsuite.xml")
 public interface XMLBeamTestSuite {
 
     @org.xmlbeam.Xpath("/gluerootnode/intermediate/firstelement/innerElement1")
@@ -109,7 +109,7 @@ public interface XMLBeamTestSuite {
         boolean hasOption();
     }
 
-    @URI("resource://external_document.{0}")
+    @URL("resource://external_document.{0}")
     @org.xmlbeam.Xpath(value="/settings/setting",targetComponentType=Setting.class)
     List<Setting> getExternalSettings(String externsion);
 

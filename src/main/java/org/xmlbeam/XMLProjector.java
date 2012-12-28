@@ -135,7 +135,7 @@ public class XMLProjector implements Serializable {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	public <T> T readFromURI(final String uri, final Class<T> clazz) throws SAXException, IOException, ParserConfigurationException {
+	public <T> T readFromURL(final String uri, final Class<T> clazz) throws SAXException, IOException, ParserConfigurationException {
 		Document document = getDocumentBuilder().parse(uri);
 		return projectXML(document, clazz);
 	}
@@ -185,8 +185,8 @@ public class XMLProjector implements Serializable {
 	}
 
 	/**
-	 * Create a new projection using a {@link URI} annotation on this interface.
-	 * When the URI starts with the protocol identifier "resource://" the class
+	 * Create a new projection using a {@link URL} annotation on this interface.
+	 * When the URL starts with the protocol identifier "resource://" the class
 	 * loader of the projection interface will be used to read the resource from
 	 * the current class path.
 	 * 
@@ -196,9 +196,9 @@ public class XMLProjector implements Serializable {
 	 * @throws IOException
 	 */
 	public <T> T readFromURIAnnotation(final Class<T> projectionInterface) throws IOException {
-		org.xmlbeam.URI doc = projectionInterface.getAnnotation(org.xmlbeam.URI.class);
+		org.xmlbeam.URL doc = projectionInterface.getAnnotation(org.xmlbeam.URL.class);
 		if (doc == null) {
-			throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + URI.class.getName() + " annotation linking to the document source.");
+			throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + URL.class.getName() + " annotation linking to the document source.");
 		}
 		final Document document = DOMUtils.getXMLNodeFromURI(getDocumentBuilder(), doc.value(), projectionInterface);
 
