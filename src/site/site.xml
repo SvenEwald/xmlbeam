@@ -11,7 +11,8 @@
     </links>
  -->
     <menu name="XMLBeam">
-      <item name="Introduction" href="index.html"/>
+      <item name="Introduction" href="introduction.html"/>
+      <item name="Getting Started" href="tutorial1.html"/>
       <item name="Download" href="download.html"/>
       <item name="Release Notes" href="release-notes.html" />
       <item name="General Information" href="about.html"/>

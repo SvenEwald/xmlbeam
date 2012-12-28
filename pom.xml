@@ -57,6 +57,24 @@
 					</instrumentation>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				   <version>1.7</version> 
+				<executions>
+					<execution>
+						<phase>pre-site</phase>
+						<configuration>
+							<target>
+								<copy file="README.md"
+									tofile="src/site/apt/introduction.apt" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
