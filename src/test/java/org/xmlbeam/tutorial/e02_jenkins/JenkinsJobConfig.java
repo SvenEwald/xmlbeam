@@ -35,7 +35,7 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Trigger;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
-@org.xmlbeam.URI("resource://config.xml")
+@org.xmlbeam.URL("resource://config.xml")
 public interface JenkinsJobConfig {
 
     @Xpath( "/project/description")

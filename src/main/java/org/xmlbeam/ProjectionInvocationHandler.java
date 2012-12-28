@@ -254,8 +254,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
 	private Node getDocumentForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
 		Node evaluationNode = node;
-		if (method.getAnnotation(URI.class) != null) {
-			String uri = method.getAnnotation(URI.class).value();
+		if (method.getAnnotation(URL.class) != null) {
+			String uri = method.getAnnotation(URL.class).value();
 			uri = MessageFormat.format(uri, args);
 			evaluationNode = DOMUtils.getXMLNodeFromURI(xmlProjector.getDocumentBuilder(), uri, projectionInterface);
 		}

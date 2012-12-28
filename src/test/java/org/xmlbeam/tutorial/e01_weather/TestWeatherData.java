@@ -51,7 +51,7 @@ public class TestWeatherData {
 	private void printWeatherData(String location) throws SAXException, IOException, ParserConfigurationException {
 		// START SNIPPET: WeatherDataCode
 		String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
-		WeatherData weatherData = new XMLProjector().readFromURI(BaseURL + location, WeatherData.class);
+		WeatherData weatherData = new XMLProjector().readFromURL(BaseURL + location, WeatherData.class);
 		System.out.println("The weather in " + weatherData.getLocation() + ":");
 		System.out.println(weatherData.getSkytext());
 		System.out.println("Temperature: " + weatherData.getTemperature() + "°" + weatherData.getDegreeType());

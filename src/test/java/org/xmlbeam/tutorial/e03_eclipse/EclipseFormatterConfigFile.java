@@ -17,7 +17,7 @@ package org.xmlbeam.tutorial.e03_eclipse;
 
 import java.util.List;
 
-import org.xmlbeam.URI;
+import org.xmlbeam.URL;
 import org.xmlbeam.Xpath;
 
 /**
@@ -25,11 +25,11 @@ import org.xmlbeam.Xpath;
  * projections will be compiled and processed when used, there is no need to
  * keep them static. Instead give your getter method some parameters. They will
  * be applied as a {@lik MessageFormat} on the Xpath expression. (This is
- * possible on URI annotations, too).
+ * possible on URL annotations, too).
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-@URI("resource://eclipsecodeformatprofile.xml")
+@URL("resource://eclipsecodeformatprofile.xml")
 public interface EclipseFormatterConfigFile {
 
 	interface Setting {

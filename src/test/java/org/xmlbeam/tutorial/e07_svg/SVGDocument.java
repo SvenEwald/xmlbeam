@@ -17,7 +17,7 @@ package org.xmlbeam.tutorial.e07_svg;
 
 import java.util.List;
 
-import org.xmlbeam.URI;
+import org.xmlbeam.URL;
 import org.xmlbeam.Xpath;
 
 /**
@@ -28,7 +28,7 @@ import org.xmlbeam.Xpath;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
-@URI("resource://svg.xml")
+@URL("resource://svg.xml")
 public interface SVGDocument {
 	
 	/**
