@@ -1,4 +1,32 @@
-Tutorial one
+			------
+            Tutorial 1
+            ------
+            Sven Ewald
+            ------
+             2012
+			------
+			
+Tutorial one: Printing some weather data.
 
-%{snippet|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/WeatherData.java}
+   Using the MSN weather service will get you some XML content similar to this:
+   
+---------
+<weatherdata>
+      <weather
+        ... 
+      	degreetype="F"
+      	lat="50.5520210266113" lon="6.24060010910034" 
+      	searchlocation="Monschau, Stadt Aachen, NW, Germany" 
+		...
+        <current ... skytext="Clear" temperature="46"/>
+      </weather>
+</weatherdata>
+---------
+ We see that the XML structure consists of three elements and number of attributes holding the data. 
+ If you execute the tutorial example code you will see that there are even more attributes that are shortened out here for readability.
+ If you would use a data binding XML library to access this data you would get three Java classes, two of them actually holding interesting parts.
+ 
+ Using data projection we define just a single interface:
+    
+%{snippet|id=WeatherDataInterface|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/WeatherData.java}
 
