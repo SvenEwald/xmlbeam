@@ -24,10 +24,10 @@ import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.e01_weather.WeatherData.Location;
 
 /**
- * This test demonstrates simple reading and printing of live weather data.
- * Please see projection interface {@link WeatherData} for further description.
+ * This test demonstrates simple reading and printing of live weather data. Please see projection interface {@link WeatherData} for further description.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
@@ -35,28 +35,40 @@ import org.xmlbeam.tutorial.Tutorial;
 @Category(Tutorial.class)
 public class TestWeatherData {
 
-	@Test
-	public void getWeatherData() throws SAXException, IOException, ParserConfigurationException {
-		try {
-			printWeatherData("Monschau,DE");
-		} catch (IOException e) {
-			// As this is more an example than a unit test. Drop it when no
-			// Internet connection is available.
-			// Maybe set your proxy via -Dhttp.proxyHost=myproxyserver.com
-			// -Dhttp.proxyPort=80
-			e.printStackTrace();
-		}
-	}
+    @Test
+    public void getWeatherData() throws SAXException, IOException, ParserConfigurationException {
+        try {
+            printWeatherData("Monschau,DE");
+        } catch (IOException e) {
+            // As this is more an example than a unit test. Drop it when no
+            // Internet connection is available.
+            // Maybe set your proxy via -Dhttp.proxyHost=myproxyserver.com
+            // -Dhttp.proxyPort=80
+            e.printStackTrace();
+        }
+    }
 
-	private void printWeatherData(String location) throws SAXException, IOException, ParserConfigurationException {
-		// START SNIPPET: WeatherDataCode
-		String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
-		WeatherData weatherData = new XMLProjector().readFromURL(BaseURL + location, WeatherData.class);
-		System.out.println("The weather in " + weatherData.getLocation() + ":");
-		System.out.println(weatherData.getSkytext());
-		System.out.println("Temperature: " + weatherData.getTemperature() + "°" + weatherData.getDegreeType());
-		System.out.println("The place is located at " + weatherData.getCoordinates().getLatitude() + "," + weatherData.getCoordinates().getLongitude());
-		// END SNIPPET: WeatherDataCode
-	}
-
+// START SNIPPET: WeatherDataCode
+private void printWeatherData(String location) throws IOException {
+    String BaseURL = "http://weather.service.msn.com/find.aspx"+
+                     "?outputview=search&weasearchstr=";
+    
+    // We let the projector fetch the data for us
+    WeatherData weatherData = new XMLProjector().readFromURL(
+                                    BaseURL + location,WeatherData.class);
+    
+    // Print some values
+    System.out.println("The weather in " + weatherData.getLocation() + ":");
+    System.out.println(weatherData.getSkytext());
+    System.out.println("Temperature: " 
+                      + weatherData.getTemperature() + "°"
+                      + weatherData.getDegreeType());
+    
+    // Access our sub projection
+    Location coordinates = weatherData.getCoordinates();
+    System.out.println("The place is located at " 
+                     + coordinates.getLatitude() + ","
+                     + coordinates.getLongitude());
+}
+// END SNIPPET: WeatherDataCode
 }

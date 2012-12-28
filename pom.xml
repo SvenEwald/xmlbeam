@@ -25,6 +25,7 @@
 	</developers>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cobertura.aggregate>true</cobertura.aggregate>
 		<java.version>1.6</java.version>
 	</properties>

@@ -135,9 +135,13 @@ public class XMLProjector implements Serializable {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	public <T> T readFromURL(final String uri, final Class<T> clazz) throws SAXException, IOException, ParserConfigurationException {
-		Document document = getDocumentBuilder().parse(uri);
-		return projectXML(document, clazz);
+    public <T> T readFromURL(final String uri, final Class<T> clazz) throws IOException {
+        try {
+            Document document = getDocumentBuilder().parse(uri);
+            return projectXML(document, clazz);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
 	}
 
 	/**
