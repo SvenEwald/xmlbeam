@@ -17,6 +17,7 @@ package org.xmlbeam.tutorial.e02_jenkins.model;
 
 import org.xmlbeam.Xpath;
 
+//START SNIPPET: JenkinsBuilderInterface
 public interface Builder {
 	@Xpath("child::jvmOptions")
     String getJVMOptions();
@@ -27,3 +28,4 @@ public interface Builder {
 	@Xpath("child:targets")
 	String getTargets();
 }
+//END SNIPPET: JenkinsBuilderInterface

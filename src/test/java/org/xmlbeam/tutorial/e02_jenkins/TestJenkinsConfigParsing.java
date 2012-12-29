@@ -30,6 +30,7 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
 import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 
 @Category(Tutorial.class)
+//START SNIPPET: JenknsCode
 public class TestJenkinsConfigParsing {
 	private JenkinsJobConfig config;
 
@@ -60,3 +61,4 @@ public class TestJenkinsConfigParsing {
 	}
 
 }
+//START SNIPPET: JenknsCode

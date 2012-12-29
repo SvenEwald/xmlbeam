@@ -6,17 +6,23 @@
              2012
 			------
 			
-Tutorial one: Printing some weather data.
+%{toc}
 
-* Motivation
+Tutorial
 
- This tutorial should give you a first impression of the basic XMLBeam features:
+ This tutorial guides you through seven examples, each demonstrating a couple of XMLBeam features. Each example works on real life XML Data. Have fun! 
+			
+*E01: Printing some weather data.
+
+**Motivation
+
+ This example should give you a first impression of the basic XMLBeam features:
  
   * Accessing XML attributes with automatic type conversion.
   
   * Sub projections grouping data
 
-* XML Content
+** XML Content
 
  Using the MSN weather service will get you some XML content similar to this:
    
@@ -36,7 +42,7 @@ Tutorial one: Printing some weather data.
  If you execute the tutorial example code you will see that there are even more attributes that are shortened out here for readability.
  If you would use a data binding XML library to access this data you would get three Java classes, two of them actually holding interesting parts.
  
-* Projection 
+** Projection 
  
  Using data projection we define a single interface, hiding the XML tree structure:
 
@@ -45,8 +51,42 @@ Tutorial one: Printing some weather data.
  Hey, what does the inner interface "Location" do there? This declares that we like to group the two attributes holding the coordinates together in one object.
  It is not only possible to hide elements of the xml structure, but to enrich the structure with pretended objects.
  
-* Example Code
+** Example Code
  
  Here the code to run the example:
  
 %{snippet|id=WeatherDataCode|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}
+
+*E02: A Jenkins Job Configuration
+
+**Motivation
+
+ In the last example we demonstrated a sub projection pretending a non existing element.
+ This time we like to define some model classes for a Jenkins job configuration and project existing elements to them.
+ But there is one little hurdle: We can not know the exact XML structure, because Jenkins plugins contribute new elements with different names.
+ Our model would have to include one class for each contributed element, but we like to keep the number of model classes low.
+ 
+ The solution to this shows the
+  
+ * usage of XPath wildcards
+ 
+ * automatic conversion of sequences to lists and arrays
+ 
+ Instead of defining one model class for each element, we project all elements doing the same stuff to the same model object. 
+ This is done by using XPath wildcards that will simply select all elements in a defined subtree. 
+ Of course we define a getter method to give us the element name, so we can use our model to find out what which elements are really in there. 
+   
+ 
+**XML Content
+
+**Projection   
+
+*E03: Eclipse Configuration File
+
+*E04: Maven POM
+
+*E05: RSS
+
+*E06: XHTML
+
+*E07: SVG

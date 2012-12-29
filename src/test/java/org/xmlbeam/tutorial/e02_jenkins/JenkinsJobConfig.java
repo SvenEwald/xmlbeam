@@ -35,6 +35,7 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Trigger;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
+//START SNIPPET: JenknsInterface
 @org.xmlbeam.URL("resource://config.xml")
 public interface JenkinsJobConfig {
 
@@ -57,3 +58,4 @@ public interface JenkinsJobConfig {
 	List<Publisher> getPublishers();
 
 }
+//END SNIPPET: JenknsInterface
