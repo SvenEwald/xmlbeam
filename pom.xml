@@ -30,6 +30,11 @@
 		<java.version>1.6</java.version>
 	</properties>
 	<build>
+		<testResources>
+			<testResource>
+				<directory>src/test/java</directory>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -59,14 +64,13 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				   <version>1.7</version> 
+				<version>1.7</version>
 				<executions>
 					<execution>
 						<phase>pre-site</phase>
 						<configuration>
 							<target>
-								<copy file="README.md"
-									tofile="src/site/apt/introduction.apt" />
+								<copy file="README.md" tofile="src/site/apt/introduction.apt" />
 							</target>
 						</configuration>
 						<goals>

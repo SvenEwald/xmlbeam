@@ -6,9 +6,9 @@
              2012
 			------
 			
-%{toc}
+%{toc|toDepth=2}
 
-Tutorial
+Tutorial Examples
 
  This tutorial guides you through seven examples, each demonstrating a couple of XMLBeam features. Each example works on real life XML Data. Have fun! 
 			
@@ -33,7 +33,7 @@ Tutorial
       	degreetype="F"
       	lat="50.5520210266113" lon="6.24060010910034" 
       	searchlocation="Monschau, Stadt Aachen, NW, Germany" 
-		...
+		... >
         <current ... skytext="Clear" temperature="46"/>
       </weather>
 </weatherdata>
