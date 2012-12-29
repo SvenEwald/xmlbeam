@@ -18,7 +18,7 @@ package org.xmlbeam.tutorial.e02_jenkins.model;
 import org.xmlbeam.Xpath;
 
 //START SNIPPET: JenkinsBuilderInterface
-public interface Builder {
+public interface Builder extends ModelElement {
 	@Xpath("child::jvmOptions")
     String getJVMOptions();
 

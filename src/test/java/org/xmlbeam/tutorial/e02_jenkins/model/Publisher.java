@@ -18,9 +18,10 @@ package org.xmlbeam.tutorial.e02_jenkins.model;
 import org.xmlbeam.Xpath;
 
 //START SNIPPET: JenkinsPublisherInterface
-public interface Publisher {
+public interface Publisher extends ModelElement{
 
-	@Xpath("name()")
+	@Override
+    @Xpath("name()")
 	String getName();
 }
 //END SNIPPET: JenkinsPublisherInterface

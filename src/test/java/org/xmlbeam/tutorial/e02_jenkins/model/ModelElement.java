@@ -15,8 +15,10 @@
  */
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
-//START SNIPPET: JenkinsTriggerInterface
-public interface Trigger extends ModelElement {
+import org.xmlbeam.Xpath;
 
+
+public interface ModelElement {
+    @Xpath("name()")
+    String getName();
 }
-//END SNIPPET: JenkinsTriggerInterface

@@ -16,7 +16,7 @@
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
 //START SNIPPET: JenkinsSCMInterface
-public interface SCM {
+public interface SCM extends ModelElement {
 
 }
 //END SNIPPET: JenkinsSCMInterface
