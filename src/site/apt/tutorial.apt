@@ -66,11 +66,16 @@ Tutorial
  But there is one little hurdle: We can not know the exact XML structure, because Jenkins plugins contribute new elements with different names.
  Our model would have to include one class for each contributed element, but we like to keep the number of model classes low.
  
- The solution to this shows the
+ The solution to this shows: 
   
- * usage of XPath wildcards
+ * Usage of XPath wildcards
+   Mapping of varying elements to one Java object. 
  
- * automatic conversion of sequences to lists and arrays
+ * Automatic conversion of sequences to lists and arrays
+   Static typed API using Java generics.
+   
+ * Declarative document origins.
+   Just add a source URL via annotation, let the framework get the document.  
  
  Instead of defining one model class for each element, we project all elements doing the same stuff to the same model object. 
  This is done by using XPath wildcards that will simply select all elements in a defined subtree. 
@@ -83,10 +88,26 @@ Tutorial
 
 *E03: Eclipse Configuration File
 
+ * Dynamic projections
+
 *E04: Maven POM
+
+ * Modify an element value
+
+ * Reuse a projection for similar elements 
 
 *E05: RSS
 
+ * Modify multiple elements
+ 
+ * Accessing namespaced elements
+
 *E06: XHTML
 
+ * Create a new document from scratch
+ 
+ * Usage of configuration injection to modify the output transformer.
+ 
 *E07: SVG
+
+ * Add behaviour to projections by adding a Mixin.
