@@ -75,7 +75,10 @@ Tutorial Examples
    Static typed API using Java generics.
    
  * Declarative document origins.
-   Just add a source URL via annotation, let the framework get the document.  
+   Just add a source URL via annotation, let the framework get the document.
+   
+ * Inheritance in projection interface.
+   Java interface inheritance is still supported in projection interfaces.     
  
  Instead of defining one model class for each element, we project all elements doing the same stuff to the same model object. 
  This is done by using XPath wildcards that will simply select all elements in a defined subtree. 
