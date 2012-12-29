@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
+//START SNIPPET: JenkinsTriggerInterface
 public interface Trigger {
 
 }
+//END SNIPPET: JenkinsTriggerInterface
