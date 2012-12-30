@@ -19,13 +19,9 @@ import org.xmlbeam.Xpath;
 
 //START SNIPPET: JenkinsBuilderInterface
 public interface Builder extends ModelElement {
-	@Xpath("child::jvmOptions")
-    String getJVMOptions();
+    
+	@Xpath("child::targets | child::command")
+	String getTargetsOrCommands();
 
-	@Xpath("child::properties")
-	String getProperties();
-
-	@Xpath("child:targets")
-	String getTargets();
 }
 //END SNIPPET: JenkinsBuilderInterface

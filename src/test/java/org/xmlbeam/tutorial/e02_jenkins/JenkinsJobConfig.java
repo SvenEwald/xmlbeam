@@ -51,8 +51,8 @@ public interface JenkinsJobConfig {
 	@Xpath(value = "/projects/triggers/*", targetComponentType = Trigger.class)
 	List<Trigger> getTriggers();
 
-	@Xpath(value = "/project/builders/*", targetComponentType = Builder.class)
-	List<Builder> getBuilders();
+	@Xpath(value = "//prebuilders/* | //builders/* | //postbuilders/*", targetComponentType = Builder.class)
+	List<Builder> getAllBuilders();
 
 	@Xpath(value = "/project/publishers/*", targetComponentType = Publisher.class)
 	List<Publisher> getPublishers();
