@@ -48,7 +48,7 @@ public class TestJenkinsConfigParsing {
 	public void testPublishers() {
 		List<Publisher> publishers = config.getPublishers();
 		for (Publisher p : publishers) {
-			System.out.println(p.getName() + ":\n" + p);
+			System.out.println("Publisher:"+ p.getName() + " contributed by plugin "+p.getPlugin());
 		}
 	}
 
