@@ -33,21 +33,15 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
-//START SNIPPET: JenknsInterface
+//START SNIPPET: JenkinsJobConfigInterface
 @org.xmlbeam.URL("resource://config.xml")
 public interface JenkinsJobConfig {
 
-    @Xpath( "/project/description")
-    String getDescription();
-
-	@Xpath("//hudson.security.AuthorizationMatrixProperty/permission")
-    String[] getPermissions();
-
-	@Xpath(value = "//prebuilders/* | //builders/* | //postbuilders/*", targetComponentType = Builder.class)
-	List<Builder> getAllBuilders();
-
-	@Xpath(value = "//publishers/*", targetComponentType = Publisher.class)
-	List<Publisher> getPublishers();
+    @Xpath(value = "//publishers/*", targetComponentType = Publisher.class)
+    List<Publisher> getPublishers();
+    
+    @Xpath(value = "//prebuilders/* | //builders/* | //postbuilders/*", targetComponentType = Builder.class)
+    List<Builder> getAllBuilders();
 
 }
-//END SNIPPET: JenknsInterface
+//END SNIPPET: JenkinsJobConfigInterface
