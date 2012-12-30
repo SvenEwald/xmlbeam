@@ -17,8 +17,9 @@ package org.xmlbeam.tutorial.e02_jenkins.model;
 
 import org.xmlbeam.Xpath;
 
-
+//START SNIPPET: JenkinsModelElementInterface
 public interface ModelElement {
     @Xpath("name()")
     String getName();
 }
+//END SNIPPET: JenkinsModelElementInterface

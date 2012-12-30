@@ -57,7 +57,7 @@ Tutorial Examples
  
 %{snippet|id=WeatherDataCode|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}
 
-*E02: A Jenkins Job Configuration
+*E02: Reading a Jenkins Job Configuration
 
 **Motivation
 
@@ -79,7 +79,9 @@ Tutorial Examples
    
  * Inheritance in projection interface.
    Java interface inheritance is still supported in projection interfaces.     
- 
+
+ []
+  
  Instead of defining one model class for each element, we project all elements doing the same stuff to the same model object. 
  This is done by using XPath wildcards that will simply select all elements in a defined subtree. 
  Of course we define a getter method to give us the element name, so we can use our model to find out what which elements are really in there. 
@@ -87,7 +89,15 @@ Tutorial Examples
  
 **XML Content
 
-**Projection   
+**Model Interfaces   
+
+%{snippet|id=JenkinsModelElementInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/ModelElement.java}
+%{snippet|id=JenkinsPublisherInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Publisher.java}
+%{snippet|id=JenkinsBuilderInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Builder.java}
+
+** Projection API 
+
+%{snippet|id=JenkinsJobConfigInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/JenkinsJobConfig.java}
 
 *E03: Eclipse Configuration File
 
