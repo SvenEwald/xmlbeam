@@ -20,8 +20,8 @@ import org.xmlbeam.Xpath;
 //START SNIPPET: JenkinsPublisherInterface
 public interface Publisher extends ModelElement{
 
-	@Override
-    @Xpath("name()")
-	String getName();
+    @Xpath("@plugin")
+    String getPlugin();
+	
 }
 //END SNIPPET: JenkinsPublisherInterface
