@@ -15,8 +15,6 @@
  */
 package org.xmlbeam.tutorial.e02_jenkins;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.List;
 
 import java.io.IOException;
@@ -41,15 +39,9 @@ public class TestJenkinsConfigParsing {
 
 	@Test
 	public void testBuilderReading() {
-		for (Builder builder: config.getBuilders()) {
-		    System.out.println("Builder:"+builder.getName());
+		for (Builder builder: config.getAllBuilders()) {
+		    System.out.println("Builder: "+builder.getName()+" executes "+builder.getTargetsOrCommands() );
 		}
-	}
-
-	@Test
-	public void testPermissions() {
-		assertEquals(8, config.getPermissions().length);
-		assertEquals("hudson.model.Run.Delete:vjuranek", config.getPermissions()[3]);
 	}
 
 	@Test
