@@ -16,8 +16,6 @@ Tutorial Examples
 			
 *E01: Printing some weather data.
 
-**Motivation
-
  This example should give you a first impression of the basic XMLBeam features:
  
   * Accessing XML attributes with automatic type conversion.
@@ -60,8 +58,6 @@ Tutorial Examples
 %{snippet|id=WeatherDataCode|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}
 
 *E02: Reading a Jenkins Job Configuration
-
-**Motivation
 
  In the last example we demonstrated a sub projection pretending a non existing element.
  This time we like to define some model classes for a Jenkins job configuration and project existing elements to them.
@@ -108,12 +104,16 @@ Tutorial Examples
 
 *E03: Eclipse Configuration File
 
-**Motivation
-
+ Eclipse code formatter settings are stored in profiles. In this example we like to access the data of a certain profile.
+ Features shown in this example:
+ 
  * Dynamic projections
+   Getter methods may be declared with parameters. 
+   There parameters will fill placeholders in the XPath declaration to build up the final XPath expression.
+   Syntax of this is the MessageFormat format syntax.  
  
 **XML Content
-Eclipse code
+
 -----------
 <profiles version="8">
     <profile name="Some Profile" version="8">
@@ -141,9 +141,11 @@ Eclipse code
 
 %{snippet|id=EclipseCodeFormatterConfig|url=file:src/test/java/org/xmlbeam/tutorial/e03_eclipse/EclipseFormatterConfigFile.java}
 
-*E04: Maven POM
+** Example Code
 
-**Motivation
+%{snippet|id=TestEclipseCodeFormatterConfig|url=file:src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}
+
+*E04: Maven POM
 
  * Modify an element value
 
@@ -151,22 +153,16 @@ Eclipse code
 
 *E05: RSS
 
-**Motivation
-
  * Modify multiple elements
  
  * Accessing namespaced elements
 
 *E06: XHTML
 
-**Motivation
-
  * Create a new document from scratch
  
  * Usage of configuration injection to modify the output transformer.
  
 *E07: SVG
-
-**Motivation
 
  * Add behavior to projections by adding a Mixin.

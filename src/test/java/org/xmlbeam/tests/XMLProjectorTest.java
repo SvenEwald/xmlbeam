@@ -43,7 +43,7 @@ public class XMLProjectorTest {
 
     @Before
     public void init() throws Exception {
-		suite = new XMLProjector().readFromURIAnnotation(XMLBeamTestSuite.class);
+        suite = new XMLProjector().readFromURIAnnotation(XMLBeamTestSuite.class);
         assertNotNull(suite);
     }
 
@@ -59,7 +59,7 @@ public class XMLProjectorTest {
 
     @Test
     public void testStringContent() {
-		assertEquals("String content öäüÖÄÜß", suite.getStringContent());
+        assertEquals("String content öäüÖÄÜß", suite.getStringContent());
     }
 
     @Test
@@ -238,19 +238,19 @@ public class XMLProjectorTest {
     @Test
     public void getXMLDocument() throws Exception {
         suite.setDescription("This is my description");
-		Document document = new XMLProjector().getXMLDocForProjection(suite);
-		System.out.println(suite.toString());
-		// TransformerFactory tf = TransformerFactory.newInstance();
-		// Transformer transformer = tf.newTransformer();
-		// StringWriter writer = new StringWriter();
-		// transformer.transform(new DOMSource(document), new
-		// StreamResult(writer));
-		// String output = writer.getBuffer().toString();
+        Document document = new XMLProjector().getXMLDocForProjection(suite);
+        System.out.println(suite.toString());
+        // TransformerFactory tf = TransformerFactory.newInstance();
+        // Transformer transformer = tf.newTransformer();
+        // StringWriter writer = new StringWriter();
+        // transformer.transform(new DOMSource(document), new
+        // StreamResult(writer));
+        // String output = writer.getBuffer().toString();
     }
 
     @Test
     public void getXMLDocumentFromInnerStructure() throws Exception {
-		Document document = new XMLProjector().getXMLDocForProjection(suite.getFirstInnerStructure());
+        Document document = new XMLProjector().getXMLDocForProjection(suite.getFirstInnerStructure());
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();

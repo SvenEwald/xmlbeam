@@ -38,31 +38,31 @@ import org.xmlbeam.Xpath;
 // START SNIPPET: WeatherDataInterface
 public interface WeatherData {
 
-	@Xpath("/weatherdata/weather/@searchlocation")
-	String getLocation();
+    @Xpath("/weatherdata/weather/@searchlocation")
+    String getLocation();
 
-	@Xpath("/weatherdata/weather/current/@temperature")
-	int getTemperature();
+    @Xpath("/weatherdata/weather/current/@temperature")
+    int getTemperature();
 
-	@Xpath("/weatherdata/weather/@degreetype")
-	String getDegreeType();
+    @Xpath("/weatherdata/weather/@degreetype")
+    String getDegreeType();
 
-	@Xpath("/weatherdata/weather/current/@skytext")
-	String getSkytext();
+    @Xpath("/weatherdata/weather/current/@skytext")
+    String getSkytext();
 
-	/**
-	 * This would be our "sub projection". A structure grouping two attribute
-	 * values in one object.
-	 */
-	interface Location {
-		@Xpath("@lon")
-		double getLongitude();
+    /**
+     * This would be our "sub projection". A structure grouping two attribute
+     * values in one object.
+     */
+    interface Location {
+        @Xpath("@lon")
+        double getLongitude();
 
-		@Xpath("@lat")
-		double getLatitude();
-	}
+        @Xpath("@lat")
+        double getLatitude();
+    }
 
-	@Xpath("/weatherdata/weather")
-	Location getCoordinates();
+    @Xpath("/weatherdata/weather")
+    Location getCoordinates();
 }
 // END SNIPPET: WeatherDataInterface

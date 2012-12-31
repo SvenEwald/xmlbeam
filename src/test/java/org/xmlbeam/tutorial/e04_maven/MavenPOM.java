@@ -28,29 +28,29 @@ import org.xmlbeam.Xpath;
 @URL("resource://pom.xml")
 public interface MavenPOM {
 
-	@Xpath("/project/name")
-	String getName();
+    @Xpath("/project/name")
+    String getName();
 
-	@Xpath("/project/name")
-	void setName(String name);
+    @Xpath("/project/name")
+    void setName(String name);
 
-	public interface Artifact {
+    public interface Artifact {
 
-		@Xpath("child::groupId")
-		String getGroupId();
+        @Xpath("child::groupId")
+        String getGroupId();
 
-		@Xpath("child::artifactId")
-		String getArtifactId();
+        @Xpath("child::artifactId")
+        String getArtifactId();
 
-		@Xpath("child::version")
-		String getVersion();
+        @Xpath("child::version")
+        String getVersion();
 
-	}
+    }
 
-	@Xpath("/project")
-	Artifact getProjectId();
+    @Xpath("/project")
+    Artifact getProjectId();
 
-	@Xpath("/project/depencencies/dependency")
-	Artifact[] getDependencies();
+    @Xpath("/project/depencencies/dependency")
+    Artifact[] getDependencies();
 
 }

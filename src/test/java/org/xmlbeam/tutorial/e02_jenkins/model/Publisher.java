@@ -26,6 +26,6 @@ public interface Publisher extends ModelElement{
      */
     @Xpath("@plugin")
     String getPlugin();
-	
+    
 }
 //END SNIPPET: JenkinsPublisherInterface

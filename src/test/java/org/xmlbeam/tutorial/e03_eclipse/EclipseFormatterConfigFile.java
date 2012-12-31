@@ -34,19 +34,21 @@ import org.xmlbeam.Xpath;
 @URL("resource://eclipsecodeformatprofile.xml")
 public interface EclipseFormatterConfigFile {
 
-	interface Setting {
+    interface Setting {
 
-	    @Xpath("@id")
-		String getName();
+        @Xpath("@id")
+        String getName();
 
         @Xpath("@value")
-		String getValue();
-	}
+        String getValue();
+        
+    }
 
-	@Xpath(value = "//profile/@name", targetComponentType = String.class)
-	List<String> getProfileNames();
+    @Xpath(value = "//profile/@name", targetComponentType = String.class)
+    List<String> getProfileNames();
 
-	@Xpath(value = "//profiles/profile[@name=\"{0}\"]/setting", targetComponentType = Setting.class)
-	List<Setting> getAllSettingsForProfile(String profileName);
+    @Xpath(value = "//profiles/profile[@name=\"{0}\"]/setting", targetComponentType = Setting.class)
+    List<Setting> getAllSettingsForProfile(String profileName);
+    
 }
 //START SNIPPET: EclipseCodeFormatterConfig

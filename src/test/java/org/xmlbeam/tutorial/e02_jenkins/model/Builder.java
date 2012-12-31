@@ -24,8 +24,8 @@ public interface Builder extends ModelElement {
      * Builder may invoke ant targets, maven goals or shell commands. 
      * @return The builders task, whatever this element is.
      */
-	@Xpath("child::targets | child::command")
-	String getTargetsOrCommands();
+    @Xpath("child::targets | child::command")
+    String getTargetsOrCommands();
 
 }
 //END SNIPPET: JenkinsBuilderInterface

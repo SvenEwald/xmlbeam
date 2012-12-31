@@ -33,18 +33,18 @@ import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
  * 
  */
 @Category(Tutorial.class)
-//START SNIPPET: TestEclipseCodeFormatterConfig
 public class TestEclipseCodeFormatterConfig {
 
-	@Test
-	public void profilesTest() throws IOException {
-		EclipseFormatterConfigFile configFile = new XMLProjector().readFromURIAnnotation(EclipseFormatterConfigFile.class);
+    @Test
+    public void profilesTest() throws IOException {
+//START SNIPPET: TestEclipseCodeFormatterConfig       
+EclipseFormatterConfigFile configFile = new XMLProjector().readFromURIAnnotation(EclipseFormatterConfigFile.class);
 
-		System.out.println("Profile names:" + configFile.getProfileNames());        
-        for (Setting setting:configFile.getAllSettingsForProfile("Some Profile")) {
-            System.out.println(setting.getName()+" -> "+setting.getValue());    
-        }
-		
-	}
+System.out.println("Profile names:" + configFile.getProfileNames());        
+for (Setting setting:configFile.getAllSettingsForProfile("Some Profile")) {
+    System.out.println(setting.getName()+" -> "+setting.getValue());    
 }
 //END SNIPPET: TestEclipseCodeFormatterConfig
+    }
+}
+

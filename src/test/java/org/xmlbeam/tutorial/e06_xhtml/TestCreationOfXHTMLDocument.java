@@ -35,28 +35,28 @@ import org.xmlbeam.tutorial.Tutorial;
 @Category(Tutorial.class)
 public class TestCreationOfXHTMLDocument {
 
-	private final XMLProjector projector = new XMLProjector(new DefaultFactoriesConfiguration() {
-		@Override
-		public Transformer createTransformer(Document... doc) {
-			Transformer transformer = super.createTransformer();
-			// Enable some pretty printing of the resulting xml.
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-			return transformer;
+    private final XMLProjector projector = new XMLProjector(new DefaultFactoriesConfiguration() {
+        @Override
+        public Transformer createTransformer(Document... doc) {
+            Transformer transformer = super.createTransformer();
+            // Enable some pretty printing of the resulting xml.
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            return transformer;
 
-		}
-	});
+        }
+    });
 
-	@Test
-	public void testCreateWellFormedXHTML() {
-		XHTML xhtml = projector.createEmptyDocumentProjection(XHTML.class);
+    @Test
+    public void testCreateWellFormedXHTML() {
+        XHTML xhtml = projector.createEmptyDocumentProjection(XHTML.class);
 
-		xhtml.setRootNameSpace("http://www.w3.org/1999/xhtml").setRootLang("en");
-		xhtml.setTitle("This Is My Fine Title");
-		xhtml.setBody("Here some text...");
-		
-				
-		System.out.println(xhtml.toString());
-	}
+        xhtml.setRootNameSpace("http://www.w3.org/1999/xhtml").setRootLang("en");
+        xhtml.setTitle("This Is My Fine Title");
+        xhtml.setBody("Here some text...");
+        
+                
+        System.out.println(xhtml.toString());
+    }
 }

@@ -34,51 +34,51 @@ import org.xml.sax.SAXException;
 
 public class DOMUtils {
 
-	public static void removeAllChildrenByName(Element element, String nodeName) {
-		NodeList nodeList = element.getElementsByTagName(nodeName);
-		List<Element> toBeRemoved = new LinkedList<Element>();
-		for (int i = 0; i < nodeList.getLength(); ++i) {
-			toBeRemoved.add((Element) nodeList.item(i));
-		}
-		for (Element e : toBeRemoved) {
-			element.removeChild(e);
-		}
-	}
+    public static void removeAllChildrenByName(Element element, String nodeName) {
+        NodeList nodeList = element.getElementsByTagName(nodeName);
+        List<Element> toBeRemoved = new LinkedList<Element>();
+        for (int i = 0; i < nodeList.getLength(); ++i) {
+            toBeRemoved.add((Element) nodeList.item(i));
+        }
+        for (Element e : toBeRemoved) {
+            element.removeChild(e);
+        }
+    }
 
-	public static Document getXMLNodeFromURI(DocumentBuilder documentBuilder, final String uri, final Class<?> resourceAwareClass) throws IOException {
-		try {
-			if (uri.startsWith("resource://")) {
-				return documentBuilder.parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
-			}
-			Document document = documentBuilder.parse(uri);
-			if (document == null) {
-				throw new IOException("Document could not be created form uri " + uri);
-			}
-			return document;
-		} catch (SAXException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public static Document getXMLNodeFromURI(DocumentBuilder documentBuilder, final String uri, final Class<?> resourceAwareClass) throws IOException {
+        try {
+            if (uri.startsWith("resource://")) {
+                return documentBuilder.parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
+            }
+            Document document = documentBuilder.parse(uri);
+            if (document == null) {
+                throw new IOException("Document could not be created form uri " + uri);
+            }
+            return document;
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * Parse namespace prefixes defined in the documents root element.
-	 * 
-	 * @param document
-	 *            source document.
-	 * @return map with prefix->uri relationships.
-	 */
-	public static Map<String, String> getNamespaceMapping(Document document) {
-		Map<String, String> map = new HashMap<String, String>();
-		Element root = document.getDocumentElement();
-		NamedNodeMap attributes = root.getAttributes();
-		for (int i = 0; i < attributes.getLength(); i++) {
-			Node attribute = attributes.item(i);
-			if (!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix())) {
-				continue;
-			}
-			map.put(attribute.getLocalName(), attribute.getNodeValue());
-		}
-		return map;
-	}
+    /**
+     * Parse namespace prefixes defined in the documents root element.
+     * 
+     * @param document
+     *            source document.
+     * @return map with prefix->uri relationships.
+     */
+    public static Map<String, String> getNamespaceMapping(Document document) {
+        Map<String, String> map = new HashMap<String, String>();
+        Element root = document.getDocumentElement();
+        NamedNodeMap attributes = root.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            Node attribute = attributes.item(i);
+            if (!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix())) {
+                continue;
+            }
+            map.put(attribute.getLocalName(), attribute.getNodeValue());
+        }
+        return map;
+    }
 
 }

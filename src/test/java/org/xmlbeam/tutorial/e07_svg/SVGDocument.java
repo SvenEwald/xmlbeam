@@ -30,22 +30,22 @@ import org.xmlbeam.Xpath;
  */
 @URL("resource://svg.xml")
 public interface SVGDocument {
-	
-	/**
-	 * We define a sub projection here to reflect the XML {@code <rect>} element
-	 * behind it. Notice: Although we only define a getter to one attribute, we
-	 * will work with the complete element when changing the order of the
-	 * rectangles.
-	 */
-	public interface GraphicElement extends Comparable<GraphicElement> {
-		@Xpath("@y")
-		Integer getYPosition();
-	}
-	
-	@Xpath(value = "/svg/rect", targetComponentType = GraphicElement.class)
-	List<GraphicElement> getGraphicElements();
+    
+    /**
+     * We define a sub projection here to reflect the XML {@code <rect>} element
+     * behind it. Notice: Although we only define a getter to one attribute, we
+     * will work with the complete element when changing the order of the
+     * rectangles.
+     */
+    public interface GraphicElement extends Comparable<GraphicElement> {
+        @Xpath("@y")
+        Integer getYPosition();
+    }
+    
+    @Xpath(value = "/svg/rect", targetComponentType = GraphicElement.class)
+    List<GraphicElement> getGraphicElements();
 
-	@Xpath("/svg/rect")
-	SVGDocument setGraphicElements(List<GraphicElement> elements);
+    @Xpath("/svg/rect")
+    SVGDocument setGraphicElements(List<GraphicElement> elements);
 
 }
