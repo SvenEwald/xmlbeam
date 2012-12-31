@@ -20,6 +20,10 @@ import org.xmlbeam.Xpath;
 //START SNIPPET: JenkinsPublisherInterface
 public interface Publisher extends ModelElement{
 
+    /**
+     * The Plugin name is located in an attribute of the configuration element.
+     * @return The plugin name which contributed this element.
+     */
     @Xpath("@plugin")
     String getPlugin();
 	

@@ -10,7 +10,9 @@
 
 Tutorial Examples
 
- This tutorial guides you through seven examples, each demonstrating a couple of XMLBeam features. Each example works on real life XML Data. Have fun! 
+ This tutorial guides you through seven examples, each demonstrating a couple of XMLBeam features.
+ You will find these examples ready to run in "src/test/java/tutorial".
+ Each example works on real life XML Data. Have fun! 
 			
 *E01: Printing some weather data.
 
@@ -39,12 +41,12 @@ Tutorial Examples
 </weatherdata>
 ---------
  We see that the XML structure consists of three elements and number of attributes holding the data. 
- If you execute the tutorial example code you will see that there are even more attributes that are shortened out here for readability.
+ If you execute the tutorial example code you will see that there are even more attributes that are shortened out for readability.
  If you would use a data binding XML library to access this data you would get three Java classes, two of them actually holding interesting parts.
  
 ** Projection 
  
- Using data projection we define a single interface, hiding the XML tree structure:
+ Using data projection we define a single interface, hiding the XML structure:
 
 %{snippet|id=WeatherDataInterface|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/WeatherData.java}
 
@@ -91,11 +93,16 @@ Tutorial Examples
 
 **Model Interfaces   
 
+ Our example should read all builder and all publisher elements in the configuration file.
+ We like to know the element names of both, so we define a super interface "ModelElement" and let our model objects extend it.
+
 %{snippet|id=JenkinsModelElementInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/ModelElement.java}
 %{snippet|id=JenkinsPublisherInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Publisher.java}
 %{snippet|id=JenkinsBuilderInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Builder.java}
 
 ** Projection API 
+
+ Now that we have our model objects defined, we need to define how to retrieve them. 
 
 %{snippet|id=JenkinsJobConfigInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/JenkinsJobConfig.java}
 
