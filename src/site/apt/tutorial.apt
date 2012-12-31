@@ -108,9 +108,42 @@ Tutorial Examples
 
 *E03: Eclipse Configuration File
 
+**Motivation
+
  * Dynamic projections
+ 
+**XML Content
+Eclipse code
+-----------
+<profiles version="8">
+    <profile name="Some Profile" version="8">
+        <setting
+            id="org.eclipse.jdt.core.formatter.align_type_members_on_columns"
+            value="false" />
+        <setting
+            id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression"
+            value="16" />
+... 
+    </profile>
+    <profile name="Another Profile" version="8">
+        <setting
+            id="org.eclipse.jdt.core.formatter.align_type_members_on_columns"
+            value="true" />
+        <setting
+            id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression"
+            value="16" />
+ ...
+    </profile>
+</profiles>
+----------- 
+ 
+** Projection API 
+
+%{snippet|id=EclipseCodeFormatterConfig|url=file:src/test/java/org/xmlbeam/tutorial/e03_eclipse/EclipseFormatterConfigFile.java}
 
 *E04: Maven POM
+
+**Motivation
 
  * Modify an element value
 
@@ -118,16 +151,22 @@ Tutorial Examples
 
 *E05: RSS
 
+**Motivation
+
  * Modify multiple elements
  
  * Accessing namespaced elements
 
 *E06: XHTML
 
+**Motivation
+
  * Create a new document from scratch
  
  * Usage of configuration injection to modify the output transformer.
  
 *E07: SVG
+
+**Motivation
 
  * Add behavior to projections by adding a Mixin.
