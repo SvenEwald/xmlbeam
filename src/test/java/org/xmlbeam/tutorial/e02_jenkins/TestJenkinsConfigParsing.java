@@ -30,27 +30,27 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 @Category(Tutorial.class)
 //START SNIPPET: JenknsCode
 public class TestJenkinsConfigParsing {
-	private JenkinsJobConfig config;
+    private JenkinsJobConfig config;
 
-	@Before
-	public void readJobConfig() throws IOException {
-		config = new XMLProjector().readFromURIAnnotation(JenkinsJobConfig.class);
-	}
+    @Before
+    public void readJobConfig() throws IOException {
+        config = new XMLProjector().readFromURIAnnotation(JenkinsJobConfig.class);
+    }
 
-	@Test
-	public void testBuilderReading() {
-		for (Builder builder: config.getAllBuilders()) {
-		    System.out.println("Builder: "+builder.getName()+" executes "+builder.getTargetsOrCommands() );
-		}
-	}
+    @Test
+    public void testBuilderReading() {
+        for (Builder builder: config.getAllBuilders()) {
+            System.out.println("Builder: "+builder.getName()+" executes "+builder.getTargetsOrCommands() );
+        }
+    }
 
-	@Test
-	public void testPublishers() {
-		List<Publisher> publishers = config.getPublishers();
-		for (Publisher p : publishers) {
-			System.out.println("Publisher:"+ p.getName() + " contributed by plugin "+p.getPlugin());
-		}
-	}
+    @Test
+    public void testPublishers() {
+        List<Publisher> publishers = config.getPublishers();
+        for (Publisher p : publishers) {
+            System.out.println("Publisher:"+ p.getName() + " contributed by plugin "+p.getPlugin());
+        }
+    }
 
 }
 //START SNIPPET: JenknsCode

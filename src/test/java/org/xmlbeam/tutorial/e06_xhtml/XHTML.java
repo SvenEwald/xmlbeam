@@ -25,15 +25,15 @@ import org.xmlbeam.Xpath;
  */
 public interface XHTML {
 
-	@Xpath("/html/@xmlns")
-	XHTML setRootNameSpace(String ns);
-	
-	@Xpath("/html/@xml:lang")
-	XHTML setRootLang(String lang);
-	
-	@Xpath("/html/head/title")
-	XHTML setTitle(String title);
-	
-	@Xpath("/html/body")
-	XHTML setBody(String body);
+    @Xpath("/html/@xmlns")
+    XHTML setRootNameSpace(String ns);
+    
+    @Xpath("/html/@xml:lang")
+    XHTML setRootLang(String lang);
+    
+    @Xpath("/html/head/title")
+    XHTML setTitle(String title);
+    
+    @Xpath("/html/body")
+    XHTML setBody(String body);
 }

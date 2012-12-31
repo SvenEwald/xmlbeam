@@ -101,40 +101,40 @@ import org.xmlbeam.util.DOMUtils;
  */
 public class XMLProjector implements Serializable {
 
-	private final FactoriesConfiguration factoriesConfiguration;
-	private final Map<Class<?>, Map<Class<?>, Object>> customInvokers = new HashMap<Class<?>, Map<Class<?>, Object>>();
+    private final FactoriesConfiguration factoriesConfiguration;
+    private final Map<Class<?>, Map<Class<?>, Object>> customInvokers = new HashMap<Class<?>, Map<Class<?>, Object>>();
 
-	public XMLProjector() {
-		factoriesConfiguration = new DefaultFactoriesConfiguration();
-	}
+    public XMLProjector() {
+        factoriesConfiguration = new DefaultFactoriesConfiguration();
+    }
 
-	public XMLProjector(FactoriesConfiguration factoriesConfiguration) {
-		this.factoriesConfiguration = factoriesConfiguration;
-	}
+    public XMLProjector(FactoriesConfiguration factoriesConfiguration) {
+        this.factoriesConfiguration = factoriesConfiguration;
+    }
 
-	/**
-	 * Marker interface to determine if a Projection instance was created by a
-	 * Projector. This will be applied automatically to projections.
-	 */
-	interface Projection extends Serializable {
+    /**
+     * Marker interface to determine if a Projection instance was created by a
+     * Projector. This will be applied automatically to projections.
+     */
+    interface Projection extends Serializable {
 
-		Node getXMLNode();
+        Node getXMLNode();
 
-		Class<?> getProjectionInterface();
-	}
+        Class<?> getProjectionInterface();
+    }
 
-	/**
-	 * Create a new projection using a given uri parameter. When the uri starts
-	 * with the protocol identifier "resource://" the classloader of projection
-	 * interface will be used to read the resource from the current class path.
-	 * 
-	 * @param uri
-	 * @param clazz
-	 * @return
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
-	 */
+    /**
+     * Create a new projection using a given uri parameter. When the uri starts
+     * with the protocol identifier "resource://" the classloader of projection
+     * interface will be used to read the resource from the current class path.
+     * 
+     * @param uri
+     * @param clazz
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
     public <T> T readFromURL(final String uri, final Class<T> clazz) throws IOException {
         try {
             Document document = getDocumentBuilder().parse(uri);
@@ -142,151 +142,151 @@ public class XMLProjector implements Serializable {
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
-	}
+    }
 
-	/**
-	 * Creates a projection from XML to Java.
-	 * 
-	 * @param node
-	 *            XML DOM Node. May be a document or just an element.
-	 * @param projectionInterface
-	 *            A Java interface to project the data on.
-	 * @return a new instance of projectionInterface.
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T projectXML(final Node node, final Class<T> projectionInterface) {
-		if (!isValidProjectionInterface(projectionInterface)) {
-			throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
-		}
-		return ((T) java.lang.reflect.Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(this, node, projectionInterface)));
-	}
+    /**
+     * Creates a projection from XML to Java.
+     * 
+     * @param node
+     *            XML DOM Node. May be a document or just an element.
+     * @param projectionInterface
+     *            A Java interface to project the data on.
+     * @return a new instance of projectionInterface.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T projectXML(final Node node, final Class<T> projectionInterface) {
+        if (!isValidProjectionInterface(projectionInterface)) {
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+        }
+        return ((T) java.lang.reflect.Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(this, node, projectionInterface)));
+    }
 
-	/**
-	 * @param projectionInterface
-	 * @return true if param is a public interface.
-	 */
-	private <T> boolean isValidProjectionInterface(final Class<T> projectionInterface) {
-		return (projectionInterface != null) && (projectionInterface.isInterface()) && ((projectionInterface.getModifiers() & Modifier.PUBLIC) == Modifier.PUBLIC);
-	};
+    /**
+     * @param projectionInterface
+     * @return true if param is a public interface.
+     */
+    private <T> boolean isValidProjectionInterface(final Class<T> projectionInterface) {
+        return (projectionInterface != null) && (projectionInterface.isInterface()) && ((projectionInterface.getModifiers() & Modifier.PUBLIC) == Modifier.PUBLIC);
+    };
 
-	/**
-	 * Use this method to obtain the DOM tree behind a projection. Changing the
-	 * DOM of a projection is a valid action and may change the results of the
-	 * projections methods.
-	 * 
-	 * @param projection
-	 * @return Document holding projections data.
-	 */
-	public Document getXMLDocForProjection(final Object projection) {
-		if (!(projection instanceof Projection)) {
-			throw new IllegalArgumentException("Given projection " + projection + " was not created by me.");
-		}
-		Node node = ((Projection) projection).getXMLNode();
-		if (Node.DOCUMENT_NODE == node.getNodeType()) {
-			return (Document) node;
-		}
-		return node.getOwnerDocument();
-	}
+    /**
+     * Use this method to obtain the DOM tree behind a projection. Changing the
+     * DOM of a projection is a valid action and may change the results of the
+     * projections methods.
+     * 
+     * @param projection
+     * @return Document holding projections data.
+     */
+    public Document getXMLDocForProjection(final Object projection) {
+        if (!(projection instanceof Projection)) {
+            throw new IllegalArgumentException("Given projection " + projection + " was not created by me.");
+        }
+        Node node = ((Projection) projection).getXMLNode();
+        if (Node.DOCUMENT_NODE == node.getNodeType()) {
+            return (Document) node;
+        }
+        return node.getOwnerDocument();
+    }
 
-	/**
-	 * Create a new projection using a {@link URL} annotation on this interface.
-	 * When the URL starts with the protocol identifier "resource://" the class
-	 * loader of the projection interface will be used to read the resource from
-	 * the current class path.
-	 * 
-	 * @param projectionInterface
-	 *            a public interface.
-	 * @return a new projection instance
-	 * @throws IOException
-	 */
-	public <T> T readFromURIAnnotation(final Class<T> projectionInterface) throws IOException {
-		org.xmlbeam.URL doc = projectionInterface.getAnnotation(org.xmlbeam.URL.class);
-		if (doc == null) {
-			throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + URL.class.getName() + " annotation linking to the document source.");
-		}
-		final Document document = DOMUtils.getXMLNodeFromURI(getDocumentBuilder(), doc.value(), projectionInterface);
+    /**
+     * Create a new projection using a {@link URL} annotation on this interface.
+     * When the URL starts with the protocol identifier "resource://" the class
+     * loader of the projection interface will be used to read the resource from
+     * the current class path.
+     * 
+     * @param projectionInterface
+     *            a public interface.
+     * @return a new projection instance
+     * @throws IOException
+     */
+    public <T> T readFromURIAnnotation(final Class<T> projectionInterface) throws IOException {
+        org.xmlbeam.URL doc = projectionInterface.getAnnotation(org.xmlbeam.URL.class);
+        if (doc == null) {
+            throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + URL.class.getName() + " annotation linking to the document source.");
+        }
+        final Document document = DOMUtils.getXMLNodeFromURI(getDocumentBuilder(), doc.value(), projectionInterface);
 
-		return projectXML(document, projectionInterface);
-	}
+        return projectXML(document, projectionInterface);
+    }
 
-	/**
-	 * Create a new projection for an empty document. Use this to create new
-	 * documents.
-	 * 
-	 * @param projection
-	 * @return a new projection instance
-	 */
-	public <T> T createEmptyDocumentProjection(Class<T> projection) {
-		Document document = getDocumentBuilder().newDocument();
-		return projectXML(document, projection);
-	}
+    /**
+     * Create a new projection for an empty document. Use this to create new
+     * documents.
+     * 
+     * @param projection
+     * @return a new projection instance
+     */
+    public <T> T createEmptyDocumentProjection(Class<T> projection) {
+        Document document = getDocumentBuilder().newDocument();
+        return projectXML(document, projection);
+    }
 
-	/**
-	 * Register a new mixin for a projection interface. By letting a projection
-	 * extend another interface you are able to add custom behavior to
-	 * projections by registering an implementation (called a mixin) of this
-	 * interface here. Notice that a mixin is registered per projection type.
-	 * All existing and all future projection instances will change.
-	 * 
-	 * Notice that you will break projection serialization if you register a non
-	 * serializeable mixin.
-	 * 
-	 * 
-	 * @param projectionInterface
-	 * @param mixinImplementation
-	 * @return
-	 */
-	public <S, T extends S, P extends S> XMLProjector addProjectionMixin(Class<P> projectionInterface, T mixinImplementation) {
-		if (!isValidProjectionInterface(projectionInterface)) {
-			throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
-		}
-		Map<Class<?>, Object> map = customInvokers.containsKey(projectionInterface) ? customInvokers.get(projectionInterface) : new HashMap<Class<?>, Object>();
-		for (Class<?> type : findAllCommonSuperInterfaces(projectionInterface, mixinImplementation.getClass())) {
-			map.put(type, mixinImplementation);
-		}
-		customInvokers.put(projectionInterface, map);
-		return this;
+    /**
+     * Register a new mixin for a projection interface. By letting a projection
+     * extend another interface you are able to add custom behavior to
+     * projections by registering an implementation (called a mixin) of this
+     * interface here. Notice that a mixin is registered per projection type.
+     * All existing and all future projection instances will change.
+     * 
+     * Notice that you will break projection serialization if you register a non
+     * serializeable mixin.
+     * 
+     * 
+     * @param projectionInterface
+     * @param mixinImplementation
+     * @return
+     */
+    public <S, T extends S, P extends S> XMLProjector addProjectionMixin(Class<P> projectionInterface, T mixinImplementation) {
+        if (!isValidProjectionInterface(projectionInterface)) {
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+        }
+        Map<Class<?>, Object> map = customInvokers.containsKey(projectionInterface) ? customInvokers.get(projectionInterface) : new HashMap<Class<?>, Object>();
+        for (Class<?> type : findAllCommonSuperInterfaces(projectionInterface, mixinImplementation.getClass())) {
+            map.put(type, mixinImplementation);
+        }
+        customInvokers.put(projectionInterface, map);
+        return this;
 
-	}
+    }
 
-	private Set<Class<?>> findAllCommonSuperInterfaces(Class<?> a, Class<?> b) {
-		Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
-		Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));
-		seta.retainAll(setb);
-		return seta;
-	}
+    private Set<Class<?>> findAllCommonSuperInterfaces(Class<?> a, Class<?> b) {
+        Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
+        Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));
+        seta.retainAll(setb);
+        return seta;
+    }
 
-	private Collection<? extends Class<?>> findAllSuperInterfaces(Class<?> a) {
-		Set<Class<?>> set = new HashSet<Class<?>>();
-		if (a.isInterface()) {
-			set.add(a);
-		}
-		for (Class<?> i : a.getInterfaces()) {
-			set.addAll(findAllSuperInterfaces(i));
-		}
-		return set;
-	}
+    private Collection<? extends Class<?>> findAllSuperInterfaces(Class<?> a) {
+        Set<Class<?>> set = new HashSet<Class<?>>();
+        if (a.isInterface()) {
+            set.add(a);
+        }
+        for (Class<?> i : a.getInterfaces()) {
+            set.addAll(findAllSuperInterfaces(i));
+        }
+        return set;
+    }
 
-	public Object getCustomInvoker(Class<?> projectionInterface, Class<?> declaringClass) {
-		if (!customInvokers.containsKey(projectionInterface)) {
-			return null;
-		}
-		return customInvokers.get(projectionInterface).get(declaringClass);
-	}
+    public Object getCustomInvoker(Class<?> projectionInterface, Class<?> declaringClass) {
+        if (!customInvokers.containsKey(projectionInterface)) {
+            return null;
+        }
+        return customInvokers.get(projectionInterface).get(declaringClass);
+    }
 
-	DocumentBuilder getDocumentBuilder() {
-		return factoriesConfiguration.createDocumentBuilder();
-	}
+    DocumentBuilder getDocumentBuilder() {
+        return factoriesConfiguration.createDocumentBuilder();
+    }
 
-	Transformer getTransformer() {
-		return factoriesConfiguration.createTransformer();
-	}
+    Transformer getTransformer() {
+        return factoriesConfiguration.createTransformer();
+    }
 
-	/**
-	 * @return
-	 */
-	XPath getXPath(Document document) {
-		return factoriesConfiguration.createXPath(document);
-	}
+    /**
+     * @return
+     */
+    XPath getXPath(Document document) {
+        return factoriesConfiguration.createXPath(document);
+    }
 
 }

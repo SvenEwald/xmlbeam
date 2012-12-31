@@ -30,18 +30,18 @@ import org.xmlbeam.tutorial.Tutorial;
 @Category(Tutorial.class)
 public class TestMavenPOM {
 
-	/**
-	 * Show how to modify the project name in a maven POM.
-	 * 
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
-	 */
-	@Test
-	public void testProjectNameWriting() throws SAXException, IOException, ParserConfigurationException {
-		MavenPOM pom = new XMLProjector().readFromURIAnnotation(MavenPOM.class);
-		assertEquals("Maven core", pom.getName());
-		pom.setName("New name");
-		assertEquals("New name", pom.getName());
-	}
+    /**
+     * Show how to modify the project name in a maven POM.
+     * 
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
+    @Test
+    public void testProjectNameWriting() throws SAXException, IOException, ParserConfigurationException {
+        MavenPOM pom = new XMLProjector().readFromURIAnnotation(MavenPOM.class);
+        assertEquals("Maven core", pom.getName());
+        pom.setName("New name");
+        assertEquals("New name", pom.getName());
+    }
 }

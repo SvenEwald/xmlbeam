@@ -37,53 +37,53 @@ import org.xmlbeam.XMLProjector;
  */
 public interface FactoriesConfiguration extends Serializable {
 
-	/**
-	 * Factory method to provide a {@link TransfomerFactory}.
-	 * 
-	 * @return a new instance.
-	 */
-	TransformerFactory createTransformerFactory();
+    /**
+     * Factory method to provide a {@link TransfomerFactory}.
+     * 
+     * @return a new instance.
+     */
+    TransformerFactory createTransformerFactory();
 
-	/**
-	 * Factory method to provide a {@link DocumentBuilderFactory}.
-	 * 
-	 * @return a new instance.
-	 */
-	DocumentBuilderFactory createDocumentBuilderFactory();
+    /**
+     * Factory method to provide a {@link DocumentBuilderFactory}.
+     * 
+     * @return a new instance.
+     */
+    DocumentBuilderFactory createDocumentBuilderFactory();
 
-	/**
-	 * Factory method to provide a {@link XPathFactory}.
-	 * 
-	 * @return a new instance.
-	 */
-	XPathFactory createXPathFactory();
+    /**
+     * Factory method to provide a {@link XPathFactory}.
+     * 
+     * @return a new instance.
+     */
+    XPathFactory createXPathFactory();
 
-	/**
-	 * Factory method to provide a {@link Transformer}. Creation and
-	 * configuration may depend on the content of a document.
-	 * 
-	 * @param document
-	 *            (optional)
-	 * @return a new instance.
-	 */
-	Transformer createTransformer(Document... document);
+    /**
+     * Factory method to provide a {@link Transformer}. Creation and
+     * configuration may depend on the content of a document.
+     * 
+     * @param document
+     *            (optional)
+     * @return a new instance.
+     */
+    Transformer createTransformer(Document... document);
 
-	/**
-	 * Factory method to provide a {@link DocumentBuilder}.
-	 * 
-	 * @return a new instance.
-	 */
-	DocumentBuilder createDocumentBuilder();
+    /**
+     * Factory method to provide a {@link DocumentBuilder}.
+     * 
+     * @return a new instance.
+     */
+    DocumentBuilder createDocumentBuilder();
 
-	/**
-	 * Factory method to provide a {@link XPath}. Creation and configuration may
-	 * depend on the content of a document.
-	 * 
-	 * @param document
-	 *            (optional)
-	 * 
-	 * @return a new instance.
-	 */
-	XPath createXPath(Document... document);
+    /**
+     * Factory method to provide a {@link XPath}. Creation and configuration may
+     * depend on the content of a document.
+     * 
+     * @param document
+     *            (optional)
+     * 
+     * @return a new instance.
+     */
+    XPath createXPath(Document... document);
 
 }

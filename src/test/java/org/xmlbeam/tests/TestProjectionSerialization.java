@@ -33,24 +33,24 @@ import org.xmlbeam.XMLProjector;
  */
 public class TestProjectionSerialization {
 
-	public interface SerializeMe {
+    public interface SerializeMe {
 
-	}
+    }
 
-	@Test
-	public void testEmptyProjectionSerialization() throws IOException, ClassNotFoundException {
-		SerializeMe projection = new XMLProjector().createEmptyDocumentProjection(SerializeMe.class);
-		SerializeMe squishedProjection = cloneBySerialization(projection);
-		assertNotSame(projection, squishedProjection);
-	}
+    @Test
+    public void testEmptyProjectionSerialization() throws IOException, ClassNotFoundException {
+        SerializeMe projection = new XMLProjector().createEmptyDocumentProjection(SerializeMe.class);
+        SerializeMe squishedProjection = cloneBySerialization(projection);
+        assertNotSame(projection, squishedProjection);
+    }
 
-	private <T> T cloneBySerialization(T object, Class<T>... clazz) throws IOException, ClassNotFoundException {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-		objectOutputStream.writeObject(object);
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-		return (T) objectInputStream.readObject();
-	}
+    private <T> T cloneBySerialization(T object, Class<T>... clazz) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+        objectOutputStream.writeObject(object);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+        return (T) objectInputStream.readObject();
+    }
 
 }
