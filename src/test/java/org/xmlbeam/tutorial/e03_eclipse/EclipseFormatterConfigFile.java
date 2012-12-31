@@ -29,20 +29,24 @@ import org.xmlbeam.Xpath;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+
+//START SNIPPET: EclipseCodeFormatterConfig
 @URL("resource://eclipsecodeformatprofile.xml")
 public interface EclipseFormatterConfigFile {
 
 	interface Setting {
-		@Xpath("@id")
+
+	    @Xpath("@id")
 		String getName();
 
-		@Xpath("@value")
+        @Xpath("@value")
 		String getValue();
 	}
 
 	@Xpath(value = "//profile/@name", targetComponentType = String.class)
-	List<String> getProfiles();
+	List<String> getProfileNames();
 
-	@Xpath(value = "//profiles/profile[@name=\"{0}\"]/setting", targetComponentType = String.class)
+	@Xpath(value = "//profiles/profile[@name=\"{0}\"]/setting", targetComponentType = Setting.class)
 	List<Setting> getAllSettingsForProfile(String profileName);
 }
+//START SNIPPET: EclipseCodeFormatterConfig

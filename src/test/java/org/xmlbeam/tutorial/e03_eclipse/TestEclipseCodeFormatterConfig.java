@@ -17,13 +17,11 @@ package org.xmlbeam.tutorial.e03_eclipse;
 
 import java.io.IOException;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
 
 /**
  * This example is about accessing eclipse configuration profiles with a
@@ -35,12 +33,18 @@ import org.xmlbeam.tutorial.Tutorial;
  * 
  */
 @Category(Tutorial.class)
+//START SNIPPET: TestEclipseCodeFormatterConfig
 public class TestEclipseCodeFormatterConfig {
 
 	@Test
-	public void profilesTest() throws SAXException, IOException, ParserConfigurationException {
+	public void profilesTest() throws IOException {
 		EclipseFormatterConfigFile configFile = new XMLProjector().readFromURIAnnotation(EclipseFormatterConfigFile.class);
-		System.out.println(configFile.getProfiles());
-		System.out.println(configFile.getAllSettingsForProfile("Some Profile").size());
+
+		System.out.println("Profile names:" + configFile.getProfileNames());        
+        for (Setting setting:configFile.getAllSettingsForProfile("Some Profile")) {
+            System.out.println(setting.getName()+" -> "+setting.getValue());    
+        }
+		
 	}
 }
+//END SNIPPET: TestEclipseCodeFormatterConfig
