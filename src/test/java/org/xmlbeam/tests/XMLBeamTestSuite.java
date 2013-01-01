@@ -75,6 +75,12 @@ public interface XMLBeamTestSuite {
     @org.xmlbeam.Xpath("nothing/")
     void setterWithTrailingSlash(String param);
 
+    @org.xmlbeam.Xpath("//NonExistingElement")
+    int getNonExistingIntContent();
+
+    @org.xmlbeam.Xpath("//NonExistingElement")
+    Integer getNonExistingIntegerContent();
+
     @org.xmlbeam.Xpath("/gluerootnode/intermediate/firstelement/@glueattribute")
     String getAttributeValue();
 

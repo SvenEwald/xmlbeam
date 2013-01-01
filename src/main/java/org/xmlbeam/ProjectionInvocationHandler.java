@@ -57,7 +57,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private final XMLProjector xmlProjector;
     private final Map<Class<?>, Object> defaultInvokers = new HashMap<Class<?>, Object>();
 
-
     ProjectionInvocationHandler(final XMLProjector xmlProjector, final Node node, final Class<?> projectionInterface) {
         this.xmlProjector = xmlProjector;
         this.node = node;
@@ -74,8 +73,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
 
             /*
-             * @Override public Map<Class<?>, Object> getInvokers() { return
-             * customInvokers; }
+             * @Override public Map<Class<?>, Object> getInvokers() { return customInvokers; }
              */
         };
         Object objectInvoker = new Serializable() {
@@ -134,7 +132,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if ((!hasReturnType(method)) && (!hasParameters(method))) {
             throw new IllegalArgumentException("Invoking void method " + method + " without parameters. What should I do?");
         }
-        
+
         if (isSetter(method) || (!hasReturnType(method))) {
             return invokeSetter(proxy, method, args);
         }
@@ -174,9 +172,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final String pathToElement = path.replaceAll("/@.*", "");
         Node settingNode = getDocumentForMethod(method, args);
         Element rootElement = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode).getDocumentElement() : settingNode.getOwnerDocument().getDocumentElement();
-        if (rootElement==null) {
+        if (rootElement == null) {
             assert Node.DOCUMENT_NODE == settingNode.getNodeType();
-            String rootElementName=path.replaceAll("(^/)|(/.*$)"    , "");
+            String rootElementName = path.replaceAll("(^/)|(/.*$)", "");
             rootElement = ((Document) settingNode).createElement(rootElementName);
             settingNode.appendChild(rootElement);
         }
@@ -191,8 +189,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
             if (args[0] instanceof Collection) {
                 Element parent = ensureElementExists(rootElement, pathToElement.replaceAll("/[^/]+$", ""));
-                String elementName= pathToElement.replaceAll("^.*/", "");
-                applyCollectionSetProjectionOnelement((Collection<?>) args[0], parent,elementName);
+                String elementName = pathToElement.replaceAll("^.*/", "");
+                applyCollectionSetProjectionOnelement((Collection<?>) args[0], parent, elementName);
 
             } else {
                 Element element = ensureElementExists(rootElement, pathToElement);
@@ -230,7 +228,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         Element element = settingNode;
         for (String elementName : splitme.split("/")) {
             if (elementName.equals(element.getNodeName())) {
-                continue;                
+                continue;
             }
             NodeList nodeList = element.getElementsByTagName(elementName);
             if (nodeList.getLength() == 0) {
@@ -272,6 +270,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (TypeConverter.CONVERTERS.containsKey(returnType)) {
             String data = (String) expression.evaluate(node, XPathConstants.STRING);
             if (data == null) {
+                if (returnType.isPrimitive())
+                    throw new NumberFormatException("null");
                 return null;
             }
             Object convert = TypeConverter.CONVERTERS.get(returnType).convert(data);
@@ -287,7 +287,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (returnType.isInterface()) {
             Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
             Projection subprojection = (Projection) xmlProjector.projectXML(newNode, returnType);
-
 
             return subprojection;
         }

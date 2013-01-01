@@ -52,7 +52,7 @@ public class TestSVGElementSorting {
     @Test
     public void testElements() throws IOException {
         XMLProjector xmlProjector = new XMLProjector();
-        SVGDocument svgDocument = xmlProjector.readFromURIAnnotation(SVGDocument.class);
+        SVGDocument svgDocument = xmlProjector.readFromURLAnnotation(SVGDocument.class);
         xmlProjector.addProjectionMixin(GraphicElement.class, new Comparable<GraphicElement>() {
 
             private GraphicElement me;

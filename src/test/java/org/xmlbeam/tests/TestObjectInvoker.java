@@ -36,7 +36,7 @@ public class TestObjectInvoker {
 
     @Test
     public void testToString() throws IOException {
-        XMLBeamTestSuite testSuite = new XMLProjector().readFromURIAnnotation(XMLBeamTestSuite.class);
+        XMLBeamTestSuite testSuite = new XMLProjector().readFromURLAnnotation(XMLBeamTestSuite.class);
         testSuite.toString();
         String orig = new Scanner(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(URL.class).value().substring("resource://".length()))).useDelimiter("\\A").next();
         assertEquals(orig.replaceAll("\\s", ""), testSuite.toString().replaceAll("\\s", ""));

@@ -61,7 +61,7 @@ public class TestFilterRSSFeed {
     @BeforeClass
     public static void readFeed() throws IOException {
         XMLProjector projector = new XMLProjector(new PrettyPrintingFactoryConfiguration());
-        feed = projector.readFromURIAnnotation(SlashdotRSSFeed.class);
+        feed = projector.readFromURLAnnotation(SlashdotRSSFeed.class);
     }
 
     @Test
