@@ -18,6 +18,7 @@ package org.xmlbeam.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class XMLProjectorTest {
 
     @Before
     public void init() throws Exception {
-        suite = new XMLProjector().readFromURIAnnotation(XMLBeamTestSuite.class);
+        suite = new XMLProjector().readFromURLAnnotation(XMLBeamTestSuite.class);
         assertNotNull(suite);
     }
 
@@ -55,6 +56,16 @@ public class XMLProjectorTest {
     @Test(expected=IllegalArgumentException.class)
     public void testSetterWithTrailingSlash() {
         suite.setterWithTrailingSlash("nope");
+    }
+
+    @Test(expected = NumberFormatException.class)
+    public void testNonExistingIntContent() {
+        suite.getNonExistingIntContent();
+    }
+
+    @Test()
+    public void testNonExistingIntegerContent() {
+        assertNull(suite.getNonExistingIntegerContent());
     }
 
     @Test

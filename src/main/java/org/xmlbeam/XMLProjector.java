@@ -199,7 +199,7 @@ public class XMLProjector implements Serializable {
      * @return a new projection instance
      * @throws IOException
      */
-    public <T> T readFromURIAnnotation(final Class<T> projectionInterface) throws IOException {
+    public <T> T readFromURLAnnotation(final Class<T> projectionInterface) throws IOException {
         org.xmlbeam.URL doc = projectionInterface.getAnnotation(org.xmlbeam.URL.class);
         if (doc == null) {
             throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + URL.class.getName() + " annotation linking to the document source.");
