@@ -31,11 +31,11 @@ import org.xmlbeam.XMLProjector;
  * A Configuration defines factories for the underlying Java XML
  * implementations. By implementing your on Configuration you may inject other
  * XML parsers or transformers in an {@link XMLProjector}. See
- * {@link DefaultFactoriesConfiguration} for further information.
+ * {@link DefaultXMLFactoriesConfig} for further information.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public interface FactoriesConfiguration extends Serializable {
+public interface XMLFactoriesConfig extends Serializable {
 
     /**
      * Factory method to provide a {@link TransfomerFactory}.
