@@ -36,8 +36,10 @@ import javax.xml.xpath.XPath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import org.xmlbeam.config.DefaultFactoriesConfiguration;
-import org.xmlbeam.config.FactoriesConfiguration;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.config.XMLFactoriesConfig;
+import org.xmlbeam.types.DefaultTypeConverter;
+import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.DOMUtils;
 
 /**
@@ -101,15 +103,16 @@ import org.xmlbeam.util.DOMUtils;
  */
 public class XMLProjector implements Serializable {
 
-    private final FactoriesConfiguration factoriesConfiguration;
+    private final XMLFactoriesConfig xMLFactoriesConfig;
     private final Map<Class<?>, Map<Class<?>, Object>> customInvokers = new HashMap<Class<?>, Map<Class<?>, Object>>();
+    private TypeConverter typeConverter = new DefaultTypeConverter();
 
     public XMLProjector() {
-        factoriesConfiguration = new DefaultFactoriesConfiguration();
+        xMLFactoriesConfig = new DefaultXMLFactoriesConfig();
     }
 
-    public XMLProjector(FactoriesConfiguration factoriesConfiguration) {
-        this.factoriesConfiguration = factoriesConfiguration;
+    public XMLProjector(XMLFactoriesConfig xMLFactoriesConfig) {
+        this.xMLFactoriesConfig = xMLFactoriesConfig;
     }
 
     /**
@@ -275,18 +278,27 @@ public class XMLProjector implements Serializable {
     }
 
     DocumentBuilder getDocumentBuilder() {
-        return factoriesConfiguration.createDocumentBuilder();
+        return xMLFactoriesConfig.createDocumentBuilder();
     }
 
     Transformer getTransformer() {
-        return factoriesConfiguration.createTransformer();
+        return xMLFactoriesConfig.createTransformer();
     }
 
     /**
      * @return
      */
     XPath getXPath(Document document) {
-        return factoriesConfiguration.createXPath(document);
+        return xMLFactoriesConfig.createXPath(document);
     }
 
+    
+    TypeConverter getTypeConverter() {
+        return this.typeConverter;
+    }
+    
+    XMLProjector setTypeConverter(TypeConverter converter) {
+        this.typeConverter = converter;
+        return this;
+    }
 }

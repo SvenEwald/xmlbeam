@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xmlbeam.XMLProjector;
 
@@ -32,6 +33,11 @@ import org.xmlbeam.XMLProjector;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class TestProjectionSerialization {
+
+    @BeforeClass
+    public static void setExtendedDebugInfo() {
+        System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
+    }
 
     public interface SerializeMe {
 

@@ -48,7 +48,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector.Projection;
 import org.xmlbeam.util.DOMUtils;
-import org.xmlbeam.util.TypeConverter;
 
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/[a-zA-Z]+)+(/@[a-z:A-Z]+)?$";
@@ -267,15 +266,13 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final XPath xPath = xmlProjector.getXPath(document);
         final XPathExpression expression = xPath.compile(path);
         final Class<?> returnType = method.getReturnType();
-        if (TypeConverter.CONVERTERS.containsKey(returnType)) {
+        if (xmlProjector.getTypeConverter().isConvertable(returnType)) {
             String data = (String) expression.evaluate(node, XPathConstants.STRING);
-            if (data == null) {
-                if (returnType.isPrimitive())
-                    throw new NumberFormatException("null");
-                return null;
+            try {
+                return xmlProjector.getTypeConverter().convertTo(returnType, data);
+            } catch (NumberFormatException e) {
+                throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
             }
-            Object convert = TypeConverter.CONVERTERS.get(returnType).convert(data);
-            return convert;
         }
         if (List.class.equals(returnType)) {
             return evaluateAsList(expression, node, method);
@@ -290,7 +287,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
             return subprojection;
         }
-        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an interface, a List, an Array or one of " + TypeConverter.CONVERTERS.keySet());
+        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + xmlProjector.getTypeConverter());
     }
 
     private boolean isSetter(final Method method) {
@@ -325,10 +322,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
         }
 
-        TypeConverter<?> converter = TypeConverter.CONVERTERS.get(targetType);
-        if (converter != null) {
+        if (xmlProjector.getTypeConverter().isConvertable(targetType)) {
             for (int i = 0; i < nodes.getLength(); ++i) {
-                linkedList.add(converter.convert(nodes.item(i).getTextContent()));
+                linkedList.add(xmlProjector.getTypeConverter().convertTo(targetType, nodes.item(i).getTextContent()));
             }
             return linkedList;
         }
@@ -340,6 +336,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
             return linkedList;
         }
-        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + ". Try one of " + TypeConverter.CONVERTERS.keySet());
+        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
+                + xmlProjector.getTypeConverter());
     }
 }

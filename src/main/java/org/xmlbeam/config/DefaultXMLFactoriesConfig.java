@@ -43,7 +43,7 @@ import org.xmlbeam.util.DOMUtils;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
-public class DefaultFactoriesConfiguration implements FactoriesConfiguration {
+public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
      * This configuration can use one of three different ways to configure
@@ -87,7 +87,7 @@ public class DefaultFactoriesConfiguration implements FactoriesConfiguration {
     /**
      * Empty default constructor, a Configuration has no state.
      */
-    public DefaultFactoriesConfiguration() {
+    public DefaultXMLFactoriesConfig() {
     }
 
     /**
@@ -192,7 +192,7 @@ public class DefaultFactoriesConfiguration implements FactoriesConfiguration {
     /**
      * @return
      */
-    public FactoriesConfiguration setNamespacePhilosophy(NamespacePhilosophy namespacePhilosophy) {
+    public XMLFactoriesConfig setNamespacePhilosophy(NamespacePhilosophy namespacePhilosophy) {
         this.namespacePhilosophy = namespacePhilosophy;
         return this;
     }

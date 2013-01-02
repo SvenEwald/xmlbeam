@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Document;
 import org.xmlbeam.XMLProjector;
-import org.xmlbeam.config.DefaultFactoriesConfiguration;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 
@@ -43,7 +43,7 @@ public class TestFilterRSSFeed {
      * transformer create some formatted XML.
      * 
      */
-    private final static class PrettyPrintingFactoryConfiguration extends DefaultFactoriesConfiguration {
+    private final static class PrettyPrintingFactoryConfiguration extends DefaultXMLFactoriesConfig {
         @Override
         public Transformer createTransformer(Document... doc) {
             Transformer transformer = super.createTransformer();
@@ -66,7 +66,7 @@ public class TestFilterRSSFeed {
 
     @Test
     public void printSomeStats() {
-        Set<String> creators = new HashSet(feed.getCreators());
+        Set<String> creators = new HashSet<String>(feed.getCreators());
         System.out.println("There are " + feed.getAllItems().size() + " stories by " + creators.size() + " different creators.");
 
     }
