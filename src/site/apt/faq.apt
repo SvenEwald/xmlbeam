@@ -1,0 +1,17 @@
+
+FAQ
+
+* How to determine if an element or attribute exists? 
+
+ It's not possible to distinguish between empty values and non existing values.
+ Getting a string value from non existing elements or attributes returns an empty string.
+ You will never get a null value from projections returning a string.
+ It is even a common practice to omit empty elements in documents.
+ There are two ways to determine if an element exists:
+ 
+ * Project the element to an empty sub projection. 
+   This will return null if the element is not present.
+   You may even reuse the sub projection interface for all elements to be examined.
+   
+ * Use a XPath function to create a boolean projection: "count(/path/element) > 0"
+ 
