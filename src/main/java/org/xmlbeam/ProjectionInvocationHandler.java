@@ -81,7 +81,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             public String toString() {
                 try {
                     StringWriter writer = new StringWriter();
-                    xmlProjector.getTransformer().transform(new DOMSource(node), new StreamResult(writer));
+                    xmlProjector.config().getTransformer().transform(new DOMSource(node), new StreamResult(writer));
                     String output = writer.getBuffer().toString();
                     return output;
                 } catch (TransformerConfigurationException e) {
@@ -122,7 +122,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (defaultInvoker != null) {
             return method.invoke(defaultInvoker, args);
         }
-        Object customInvoker = xmlProjector.getCustomInvoker(projectionInterface, method.getDeclaringClass());
+        Object customInvoker = xmlProjector.config().getCustomInvoker(projectionInterface, method.getDeclaringClass());
         if (customInvoker != null) {
             injectMeAttribute((Projection) proxy, customInvoker);
             return method.invoke(customInvoker, args);
@@ -254,7 +254,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getAnnotation(URL.class) != null) {
             String uri = method.getAnnotation(URL.class).value();
             uri = MessageFormat.format(uri, args);
-            evaluationNode = DOMUtils.getXMLNodeFromURI(xmlProjector.getDocumentBuilder(), uri, projectionInterface);
+            evaluationNode = DOMUtils.getXMLNodeFromURI(xmlProjector.config().getDocumentBuilder(), uri, projectionInterface);
         }
         return evaluationNode;
     }
@@ -263,13 +263,13 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final String path = getXPathExpression(method, args);
         final Node node = getDocumentForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
-        final XPath xPath = xmlProjector.getXPath(document);
+        final XPath xPath = xmlProjector.config().getXPath(document);
         final XPathExpression expression = xPath.compile(path);
         final Class<?> returnType = method.getReturnType();
-        if (xmlProjector.getTypeConverter().isConvertable(returnType)) {
+        if (xmlProjector.config().getTypeConverter().isConvertable(returnType)) {
             String data = (String) expression.evaluate(node, XPathConstants.STRING);
             try {
-                return xmlProjector.getTypeConverter().convertTo(returnType, data);
+                return xmlProjector.config().getTypeConverter().convertTo(returnType, data);
             } catch (NumberFormatException e) {
                 throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
             }
@@ -287,7 +287,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
             return subprojection;
         }
-        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + xmlProjector.getTypeConverter());
+        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + xmlProjector.config().getTypeConverter());
     }
 
     private boolean isSetter(final Method method) {
@@ -309,7 +309,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         return (method.getParameterTypes().length > 0);
     }
 
-    List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
+    private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         List<Object> linkedList = new LinkedList<Object>();
         Class<?> targetType;
@@ -322,9 +322,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
         }
 
-        if (xmlProjector.getTypeConverter().isConvertable(targetType)) {
+        if (xmlProjector.config().getTypeConverter().isConvertable(targetType)) {
             for (int i = 0; i < nodes.getLength(); ++i) {
-                linkedList.add(xmlProjector.getTypeConverter().convertTo(targetType, nodes.item(i).getTextContent()));
+                linkedList.add(xmlProjector.config().getTypeConverter().convertTo(targetType, nodes.item(i).getTextContent()));
             }
             return linkedList;
         }
@@ -337,6 +337,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             return linkedList;
         }
         throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
-                + xmlProjector.getTypeConverter());
+                + xmlProjector.config().getTypeConverter());
     }
 }

@@ -107,6 +107,42 @@ public class XMLProjector implements Serializable {
     private final Map<Class<?>, Map<Class<?>, Object>> customInvokers = new HashMap<Class<?>, Map<Class<?>, Object>>();
     private TypeConverter typeConverter = new DefaultTypeConverter();
 
+    /**
+     * A variation of the builder pattern. All methods to configure the projector are hidden in this builder class.
+     */
+    public class ConfigBuilder {
+        TypeConverter getTypeConverter() {
+            return XMLProjector.this.typeConverter;
+        }
+
+        ConfigBuilder setTypeConverter(TypeConverter converter) {
+            XMLProjector.this.typeConverter = converter;
+            return this;
+        }
+
+        public Object getCustomInvoker(Class<?> projectionInterface, Class<?> declaringClass) {
+            if (!customInvokers.containsKey(projectionInterface)) {
+                return null;
+            }
+            return XMLProjector.this.customInvokers.get(projectionInterface).get(declaringClass);
+        }
+
+        DocumentBuilder getDocumentBuilder() {
+            return xMLFactoriesConfig.createDocumentBuilder();
+        }
+
+        Transformer getTransformer() {
+            return xMLFactoriesConfig.createTransformer();
+        }
+
+        /**
+         * @return
+         */
+        XPath getXPath(Document document) {
+            return xMLFactoriesConfig.createXPath(document);
+        }
+    }
+
     public XMLProjector() {
         xMLFactoriesConfig = new DefaultXMLFactoriesConfig();
     }
@@ -140,7 +176,7 @@ public class XMLProjector implements Serializable {
      */
     public <T> T readFromURL(final String uri, final Class<T> clazz) throws IOException {
         try {
-            Document document = getDocumentBuilder().parse(uri);
+            Document document = xMLFactoriesConfig.createDocumentBuilder().parse(uri);
             return projectXML(document, clazz);
         } catch (SAXException e) {
             throw new RuntimeException(e);
@@ -207,7 +243,7 @@ public class XMLProjector implements Serializable {
         if (doc == null) {
             throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + URL.class.getName() + " annotation linking to the document source.");
         }
-        final Document document = DOMUtils.getXMLNodeFromURI(getDocumentBuilder(), doc.value(), projectionInterface);
+        final Document document = DOMUtils.getXMLNodeFromURI(xMLFactoriesConfig.createDocumentBuilder(), doc.value(), projectionInterface);
 
         return projectXML(document, projectionInterface);
     }
@@ -220,7 +256,7 @@ public class XMLProjector implements Serializable {
      * @return a new projection instance
      */
     public <T> T createEmptyDocumentProjection(Class<T> projection) {
-        Document document = getDocumentBuilder().newDocument();
+        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
         return projectXML(document, projection);
     }
 
@@ -270,35 +306,11 @@ public class XMLProjector implements Serializable {
         return set;
     }
 
-    public Object getCustomInvoker(Class<?> projectionInterface, Class<?> declaringClass) {
-        if (!customInvokers.containsKey(projectionInterface)) {
-            return null;
-        }
-        return customInvokers.get(projectionInterface).get(declaringClass);
-    }
 
-    DocumentBuilder getDocumentBuilder() {
-        return xMLFactoriesConfig.createDocumentBuilder();
-    }
 
-    Transformer getTransformer() {
-        return xMLFactoriesConfig.createTransformer();
-    }
-
-    /**
-     * @return
-     */
-    XPath getXPath(Document document) {
-        return xMLFactoriesConfig.createXPath(document);
-    }
-
-    
-    TypeConverter getTypeConverter() {
-        return this.typeConverter;
+    public ConfigBuilder config() {
+        return new ConfigBuilder();
     }
     
-    XMLProjector setTypeConverter(TypeConverter converter) {
-        this.typeConverter = converter;
-        return this;
-    }
+    
 }
