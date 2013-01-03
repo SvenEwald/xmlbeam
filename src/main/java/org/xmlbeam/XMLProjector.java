@@ -143,10 +143,17 @@ public class XMLProjector implements Serializable {
         }
     }
 
+    /**
+     * Constructor. Use me to create a projector with defaults.
+     */
     public XMLProjector() {
         xMLFactoriesConfig = new DefaultXMLFactoriesConfig();
     }
 
+    /**
+     * 
+     * @param xMLFactoriesConfig
+     */
     public XMLProjector(XMLFactoriesConfig xMLFactoriesConfig) {
         this.xMLFactoriesConfig = xMLFactoriesConfig;
     }

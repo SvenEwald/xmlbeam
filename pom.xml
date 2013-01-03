@@ -6,9 +6,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>XMLBeam</name>
 	<description>
-	A java library to create "projections" of XML-Data to Java (and back). A projection is a defined subset of XML elements or attributes
-	in an XML DOM tree. In contrast to data binding the resulting Java API is much more stable.
-	Requires at least Java6 and has no further runtime dependencies.
+	A java library to create "projections" of XML-Data to Java (and back). A projection is a defined subset of XML elements or attributes in an XML DOM tree. In contrast to data binding the resulting Java API is much more stable. Requires at least Java6 and has no further runtime dependencies.
 	</description>
 	<url>http://xmlbeam.org</url>
 	<licenses>
@@ -23,6 +21,12 @@
 			<name>Sven Ewald</name>
 		</developer>
 	</developers>
+	<scm>
+		<url>https://github.com/SvenEwald/xmlbeam.git</url>
+	</scm>
+	<ciManagement>
+		<system>Jenkins</system>
+	</ciManagement>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -31,6 +35,7 @@
 	</properties>
 	<build>
 		<testResources>
+		<!-- Mapping test resource folders to test source folders. This way the tutorials can be understood by looking at only one directory.-->
 			<testResource>
 				<directory>src/test/java</directory>
 			</testResource>
@@ -67,6 +72,7 @@
 				<version>1.7</version>
 				<executions>
 					<execution>
+					<!-- The github readme file serves as introduction page for the site. So we copy it to the site sources. -->
 						<phase>pre-site</phase>
 						<configuration>
 							<target>
