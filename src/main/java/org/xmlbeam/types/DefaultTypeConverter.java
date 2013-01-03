@@ -8,7 +8,7 @@ public  class DefaultTypeConverter implements TypeConverter {
     private final Map<Class<?>, Conversion<?>> CONVERSIONS = new HashMap<Class<?>, Conversion<?>>();
 
     public DefaultTypeConverter() {
-        this.CONVERSIONS.putAll(PragmaticConverterFactory.getConversions());
+        this.CONVERSIONS.putAll(ConversionsFactory.getConversions());
     }
 
     /**

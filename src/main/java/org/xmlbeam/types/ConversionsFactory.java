@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * 
  */
-public class PragmaticConverterFactory {
+public class ConversionsFactory {
     
     public static Map<Class<?>, Conversion<?>> getConversions()
     { 
