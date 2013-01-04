@@ -54,7 +54,10 @@ XMLBeam Feature List:
    Because XMLBeam uses the DOM as backend, changes will reflect automatically in projections.
    
  * Easy name space handling.
-   Name spaces of elements and attributes are directly usable in projections by default. They don't leak into your Java API. 
+   Name spaces of elements and attributes are directly usable in projections by default. They don't leak into your Java API.
+   
+ * API Mimicry .
+   XMLBeam is so flexible that it can be used to mimicry other APIs. See tutorial e08 where the DOM4J API is imitated. 
    
 You don't need XMLBeam if:
 

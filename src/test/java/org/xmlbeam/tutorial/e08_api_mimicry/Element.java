@@ -17,9 +17,16 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 
 import java.util.List;
 
+import org.xmlbeam.Value;
 import org.xmlbeam.Xpath;
 
 public interface Element {
+
+    @Xpath(".")
+    Element addAttribute(Attribute attribute);
+
+    @Xpath("@{1}")
+    Element addAttribute(String name, @Value String value);
 
     @Xpath("name()")
     String getName();
@@ -38,5 +45,7 @@ public interface Element {
 
     @Xpath(value = "./*", targetComponentType = Element.class)
     List<Element> elements();
+
+
 
 }
