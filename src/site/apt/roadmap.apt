@@ -1,3 +1,24 @@
 Roadmap
 
+* Version 2.x
+
+ * Option to externalize projection metadata.
  
+ * Generator to create projection stubs from existing documents. 
+
+ * Additional library with generic DOM access projections.
+
+* Version 1.x
+
+ * Freezing projector API 
+ 
+ * Release of artifacts to maven central.
+ 
+ 
+* Version 0.x (current)
+
+ * Documentation
+ 
+ * Site content
+ 
+ * Refactoring Projector API
