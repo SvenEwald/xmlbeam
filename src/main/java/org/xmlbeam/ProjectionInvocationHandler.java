@@ -17,6 +17,7 @@ package org.xmlbeam;
 
 import java.text.MessageFormat;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -177,23 +178,26 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             rootElement = ((Document) settingNode).createElement(rootElementName);
             settingNode.appendChild(rootElement);
         }
+
+        Object valuetToSet = args[findIndexOfValue(method)];
+
         if (path.contains("@")) {
             String attributeName = path.replaceAll(".*@", "");
             Element element = ensureElementExists(rootElement, pathToElement);
-            element.setAttribute(attributeName, args[0].toString());
+            element.setAttribute(attributeName, valuetToSet.toString());
         } else {
-            if (args[0] instanceof Projection) {
+            if (valuetToSet instanceof Projection) {
                 Element element = ensureElementExists(rootElement, pathToElement);
                 applySingleSetProjectionOnElement((Projection) args[0], element, method.getDeclaringClass());
             }
-            if (args[0] instanceof Collection) {
+            if (valuetToSet instanceof Collection) {
                 Element parent = ensureElementExists(rootElement, pathToElement.replaceAll("/[^/]+$", ""));
                 String elementName = pathToElement.replaceAll("^.*/", "");
-                applyCollectionSetProjectionOnelement((Collection<?>) args[0], parent, elementName);
+                applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, parent, elementName);
 
             } else {
                 Element element = ensureElementExists(rootElement, pathToElement);
-                element.setTextContent(args[0].toString());
+                element.setTextContent(valuetToSet.toString());
             }
         }
 
@@ -204,6 +208,25 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             return proxy;
         }
         throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what do return");
+    }
+
+    /**
+     * @param method
+     * @return index of fist parameter annotated with {@link Value} annotation.
+     */
+    private int findIndexOfValue(Method method) {
+        int index = 0;
+        for (Annotation[] annotations : method.getParameterAnnotations()) {
+            for (Annotation a : annotations) {
+                if (Value.class.equals(a)) {
+                    return index;
+                }
+            }
+            ++index;
+        }
+
+        // If no attribute i annotated, the first one is taken.
+        return 0;
     }
 
     private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement, String elementName) {
