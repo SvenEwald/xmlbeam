@@ -28,17 +28,17 @@ public interface Element {
     @Xpath("@{1}")
     Element addAttribute(String name, @Value String value);
 
-    @Xpath("name()")
-    String getName();
-
-    @Xpath(".")
-    String getText();
-
     @Xpath("@{0}")
     Attribute attribute(String name);
 
+    @Xpath("count(@*)")
+    int attributeCount();
+
     @Xpath("@*")
     List<Attribute> attributes();
+
+    @Xpath("@{0}")
+    String attributeValue(String attributeName);
 
     @Xpath("./{0}")
     Element element(String name);
@@ -46,6 +46,10 @@ public interface Element {
     @Xpath(value = "./*", targetComponentType = Element.class)
     List<Element> elements();
 
+    @Xpath("name()")
+    String getName();
 
+    @Xpath(".")
+    String getText();
 
 }
