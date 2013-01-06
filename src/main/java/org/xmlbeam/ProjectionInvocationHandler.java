@@ -48,8 +48,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector.Projection;
-import org.xmlbeam.util.DOMUtils;
+import org.xmlbeam.util.DOMHelper;
+import org.xmlbeam.util.ReflectionHelper;
 
+/**
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ */
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/[a-zA-Z]+)+(/@[a-z:A-Z]+)?$";
     private final Node node;
@@ -64,17 +68,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         Projection projectionInvoker = new Projection() {
             @Override
             public Node getXMLNode() {
-                return node;
+                return ProjectionInvocationHandler.this.node;
             }
 
             @Override
             public Class<?> getProjectionInterface() {
-                return projectionInterface;
+                return ProjectionInvocationHandler.this.projectionInterface;
             }
 
-            /*
-             * @Override public Map<Class<?>, Object> getInvokers() { return customInvokers; }
-             */
         };
         Object objectInvoker = new Serializable() {
 
@@ -113,7 +114,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         defaultInvokers.put(Projection.class, projectionInvoker);
         defaultInvokers.put(Object.class, objectInvoker);
-        defaultInvokers.put(ProjectionInvocationHandler.class, this);
+        // defaultInvokers.put(ProjectionInvocationHandler.class, this);
     }
 
     @Override
@@ -123,24 +124,23 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (defaultInvoker != null) {
             return method.invoke(defaultInvoker, args);
         }
-        Object customInvoker = xmlProjector.config().getCustomInvoker(projectionInterface, method.getDeclaringClass());
+        Object customInvoker = xmlProjector.mixins().getProjectionMixin(projectionInterface, method.getDeclaringClass());
         if (customInvoker != null) {
             injectMeAttribute((Projection) proxy, customInvoker);
             return method.invoke(customInvoker, args);
         }
 
-        if ((!hasReturnType(method)) && (!hasParameters(method))) {
+        if ((!ReflectionHelper.hasReturnType(method)) && (!ReflectionHelper.hasParameters(method))) {
             throw new IllegalArgumentException("Invoking void method " + method + " without parameters. What should I do?");
         }
 
-        if (isSetter(method) || (!hasReturnType(method))) {
+        if (ReflectionHelper.isSetter(method) || (!ReflectionHelper.hasReturnType(method))) {
             return invokeSetter(proxy, method, args);
         }
         return invokeGetter(proxy, method, args);
     }
 
     private void injectMeAttribute(Projection me, Object target) {
-
         for (Field field : target.getClass().getDeclaredFields()) {
             if (!me.getProjectionInterface().equals(field.getType())) {
                 continue;
@@ -183,25 +183,25 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         if (path.contains("@")) {
             String attributeName = path.replaceAll(".*@", "");
-            Element element = ensureElementExists(rootElement, pathToElement);
+            Element element = DOMHelper.ensureElementExists(rootElement, pathToElement);
             element.setAttribute(attributeName, valuetToSet.toString());
         } else {
             if (valuetToSet instanceof Projection) {
-                Element element = ensureElementExists(rootElement, pathToElement);
+                Element element = DOMHelper.ensureElementExists(rootElement, pathToElement);
                 applySingleSetProjectionOnElement((Projection) args[0], element, method.getDeclaringClass());
             }
             if (valuetToSet instanceof Collection) {
-                Element parent = ensureElementExists(rootElement, pathToElement.replaceAll("/[^/]+$", ""));
+                Element parent = DOMHelper.ensureElementExists(rootElement, pathToElement.replaceAll("/[^/]+$", ""));
                 String elementName = pathToElement.replaceAll("^.*/", "");
                 applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, parent, elementName);
 
             } else {
-                Element element = ensureElementExists(rootElement, pathToElement);
+                Element element = DOMHelper.ensureElementExists(rootElement, pathToElement);
                 element.setTextContent(valuetToSet.toString());
             }
         }
 
-        if (!hasReturnType(method)) {
+        if (!ReflectionHelper.hasReturnType(method)) {
             return null;
         }
         if (method.getReturnType().equals(method.getDeclaringClass())) {
@@ -212,13 +212,13 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
     /**
      * @param method
-     * @return index of fist parameter annotated with {@link Value} annotation.
+     * @return index of fist parameter annotated with {@link SetterValue} annotation.
      */
     private int findIndexOfValue(Method method) {
         int index = 0;
         for (Annotation[] annotations : method.getParameterAnnotations()) {
             for (Annotation a : annotations) {
-                if (Value.class.equals(a)) {
+                if (SetterValue.class.equals(a)) {
                     return index;
                 }
             }
@@ -230,7 +230,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     }
 
     private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement, String elementName) {
-        DOMUtils.removeAllChildrenByName(parentElement, elementName);
+        DOMHelper.removeAllChildrenByName(parentElement, elementName);
         for (Object o : collection) {
             if (!(o instanceof Projection)) {
                 throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
@@ -241,32 +241,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     }
 
     private void applySingleSetProjectionOnElement(final Projection projection, final Element element, final Class<?> projectionClass) {
-        DOMUtils.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
+        DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
         element.appendChild(projection.getXMLNode());
     }
 
-    private Element ensureElementExists(final Element settingNode, final String pathToElement) {
-        String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
-        Element element = settingNode;
-        for (String elementName : splitme.split("/")) {
-            if (elementName.equals(element.getNodeName())) {
-                continue;
-            }
-            NodeList nodeList = element.getElementsByTagName(elementName);
-            if (nodeList.getLength() == 0) {
-                element.getOwnerDocument().createElement(elementName);
-                element = (Element) element.appendChild(element.getOwnerDocument().createElement(elementName));
-                continue;
-            }
-            element = (Element) nodeList.item(0);
-        }
-        return element;
-    }
-
     private String getXPathExpression(final Method method, final Object[] args) {
-        Xpath annotation = method.getAnnotation(org.xmlbeam.Xpath.class);
+        XPathProjection annotation = method.getAnnotation(org.xmlbeam.XPathProjection.class);
         if (annotation == null) {
-            throw new IllegalArgumentException("Method " + method + " needs a " + org.xmlbeam.Xpath.class.getSimpleName() + " annotation.");
+            throw new IllegalArgumentException("Method " + method + " needs a " + org.xmlbeam.XPathProjection.class.getSimpleName() + " annotation.");
         }
         String path = MessageFormat.format(annotation.value(), args);
         return path;
@@ -274,10 +256,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
     private Node getDocumentForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
         Node evaluationNode = node;
-        if (method.getAnnotation(URL.class) != null) {
-            String uri = method.getAnnotation(URL.class).value();
+        if (method.getAnnotation(DocumentURL.class) != null) {
+            String uri = method.getAnnotation(DocumentURL.class).value();
             uri = MessageFormat.format(uri, args);
-            evaluationNode = DOMUtils.getXMLNodeFromURI(xmlProjector.config().getDocumentBuilder(), uri, projectionInterface);
+            evaluationNode = DOMHelper.getXMLNodeFromURI(xmlProjector.config().getDocumentBuilder(), uri, projectionInterface);
         }
         return evaluationNode;
     }
@@ -313,24 +295,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + xmlProjector.config().getTypeConverter());
     }
 
-    private boolean isSetter(final Method method) {
-        return method.getName().toLowerCase().startsWith("set") && hasParameters(method);
-    }
 
-    private boolean hasReturnType(final Method method) {
-        if (method.getReturnType() == null) {
-            return false;
-        }
-        if (Void.class.equals(method.getReturnType())) {
-            return false;
-        }
-
-        return !Void.TYPE.equals(method.getReturnType());
-    }
-
-    private boolean hasParameters(final Method method) {
-        return (method.getParameterTypes().length > 0);
-    }
 
     private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
@@ -339,9 +304,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getReturnType().isArray()) {
             targetType = method.getReturnType().getComponentType();
         } else {
-            targetType = method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType();
-            if (Xpath.class.equals(targetType)) {
-                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + Xpath.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
+            targetType = method.getAnnotation(org.xmlbeam.XPathProjection.class).targetComponentType();
+            if (XPathProjection.class.equals(targetType)) {
+                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XPathProjection.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
             }
         }
 
@@ -354,12 +319,12 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (targetType.isInterface()) {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 Node n = nodes.item(i).cloneNode(true);
-                Projection subprojection = (Projection) xmlProjector.projectXML(n, method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType());
+                Projection subprojection = (Projection) xmlProjector.projectXML(n, method.getAnnotation(org.xmlbeam.XPathProjection.class).targetComponentType());
                 linkedList.add(subprojection);
             }
             return linkedList;
         }
-        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.Xpath.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
+        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.XPathProjection.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
                 + xmlProjector.config().getTypeConverter());
     }
 }

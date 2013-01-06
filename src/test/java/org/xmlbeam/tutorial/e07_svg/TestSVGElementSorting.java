@@ -52,8 +52,8 @@ public class TestSVGElementSorting {
     @Test
     public void testElements() throws IOException {
         XMLProjector xmlProjector = new XMLProjector();
-        SVGDocument svgDocument = xmlProjector.readFromURLAnnotation(SVGDocument.class);
-        xmlProjector.addProjectionMixin(GraphicElement.class, new Comparable<GraphicElement>() {
+        SVGDocument svgDocument = xmlProjector.read().fromURLAnnotation(SVGDocument.class);
+        xmlProjector.mixins().addProjectionMixin(GraphicElement.class, new Comparable<GraphicElement>() {
 
             private GraphicElement me;
 

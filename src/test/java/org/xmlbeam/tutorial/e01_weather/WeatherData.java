@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e01_weather;
 
-import org.xmlbeam.Xpath;
+import org.xmlbeam.XPathProjection;
 
 /**
  * Most basic real life example. A good start to get an impression of the
@@ -38,16 +38,16 @@ import org.xmlbeam.Xpath;
 // START SNIPPET: WeatherDataInterface
 public interface WeatherData {
 
-    @Xpath("/weatherdata/weather/@searchlocation")
+    @XPathProjection("/weatherdata/weather/@searchlocation")
     String getLocation();
 
-    @Xpath("/weatherdata/weather/current/@temperature")
+    @XPathProjection("/weatherdata/weather/current/@temperature")
     int getTemperature();
 
-    @Xpath("/weatherdata/weather/@degreetype")
+    @XPathProjection("/weatherdata/weather/@degreetype")
     String getDegreeType();
 
-    @Xpath("/weatherdata/weather/current/@skytext")
+    @XPathProjection("/weatherdata/weather/current/@skytext")
     String getSkytext();
 
     /**
@@ -55,14 +55,14 @@ public interface WeatherData {
      * values in one object.
      */
     interface Location {
-        @Xpath("@lon")
+        @XPathProjection("@lon")
         double getLongitude();
 
-        @Xpath("@lat")
+        @XPathProjection("@lat")
         double getLatitude();
     }
 
-    @Xpath("/weatherdata/weather")
+    @XPathProjection("/weatherdata/weather")
     Location getCoordinates();
 }
 // END SNIPPET: WeatherDataInterface

@@ -1,31 +1,46 @@
+/**
+ *  Copyright 2012 Sven Ewald
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.xmlbeam.tutorial.e09_dreambox;
 
-import org.xmlbeam.Xpath;
+import org.xmlbeam.XPathProjection;
 
 public interface Movie {
 
-    @Xpath("child::e2servicereference")
+    @XPathProjection("child::e2servicereference")
     String getServiceReference();
 
-    @Xpath("child::e2time")
+    @XPathProjection("child::e2time")
     long getTime();
 
-    @Xpath("child::e2length")
+    @XPathProjection("child::e2length")
     long getLength();
 
-    @Xpath("child:e2filesize")
+    @XPathProjection("child:e2filesize")
     long getFileSize();
 
-    @Xpath("child::e2title")
+    @XPathProjection("child::e2title")
     String getTitle();
 
-    @Xpath("child::e2description")
+    @XPathProjection("child::e2description")
     String getDescription();
 
-    @Xpath("child::e2descriptionextended")
+    @XPathProjection("child::e2descriptionextended")
     String getDescriptionExtended();
 
-    @Xpath("child::e2tags")
+    @XPathProjection("child::e2tags")
     String getTags();
 
 }

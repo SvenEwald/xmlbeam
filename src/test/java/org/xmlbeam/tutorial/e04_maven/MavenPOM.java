@@ -15,8 +15,8 @@
  */
 package org.xmlbeam.tutorial.e04_maven;
 
-import org.xmlbeam.URL;
-import org.xmlbeam.Xpath;
+import org.xmlbeam.DocumentURL;
+import org.xmlbeam.XPathProjection;
 
 /**
  * This example demonstrates the reuse of a sub projection. This is possible
@@ -25,32 +25,32 @@ import org.xmlbeam.Xpath;
  * A simple setter is defined to modify a maven project name.
  * 
  */
-@URL("resource://pom.xml")
+@DocumentURL("resource://pom.xml")
 public interface MavenPOM {
 
-    @Xpath("/project/name")
+    @XPathProjection("/project/name")
     String getName();
 
-    @Xpath("/project/name")
+    @XPathProjection("/project/name")
     void setName(String name);
 
     public interface Artifact {
 
-        @Xpath("child::groupId")
+        @XPathProjection("child::groupId")
         String getGroupId();
 
-        @Xpath("child::artifactId")
+        @XPathProjection("child::artifactId")
         String getArtifactId();
 
-        @Xpath("child::version")
+        @XPathProjection("child::version")
         String getVersion();
 
     }
 
-    @Xpath("/project")
+    @XPathProjection("/project")
     Artifact getProjectId();
 
-    @Xpath("/project/depencencies/dependency")
+    @XPathProjection("/project/depencencies/dependency")
     Artifact[] getDependencies();
 
 }

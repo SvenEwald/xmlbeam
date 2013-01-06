@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
-import org.xmlbeam.Xpath;
+import org.xmlbeam.XPathProjection;
 
 //START SNIPPET: JenkinsModelElementInterface
 public interface ModelElement {
@@ -24,7 +24,7 @@ public interface ModelElement {
      * Getter may use XPath functions.
      * @return Name of the XML Element which is projected to this object.
      */
-    @Xpath("name()")
+    @XPathProjection("name()")
     String getName();
 }
 //END SNIPPET: JenkinsModelElementInterface

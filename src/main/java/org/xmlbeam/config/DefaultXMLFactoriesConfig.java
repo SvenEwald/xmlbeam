@@ -31,7 +31,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.xmlbeam.XMLProjector;
-import org.xmlbeam.util.DOMUtils;
+import org.xmlbeam.util.DOMHelper;
 
 /**
  * Default configuration for {@link XMLProjector} which uses Java default
@@ -152,7 +152,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
             return createXPathFactory().newXPath();
         }
 
-        final Map<String, String> nameSpaceMapping = DOMUtils.getNamespaceMapping(document[0]);
+        final Map<String, String> nameSpaceMapping = DOMHelper.getNamespaceMapping(document[0]);
         NamespaceContext ctx = new NamespaceContext() {
             @Override
             public String getNamespaceURI(String prefix) {

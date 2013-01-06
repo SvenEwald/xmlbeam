@@ -21,10 +21,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a parameter in the setter as the value to be set. Other parameters are allowed and will be replace present place holders in the XPath expression. If no parameter is annotated, the first one will be taken.
+ * Marks a parameter in the setter as the value to be set. Other parameters are allowed and will be
+ * replace present place holders in the XPath expression. If no parameter is annotated, the first
+ * one will be taken.
+ * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Value {
+public @interface SetterValue {
 
 }
