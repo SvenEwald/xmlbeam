@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
 
 /**
- *
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class XMLFileIO {
 

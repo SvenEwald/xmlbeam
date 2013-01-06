@@ -16,8 +16,7 @@
 package org.xmlbeam.types;
 
 /**
- * @author sven
- *
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public abstract class ConversionWithDefault<T> implements Conversion<T> {
 
