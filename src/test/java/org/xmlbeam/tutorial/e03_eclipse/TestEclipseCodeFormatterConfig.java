@@ -38,7 +38,7 @@ public class TestEclipseCodeFormatterConfig {
     @Test
     public void profilesTest() throws IOException {
 //START SNIPPET: TestEclipseCodeFormatterConfig       
-EclipseFormatterConfigFile configFile = new XMLProjector().readFromURLAnnotation(EclipseFormatterConfigFile.class);
+EclipseFormatterConfigFile configFile = new XMLProjector().read().fromURLAnnotation(EclipseFormatterConfigFile.class);
 
 System.out.println("Profile names:" + configFile.getProfileNames());        
 for (Setting setting:configFile.getAllSettingsForProfile("Some Profile")) {

@@ -17,6 +17,9 @@ package org.xmlbeam.types;
 
 import java.io.Serializable;
 
+/**
+ * @param <T>
+ */
 public interface Conversion<T> extends Serializable {
 
     T convert(final String data);

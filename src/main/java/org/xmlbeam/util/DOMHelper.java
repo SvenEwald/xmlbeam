@@ -32,7 +32,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class DOMUtils {
+/**
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ */
+public class DOMHelper {
 
     public static void removeAllChildrenByName(Element element, String nodeName) {
         NodeList nodeList = element.getElementsByTagName(nodeName);
@@ -81,4 +84,21 @@ public class DOMUtils {
         return map;
     }
 
+    public static Element ensureElementExists(final Element settingNode, final String pathToElement) {
+        String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
+        Element element = settingNode;
+        for (String elementName : splitme.split("/")) {
+            if (elementName.equals(element.getNodeName())) {
+                continue;
+            }
+            NodeList nodeList = element.getElementsByTagName(elementName);
+            if (nodeList.getLength() == 0) {
+                element.getOwnerDocument().createElement(elementName);
+                element = (Element) element.appendChild(element.getOwnerDocument().createElement(elementName));
+                continue;
+            }
+            element = (Element) nodeList.item(0);
+        }
+        return element;
+    }
 }

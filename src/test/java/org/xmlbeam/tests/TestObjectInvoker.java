@@ -22,7 +22,7 @@ import java.util.Scanner;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.xmlbeam.URL;
+import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XMLProjector;
 
 /**
@@ -36,9 +36,9 @@ public class TestObjectInvoker {
 
     @Test
     public void testToString() throws IOException {
-        XMLBeamTestSuite testSuite = new XMLProjector().readFromURLAnnotation(XMLBeamTestSuite.class);
+        XMLBeamTestSuite testSuite = new XMLProjector().read().fromURLAnnotation(XMLBeamTestSuite.class);
         testSuite.toString();
-        String orig = new Scanner(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(URL.class).value().substring("resource://".length()))).useDelimiter("\\A").next();
+        String orig = new Scanner(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(DocumentURL.class).value().substring("resource://".length()))).useDelimiter("\\A").next();
         assertEquals(orig.replaceAll("\\s", ""), testSuite.toString().replaceAll("\\s", ""));
     }
 }

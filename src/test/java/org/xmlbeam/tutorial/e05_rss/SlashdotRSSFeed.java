@@ -18,8 +18,8 @@ package org.xmlbeam.tutorial.e05_rss;
 import java.util.Collection;
 import java.util.List;
 
-import org.xmlbeam.URL;
-import org.xmlbeam.Xpath;
+import org.xmlbeam.DocumentURL;
+import org.xmlbeam.XPathProjection;
 
 /**
  * This example is to demonstrate how to modify a XML document. The Slashdot RSS
@@ -29,7 +29,7 @@ import org.xmlbeam.Xpath;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-@URL("http://rss.slashdot.org/Slashdot/slashdot")
+@DocumentURL("http://rss.slashdot.org/Slashdot/slashdot")
 public interface SlashdotRSSFeed {
 
     /**
@@ -38,13 +38,13 @@ public interface SlashdotRSSFeed {
      * thats just to compact this tutorial.
      */
     interface Story {
-        @Xpath("child::title")
+        @XPathProjection("child::title")
         String getTitle();
 
-        @Xpath("child::pubDate")
+        @XPathProjection("child::pubDate")
         String getDate();
 
-        @Xpath("child::description")
+        @XPathProjection("child::description")
         String getDescription();
     }
 
@@ -55,7 +55,7 @@ public interface SlashdotRSSFeed {
      * 
      * @return List of all stories
      */
-    @Xpath(value = "/rss/channel/item", targetComponentType = Story.class)
+    @XPathProjection(value = "/rss/channel/item", targetComponentType = Story.class)
     List<Story> getAllItems();
 
     /**
@@ -71,7 +71,7 @@ public interface SlashdotRSSFeed {
      * 
      * @param items
      */
-    @Xpath("/rss/channel/item")
+    @XPathProjection("/rss/channel/item")
     void setAllItems(Collection<Story> items);
 
     /**
@@ -82,7 +82,7 @@ public interface SlashdotRSSFeed {
      * 
      * @return A list of all creators.
      */
-    @Xpath(value = "//dc:creator", targetComponentType = String.class)
+    @XPathProjection(value = "//dc:creator", targetComponentType = String.class)
     List<String> getCreators();
 
     /**
@@ -92,6 +92,6 @@ public interface SlashdotRSSFeed {
      * 
      * @return A filtered list of stories.
      */
-    @Xpath(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
+    @XPathProjection(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
     List<Story> getOpenSourceStories();
 }

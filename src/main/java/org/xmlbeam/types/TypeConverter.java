@@ -17,10 +17,26 @@ package org.xmlbeam.types;
 
 import java.io.Serializable;
 
+/**
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ */
 public interface TypeConverter extends Serializable {
 
+    /**
+     * Check if this converter can convert Strings to the given target type.
+     * 
+     * @param targetType
+     * @return true if conversion is possible.
+     */
     <T> boolean isConvertable(Class<T> targetType);
 
+    /**
+     * Convert a String value to the given target type.
+     * 
+     * @param targetType
+     * @param data
+     * @return a new instance of the target type.
+     */
     <T> T convertTo(Class<T> targetType, String data);
 
 }

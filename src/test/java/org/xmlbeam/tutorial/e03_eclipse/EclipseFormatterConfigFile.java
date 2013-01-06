@@ -17,37 +17,37 @@ package org.xmlbeam.tutorial.e03_eclipse;
 
 import java.util.List;
 
-import org.xmlbeam.URL;
-import org.xmlbeam.Xpath;
+import org.xmlbeam.DocumentURL;
+import org.xmlbeam.XPathProjection;
 
 /**
  * We proceed with our examples to parameterized projections. Because
  * projections will be compiled and processed when used, there is no need to
  * keep them static. Instead give your getter method some parameters. They will
- * be applied as a {@lik MessageFormat} on the Xpath expression. (This is
- * possible on URL annotations, too).
+ * be applied as a {@lik MessageFormat} on the XPathProjection expression. (This is
+ * possible on DocumentURL annotations, too).
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 
 //START SNIPPET: EclipseCodeFormatterConfig
-@URL("resource://eclipsecodeformatprofile.xml")
+@DocumentURL("resource://eclipsecodeformatprofile.xml")
 public interface EclipseFormatterConfigFile {
 
     interface Setting {
 
-        @Xpath("@id")
+        @XPathProjection("@id")
         String getName();
 
-        @Xpath("@value")
+        @XPathProjection("@value")
         String getValue();
         
     }
 
-    @Xpath(value = "//profile/@name", targetComponentType = String.class)
+    @XPathProjection(value = "//profile/@name", targetComponentType = String.class)
     List<String> getProfileNames();
 
-    @Xpath(value = "//profiles/profile[@name=\"{0}\"]/setting", targetComponentType = Setting.class)
+    @XPathProjection(value = "//profiles/profile[@name=\"{0}\"]/setting", targetComponentType = Setting.class)
     List<Setting> getAllSettingsForProfile(String profileName);
     
 }

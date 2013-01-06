@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
-import org.xmlbeam.Xpath;
+import org.xmlbeam.XPathProjection;
 
 //START SNIPPET: JenkinsBuilderInterface
 public interface Builder extends ModelElement {
@@ -24,7 +24,7 @@ public interface Builder extends ModelElement {
      * Builder may invoke ant targets, maven goals or shell commands. 
      * @return The builders task, whatever this element is.
      */
-    @Xpath("child::targets | child::command")
+    @XPathProjection("child::targets | child::command")
     String getTargetsOrCommands();
 
 }

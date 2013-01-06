@@ -54,7 +54,7 @@ private void printWeatherData(String location) throws IOException {
                      "?outputview=search&weasearchstr=";
     
     // We let the projector fetch the data for us
-    WeatherData weatherData = new XMLProjector().readFromURL(
+    WeatherData weatherData = new XMLProjector().read().fromURL(
                                     BaseURL + location,WeatherData.class);
     
     // Print some values

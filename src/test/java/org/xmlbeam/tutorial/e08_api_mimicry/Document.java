@@ -15,16 +15,16 @@
  */
 package org.xmlbeam.tutorial.e08_api_mimicry;
 
-import org.xmlbeam.URL;
-import org.xmlbeam.Xpath;
+import org.xmlbeam.DocumentURL;
+import org.xmlbeam.XPathProjection;
 
-@URL("resource://simple.xml")
+@DocumentURL("resource://simple.xml")
 public interface Document {
 
-    @Xpath("/*")
+    @XPathProjection("/*")
     Element getRootElement();
 
-    @Xpath("/*")
+    @XPathProjection("/*")
     void setRootElement(Element rootElement);
 
 }

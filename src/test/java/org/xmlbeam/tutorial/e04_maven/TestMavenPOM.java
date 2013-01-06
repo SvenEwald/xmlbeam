@@ -39,7 +39,7 @@ public class TestMavenPOM {
      */
     @Test
     public void testProjectNameWriting() throws SAXException, IOException, ParserConfigurationException {
-        MavenPOM pom = new XMLProjector().readFromURLAnnotation(MavenPOM.class);
+        MavenPOM pom = new XMLProjector().read().fromURLAnnotation(MavenPOM.class);
         assertEquals("Maven core", pom.getName());
         pom.setName("New name");
         assertEquals("New name", pom.getName());

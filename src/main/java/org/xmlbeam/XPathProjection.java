@@ -22,10 +22,12 @@ import java.lang.annotation.Target;
 
 /**
  * Define the projection function for elements of a projection.
+ * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Xpath {
+public @interface XPathProjection {
 
     /**
      * XPath expression to project XML data to return type of decorated method.
@@ -38,5 +40,5 @@ public @interface Xpath {
      * Type of desired collection content. My be omitted for arrays.
      * @return
      */
-    Class<?> targetComponentType() default Xpath.class;
+    Class<?> targetComponentType() default XPathProjection.class;
 }
