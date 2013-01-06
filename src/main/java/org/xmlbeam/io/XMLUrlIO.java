@@ -25,8 +25,7 @@ import org.xmlbeam.XMLProjector;
 import org.xmlbeam.util.IOHelper;
 
 /**
- * @author sven
- *
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class XMLUrlIO {
 

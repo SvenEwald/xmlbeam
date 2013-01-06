@@ -18,6 +18,7 @@ package org.xmlbeam.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -239,13 +240,7 @@ public class XMLProjectorTest {
     public void getXMLDocument() throws Exception {
         suite.setDescription("This is my description");
         Document document = new XMLProjector().getXMLDocForProjection(suite);
-        System.out.println(suite.toString());
-        // TransformerFactory tf = TransformerFactory.newInstance();
-        // Transformer transformer = tf.newTransformer();
-        // StringWriter writer = new StringWriter();
-        // transformer.transform(new DOMSource(document), new
-        // StreamResult(writer));
-        // String output = writer.getBuffer().toString();
+        assertEquals("gluerootnode", document.getDocumentElement().getNodeName());
     }
 
     @Test
@@ -256,5 +251,12 @@ public class XMLProjectorTest {
         StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(document), new StreamResult(writer));
         String output = writer.getBuffer().toString();
+    }
+
+    @Test
+    public void documentFromScratch() {
+        XMLBeamTestSuite emptyDocumentProjection = new XMLProjector().createEmptyDocumentProjection(XMLBeamTestSuite.class);
+        Document xmlDocForProjection = new XMLProjector().getXMLDocForProjection(emptyDocumentProjection);
+        assertNull(xmlDocForProjection.getDocumentElement());
     }
 }

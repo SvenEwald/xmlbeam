@@ -24,99 +24,102 @@ import org.xmlbeam.XPathProjection;
 @org.xmlbeam.DocumentURL("resource://testsuite.xml")
 public interface XMLBeamTestSuite {
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement1")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement1")
     String getStringContent();
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     byte getbyteContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     Byte getByteContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     short getshortContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     Short getShortContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     int getintContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     Integer getIntegerContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     long getlongContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     Long getLongContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     float getfloatContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     Float getFloatContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     double getdoubleContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement{0}")
     Double getDoubleContent(int index);
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement6")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement6")
     boolean getbooleanContent();
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/innerElement6/@boolAttribute")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/innerElement6/@boolAttribute")
     boolean getbooleanAttributeContent();
 
-    @org.xmlbeam.XPathProjection("nothing")
+    @XPathProjection("nothing")
     void notSupportedReturnType();
     
-    @org.xmlbeam.XPathProjection("nothing/")
+    @XPathProjection("nothing/")
     void setterWithTrailingSlash(String param);
 
-    @org.xmlbeam.XPathProjection("//NonExistingElement")
+    @XPathProjection("//NonExistingElement")
     int getNonExistingIntContent();
 
-    @org.xmlbeam.XPathProjection("//NonExistingElement")
+    @XPathProjection("//NonExistingElement")
     Integer getNonExistingIntegerContent();
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/firstelement/@glueattribute")
+    @XPathProjection("/gluerootnode/intermediate/firstelement/@glueattribute")
     String getAttributeValue();
 
-    @org.xmlbeam.XPathProjection(value="/gluerootnode/intermediate/secondElement/list/entry",targetComponentType=String.class)
+    @XPathProjection(value = "/gluerootnode/intermediate/secondElement/list/entry", targetComponentType = String.class)
     List<String> getAStringList();
 
-    @org.xmlbeam.XPathProjection(value="/gluerootnode/intermediate/secondElement/list/entry",targetComponentType=String.class)
+    @XPathProjection(value = "/gluerootnode/intermediate/secondElement/list/entry", targetComponentType = String.class)
     String[] getAStringArray();
 
-    @org.xmlbeam.XPathProjection(value="//thirdElement/@*",targetComponentType=String.class)
+    @XPathProjection(value = "//thirdElement/@*", targetComponentType = String.class)
     List<String> getAttributeValuesAsStringlist();
 
     interface InnerStructure {
-        @org.xmlbeam.XPathProjection("child::innerStructureA")
+        @XPathProjection("child::innerStructureA")
         String getA();
-        @org.xmlbeam.XPathProjection(value="child::innerStructureB/item",targetComponentType=String.class)
+
+        @XPathProjection(value = "child::innerStructureB/item", targetComponentType = String.class)
         List<String> getB();
     }
 
-    @org.xmlbeam.XPathProjection("/gluerootnode/intermediate/fourthElement[1]")
+    @XPathProjection("/gluerootnode/intermediate/fourthElement[1]")
     InnerStructure getFirstInnerStructure();
 
-    @org.xmlbeam.XPathProjection(value="/gluerootnode/intermediate/fourthElement",targetComponentType=InnerStructure.class)
+    @XPathProjection(value = "/gluerootnode/intermediate/fourthElement", targetComponentType = InnerStructure.class)
     List<InnerStructure> getAllInnerStructures();
 
     interface Setting {
-        @org.xmlbeam.XPathProjection("@name")
+        @XPathProjection("@name")
         String getName();
-        @org.xmlbeam.XPathProjection("@value")
+
+        @XPathProjection("@value")
         String getValue();
-        @org.xmlbeam.XPathProjection("child::option")
+
+        @XPathProjection("child::option")
         boolean hasOption();
     }
 
     @DocumentURL("resource://external_document.{0}")
-    @org.xmlbeam.XPathProjection(value="/settings/setting",targetComponentType=Setting.class)
+    @XPathProjection(value = "/settings/setting", targetComponentType = Setting.class)
     List<Setting> getExternalSettings(String externsion);
 
     @XPathProjection("/description")

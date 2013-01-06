@@ -18,6 +18,7 @@ package org.xmlbeam.types;
 import java.io.Serializable;
 
 /**
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * @param <T>
  */
 public interface Conversion<T> extends Serializable {

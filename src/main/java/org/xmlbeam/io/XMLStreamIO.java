@@ -28,8 +28,7 @@ import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
 
 /**
- * @author sven
- *
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class XMLStreamIO {
 
