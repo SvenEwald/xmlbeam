@@ -26,6 +26,8 @@ import org.xmlbeam.XPathProjection;
  * integration of multiple external documents to one Java interface. You are surly not able to run
  * this example without access to specific version of this hard disk recorder. Therefore there is no
  * example code provided which uses this interface.
+ * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a> 
  */
 public interface Dreambox {
 

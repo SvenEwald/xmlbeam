@@ -24,12 +24,20 @@ public class TestDom4jMimicry {
 
     @Test
     public void testAPIMimicry() throws IOException {
-        Document document = new XMLProjector().read().fromURLAnnotation(Document.class);
+        XMLProjector projector = new XMLProjector();
+        
+        Document document =projector.read().fromURLAnnotation(Document.class);
         Element element = document.getRootElement();
         System.out.println(element.getName());
         Element element2 = element.element("eelement");
         System.out.println(element2.getText());
         Attribute attribute = element2.attribute("eattribute");
         System.out.println(attribute.getValue());
+        
+        org.w3c.dom.Element newRootNode = projector.getXMLDocForProjection(document).createElement("newRoot");
+        Element newRootElement = projector.projectXML(newRootNode, Element.class);
+        
+        document.setRootElement(newRootElement);
+        System.out.println(document);
     }
 }

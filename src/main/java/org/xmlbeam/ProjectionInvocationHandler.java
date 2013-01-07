@@ -24,9 +24,11 @@ import java.lang.reflect.Method;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -55,7 +57,7 @@ import org.xmlbeam.util.ReflectionHelper;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/[a-zA-Z]+)+(/@[a-z:A-Z]+)?$";
+    private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/)|(/[a-zA-Z]+)+(/@[a-z:A-Z]+)?$";
     private final Node node;
     private final Class<?> projectionInterface;
     private final XMLProjector xmlProjector;
@@ -180,24 +182,18 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
 
         Object valuetToSet = args[findIndexOfValue(method)];
-
+        Element elementToChange = DOMHelper.ensureElementExists(rootElement, pathToElement);
         if (path.contains("@")) {
-            String attributeName = path.replaceAll(".*@", "");
-            Element element = DOMHelper.ensureElementExists(rootElement, pathToElement);
-            element.setAttribute(attributeName, valuetToSet.toString());
+            String attributeName = path.replaceAll(".*@", "");            
+            elementToChange.setAttribute(attributeName, valuetToSet.toString());
         } else {
             if (valuetToSet instanceof Projection) {
-                Element element = DOMHelper.ensureElementExists(rootElement, pathToElement);
-                applySingleSetProjectionOnElement((Projection) args[0], element, method.getDeclaringClass());
+                applySingleSetProjectionOnElement((Projection) args[0], elementToChange);
             }
             if (valuetToSet instanceof Collection) {
-                Element parent = DOMHelper.ensureElementExists(rootElement, pathToElement.replaceAll("/[^/]+$", ""));
-                String elementName = pathToElement.replaceAll("^.*/", "");
-                applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, parent, elementName);
-
+                applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, elementToChange);
             } else {
-                Element element = DOMHelper.ensureElementExists(rootElement, pathToElement);
-                element.setTextContent(valuetToSet.toString());
+                elementToChange.setTextContent(valuetToSet.toString());
             }
         }
 
@@ -229,18 +225,30 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         return 0;
     }
 
-    private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement, String elementName) {
-        DOMHelper.removeAllChildrenByName(parentElement, elementName);
+    /**
+     * 
+     * @param collection
+     * @param parentElement
+     */
+    private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement) {
+        Set<String> elementNames = new HashSet<String>();
         for (Object o : collection) {
             if (!(o instanceof Projection)) {
                 throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
             }
             Projection p = (Projection) o;
+            elementNames.add(p.getXMLNode().getNodeName());
+        }
+        for (String elementName : elementNames) {
+            DOMHelper.removeAllChildrenByName(parentElement, elementName);
+        }
+        for (Object o : collection) {
+            Projection p = (Projection) o;
             parentElement.appendChild(p.getXMLNode());
         }
     }
 
-    private void applySingleSetProjectionOnElement(final Projection projection, final Element element, final Class<?> projectionClass) {
+    private void applySingleSetProjectionOnElement(final Projection projection, final Element element) {
         DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
         element.appendChild(projection.getXMLNode());
     }
@@ -294,8 +302,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
         throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + xmlProjector.config().getTypeConverter());
     }
-
-
 
     private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
