@@ -51,7 +51,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector.Projection;
-import org.xmlbeam.io.XMLUrlIO;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.ReflectionHelper;
 
@@ -171,6 +170,11 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
         }
         final String pathToElement = path.replaceAll("/@.*", "");
+        if (pathToElement.isEmpty()) {
+            // changing the root node.
+            // FIXME
+
+        }
         final Node settingNode = getNodeForMethod(method, args);
         final Document document =  Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
         Element rootElement = document.getDocumentElement();

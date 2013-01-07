@@ -1,5 +1,5 @@
 
-FAQ
+FAQ / HowTo
 
 * How to determine if an element or attribute exists? 
 
@@ -14,4 +14,31 @@ FAQ
    You may even reuse the sub projection interface for all elements to be examined.
    
  * Use a XPath function to create a boolean projection: "count(/path/element) > 0"
+
  
+* What's the syntax for writable XPath expressions?
+
+ XPath expressions used in setters are limited to absolute paths to nonambiguous selectors. 
+ Functions are not allowed. 
+ The reason for this is to make a setter executable regardless of the current document structure, having a reproduceable result. 
+ 
+** Changing attributes
+
+   Example: "/element1/element2/@AttributeName"
+   This works for any setter value that is not a projection nor a collection. 
+   The toString() method will be used to create the attribute value.  
+
+** Changing element values
+
+   Example: "/element1/element2"
+   This works for any setter value that is not a projection nor a collection. 
+   The toString() method will be used to create the attribute value.
+      
+** Adding/Replacing a child element
+
+   Example: "/element1/element2/*"
+   This works for projections only.
+   
+** Adding/Replacing multiple child elements
+
+   Example: "/element1/element2/*   
