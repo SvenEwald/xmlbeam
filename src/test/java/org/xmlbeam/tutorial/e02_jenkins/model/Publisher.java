@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 //START SNIPPET: JenkinsPublisherInterface
 public interface Publisher extends ModelElement{
@@ -24,7 +24,7 @@ public interface Publisher extends ModelElement{
      * The Plugin name is located in an attribute of the configuration element.
      * @return The plugin name which contributed this element.
      */
-    @XPathProjection("@plugin")
+    @XBRead("@plugin")
     String getPlugin();
     
 }

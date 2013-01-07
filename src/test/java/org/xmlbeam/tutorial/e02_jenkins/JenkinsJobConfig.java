@@ -16,7 +16,7 @@
 package org.xmlbeam.tutorial.e02_jenkins;
 import java.util.List;
 
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
 import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 
@@ -37,10 +37,10 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 @org.xmlbeam.DocumentURL("resource://config.xml")
 public interface JenkinsJobConfig {
 
-    @XPathProjection(value = "//publishers/*", targetComponentType = Publisher.class)
+    @XBRead(value = "//publishers/*", targetComponentType = Publisher.class)
     List<Publisher> getPublishers();
     
-    @XPathProjection(value = "//prebuilders/* | //builders/* | //postbuilders/*", targetComponentType = Builder.class)
+    @XBRead(value = "//prebuilders/* | //builders/* | //postbuilders/*", targetComponentType = Builder.class)
     List<Builder> getAllBuilders();
 
 }

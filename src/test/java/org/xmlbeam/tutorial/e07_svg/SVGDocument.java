@@ -18,7 +18,7 @@ package org.xmlbeam.tutorial.e07_svg;
 import java.util.List;
 
 import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 /**
  * This example shows the modification of a SVG Graphic. A list of elements
@@ -38,14 +38,14 @@ public interface SVGDocument {
      * rectangles.
      */
     public interface GraphicElement extends Comparable<GraphicElement> {
-        @XPathProjection("@y")
+        @XBRead("@y")
         Integer getYPosition();
     }
     
-    @XPathProjection(value = "/svg/rect", targetComponentType = GraphicElement.class)
+    @XBRead(value = "/svg/rect", targetComponentType = GraphicElement.class)
     List<GraphicElement> getGraphicElements();
 
-    @XPathProjection("/svg/rect")
+    @XBRead("/svg/rect")
     SVGDocument setGraphicElements(List<GraphicElement> elements);
 
 }

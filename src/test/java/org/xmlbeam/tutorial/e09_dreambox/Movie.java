@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e09_dreambox;
 
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 /**
  * 
@@ -24,28 +24,28 @@ import org.xmlbeam.XPathProjection;
  */
 public interface Movie {
 
-    @XPathProjection("child::e2servicereference")
+    @XBRead("child::e2servicereference")
     String getServiceReference();
 
-    @XPathProjection("child::e2time")
+    @XBRead("child::e2time")
     long getTime();
 
-    @XPathProjection("child::e2length")
+    @XBRead("child::e2length")
     long getLength();
 
-    @XPathProjection("child:e2filesize")
+    @XBRead("child:e2filesize")
     long getFileSize();
 
-    @XPathProjection("child::e2title")
+    @XBRead("child::e2title")
     String getTitle();
 
-    @XPathProjection("child::e2description")
+    @XBRead("child::e2description")
     String getDescription();
 
-    @XPathProjection("child::e2descriptionextended")
+    @XBRead("child::e2descriptionextended")
     String getDescriptionExtended();
 
-    @XPathProjection("child::e2tags")
+    @XBRead("child::e2tags")
     String getTags();
 
 }

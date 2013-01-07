@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e06_xhtml;
 
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 /**
  * Finally we go the other way around. We create a new document and fill the content via this projection interface.
@@ -25,15 +25,15 @@ import org.xmlbeam.XPathProjection;
  */
 public interface XHTML {
 
-    @XPathProjection("/html/@xmlns")
+    @XBRead("/html/@xmlns")
     XHTML setRootNameSpace(String ns);
     
-    @XPathProjection("/html/@xml:lang")
+    @XBRead("/html/@xml:lang")
     XHTML setRootLang(String lang);
     
-    @XPathProjection("/html/head/title")
+    @XBRead("/html/head/title")
     XHTML setTitle(String title);
     
-    @XPathProjection("/html/body")
+    @XBRead("/html/body")
     XHTML setBody(String body);
 }

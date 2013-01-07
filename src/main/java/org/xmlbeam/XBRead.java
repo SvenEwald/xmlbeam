@@ -27,18 +27,19 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface XPathProjection {
+public @interface XBRead {
 
     /**
-     * XPath expression to project XML data to return type of decorated method.
-     *
+     * XPath to select element or attribute to be changed.
+     * 
      * @return
      */
     String value();
 
     /**
      * Type of desired collection content. My be omitted for arrays.
+     * 
      * @return
      */
-    Class<?> targetComponentType() default XPathProjection.class;
+    Class<?> targetComponentType() default XBWrite.class;
 }
