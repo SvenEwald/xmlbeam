@@ -34,6 +34,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.xpath.XPath;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
@@ -368,7 +369,18 @@ public class XMLProjector implements Serializable {
         return projectXML(document, projectionInterface);
     }
 
-
+    /**
+     * Create a new projection for an empty element. Use this to create new elements.
+     * 
+     * @param name Element name
+     * @param projectionInterface 
+     * @return a new projection instance
+     */
+    public <T> T createEmptyElementProjection(final String name,Class<T> projectionInterface) {
+        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+        Element element = document.createElement(name);
+        return projectXML(element, projectionInterface);
+    }
 
     /**
      * Use this method to obtain the DOM tree behind a projection. Changing the DOM of a projection
@@ -386,7 +398,7 @@ public class XMLProjector implements Serializable {
     }
 
     /**
-     * Ensures that the given object is a projectin created by a projector.
+     * Ensures that the given object is a projection created by a projector.
      * 
      * @param projection
      * @return
@@ -423,6 +435,10 @@ public class XMLProjector implements Serializable {
         return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(this, node, projectionInterface)));
     }
 
+    /**
+     * 
+     * @return 
+     */
     public ReaderBuilder read() {
         return new ReaderBuilder();
     }

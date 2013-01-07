@@ -24,7 +24,7 @@ public interface Document {
     @XPathProjection("/*")
     Element getRootElement();
 
-    @XPathProjection("/*")
+    @XPathProjection("/")
     void setRootElement(Element rootElement);
 
 }
