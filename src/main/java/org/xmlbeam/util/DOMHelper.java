@@ -48,7 +48,7 @@ public class DOMHelper {
         }
     }
 
-    public static Document getXMLNodeFromURI(DocumentBuilder documentBuilder, final String uri, final Class<?> resourceAwareClass) throws IOException {
+    public static Document getDocumentFromURI(DocumentBuilder documentBuilder, final String uri, final Class<?> resourceAwareClass) throws IOException {
         try {
             if (uri.startsWith("resource://")) {
                 return documentBuilder.parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
@@ -84,17 +84,32 @@ public class DOMHelper {
         return map;
     }
 
-    public static Element ensureElementExists(final Element settingNode, final String pathToElement) {
+    /**
+     * Treat the given path as absolute path to an element and return this element.
+     * If any element on this path does not exist, create it.
+     * @param document document 
+     * @param pathToElement absolute path to element.
+     * @return element with absolute path.
+     */
+    public static Element ensureElementExists(final Document document, final String pathToElement) {
+        assert document != null;        
         String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
-        Element element = settingNode;
-        for (String elementName : splitme.split("/")) {
-            if (elementName.equals(element.getNodeName())) {
+        if (splitme.isEmpty()) {
+            throw new IllegalArgumentException("Path must not be empty. I don't know which element to return.");
+        }
+        Element element = document.getDocumentElement();
+        if (element == null) { // No root element yet
+            element = document.createElement(splitme.replaceAll("/.*", ""));
+            document.appendChild(element);
+        }
+
+        for (String expectedElementName : splitme.split("/")) {
+            if (expectedElementName.equals(element.getNodeName())) {
                 continue;
             }
-            NodeList nodeList = element.getElementsByTagName(elementName);
+            NodeList nodeList = element.getElementsByTagName(expectedElementName);
             if (nodeList.getLength() == 0) {
-                element.getOwnerDocument().createElement(elementName);
-                element = (Element) element.appendChild(element.getOwnerDocument().createElement(elementName));
+                element = (Element) element.appendChild(document.createElement(expectedElementName));
                 continue;
             }
             element = (Element) nodeList.item(0);

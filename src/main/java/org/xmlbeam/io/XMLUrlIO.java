@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector;
+import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.IOHelper;
 
 /**
@@ -47,15 +48,8 @@ public class XMLUrlIO {
      * @throws IOException
      */
     public <T> T fromURL(final String uri, final Class<T> projectionInterface) throws IOException {
-        if (uri.startsWith("resource://")) {
-            return new XMLStreamIO(projector).read(projectionInterface.getResourceAsStream(uri.substring("resource://".length())), projectionInterface);
-        }
-        try {
-            Document document = projector.config().getDocumentBuilder().parse(uri);
-            return projector.projectXML(document, projectionInterface);
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        }
+        Document document = DOMHelper.getDocumentFromURI(projector.config().getDocumentBuilder(), uri, projectionInterface);
+        return projector.projectXML(document, projectionInterface);
     }
 
     /**
