@@ -18,38 +18,38 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 import java.util.List;
 
 import org.xmlbeam.SetterValue;
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 public interface Element {
 
-    @XPathProjection(".")
+    @XBRead(".")
     Element addAttribute(Attribute attribute);
 
-    @XPathProjection("@{1}")
+    @XBRead("@{1}")
     Element addAttribute(String name, @SetterValue String value);
 
-    @XPathProjection("@{0}")
+    @XBRead("@{0}")
     Attribute attribute(String name);
 
-    @XPathProjection("count(@*)")
+    @XBRead("count(@*)")
     int attributeCount();
 
-    @XPathProjection("@*")
+    @XBRead("@*")
     List<Attribute> attributes();
 
-    @XPathProjection("@{0}")
+    @XBRead("@{0}")
     String attributeValue(String attributeName);
 
-    @XPathProjection("./{0}")
+    @XBRead("./{0}")
     Element element(String name);
 
-    @XPathProjection(value = "./*", targetComponentType = Element.class)
+    @XBRead(value = "./*", targetComponentType = Element.class)
     List<Element> elements();
 
-    @XPathProjection("name()")
+    @XBRead("name()")
     String getName();
 
-    @XPathProjection(".")
+    @XBRead(".")
     String getText();
 
 }

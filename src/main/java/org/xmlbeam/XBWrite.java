@@ -13,19 +13,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tutorial.e02_jenkins.model;
+package org.xmlbeam;
 
-import org.xmlbeam.XBRead;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-//START SNIPPET: JenkinsBuilderInterface
-public interface Builder extends ModelElement {
-    
+/**
+ * Define the projection function for elements of a projection.
+ * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface XBWrite {
+
     /**
-     * Builder may invoke ant targets, maven goals or shell commands. 
-     * @return The builders task, whatever this element is.
+     * XPath expression to project XML data to return type of decorated method.
+     *
+     * @return
      */
-    @XBRead("child::targets | child::command")
-    String getTargetsOrCommands();
+    String value();
+
 
 }
-//END SNIPPET: JenkinsBuilderInterface

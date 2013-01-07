@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 /**
  * This example is to demonstrate how to modify a XML document. The Slashdot RSS
@@ -38,13 +38,13 @@ public interface SlashdotRSSFeed {
      * thats just to compact this tutorial.
      */
     interface Story {
-        @XPathProjection("child::title")
+        @XBRead("child::title")
         String getTitle();
 
-        @XPathProjection("child::pubDate")
+        @XBRead("child::pubDate")
         String getDate();
 
-        @XPathProjection("child::description")
+        @XBRead("child::description")
         String getDescription();
     }
 
@@ -55,7 +55,7 @@ public interface SlashdotRSSFeed {
      * 
      * @return List of all stories
      */
-    @XPathProjection(value = "/rss/channel/item", targetComponentType = Story.class)
+    @XBRead(value = "/rss/channel/item", targetComponentType = Story.class)
     List<Story> getAllItems();
 
     /**
@@ -71,7 +71,7 @@ public interface SlashdotRSSFeed {
      * 
      * @param items
      */
-    @XPathProjection("/rss/channel/item")
+    @XBRead("/rss/channel/item")
     void setAllItems(Collection<Story> items);
 
     /**
@@ -82,7 +82,7 @@ public interface SlashdotRSSFeed {
      * 
      * @return A list of all creators.
      */
-    @XPathProjection(value = "//dc:creator", targetComponentType = String.class)
+    @XBRead(value = "//dc:creator", targetComponentType = String.class)
     List<String> getCreators();
 
     /**
@@ -92,6 +92,6 @@ public interface SlashdotRSSFeed {
      * 
      * @return A filtered list of stories.
      */
-    @XPathProjection(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
+    @XBRead(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
     List<Story> getOpenSourceStories();
 }

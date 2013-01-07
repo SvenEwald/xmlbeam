@@ -16,7 +16,7 @@
 package org.xmlbeam.tutorial.e04_maven;
 
 import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 /**
  * This example demonstrates the reuse of a sub projection. This is possible
@@ -28,29 +28,29 @@ import org.xmlbeam.XPathProjection;
 @DocumentURL("resource://pom.xml")
 public interface MavenPOM {
 
-    @XPathProjection("/project/name")
+    @XBRead("/project/name")
     String getName();
 
-    @XPathProjection("/project/name")
+    @XBRead("/project/name")
     void setName(String name);
 
     public interface Artifact {
 
-        @XPathProjection("child::groupId")
+        @XBRead("child::groupId")
         String getGroupId();
 
-        @XPathProjection("child::artifactId")
+        @XBRead("child::artifactId")
         String getArtifactId();
 
-        @XPathProjection("child::version")
+        @XBRead("child::version")
         String getVersion();
 
     }
 
-    @XPathProjection("/project")
+    @XBRead("/project")
     Artifact getProjectId();
 
-    @XPathProjection("/project/depencencies/dependency")
+    @XBRead("/project/depencencies/dependency")
     Artifact[] getDependencies();
 
 }

@@ -75,7 +75,7 @@ import org.xmlbeam.util.ReflectionHelper;
  * projections can be used as return type of getters and as parameters of setters. This works even
  * in arrays or lists. Because of the infamous Java type erasure you have to specify the component
  * type of the sub projection for a getter returning a list of sub projections. This type is defined
- * as second parameter "targetType" in the {@link XPathProjection} annotation.
+ * as second parameter "targetType" in the {@link XBRead} annotation.
  * </p>
  * <p>
  * Dynamic Projections<br>

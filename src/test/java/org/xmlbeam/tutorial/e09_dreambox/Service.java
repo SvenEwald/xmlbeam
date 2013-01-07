@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e09_dreambox;
 
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 /**
  * 
@@ -24,9 +24,9 @@ import org.xmlbeam.XPathProjection;
  */
 public interface Service {
 
-    @XPathProjection("//e2servicereference")
+    @XBRead("//e2servicereference")
     String getReference();
 
-    @XPathProjection("e2servicename")
+    @XBRead("e2servicename")
     String getName();
 }

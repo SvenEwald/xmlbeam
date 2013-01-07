@@ -15,36 +15,36 @@
  */
 package org.xmlbeam.tutorial.e09_dreambox;
 
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public interface Event {
 
-    @XPathProjection("//e2eventid")
+    @XBRead("//e2eventid")
     String getID();
 
-    @XPathProjection("//e2eventstart * 1000")
+    @XBRead("//e2eventstart * 1000")
     long getStart();
 
-    @XPathProjection("//e2eventduration div 60")
+    @XBRead("//e2eventduration div 60")
     long getDurationInMinutes();
 
-    @XPathProjection("//e2eventcurrenttime")
+    @XBRead("//e2eventcurrenttime")
     long getCurrentTime();
 
-    @XPathProjection("//e2eventtitle")
+    @XBRead("//e2eventtitle")
     String getTitle();
 
-    @XPathProjection("//e2eventdescription")
+    @XBRead("//e2eventdescription")
     String getDescription();
 
-    @XPathProjection("//e2eventdescriptionextended")
+    @XBRead("//e2eventdescriptionextended")
     String getDescriptionExtended();
 
-    @XPathProjection("//e2eventservicereference")
+    @XBRead("//e2eventservicereference")
     String getServiceReference();
 
-    @XPathProjection("//e2eventservicename")
+    @XBRead("//e2eventservicename")
     String getServiceName();
 }

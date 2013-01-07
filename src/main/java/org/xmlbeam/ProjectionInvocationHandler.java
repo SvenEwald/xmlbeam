@@ -258,9 +258,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     }
 
     private String getXPathExpression(final Method method, final Object[] args) {
-        XPathProjection annotation = method.getAnnotation(org.xmlbeam.XPathProjection.class);
+        XBRead annotation = method.getAnnotation(org.xmlbeam.XBRead.class);
         if (annotation == null) {
-            throw new IllegalArgumentException("Method " + method + " needs a " + org.xmlbeam.XPathProjection.class.getSimpleName() + " annotation.");
+            throw new IllegalArgumentException("Method " + method + " needs a " + org.xmlbeam.XBRead.class.getSimpleName() + " annotation.");
         }
         String path = MessageFormat.format(annotation.value(), args);
         return path;
@@ -314,9 +314,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getReturnType().isArray()) {
             targetType = method.getReturnType().getComponentType();
         } else {
-            targetType = method.getAnnotation(org.xmlbeam.XPathProjection.class).targetComponentType();
-            if (XPathProjection.class.equals(targetType)) {
-                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XPathProjection.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
+            targetType = method.getAnnotation(org.xmlbeam.XBRead.class).targetComponentType();
+            if (XBRead.class.equals(targetType)) {
+                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
             }
         }
 
@@ -329,12 +329,12 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (targetType.isInterface()) {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 Node n = nodes.item(i).cloneNode(true);
-                Projection subprojection = (Projection) xmlProjector.projectXML(n, method.getAnnotation(org.xmlbeam.XPathProjection.class).targetComponentType());
+                Projection subprojection = (Projection) xmlProjector.projectXML(n, method.getAnnotation(org.xmlbeam.XBRead.class).targetComponentType());
                 linkedList.add(subprojection);
             }
             return linkedList;
         }
-        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.XPathProjection.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
+        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.XBRead.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
                 + xmlProjector.config().getTypeConverter());
     }
 }

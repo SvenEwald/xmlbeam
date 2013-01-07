@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e08_api_mimicry;
 
-import org.xmlbeam.XPathProjection;
+import org.xmlbeam.XBRead;
 
 /**
  * @author sven
@@ -23,9 +23,9 @@ import org.xmlbeam.XPathProjection;
  */
 public interface Attribute {
 
-    @XPathProjection("name()")
+    @XBRead("name()")
     String getName();
 
-    @XPathProjection(".")
+    @XBRead(".")
     String getValue();
 }
