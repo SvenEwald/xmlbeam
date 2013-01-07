@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -50,6 +51,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XMLProjector.Projection;
+import org.xmlbeam.io.XMLUrlIO;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.ReflectionHelper;
 
@@ -57,7 +59,8 @@ import org.xmlbeam.util.ReflectionHelper;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/)|(/[a-zA-Z]+)+(/@[a-z:A-Z]+)?$";
+    //private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$";
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$");
     private final Node node;
     private final Class<?> projectionInterface;
     private final XMLProjector xmlProjector;
@@ -80,7 +83,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         };
         Object objectInvoker = new Serializable() {
-
             @Override
             public String toString() {
                 try {
@@ -111,12 +113,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             public int hashCode() {
                 return 31 * ProjectionInvocationHandler.this.projectionInterface.hashCode() + 27 * node.hashCode();
             }
-
         };
 
         defaultInvokers.put(Projection.class, projectionInvoker);
         defaultInvokers.put(Object.class, objectInvoker);
-        // defaultInvokers.put(ProjectionInvocationHandler.class, this);
     }
 
     @Override
@@ -163,26 +163,26 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 throw new RuntimeException(e);
             }
         }
-
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        final String path = getXPathExpression(method, args);
-        if (!path.matches(LEGAL_XPATH_SELECTORS_FOR_SETTERS)) {
+        final String path = getXPathExpression(method, args);        
+        if (!LEGAL_XPATH_SELECTORS_FOR_SETTERS.matcher(path).matches()) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
         }
         final String pathToElement = path.replaceAll("/@.*", "");
-        Node settingNode = getDocumentForMethod(method, args);
-        Element rootElement = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode).getDocumentElement() : settingNode.getOwnerDocument().getDocumentElement();
-        if (rootElement == null) {
-            assert Node.DOCUMENT_NODE == settingNode.getNodeType();
-            String rootElementName = path.replaceAll("(^/)|(/.*$)", "");
-            rootElement = ((Document) settingNode).createElement(rootElementName);
-            settingNode.appendChild(rootElement);
-        }
+        final Node settingNode = getNodeForMethod(method, args);
+        final Document document =  Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
+        Element rootElement = document.getDocumentElement();
+//        if (rootElement == null) {
+//            assert Node.DOCUMENT_NODE == settingNode.getNodeType();
+//            String rootElementName = path.replaceAll("(^/)|(/.*$)", "");
+//            rootElement = ((Document) settingNode).createElement(rootElementName);           
+//            settingNode.appendChild(rootElement);
+//        }
 
-        Object valuetToSet = args[findIndexOfValue(method)];
-        Element elementToChange = DOMHelper.ensureElementExists(rootElement, pathToElement);
+        final Object valuetToSet = args[findIndexOfValue(method)];
+        Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
         if (path.contains("@")) {
             String attributeName = path.replaceAll(".*@", "");            
             elementToChange.setAttribute(attributeName, valuetToSet.toString());
@@ -262,19 +262,19 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         return path;
     }
 
-    private Node getDocumentForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
+    private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
         Node evaluationNode = node;
         if (method.getAnnotation(DocumentURL.class) != null) {
             String uri = method.getAnnotation(DocumentURL.class).value();
-            uri = MessageFormat.format(uri, args);
-            evaluationNode = DOMHelper.getXMLNodeFromURI(xmlProjector.config().getDocumentBuilder(), uri, projectionInterface);
+            uri = MessageFormat.format(uri, args);            
+            evaluationNode = DOMHelper.getDocumentFromURI(xmlProjector.config().getDocumentBuilder(), uri, projectionInterface);
         }
         return evaluationNode;
     }
 
     private Object invokeGetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
         final String path = getXPathExpression(method, args);
-        final Node node = getDocumentForMethod(method, args);
+        final Node node = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
         final XPath xPath = xmlProjector.config().getXPath(document);
         final XPathExpression expression = xPath.compile(path);
