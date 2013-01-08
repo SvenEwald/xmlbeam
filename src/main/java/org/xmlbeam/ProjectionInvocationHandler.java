@@ -50,7 +50,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XMLProjector.Projection;
+import org.xmlbeam.XBProjector.Projection;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.ReflectionHelper;
 
@@ -63,10 +63,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");
     private final Node node;
     private final Class<?> projectionInterface;
-    private final XMLProjector xmlProjector;
+    private final XBProjector xmlProjector;
     private final Map<Class<?>, Object> defaultInvokers = new HashMap<Class<?>, Object>();
 
-    ProjectionInvocationHandler(final XMLProjector xmlProjector, final Node node, final Class<?> projectionInterface) {
+    ProjectionInvocationHandler(final XBProjector xmlProjector, final Node node, final Class<?> projectionInterface) {
         this.xmlProjector = xmlProjector;
         this.node = node;
         this.projectionInterface = projectionInterface;

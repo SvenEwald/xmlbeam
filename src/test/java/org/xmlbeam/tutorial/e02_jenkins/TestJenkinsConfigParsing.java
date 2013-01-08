@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
 import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
@@ -34,7 +34,7 @@ public class TestJenkinsConfigParsing {
 
     @Before
     public void readJobConfig() throws IOException {
-        config = new XMLProjector().read().fromURLAnnotation(JenkinsJobConfig.class);
+        config = new XBProjector().read().fromURLAnnotation(JenkinsJobConfig.class);
     }
 
     @Test

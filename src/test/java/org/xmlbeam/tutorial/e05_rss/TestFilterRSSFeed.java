@@ -29,7 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Document;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
@@ -60,7 +60,7 @@ public class TestFilterRSSFeed {
 
     @BeforeClass
     public static void readFeed() throws IOException {
-        XMLProjector projector = new XMLProjector(new PrettyPrintingFactoryConfiguration());
+        XBProjector projector = new XBProjector(new PrettyPrintingFactoryConfiguration());
         feed = projector.read().fromURLAnnotation(SlashdotRSSFeed.class);
     }
 

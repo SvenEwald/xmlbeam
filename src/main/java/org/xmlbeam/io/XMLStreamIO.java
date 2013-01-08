@@ -25,19 +25,19 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class XMLStreamIO {
 
-    private final XMLProjector projector;
+    private final XBProjector projector;
 
     /**
      * @param xmlProjector
      */
-    public XMLStreamIO(XMLProjector xmlProjector) {
+    public XMLStreamIO(XBProjector xmlProjector) {
         this.projector = xmlProjector;
     }
 

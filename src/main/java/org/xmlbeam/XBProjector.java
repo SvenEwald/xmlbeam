@@ -96,7 +96,7 @@ import org.xmlbeam.util.ReflectionHelper;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XMLProjector implements Serializable {
+public class XBProjector implements Serializable {
 
     /**
      * A variation of the builder pattern. All methods to configure the projector are hidden in this
@@ -113,7 +113,7 @@ public class XMLProjector implements Serializable {
         }
 
         public TypeConverter getTypeConverter() {
-            return XMLProjector.this.typeConverter;
+            return XBProjector.this.typeConverter;
         }
 
         /**
@@ -124,7 +124,7 @@ public class XMLProjector implements Serializable {
         }
 
         public ConfigBuilder setTypeConverter(TypeConverter converter) {
-            XMLProjector.this.typeConverter = converter;
+            XBProjector.this.typeConverter = converter;
             return this;
         }
     }
@@ -146,7 +146,7 @@ public class XMLProjector implements Serializable {
          * @param mixinImplementation
          * @return
          */
-        public <S, M extends S, P extends S> XMLProjector addProjectionMixin(Class<P> projectionInterface, M mixinImplementation) {
+        public <S, M extends S, P extends S> XBProjector addProjectionMixin(Class<P> projectionInterface, M mixinImplementation) {
             if (!isValidProjectionInterface(projectionInterface)) {
                 throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
             }
@@ -155,7 +155,7 @@ public class XMLProjector implements Serializable {
                 map.put(type, mixinImplementation);
             }
             mixins.put(projectionInterface, map);
-            return XMLProjector.this;
+            return XBProjector.this;
 
         }
 
@@ -201,7 +201,7 @@ public class XMLProjector implements Serializable {
          * @throws IOException
          */
         public <T> T fromFile(final File file, final Class<T> projectionInterface) throws IOException {
-            return new XMLFileIO(XMLProjector.this).read(file, projectionInterface);
+            return new XMLFileIO(XBProjector.this).read(file, projectionInterface);
         }
 
         /**
@@ -214,7 +214,7 @@ public class XMLProjector implements Serializable {
          * @throws IOException
          */
         public <T> T fromInputStream(final InputStream is, final Class<T> projectionInterface) throws IOException {
-            return new XMLStreamIO(XMLProjector.this).read(is, projectionInterface);
+            return new XMLStreamIO(XBProjector.this).read(is, projectionInterface);
         }
 
         /**
@@ -230,7 +230,7 @@ public class XMLProjector implements Serializable {
          */
         public <T> T fromURL(final String uri, final Class<T> projectionInterface) throws IOException {
 
-            return new XMLUrlIO(XMLProjector.this).fromURL(uri, projectionInterface);
+            return new XMLUrlIO(XBProjector.this).fromURL(uri, projectionInterface);
         }
 
         /**
@@ -261,14 +261,14 @@ public class XMLProjector implements Serializable {
          * @return
          * @throws IOException
          */
-        public XMLProjector toFile(Object projection, final File file) throws IOException {
-            new XMLFileIO(XMLProjector.this).write(projection, file);
-            return XMLProjector.this;
+        public XBProjector toFile(Object projection, final File file) throws IOException {
+            new XMLFileIO(XBProjector.this).write(projection, file);
+            return XBProjector.this;
         }
 
-        public XMLProjector toOutputStream(Object projection, final OutputStream os) throws IOException {
-            new XMLStreamIO(XMLProjector.this).write(projection, os);
-            return XMLProjector.this;
+        public XBProjector toOutputStream(Object projection, final OutputStream os) throws IOException {
+            new XMLStreamIO(XBProjector.this).write(projection, os);
+            return XBProjector.this;
         }
 
         /**
@@ -290,7 +290,7 @@ public class XMLProjector implements Serializable {
             }
             if (url.startsWith("file://")) {
                 File file = new File(url.substring("file://".length()));
-                new XMLFileIO(XMLProjector.this).write(projection, file);
+                new XMLFileIO(XBProjector.this).write(projection, file);
                 return null;
             }
             throw new IllegalArgumentException("I don't know how to write to url:" + url + " Try again with a http or file url.");
@@ -305,7 +305,7 @@ public class XMLProjector implements Serializable {
          * @throws IOException
          */
         public String toHTTPURLviaPOST(Object projection, String httpurl, Map<String, String> additionalRequestParams) throws IOException {
-            return new XMLUrlIO(XMLProjector.this).toHTTPURLviaPOST(projection, httpurl, additionalRequestParams);
+            return new XMLUrlIO(XBProjector.this).toHTTPURLviaPOST(projection, httpurl, additionalRequestParams);
         }
     }
 
@@ -329,14 +329,14 @@ public class XMLProjector implements Serializable {
     /**
      * Constructor. Use me to create a projector with defaults.
      */
-    public XMLProjector() {
+    public XBProjector() {
         xMLFactoriesConfig = new DefaultXMLFactoriesConfig();
     }
 
     /**
      * @param xMLFactoriesConfig
      */
-    public XMLProjector(XMLFactoriesConfig xMLFactoriesConfig) {
+    public XBProjector(XMLFactoriesConfig xMLFactoriesConfig) {
         this.xMLFactoriesConfig = xMLFactoriesConfig;
     }
 

@@ -21,20 +21,20 @@ import java.io.IOException;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class XMLFileIO {
 
-    private final XMLProjector projector;
+    private final XBProjector projector;
     boolean append = false;
 
     /**
      * @param xmlProjector
      */
-    public XMLFileIO(XMLProjector xmlProjector) {
+    public XMLFileIO(XBProjector xmlProjector) {
         this.projector = xmlProjector;
     }
 
