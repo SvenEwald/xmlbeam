@@ -36,6 +36,8 @@ import javax.xml.xpath.XPath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.io.XBFileIO;
@@ -236,7 +238,7 @@ public class XBProjector implements Serializable {
         }
 
         /**
-         * Create a new projection using a {@link DocumentURL} annotation on this interface. When the DocumentURL
+         * Create a new projection using a {@link XBDocURL} annotation on this interface. When the XBDocURL
          * starts with the protocol identifier "resource://" the class loader of the projection
          * interface will be used to read the resource from the current class path.
          * 
@@ -246,9 +248,9 @@ public class XBProjector implements Serializable {
          * @throws IOException
          */
         public <T> T fromURLAnnotation(final Class<T> projectionInterface) throws IOException {
-            org.xmlbeam.DocumentURL doc = projectionInterface.getAnnotation(org.xmlbeam.DocumentURL.class);
+            org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
-                throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + DocumentURL.class.getName() + " annotation linking to the document source.");
+                throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
             return (fromURL(doc.value(), projectionInterface));
         }
@@ -285,7 +287,7 @@ public class XBProjector implements Serializable {
         }
 
         /**
-         * Write projected document to url (file or http post) of {@link DocumentURL} annotation.
+         * Write projected document to url (file or http post) of {@link XBDocURL} annotation.
          * 
          * @param projection
          * @return response of http post or null for file urls.
@@ -293,9 +295,9 @@ public class XBProjector implements Serializable {
          */
         public String toURLAnnotationViaPOST(final Object projection) throws IOException {
             Class<?> projectionInterface = checkProjectionInstance(projection).getProjectionInterface();
-            org.xmlbeam.DocumentURL doc = projectionInterface.getAnnotation(org.xmlbeam.DocumentURL.class);
+            org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
-                throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + DocumentURL.class.getName() + " annotation linking to the document source.");
+                throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
             String url = doc.value();
             if ((url.startsWith("http://")) || (url.startsWith("https://"))) {

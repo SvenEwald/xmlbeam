@@ -51,6 +51,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector.Projection;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBValue;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.ReflectionHelper;
 
@@ -213,13 +217,13 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
     /**
      * @param method
-     * @return index of fist parameter annotated with {@link SetterValue} annotation.
+     * @return index of fist parameter annotated with {@link XBValue} annotation.
      */
     private int findIndexOfValue(Method method) {
         int index = 0;
         for (Annotation[] annotations : method.getParameterAnnotations()) {
             for (Annotation a : annotations) {                
-                if (SetterValue.class.equals(a.annotationType())) {
+                if (XBValue.class.equals(a.annotationType())) {
                     return index;
                 }
             }
@@ -279,8 +283,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
         Node evaluationNode = node;
-        if (method.getAnnotation(DocumentURL.class) != null) {
-            String uri = method.getAnnotation(DocumentURL.class).value();
+        if (method.getAnnotation(XBDocURL.class) != null) {
+            String uri = method.getAnnotation(XBDocURL.class).value();
             uri = MessageFormat.format(uri, args);
             evaluationNode = DOMHelper.getDocumentFromURL(xmlProjector.config().getDocumentBuilder(), uri,null, projectionInterface);
         }
@@ -325,7 +329,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getReturnType().isArray()) {
             targetType = method.getReturnType().getComponentType();
         } else {
-            targetType = method.getAnnotation(org.xmlbeam.XBRead.class).targetComponentType();
+            targetType = method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType();
             if (XBRead.class.equals(targetType)) {
                 throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
             }
@@ -340,12 +344,12 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (targetType.isInterface()) {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 Node n = nodes.item(i).cloneNode(true);
-                Projection subprojection = (Projection) xmlProjector.projectXML(n, method.getAnnotation(org.xmlbeam.XBRead.class).targetComponentType());
+                Projection subprojection = (Projection) xmlProjector.projectXML(n, method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType());
                 linkedList.add(subprojection);
             }
             return linkedList;
         }
-        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.XBRead.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
+        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
                 + xmlProjector.config().getTypeConverter());
     }
 }

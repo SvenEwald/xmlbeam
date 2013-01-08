@@ -17,8 +17,8 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 
 import java.util.List;
 
-import org.xmlbeam.SetterValue;
-import org.xmlbeam.XBRead;
+import org.xmlbeam.annotation.XBValue;
+import org.xmlbeam.annotation.XBRead;
 
 public interface Element {
 
@@ -26,7 +26,7 @@ public interface Element {
     Element addAttribute(Attribute attribute);
 
     @XBRead("@{1}")
-    Element addAttribute(String name, @SetterValue String value);
+    Element addAttribute(String name, @XBValue String value);
 
     @XBRead("@{0}")
     Attribute attribute(String name);

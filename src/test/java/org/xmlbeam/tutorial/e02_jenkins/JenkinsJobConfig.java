@@ -16,7 +16,7 @@
 package org.xmlbeam.tutorial.e02_jenkins;
 import java.util.List;
 
-import org.xmlbeam.XBRead;
+import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
 import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 
@@ -34,7 +34,7 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
  * 
  */
 //START SNIPPET: JenkinsJobConfigInterface
-@org.xmlbeam.DocumentURL("resource://config.xml")
+@org.xmlbeam.annotation.XBDocURL("resource://config.xml")
 public interface JenkinsJobConfig {
 
     @XBRead(value = "//publishers/*", targetComponentType = Publisher.class)

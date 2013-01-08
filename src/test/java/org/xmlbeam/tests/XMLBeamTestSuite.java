@@ -17,12 +17,12 @@ package org.xmlbeam.tests;
 
 import java.util.List;
 
-import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XBRead;
-import org.xmlbeam.XBWrite;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
 
 
-@org.xmlbeam.DocumentURL("resource://testsuite.xml")
+@org.xmlbeam.annotation.XBDocURL("resource://testsuite.xml")
 public interface XMLBeamTestSuite {
 
     @XBRead("/gluerootnode/intermediate/firstelement/innerElement1")
@@ -119,7 +119,7 @@ public interface XMLBeamTestSuite {
         boolean hasOption();
     }
 
-    @DocumentURL("resource://external_document.{0}")
+    @XBDocURL("resource://external_document.{0}")
     @XBRead(value = "/settings/setting", targetComponentType = Setting.class)
     List<Setting> getExternalSettings(String externsion);
 

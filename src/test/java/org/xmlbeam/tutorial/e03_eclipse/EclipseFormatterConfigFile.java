@@ -17,21 +17,21 @@ package org.xmlbeam.tutorial.e03_eclipse;
 
 import java.util.List;
 
-import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XBRead;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
 
 /**
  * We proceed with our examples to parameterized projections. Because
  * projections will be compiled and processed when used, there is no need to
  * keep them static. Instead give your getter method some parameters. They will
  * be applied as a {@lik MessageFormat} on the XBRead expression. (This is
- * possible on DocumentURL annotations, too).
+ * possible on XBDocURL annotations, too).
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 
 //START SNIPPET: EclipseCodeFormatterConfig
-@DocumentURL("resource://eclipsecodeformatprofile.xml")
+@XBDocURL("resource://eclipsecodeformatprofile.xml")
 public interface EclipseFormatterConfigFile {
 
     interface Setting {

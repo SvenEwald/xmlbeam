@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e08_api_mimicry;
 
-import org.xmlbeam.XBRead;
+import org.xmlbeam.annotation.XBRead;
 
 /**
  * @author sven

@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e06_xhtml;
 
-import org.xmlbeam.XBWrite;
+import org.xmlbeam.annotation.XBWrite;
 
 /**
  * Finally we go the other way around. We create a new document and fill the content via this projection interface.

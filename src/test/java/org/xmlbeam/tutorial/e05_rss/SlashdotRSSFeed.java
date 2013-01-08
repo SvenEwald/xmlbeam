@@ -18,9 +18,9 @@ package org.xmlbeam.tutorial.e05_rss;
 import java.util.Collection;
 import java.util.List;
 
-import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XBRead;
-import org.xmlbeam.XBWrite;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
 
 /**
  * This example is to demonstrate how to modify a XML document. The Slashdot RSS
@@ -30,7 +30,7 @@ import org.xmlbeam.XBWrite;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-@DocumentURL("http://rss.slashdot.org/Slashdot/slashdot")
+@XBDocURL("http://rss.slashdot.org/Slashdot/slashdot")
 public interface SlashdotRSSFeed {
 
     /**

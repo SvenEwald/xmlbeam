@@ -15,17 +15,17 @@
  */
 package org.xmlbeam.tests;
 
-import org.xmlbeam.SetterValue;
-import org.xmlbeam.XBRead;
-import org.xmlbeam.XBWrite;
+import org.xmlbeam.annotation.XBValue;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
 
 public interface GenericXPathProjection {
 
     @XBWrite("{0}")
-    void setterXPathString(String path, @SetterValue String value);
+    void setterXPathString(String path, @XBValue String value);
     
     @XBWrite("{0}")
-    void setterXPathProjection(String path,@SetterValue GenericXPathProjection projection);
+    void setterXPathProjection(String path,@XBValue GenericXPathProjection projection);
  
     @XBRead("{0}")
     String getXPathValue(String path);

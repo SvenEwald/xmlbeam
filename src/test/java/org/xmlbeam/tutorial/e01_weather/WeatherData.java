@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e01_weather;
 
-import org.xmlbeam.XBRead;
+import org.xmlbeam.annotation.XBRead;
 
 /**
  * Most basic real life example. A good start to get an impression of the
