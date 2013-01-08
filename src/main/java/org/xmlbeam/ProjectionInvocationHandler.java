@@ -51,9 +51,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector.Projection;
+import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
-import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.ReflectionHelper;
@@ -136,6 +137,11 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             injectMeAttribute((Projection) proxy, customInvoker);
             return method.invoke(customInvoker, args);
         }
+        
+        XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
+        if (delAnnotation!=null) {
+            return invokeDeleter(proxy, method, MessageFormat.format(delAnnotation.value(), args));
+        }
 
         if ((!ReflectionHelper.hasReturnType(method)) && (!ReflectionHelper.hasParameters(method))) {
             throw new IllegalArgumentException("Invoking void method " + method + " without parameters. What should I do?");
@@ -145,6 +151,31 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             return invokeSetter(proxy, method, args);
         }
         return invokeGetter(proxy, method, args);
+    }
+
+    /**
+     * @param proxy
+     * @param format
+     */
+    private Object invokeDeleter(Object proxy, Method method, String path) throws Throwable {
+        final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
+        final XPath xPath = xmlProjector.config().getXPath(document);
+        final XPathExpression expression = xPath.compile(path);
+
+        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); ++i) {
+            nodes.item(i).getParentNode().removeChild(nodes.item(i));
+        }
+
+        if (!ReflectionHelper.hasReturnType(method)) {
+            return null;
+        }
+
+        if (method.getReturnType().equals(method.getDeclaringClass())) {
+            return proxy;
+        }
+
+        throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
     }
 
     private void injectMeAttribute(Projection me, Object target) {
@@ -212,7 +243,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getReturnType().equals(method.getDeclaringClass())) {
             return proxy;
         }
-        throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what do return");
+        throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
     }
 
     /**
