@@ -58,7 +58,8 @@ import org.xmlbeam.util.ReflectionHelper;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    //private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS = "^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$";
+    // private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS =
+// "^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$";
     private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$");
     private final Node node;
     private final Class<?> projectionInterface;
@@ -165,7 +166,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        final String path = getXPathExpression(method, args);        
+        final String path = getSetterXPathExpression(method, args);
         if (!LEGAL_XPATH_SELECTORS_FOR_SETTERS.matcher(path).matches()) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
         }
@@ -176,19 +177,18 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         }
         final Node settingNode = getNodeForMethod(method, args);
-        final Document document =  Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
+        final Document document = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
         Element rootElement = document.getDocumentElement();
-//        if (rootElement == null) {
-//            assert Node.DOCUMENT_NODE == settingNode.getNodeType();
-//            String rootElementName = path.replaceAll("(^/)|(/.*$)", "");
-//            rootElement = ((Document) settingNode).createElement(rootElementName);           
-//            settingNode.appendChild(rootElement);
-//        }
-
-        final Object valuetToSet = args[findIndexOfValue(method)];
+// if (rootElement == null) {
+// assert Node.DOCUMENT_NODE == settingNode.getNodeType();
+// String rootElementName = path.replaceAll("(^/)|(/.*$)", "");
+// rootElement = ((Document) settingNode).createElement(rootElementName);
+// settingNode.appendChild(rootElement);
+// }
         Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+        final Object valuetToSet = args[findIndexOfValue(method)];
         if (path.contains("@")) {
-            String attributeName = path.replaceAll(".*@", "");            
+            String attributeName = path.replaceAll(".*@", "");
             elementToChange.setAttribute(attributeName, valuetToSet.toString());
         } else {
             if (valuetToSet instanceof Projection) {
@@ -230,7 +230,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     }
 
     /**
-     * 
      * @param collection
      * @param parentElement
      */
@@ -257,27 +256,38 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         element.appendChild(projection.getXMLNode());
     }
 
-    private String getXPathExpression(final Method method, final Object[] args) {
-        XBRead annotation = method.getAnnotation(org.xmlbeam.XBRead.class);
-        if (annotation == null) {
-            throw new IllegalArgumentException("Method " + method + " needs a " + org.xmlbeam.XBRead.class.getSimpleName() + " annotation.");
-        }
+    private String getGetterXPathExpression(final Method method, final Object[] args) {
+        XBRead annotation = findAnnotation(method,XBRead.class);
         String path = MessageFormat.format(annotation.value(), args);
         return path;
+    }
+
+    private String getSetterXPathExpression(final Method method, final Object[] args) {
+        XBWrite annotation = findAnnotation(method,XBWrite.class);
+        String path = MessageFormat.format(annotation.value(), args);
+        return path;
+    }
+
+    private <T extends Annotation> T findAnnotation(final Method method, Class<T> annotationClass) {
+        T annotation = method.getAnnotation(annotationClass);
+        if (annotation == null) {
+            throw new IllegalArgumentException("Method " + method + " needs a " + annotationClass.getSimpleName() + " annotation.");
+        }
+        return annotation;
     }
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
         Node evaluationNode = node;
         if (method.getAnnotation(DocumentURL.class) != null) {
             String uri = method.getAnnotation(DocumentURL.class).value();
-            uri = MessageFormat.format(uri, args);            
+            uri = MessageFormat.format(uri, args);
             evaluationNode = DOMHelper.getDocumentFromURI(xmlProjector.config().getDocumentBuilder(), uri, projectionInterface);
         }
         return evaluationNode;
     }
 
     private Object invokeGetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        final String path = getXPathExpression(method, args);
+        final String path = getGetterXPathExpression(method, args);
         final Node node = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
         final XPath xPath = xmlProjector.config().getXPath(document);

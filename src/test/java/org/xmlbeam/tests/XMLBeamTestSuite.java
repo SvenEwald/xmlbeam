@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XBRead;
+import org.xmlbeam.XBWrite;
 
 
 @org.xmlbeam.DocumentURL("resource://testsuite.xml")
@@ -72,7 +73,7 @@ public interface XMLBeamTestSuite {
     @XBRead("nothing")
     void notSupportedReturnType();
     
-    @XBRead("nothing/")
+    @XBWrite("nothing/")
     void setterWithTrailingSlash(String param);
 
     @XBRead("//NonExistingElement")
@@ -122,6 +123,6 @@ public interface XMLBeamTestSuite {
     @XBRead(value = "/settings/setting", targetComponentType = Setting.class)
     List<Setting> getExternalSettings(String externsion);
 
-    @XBRead("/description")
+    @XBWrite("/description")
     void setDescription(String description);
 }

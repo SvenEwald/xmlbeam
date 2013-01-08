@@ -17,6 +17,7 @@ package org.xmlbeam.tutorial.e04_maven;
 
 import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XBRead;
+import org.xmlbeam.XBWrite;
 
 /**
  * This example demonstrates the reuse of a sub projection. This is possible
@@ -31,7 +32,7 @@ public interface MavenPOM {
     @XBRead("/project/name")
     String getName();
 
-    @XBRead("/project/name")
+    @XBWrite("/project/name")
     void setName(String name);
 
     public interface Artifact {
