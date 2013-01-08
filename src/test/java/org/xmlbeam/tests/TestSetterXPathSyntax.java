@@ -59,5 +59,18 @@ public class TestSetterXPathSyntax {
     public void emptyrootElementEmptyAttributeNameNotAllowed() {
         projection.setterXPathString("/@", "");
     }
+    
+    @Test
+    public void createRootElementWithAttribute() {
+        projection.setterXPathString("/newRoot/@newAttribute","value");
+        assertEquals("newRoot",projector.getXMLDocForProjection(projection).getDocumentElement().getNodeName());
+        assertEquals("value",projector.getXMLDocForProjection(projection).getDocumentElement().getAttribute("newAttribute"));        
+    }
+    
+    @Test
+    public void createDeeperElementWithAttribute() {
+        projection.setterXPathString("/newRoot/someElement/anotherOne/@newAttribute","value");       
+        assertEquals("value",projection.getXPathValue("/newRoot/someElement/anotherOne/@newAttribute"));
+    }
 
 }

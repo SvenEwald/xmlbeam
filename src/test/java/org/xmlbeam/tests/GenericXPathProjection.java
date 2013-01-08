@@ -16,6 +16,7 @@
 package org.xmlbeam.tests;
 
 import org.xmlbeam.SetterValue;
+import org.xmlbeam.XBRead;
 import org.xmlbeam.XBWrite;
 
 public interface GenericXPathProjection {
@@ -25,5 +26,8 @@ public interface GenericXPathProjection {
     
     @XBWrite("{0}")
     void setterXPathProjection(String path,@SetterValue GenericXPathProjection projection);
+ 
+    @XBRead("{0}")
+    String getXPathValue(String path);
     
 }
