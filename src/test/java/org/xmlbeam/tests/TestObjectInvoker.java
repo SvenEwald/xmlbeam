@@ -17,13 +17,13 @@ package org.xmlbeam.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Scanner;
-
 import java.io.IOException;
 
 import org.junit.Test;
 import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.util.IOHelper;
 
 /**
  * Tests to ensure the function of toString(), equals() and hashCode() for
@@ -36,9 +36,9 @@ public class TestObjectInvoker {
 
     @Test
     public void testToString() throws IOException {
-        XMLBeamTestSuite testSuite = new XBProjector().read().fromURLAnnotation(XMLBeamTestSuite.class);
-        testSuite.toString();
-        String orig = new Scanner(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(DocumentURL.class).value().substring("resource://".length()))).useDelimiter("\\A").next();
+        DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig().setOmitXMLDeclaration(false);
+        XMLBeamTestSuite testSuite = new XBProjector(config).read().fromURLAnnotation(XMLBeamTestSuite.class);
+        String orig = IOHelper.inputStreamToString(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(DocumentURL.class).value().substring("resource://".length())));
         assertEquals(orig.replaceAll("\\s", ""), testSuite.toString().replaceAll("\\s", ""));
     }
 }

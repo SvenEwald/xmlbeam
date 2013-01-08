@@ -129,7 +129,6 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 // Enable some pretty printing of the resulting xml.
                 transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             }
             if (isOmitXMLDeclaration) {
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -230,7 +229,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     /**
      * @param isOmitXMLDeclaration the isOmitXMLDeclaration to set
      */
-    public void setOmitXMLDeclaration(boolean isOmitXMLDeclaration) {
+    public DefaultXMLFactoriesConfig setOmitXMLDeclaration(boolean isOmitXMLDeclaration) {
         this.isOmitXMLDeclaration = isOmitXMLDeclaration;
+        return this;
     }
 }
