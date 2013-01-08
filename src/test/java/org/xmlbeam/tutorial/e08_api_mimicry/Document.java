@@ -15,11 +15,11 @@
  */
 package org.xmlbeam.tutorial.e08_api_mimicry;
 
-import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XBRead;
-import org.xmlbeam.XBWrite;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
 
-@DocumentURL("resource://simple.xml")
+@XBDocURL("resource://simple.xml")
 public interface Document {
 
     @XBRead("/*")

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam;
+package org.xmlbeam.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,20 +21,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define the projection function for elements of a projection.
+ * Bind the decorated projection to a XML document location. When used on methods, an implicit
+ * projection is created every time the method is invoked.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface XBWrite {
+@Target({ ElementType.METHOD, ElementType.TYPE })
+public @interface XBDocURL {
 
-    /**
-     * XPath expression to project XML data to return type of decorated method.
-     *
-     * @return
-     */
     String value();
-
 
 }

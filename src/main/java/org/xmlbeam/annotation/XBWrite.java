@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam;
+package org.xmlbeam.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,19 +27,14 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface XBRead {
+public @interface XBWrite {
 
     /**
-     * XPath to select element or attribute to be changed.
-     * 
+     * XPath expression to project XML data to return type of decorated method.
+     *
      * @return
      */
     String value();
 
-    /**
-     * Type of desired collection content. My be omitted for arrays.
-     * 
-     * @return
-     */
-    Class<?> targetComponentType() default XBWrite.class;
+
 }

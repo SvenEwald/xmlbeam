@@ -17,8 +17,8 @@ package org.xmlbeam.tutorial.e09_dreambox;
 
 import java.util.List;
 
-import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XBRead;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
 
 /**
  * A Dreambox is a hard disk video recorder with a web based interface that works with XML data
@@ -31,22 +31,22 @@ import org.xmlbeam.XBRead;
  */
 public interface Dreambox {
 
-    // This is the root DocumentURL of my device.
+    // This is the root XBDocURL of my device.
     final static String BASE_URL = "http://192.168.1.44/web";
 
-    @DocumentURL(BASE_URL + "/movielist?dirname={0}")
+    @XBDocURL(BASE_URL + "/movielist?dirname={0}")
     @XBRead(value = "/e2movielist/e2movie", targetComponentType = Movie.class)
     List<Movie> getMovies(String location);
 
-    @DocumentURL(BASE_URL + "/getservices?sRef=1%3A7%3A1%3A0%3A0%3A0%3A0%3A0%3A0%3A0%3AFROM%20BOUQUET%20%22userbouquet.favourites.tv%22%20ORDER%20BY%20bouquet")
+    @XBDocURL(BASE_URL + "/getservices?sRef=1%3A7%3A1%3A0%3A0%3A0%3A0%3A0%3A0%3A0%3AFROM%20BOUQUET%20%22userbouquet.favourites.tv%22%20ORDER%20BY%20bouquet")
     @XBRead(value = "/e2servicelist/e2service", targetComponentType = Service.class)
     List<Service> getServices();
 
-    @DocumentURL(BASE_URL + "/web/epgservice?sRef={0}")
+    @XBDocURL(BASE_URL + "/web/epgservice?sRef={0}")
     @XBRead(value = "/e2eventlist/e2event", targetComponentType = Event.class)
     List<Event> getEvents(String serviceReference);
 
-    @DocumentURL(BASE_URL + "/web/getlocations")
+    @XBDocURL(BASE_URL + "/web/getlocations")
     @XBRead(value = "e2locations/e2location", targetComponentType = String.class)
     List<String> getLocations();
 

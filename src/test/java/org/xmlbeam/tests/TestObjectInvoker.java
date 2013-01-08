@@ -20,8 +20,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.util.IOHelper;
 
@@ -38,7 +38,7 @@ public class TestObjectInvoker {
     public void testToString() throws IOException {
         DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig().setOmitXMLDeclaration(false);
         XMLBeamTestSuite testSuite = new XBProjector(config).read().fromURLAnnotation(XMLBeamTestSuite.class);
-        String orig = IOHelper.inputStreamToString(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(DocumentURL.class).value().substring("resource://".length())));
+        String orig = IOHelper.inputStreamToString(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(XBDocURL.class).value().substring("resource://".length())));
         assertEquals(orig.replaceAll("\\s", ""), testSuite.toString().replaceAll("\\s", ""));
     }
 }

@@ -17,9 +17,9 @@ package org.xmlbeam.tutorial.e07_svg;
 
 import java.util.List;
 
-import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XBRead;
-import org.xmlbeam.XBWrite;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
 
 /**
  * This example shows the modification of a SVG Graphic. A list of elements
@@ -29,7 +29,7 @@ import org.xmlbeam.XBWrite;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
-@DocumentURL("resource://svg.xml")
+@XBDocURL("resource://svg.xml")
 public interface SVGDocument {
     
     /**

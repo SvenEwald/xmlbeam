@@ -15,9 +15,9 @@
  */
 package org.xmlbeam.tutorial.e04_maven;
 
-import org.xmlbeam.DocumentURL;
-import org.xmlbeam.XBRead;
-import org.xmlbeam.XBWrite;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
 
 /**
  * This example demonstrates the reuse of a sub projection. This is possible
@@ -26,7 +26,7 @@ import org.xmlbeam.XBWrite;
  * A simple setter is defined to modify a maven project name.
  * 
  */
-@DocumentURL("resource://pom.xml")
+@XBDocURL("resource://pom.xml")
 public interface MavenPOM {
 
     @XBRead("/project/name")

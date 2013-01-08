@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
-import org.xmlbeam.XBRead;
+import org.xmlbeam.annotation.XBRead;
 
 //START SNIPPET: JenkinsPublisherInterface
 public interface Publisher extends ModelElement{
