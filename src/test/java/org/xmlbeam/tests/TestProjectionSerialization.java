@@ -43,6 +43,7 @@ public class TestProjectionSerialization {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEmptyProjectionSerialization() throws IOException, ClassNotFoundException {
         SerializeMe projection = new XBProjector().createEmptyDocumentProjection(SerializeMe.class);
@@ -50,6 +51,7 @@ public class TestProjectionSerialization {
         assertNotSame(projection, squishedProjection);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T cloneBySerialization(T object, Class<T>... clazz) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);

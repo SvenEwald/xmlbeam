@@ -57,6 +57,7 @@ import org.xmlbeam.util.ReflectionHelper;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+@SuppressWarnings("serial")
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     // private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS =
 // "^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$";

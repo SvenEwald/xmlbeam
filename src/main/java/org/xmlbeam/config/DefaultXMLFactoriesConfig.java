@@ -44,6 +44,7 @@ import org.xmlbeam.util.DOMHelper;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
+@SuppressWarnings("serial")
 public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**

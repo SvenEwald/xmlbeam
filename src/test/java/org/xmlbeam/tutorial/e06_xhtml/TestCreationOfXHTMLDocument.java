@@ -15,14 +15,9 @@
  */
 package org.xmlbeam.tutorial.e06_xhtml;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.tutorial.Tutorial;
 
 /**

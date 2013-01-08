@@ -15,12 +15,10 @@
  */
 package org.xmlbeam.io;
 
+import java.io.IOException;
 import java.util.Map;
 
-import java.io.IOException;
-
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.IOHelper;
