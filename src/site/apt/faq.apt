@@ -34,11 +34,8 @@ FAQ / HowTo
    This works for any setter value that is not a projection nor a collection. 
    The toString() method will be used to create the attribute value.
       
-** Adding/Replacing a child element
+** Changing  child elements
 
    Example: "/element1/element2/*"
-   This works for projections only.
+   This works for projections or collections of projections only.
    
-** Adding/Replacing multiple child elements
-
-   Example: "/element1/element2/*   
