@@ -16,6 +16,7 @@
 package org.xmlbeam.io;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -29,9 +30,11 @@ import org.xmlbeam.util.IOHelper;
 public class XMLUrlIO {
 
     private final XBProjector projector;
+    private final Map<String,String> requestParams = new HashMap<String,String>();
 
     public XMLUrlIO(XBProjector projector) {
         this.projector = projector;
+        requestParams.put("Content-Type","text/xml");
     }
 
     /**
@@ -45,8 +48,8 @@ public class XMLUrlIO {
      * @return a new projection instance.
      * @throws IOException
      */
-    public <T> T fromURL(final String uri, final Class<T> projectionInterface) throws IOException {
-        Document document = DOMHelper.getDocumentFromURI(projector.config().getDocumentBuilder(), uri, projectionInterface);
+    public <T> T getFromURL(final String uri, final Class<T> projectionInterface) throws IOException {
+        Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), uri, requestParams, projectionInterface);
         return projector.projectXML(document, projectionInterface);
     }
 
@@ -58,7 +61,17 @@ public class XMLUrlIO {
      * @return response as String
      * @throws IOException
      */
-    public String toHTTPURLviaPOST(Object projection, String httpurl, Map<String, String> additionalRequestParams) throws IOException {
-        return IOHelper.httpPost(httpurl, projection.toString(), additionalRequestParams);
+    public String postToURL(Object projection, String httpurl) throws IOException {          
+        return IOHelper.inputStreamToString(IOHelper.httpPost(httpurl, projection.toString(), requestParams));
+    }
+    
+    public XMLUrlIO addRequestParams(Map<String,String> params) {
+        requestParams.putAll(params);
+        return this;
+    }
+       
+    public XMLUrlIO addRequestParam(String name,String value) {
+        requestParams.put(name,value);
+        return this;
     }
 }
