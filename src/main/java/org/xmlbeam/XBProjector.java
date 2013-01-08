@@ -38,9 +38,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
-import org.xmlbeam.io.XMLFileIO;
-import org.xmlbeam.io.XMLStreamIO;
-import org.xmlbeam.io.XMLUrlIO;
+import org.xmlbeam.io.XBFileIO;
+import org.xmlbeam.io.XBStreamIO;
+import org.xmlbeam.io.XBStringIO;
+import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.ReflectionHelper;
@@ -202,7 +203,7 @@ public class XBProjector implements Serializable {
          * @throws IOException
          */
         public <T> T fromFile(final File file, final Class<T> projectionInterface) throws IOException {
-            return new XMLFileIO(XBProjector.this).read(file, projectionInterface);
+            return new XBFileIO(XBProjector.this).read(file, projectionInterface);
         }
 
         /**
@@ -215,7 +216,7 @@ public class XBProjector implements Serializable {
          * @throws IOException
          */
         public <T> T fromInputStream(final InputStream is, final Class<T> projectionInterface) throws IOException {
-            return new XMLStreamIO(XBProjector.this).read(is, projectionInterface);
+            return new XBStreamIO(XBProjector.this).read(is, projectionInterface);
         }
 
         /**
@@ -231,7 +232,7 @@ public class XBProjector implements Serializable {
          */
         public <T> T fromURL(final String uri, final Class<T> projectionInterface) throws IOException {
 
-            return new XMLUrlIO(XBProjector.this).getFromURL(uri, projectionInterface);
+            return new XBUrlIO(XBProjector.this).getFromURL(uri, projectionInterface);
         }
 
         /**
@@ -251,6 +252,17 @@ public class XBProjector implements Serializable {
             }
             return (fromURL(doc.value(), projectionInterface));
         }
+        
+        /**
+         * Takes a string with XML content and projects it to the given projection interface.
+         * @param xmlString
+         * @param projectionInterface
+         * @return
+         * @throws IOException
+         */
+        public <T> T parseString(final String xmlString, final Class<T> projectionInterface) {
+            return new XBStringIO(XBProjector.this).parseXMLString(xmlString, projectionInterface);
+        }
     }
 
     public class WriterBuilder {
@@ -263,12 +275,12 @@ public class XBProjector implements Serializable {
          * @throws IOException
          */
         public XBProjector toFile(Object projection, final File file) throws IOException {
-            new XMLFileIO(XBProjector.this).write(projection, file);
+            new XBFileIO(XBProjector.this).write(projection, file);
             return XBProjector.this;
         }
 
         public XBProjector toOutputStream(Object projection, final OutputStream os) throws IOException {
-            new XMLStreamIO(XBProjector.this).write(projection, os);
+            new XBStreamIO(XBProjector.this).write(projection, os);
             return XBProjector.this;
         }
 
@@ -291,7 +303,7 @@ public class XBProjector implements Serializable {
             }
             if (url.startsWith("file://")) {
                 File file = new File(url.substring("file://".length()));
-                new XMLFileIO(XBProjector.this).write(projection, file);
+                new XBFileIO(XBProjector.this).write(projection, file);
                 return null;
             }
             throw new IllegalArgumentException("I don't know how to write to url:" + url + " Try again with a http or file url.");
@@ -306,7 +318,7 @@ public class XBProjector implements Serializable {
          * @throws IOException
          */
         public String postToURL(Object projection, String httpurl, Map<String, String> additionalRequestParams) throws IOException {
-            return new XMLUrlIO(XBProjector.this).addRequestParams(additionalRequestParams).postToURL(projection, httpurl);
+            return new XBUrlIO(XBProjector.this).addRequestParams(additionalRequestParams).postToURL(projection, httpurl);
         }
     }
 
