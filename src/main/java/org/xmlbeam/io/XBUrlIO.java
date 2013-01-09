@@ -27,12 +27,12 @@ import org.xmlbeam.util.IOHelper;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XMLUrlIO {
+public class XBUrlIO {
 
     private final XBProjector projector;
     private final Map<String,String> requestParams = new HashMap<String,String>();
 
-    public XMLUrlIO(XBProjector projector) {
+    public XBUrlIO(XBProjector projector) {
         this.projector = projector;
         requestParams.put("Content-Type","text/xml");
     }
@@ -65,12 +65,12 @@ public class XMLUrlIO {
         return IOHelper.inputStreamToString(IOHelper.httpPost(httpurl, projection.toString(), requestParams));
     }
     
-    public XMLUrlIO addRequestParams(Map<String,String> params) {
+    public XBUrlIO addRequestParams(Map<String,String> params) {
         requestParams.putAll(params);
         return this;
     }
        
-    public XMLUrlIO addRequestParam(String name,String value) {
+    public XBUrlIO addRequestParam(String name,String value) {
         requestParams.put(name,value);
         return this;
     }
