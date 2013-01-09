@@ -250,7 +250,7 @@ public class XMLProjectorTest {
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(document), new StreamResult(writer));
-        String output = writer.getBuffer().toString();
+        writer.getBuffer().toString();
     }
 
     @Test

@@ -96,6 +96,7 @@ import org.xmlbeam.util.ReflectionHelper;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+@SuppressWarnings("serial")
 public class XBProjector implements Serializable {
 
     /**
@@ -103,7 +104,7 @@ public class XBProjector implements Serializable {
      * builder class.
      */
     public class ConfigBuilder {
-
+             
         public DocumentBuilder getDocumentBuilder() {
             return xMLFactoriesConfig.createDocumentBuilder();
         }
@@ -330,7 +331,7 @@ public class XBProjector implements Serializable {
      * Constructor. Use me to create a projector with defaults.
      */
     public XBProjector() {
-        xMLFactoriesConfig = new DefaultXMLFactoriesConfig();
+        xMLFactoriesConfig =  new DefaultXMLFactoriesConfig();
     }
 
     /**

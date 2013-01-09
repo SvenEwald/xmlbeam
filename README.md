@@ -16,7 +16,7 @@ About
 Motivation (What's wrong with data binding?):
 
  This library is an alternative to XML binding libraries which convert XML entities into java objects and back.
- There is quite a list of these libraries, frequently used examples are: JAXB, XStream, ...
+ There is quite a list of these libraries, frequently used examples are: JAXB, XStream, XMLBeans, ...
  They have in common, that the structures of XML documents is mirrored to Java object structures.
  That means your Java API is determined by XML. Changing the XML schema leads to code changes.
  XMLBeam helps to avoid this by utilizing a mapping layer of tiny XPath expressions.

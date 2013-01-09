@@ -18,6 +18,7 @@ package org.xmlbeam.types;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+@SuppressWarnings("serial")
 public abstract class ConversionWithDefault<T> implements Conversion<T> {
 
     private final T defaultValue;

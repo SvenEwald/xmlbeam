@@ -15,26 +15,19 @@
  */
 package org.xmlbeam.tutorial.e05_rss;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import java.io.IOException;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 
-@SuppressWarnings("serial")
 @Category(Tutorial.class)
 public class TestFilterRSSFeed {
 
