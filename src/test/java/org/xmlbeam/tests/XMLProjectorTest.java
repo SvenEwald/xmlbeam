@@ -33,7 +33,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.tests.XMLBeamTestSuite.InnerStructure;
 import org.xmlbeam.tests.XMLBeamTestSuite.Setting;
 
@@ -44,7 +44,7 @@ public class XMLProjectorTest {
 
     @Before
     public void init() throws Exception {
-        suite = new XMLProjector().read().fromURLAnnotation(XMLBeamTestSuite.class);
+        suite = new XBProjector().read().fromURLAnnotation(XMLBeamTestSuite.class);
         assertNotNull(suite);
     }
 
@@ -239,13 +239,13 @@ public class XMLProjectorTest {
     @Test
     public void getXMLDocument() throws Exception {
         suite.setDescription("This is my description");
-        Document document = new XMLProjector().getXMLDocForProjection(suite);
+        Document document = new XBProjector().getXMLDocForProjection(suite);
         assertEquals("gluerootnode", document.getDocumentElement().getNodeName());
     }
 
     @Test
     public void getXMLDocumentFromInnerStructure() throws Exception {
-        Document document = new XMLProjector().getXMLDocForProjection(suite.getFirstInnerStructure());
+        Document document = new XBProjector().getXMLDocForProjection(suite.getFirstInnerStructure());
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();
@@ -255,8 +255,8 @@ public class XMLProjectorTest {
 
     @Test
     public void documentFromScratch() {
-        XMLBeamTestSuite emptyDocumentProjection = new XMLProjector().createEmptyDocumentProjection(XMLBeamTestSuite.class);
-        Document xmlDocForProjection = new XMLProjector().getXMLDocForProjection(emptyDocumentProjection);
+        XMLBeamTestSuite emptyDocumentProjection = new XBProjector().createEmptyDocumentProjection(XMLBeamTestSuite.class);
+        Document xmlDocForProjection = new XBProjector().getXMLDocForProjection(emptyDocumentProjection);
         assertNull(xmlDocForProjection.getDocumentElement());
     }
 }

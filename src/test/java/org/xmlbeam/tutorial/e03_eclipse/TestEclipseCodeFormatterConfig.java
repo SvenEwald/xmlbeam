@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
 
@@ -38,7 +38,7 @@ public class TestEclipseCodeFormatterConfig {
     @Test
     public void profilesTest() throws IOException {
 //START SNIPPET: TestEclipseCodeFormatterConfig       
-EclipseFormatterConfigFile configFile = new XMLProjector().read().fromURLAnnotation(EclipseFormatterConfigFile.class);
+EclipseFormatterConfigFile configFile = new XBProjector().read().fromURLAnnotation(EclipseFormatterConfigFile.class);
 
 System.out.println("Profile names:" + configFile.getProfileNames());        
 for (Setting setting:configFile.getAllSettingsForProfile("Some Profile")) {

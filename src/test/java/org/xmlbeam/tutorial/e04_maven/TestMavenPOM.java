@@ -24,7 +24,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 
 @Category(Tutorial.class)
@@ -39,7 +39,7 @@ public class TestMavenPOM {
      */
     @Test
     public void testProjectNameWriting() throws SAXException, IOException, ParserConfigurationException {
-        MavenPOM pom = new XMLProjector().read().fromURLAnnotation(MavenPOM.class);
+        MavenPOM pom = new XBProjector().read().fromURLAnnotation(MavenPOM.class);
         assertEquals("Maven core", pom.getName());
         pom.setName("New name");
         assertEquals("New name", pom.getName());

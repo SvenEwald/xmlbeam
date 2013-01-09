@@ -30,11 +30,11 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.util.DOMHelper;
 
 /**
- * Default configuration for {@link XMLProjector} which uses Java default
+ * Default configuration for {@link XBProjector} which uses Java default
  * factories to create {@link Transformer} {@link DocumentBuilder} and
  * {@link XPath}.
  * 

@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 
 /**
  * Tests to ensure that projections can be serialized.
@@ -45,7 +45,7 @@ public class TestProjectionSerialization {
 
     @Test
     public void testEmptyProjectionSerialization() throws IOException, ClassNotFoundException {
-        SerializeMe projection = new XMLProjector().createEmptyDocumentProjection(SerializeMe.class);
+        SerializeMe projection = new XBProjector().createEmptyDocumentProjection(SerializeMe.class);
         SerializeMe squishedProjection = cloneBySerialization(projection);
         assertNotSame(projection, squishedProjection);
     }

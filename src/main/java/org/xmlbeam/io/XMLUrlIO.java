@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.IOHelper;
 
@@ -30,9 +30,9 @@ import org.xmlbeam.util.IOHelper;
  */
 public class XMLUrlIO {
 
-    private final XMLProjector projector;
+    private final XBProjector projector;
 
-    public XMLUrlIO(XMLProjector projector) {
+    public XMLUrlIO(XBProjector projector) {
         this.projector = projector;
     }
 

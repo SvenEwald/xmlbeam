@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e07_svg.SVGDocument.GraphicElement;
 
@@ -51,7 +51,7 @@ public class TestSVGElementSorting {
 
     @Test
     public void testElements() throws IOException {
-        XMLProjector xmlProjector = new XMLProjector();
+        XBProjector xmlProjector = new XBProjector();
         SVGDocument svgDocument = xmlProjector.read().fromURLAnnotation(SVGDocument.class);
         xmlProjector.mixins().addProjectionMixin(GraphicElement.class, new Comparable<GraphicElement>() {
 

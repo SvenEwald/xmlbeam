@@ -21,16 +21,16 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 
 public class TestSetterXPathSyntax {
 
-    private XMLProjector projector;
+    private XBProjector projector;
     private GenericXPathProjection projection;
 
     @Before
     public void init() throws IOException {
-        projector = new XMLProjector();
+        projector = new XBProjector();
         projection = projector.createEmptyDocumentProjection(GenericXPathProjection.class);
     }
 

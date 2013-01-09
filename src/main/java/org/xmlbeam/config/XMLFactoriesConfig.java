@@ -25,12 +25,12 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 
 /**
  * A XMLFactoriesConfig defines factories for the underlying Java XML implementations. By
  * implementing your own XMLFactoriesConfig you may inject other XPath parsers, DocumentBuilders or
- * Transformers in an {@link XMLProjector}. See {@link DefaultXMLFactoriesConfig} for further
+ * Transformers in an {@link XBProjector}. See {@link DefaultXMLFactoriesConfig} for further
  * information.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>

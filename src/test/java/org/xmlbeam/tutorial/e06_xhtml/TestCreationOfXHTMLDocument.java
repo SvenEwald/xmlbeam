@@ -21,7 +21,7 @@ import javax.xml.transform.Transformer;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Document;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.tutorial.Tutorial;
 
@@ -35,7 +35,7 @@ import org.xmlbeam.tutorial.Tutorial;
 @Category(Tutorial.class)
 public class TestCreationOfXHTMLDocument {
 
-    private final XMLProjector projector = new XMLProjector(new DefaultXMLFactoriesConfig() {
+    private final XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig() {
         @Override
         public Transformer createTransformer(Document... doc) {
             Transformer transformer = super.createTransformer();

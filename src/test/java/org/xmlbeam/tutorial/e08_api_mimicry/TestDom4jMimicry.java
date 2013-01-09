@@ -18,13 +18,13 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 
 public class TestDom4jMimicry {
 
     @Test
     public void testAPIMimicry() throws IOException {
-        XMLProjector projector = new XMLProjector();
+        XBProjector projector = new XBProjector();
         
         Document document =projector.read().fromURLAnnotation(Document.class);
         Element element = document.getRootElement();

@@ -22,7 +22,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XMLProjector;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e01_weather.WeatherData.Location;
 
@@ -54,7 +54,7 @@ private void printWeatherData(String location) throws IOException {
                      "?outputview=search&weasearchstr=";
     
     // We let the projector fetch the data for us
-    WeatherData weatherData = new XMLProjector().read().fromURL(
+    WeatherData weatherData = new XBProjector().read().fromURL(
                                     BaseURL + location,WeatherData.class);
     
     // Print some values
