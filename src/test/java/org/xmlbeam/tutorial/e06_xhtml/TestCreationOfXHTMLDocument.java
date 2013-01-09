@@ -35,18 +35,7 @@ import org.xmlbeam.tutorial.Tutorial;
 @Category(Tutorial.class)
 public class TestCreationOfXHTMLDocument {
 
-    private final XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig() {
-        @Override
-        public Transformer createTransformer(Document... doc) {
-            Transformer transformer = super.createTransformer();
-            // Enable some pretty printing of the resulting xml.
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            return transformer;
-
-        }
-    });
+    private final XBProjector projector = new XBProjector();
 
     @Test
     public void testCreateWellFormedXHTML() {

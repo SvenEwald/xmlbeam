@@ -23,6 +23,7 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -83,23 +84,12 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     };
 
     private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
+    private boolean isPrettyPrinting;
 
     /**
      * Empty default constructor, a Configuration has no state.
      */
     public DefaultXMLFactoriesConfig() {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Transformer createTransformer(Document... document) {
-        try {
-            return createTransformerFactory().newTransformer();
-        } catch (TransformerConfigurationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -118,14 +108,6 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
      * {@inheritDoc}
      */
     @Override
-    public TransformerFactory createTransformerFactory() {
-        return TransformerFactory.newInstance();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public DocumentBuilderFactory createDocumentBuilderFactory() {
         DocumentBuilderFactory instance = DocumentBuilderFactory.newInstance();
         if (!NamespacePhilosophy.AGNOSTIC.equals(namespacePhilosophy)) {
@@ -138,8 +120,27 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
      * {@inheritDoc}
      */
     @Override
-    public XPathFactory createXPathFactory() {
-        return XPathFactory.newInstance();
+    public Transformer createTransformer(Document... document) {
+        try {
+            Transformer transformer = createTransformerFactory().newTransformer();           
+            if (isPrettyPrinting()) {
+                // Enable some pretty printing of the resulting xml.
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            }
+            return transformer;
+        } catch (TransformerConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TransformerFactory createTransformerFactory() {
+        return TransformerFactory.newInstance();
     }
 
     /**
@@ -163,11 +164,6 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
             }
 
             @Override
-            public Iterator<String> getPrefixes(String val) {
-                return nameSpaceMapping.keySet().iterator();
-            }
-
-            @Override
             public String getPrefix(String uri) {
                 for (Entry<String, String> e:nameSpaceMapping.entrySet()) {
                     if (e.getValue().equals(uri )) {
@@ -176,10 +172,23 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 }
                 return null;
             }
+
+            @Override
+            public Iterator<String> getPrefixes(String val) {
+                return nameSpaceMapping.keySet().iterator();
+            }
         };
         XPath xPath = createXPathFactory().newXPath();
         xPath.setNamespaceContext(ctx);
         return xPath;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public XPathFactory createXPathFactory() {
+        return XPathFactory.newInstance();
     }
 
     /**
@@ -189,11 +198,20 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         return namespacePhilosophy;
     }
 
+    public boolean isPrettyPrinting() {
+        return isPrettyPrinting;
+    }
+    
     /**
      * @return
      */
     public XMLFactoriesConfig setNamespacePhilosophy(NamespacePhilosophy namespacePhilosophy) {
         this.namespacePhilosophy = namespacePhilosophy;
         return this;
+    }
+    
+    public DefaultXMLFactoriesConfig setPrettyPrinting(boolean on) {
+        this.isPrettyPrinting=on;
+        return this;        
     }
 }

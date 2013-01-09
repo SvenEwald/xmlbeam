@@ -38,29 +38,11 @@ import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 @Category(Tutorial.class)
 public class TestFilterRSSFeed {
 
-    /**
-     * We don't need to stick with the default configuration. So we let the
-     * transformer create some formatted XML.
-     * 
-     */
-    private final static class PrettyPrintingFactoryConfiguration extends DefaultXMLFactoriesConfig {
-        @Override
-        public Transformer createTransformer(Document... doc) {
-            Transformer transformer = super.createTransformer();
-            // Enable some pretty printing of the resulting xml.
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            return transformer;
-
-        }
-    }
-
     private static SlashdotRSSFeed feed;
 
     @BeforeClass
     public static void readFeed() throws IOException {
-        XBProjector projector = new XBProjector(new PrettyPrintingFactoryConfiguration());
+        XBProjector projector = new XBProjector();
         feed = projector.read().fromURLAnnotation(SlashdotRSSFeed.class);
     }
 
