@@ -37,11 +37,13 @@ import org.xml.sax.SAXException;
  */
 public class DOMHelper {
 
-    public static void removeAllChildrenByName(Element element, String nodeName) {
-        NodeList nodeList = element.getElementsByTagName(nodeName);
+    public static void removeAllChildrenByName(Node element, String nodeName) {
+        NodeList nodeList = element.getChildNodes();
         List<Element> toBeRemoved = new LinkedList<Element>();
         for (int i = 0; i < nodeList.getLength(); ++i) {
-            toBeRemoved.add((Element) nodeList.item(i));
+            if (nodeName.equals(nodeList.item(i).getNodeName())) {
+                toBeRemoved.add((Element) nodeList.item(i));
+            }
         }
         for (Element e : toBeRemoved) {
             element.removeChild(e);
@@ -85,14 +87,17 @@ public class DOMHelper {
     }
 
     /**
-     * Treat the given path as absolute path to an element and return this element.
-     * If any element on this path does not exist, create it.
-     * @param document document 
-     * @param pathToElement absolute path to element.
+     * Treat the given path as absolute path to an element and return this element. If any element
+     * on this path does not exist, create it.
+     * 
+     * @param document
+     *            document
+     * @param pathToElement
+     *            absolute path to element.
      * @return element with absolute path.
      */
     public static Element ensureElementExists(final Document document, final String pathToElement) {
-        assert document != null;        
+        assert document != null;
         String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
         if (splitme.isEmpty()) {
             throw new IllegalArgumentException("Path must not be empty. I don't know which element to return.");
@@ -115,5 +120,27 @@ public class DOMHelper {
             element = (Element) nodeList.item(0);
         }
         return element;
+    }
+
+    /**
+     * Replace the current root element. If element is null, the current root element will be
+     * removed.
+     * 
+     * @param document
+     * @param element
+     */
+    public static void setDocumentElement(Document document, Element element) {
+        Element documentElement = document.getDocumentElement();
+        if (documentElement != null) {
+            document.removeChild(documentElement);
+        }
+        if (element != null) {
+            if (element.getOwnerDocument().equals(document)) {
+                document.appendChild(element);
+                return;
+            } 
+            Node node = document.adoptNode(element);
+            document.appendChild(node);
+        }
     }
 }

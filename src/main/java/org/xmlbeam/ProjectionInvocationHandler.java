@@ -60,7 +60,7 @@ import org.xmlbeam.util.ReflectionHelper;
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     // private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS =
 // "^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$";
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$");
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");
     private final Node node;
     private final Class<?> projectionInterface;
     private final XMLProjector xmlProjector;
@@ -171,33 +171,33 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
         }
         final String pathToElement = path.replaceAll("/@.*", "");
-        if (pathToElement.isEmpty()) {
-            // changing the root node.
-            // FIXME
-
-        }
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
-        Element rootElement = document.getDocumentElement();
-// if (rootElement == null) {
-// assert Node.DOCUMENT_NODE == settingNode.getNodeType();
-// String rootElementName = path.replaceAll("(^/)|(/.*$)", "");
-// rootElement = ((Document) settingNode).createElement(rootElementName);
-// settingNode.appendChild(rootElement);
-// }
-        Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+        assert document!=null;
         final Object valuetToSet = args[findIndexOfValue(method)];
-        if (path.contains("@")) {
-            String attributeName = path.replaceAll(".*@", "");
-            elementToChange.setAttribute(attributeName, valuetToSet.toString());
-        } else {
-            if (valuetToSet instanceof Projection) {
-                applySingleSetProjectionOnElement((Projection) args[0], elementToChange);
+        if ("/*".equals(pathToElement)) { // Setting a new root element.
+            if ((valuetToSet != null) && (!(valuetToSet instanceof Projection))) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valuetToSet);
             }
-            if (valuetToSet instanceof Collection) {
-                applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, elementToChange);
+            Projection projection = (Projection)valuetToSet;
+            Element element = Node.DOCUMENT_NODE == projection.getXMLNode().getNodeType() ? ((Document) projection.getXMLNode()).getDocumentElement() : (Element) projection.getXMLNode();
+            assert element !=null;
+            DOMHelper.setDocumentElement(document,element);
+        } else {
+            Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+
+            if (path.contains("@")) {
+                String attributeName = path.replaceAll(".*@", "");
+                elementToChange.setAttribute(attributeName, valuetToSet.toString());
             } else {
-                elementToChange.setTextContent(valuetToSet.toString());
+                if (valuetToSet instanceof Projection) {
+                    applySingleSetProjectionOnElement((Projection) args[0], elementToChange);
+                }
+                if (valuetToSet instanceof Collection) {
+                    applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, elementToChange);
+                } else {
+                    elementToChange.setTextContent(valuetToSet.toString());
+                }
             }
         }
 
@@ -217,8 +217,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private int findIndexOfValue(Method method) {
         int index = 0;
         for (Annotation[] annotations : method.getParameterAnnotations()) {
-            for (Annotation a : annotations) {
-                if (SetterValue.class.equals(a)) {
+            for (Annotation a : annotations) {                
+                if (SetterValue.class.equals(a.annotationType())) {
                     return index;
                 }
             }
@@ -251,19 +251,19 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
     }
 
-    private void applySingleSetProjectionOnElement(final Projection projection, final Element element) {
+    private void applySingleSetProjectionOnElement(final Projection projection, final Node element) {
         DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
         element.appendChild(projection.getXMLNode());
     }
 
     private String getGetterXPathExpression(final Method method, final Object[] args) {
-        XBRead annotation = findAnnotation(method,XBRead.class);
+        XBRead annotation = findAnnotation(method, XBRead.class);
         String path = MessageFormat.format(annotation.value(), args);
         return path;
     }
 
     private String getSetterXPathExpression(final Method method, final Object[] args) {
-        XBWrite annotation = findAnnotation(method,XBWrite.class);
+        XBWrite annotation = findAnnotation(method, XBWrite.class);
         String path = MessageFormat.format(annotation.value(), args);
         return path;
     }
