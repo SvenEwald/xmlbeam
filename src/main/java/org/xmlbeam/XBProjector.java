@@ -231,7 +231,7 @@ public class XBProjector implements Serializable {
          */
         public <T> T fromURL(final String uri, final Class<T> projectionInterface) throws IOException {
 
-            return new XMLUrlIO(XBProjector.this).fromURL(uri, projectionInterface);
+            return new XMLUrlIO(XBProjector.this).getFromURL(uri, projectionInterface);
         }
 
         /**
@@ -287,7 +287,7 @@ public class XBProjector implements Serializable {
             }
             String url = doc.value();
             if ((url.startsWith("http://")) || (url.startsWith("https://"))) {
-                return toHTTPURLviaPOST(projection, url, null);
+                return postToURL(projection, url, null);
             }
             if (url.startsWith("file://")) {
                 File file = new File(url.substring("file://".length()));
@@ -305,8 +305,8 @@ public class XBProjector implements Serializable {
          * @return response as String
          * @throws IOException
          */
-        public String toHTTPURLviaPOST(Object projection, String httpurl, Map<String, String> additionalRequestParams) throws IOException {
-            return new XMLUrlIO(XBProjector.this).toHTTPURLviaPOST(projection, httpurl, additionalRequestParams);
+        public String postToURL(Object projection, String httpurl, Map<String, String> additionalRequestParams) throws IOException {
+            return new XMLUrlIO(XBProjector.this).addRequestParams(additionalRequestParams).postToURL(projection, httpurl);
         }
     }
 

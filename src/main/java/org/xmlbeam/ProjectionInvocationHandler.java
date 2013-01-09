@@ -282,7 +282,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getAnnotation(DocumentURL.class) != null) {
             String uri = method.getAnnotation(DocumentURL.class).value();
             uri = MessageFormat.format(uri, args);
-            evaluationNode = DOMHelper.getDocumentFromURI(xmlProjector.config().getDocumentBuilder(), uri, projectionInterface);
+            evaluationNode = DOMHelper.getDocumentFromURL(xmlProjector.config().getDocumentBuilder(), uri,null, projectionInterface);
         }
         return evaluationNode;
     }

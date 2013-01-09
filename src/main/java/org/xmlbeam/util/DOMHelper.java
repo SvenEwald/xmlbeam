@@ -50,10 +50,13 @@ public class DOMHelper {
         }
     }
 
-    public static Document getDocumentFromURI(DocumentBuilder documentBuilder, final String uri, final Class<?> resourceAwareClass) throws IOException {
+    public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String uri, Map<String, String> requestParams, final Class<?> resourceAwareClass) throws IOException {
         try {
             if (uri.startsWith("resource://")) {
                 return documentBuilder.parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
+            }
+            if (uri.startsWith("http://")||uri.startsWith("https://")) {
+                return documentBuilder.parse(IOHelper.httpGet(uri, requestParams));
             }
             Document document = documentBuilder.parse(uri);
             if (document == null) {

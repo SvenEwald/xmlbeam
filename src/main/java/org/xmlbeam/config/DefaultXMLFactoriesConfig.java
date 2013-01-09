@@ -132,7 +132,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             }
             if (isOmitXMLDeclaration) {
-                transformer.setOutputProperty("OMIT_XML_DECLARATION", "yes");
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             }
             return transformer;
         } catch (TransformerConfigurationException e) {
