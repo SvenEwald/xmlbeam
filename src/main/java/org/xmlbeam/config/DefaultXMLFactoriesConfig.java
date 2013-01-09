@@ -84,7 +84,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     };
 
     private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
-    private boolean isPrettyPrinting;
+    private boolean isPrettyPrinting = true;
+    private boolean isOmitXMLDeclaration = true;
 
     /**
      * Empty default constructor, a Configuration has no state.
@@ -128,6 +129,9 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            }
+            if (isOmitXMLDeclaration) {
+                transformer.setOutputProperty("OMIT_XML_DECLARATION", "yes");
             }
             return transformer;
         } catch (TransformerConfigurationException e) {
@@ -213,5 +217,19 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     public DefaultXMLFactoriesConfig setPrettyPrinting(boolean on) {
         this.isPrettyPrinting=on;
         return this;        
+    }
+
+    /**
+     * @return the isOmitXMLDeclaration
+     */
+    public boolean isOmitXMLDeclaration() {
+        return isOmitXMLDeclaration;
+    }
+
+    /**
+     * @param isOmitXMLDeclaration the isOmitXMLDeclaration to set
+     */
+    public void setOmitXMLDeclaration(boolean isOmitXMLDeclaration) {
+        this.isOmitXMLDeclaration = isOmitXMLDeclaration;
     }
 }
