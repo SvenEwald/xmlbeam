@@ -5,14 +5,14 @@
             ------
              2012
 			------
-			
-%{toc|toDepth=2}
 
 Tutorial Examples
 
  This tutorial guides you through seven examples, each demonstrating a couple of XMLBeam features.
  You will find these examples ready to run in "src/test/java/tutorial".
- Each example works on real life XML Data. Have fun! 
+ Each example works on real life XML Data. <<Have fun!>> 
+
+%{toc|section=1|fromDepth=2|toDepth=2}
 			
 *E01: Printing some weather data.
 
