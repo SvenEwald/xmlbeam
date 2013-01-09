@@ -18,9 +18,7 @@ package org.xmlbeam.tutorial.e09_dreambox;
 import org.xmlbeam.XBRead;
 
 /**
- * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
- *
  */
 public interface Service {
 

@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XBRead;
+import org.xmlbeam.XBWrite;
 
 /**
  * This example shows the modification of a SVG Graphic. A list of elements
@@ -45,7 +46,7 @@ public interface SVGDocument {
     @XBRead(value = "/svg/rect", targetComponentType = GraphicElement.class)
     List<GraphicElement> getGraphicElements();
 
-    @XBRead("/svg/rect")
+    @XBWrite("/svg/rect")
     SVGDocument setGraphicElements(List<GraphicElement> elements);
 
 }

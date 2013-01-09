@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XBRead;
+import org.xmlbeam.XBWrite;
 
 /**
  * This example is to demonstrate how to modify a XML document. The Slashdot RSS
@@ -71,7 +72,7 @@ public interface SlashdotRSSFeed {
      * 
      * @param items
      */
-    @XBRead("/rss/channel/item")
+    @XBWrite("/rss/channel/item")
     void setAllItems(Collection<Story> items);
 
     /**

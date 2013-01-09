@@ -17,6 +17,7 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 
 import org.xmlbeam.DocumentURL;
 import org.xmlbeam.XBRead;
+import org.xmlbeam.XBWrite;
 
 @DocumentURL("resource://simple.xml")
 public interface Document {
@@ -24,7 +25,7 @@ public interface Document {
     @XBRead("/*")
     Element getRootElement();
 
-    @XBRead("/")
+    @XBWrite("/*")
     void setRootElement(Element rootElement);
 
 }
