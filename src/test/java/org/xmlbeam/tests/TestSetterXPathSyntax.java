@@ -31,12 +31,12 @@ public class TestSetterXPathSyntax {
     @Before
     public void init() throws IOException {
         projector = new XBProjector();
-        projection = projector.createEmptyDocumentProjection(GenericXPathProjection.class);
+        projection = projector.create().createEmptyDocumentProjection(GenericXPathProjection.class);
     }
 
     @Test
     public void rootElementAccessAllowed() {
-        projection.setterXPathProjection("/*", projector.createEmptyElementProjection("value", GenericXPathProjection.class));
+        projection.setterXPathProjection("/*", projector.create().createEmptyElementProjection("value", GenericXPathProjection.class));
         assertEquals("value",projector.getXMLDocForProjection(projection).getDocumentElement().getNodeName());
     }
 

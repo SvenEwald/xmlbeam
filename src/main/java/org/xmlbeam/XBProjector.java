@@ -260,7 +260,49 @@ public class XBProjector implements Serializable {
         }
     }
 
+    public class ProjectionFactory {
+        /**
+         * Create a new projection for an empty document. Use this to create new documents.
+         * 
+         * @param projectionInterface
+         * @return a new projection instance
+         */
+        public <T> T createEmptyDocumentProjection(Class<T> projectionInterface) {
+            Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+            return projectXML(document, projectionInterface);
+        }
 
+        /**
+         * Create a new projection for an empty element. Use this to create new elements.
+         * 
+         * @param name Element name
+         * @param projectionInterface 
+         * @return a new projection instance
+         */
+        public <T> T createEmptyElementProjection(final String name,Class<T> projectionInterface) {
+            Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+            Element element = document.createElement(name);
+            return projectXML(element, projectionInterface);
+        }
+
+        /**
+         * Creates a projection from XML to Java.
+         * 
+         * @param node
+         *            XML DOM Node. May be a document or just an element.
+         * @param projectionInterface
+         *            A Java interface to project the data on.
+         * @return a new instance of projectionInterface.
+         */
+        @SuppressWarnings("unchecked")
+        public <T> T projectXML(final Node node, final Class<T> projectionInterface) {
+            if (!isValidProjectionInterface(projectionInterface)) {
+                throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+            }
+            return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, node, projectionInterface)));
+        }
+    }
+    
     /**
      * Marker interface to determine if a Projection instance was created by a Projector. This will
      * be applied automatically to projections.
@@ -314,30 +356,7 @@ public class XBProjector implements Serializable {
         return new MixinBuilder();
     }
 
-    /**
-     * Create a new projection for an empty document. Use this to create new documents.
-     * 
-     * @param projectionInterface
-     * @return a new projection instance
-     */
-    public <T> T createEmptyDocumentProjection(Class<T> projectionInterface) {
-        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
-        return projectXML(document, projectionInterface);
-    }
-
-    /**
-     * Create a new projection for an empty element. Use this to create new elements.
-     * 
-     * @param name Element name
-     * @param projectionInterface 
-     * @return a new projection instance
-     */
-    public <T> T createEmptyElementProjection(final String name,Class<T> projectionInterface) {
-        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
-        Element element = document.createElement(name);
-        return projectXML(element, projectionInterface);
-    }
-
+  
     /**
      * Use this method to obtain the DOM tree behind a projection. Changing the DOM of a projection
      * is a valid action and may change the results of the projections methods.
@@ -375,23 +394,6 @@ public class XBProjector implements Serializable {
     }
 
     /**
-     * Creates a projection from XML to Java.
-     * 
-     * @param node
-     *            XML DOM Node. May be a document or just an element.
-     * @param projectionInterface
-     *            A Java interface to project the data on.
-     * @return a new instance of projectionInterface.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T projectXML(final Node node, final Class<T> projectionInterface) {
-        if (!isValidProjectionInterface(projectionInterface)) {
-            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
-        }
-        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(this, node, projectionInterface)));
-    }
-
-    /**
      * 
      * @return 
      */
@@ -399,6 +401,10 @@ public class XBProjector implements Serializable {
         return new IOBuilder();
     }
 
+    
+    public ProjectionFactory create() {
+        return new ProjectionFactory();
+    }
     /** 
      * Method to determine the projection interface of a projection.
      * 

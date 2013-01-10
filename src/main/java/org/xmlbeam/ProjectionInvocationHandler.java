@@ -346,7 +346,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
         if (returnType.isInterface()) {
             Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-            Projection subprojection = (Projection) xmlProjector.projectXML(newNode, returnType);
+            Projection subprojection = (Projection) xmlProjector.create().projectXML(newNode, returnType);
 
             return subprojection;
         }
@@ -375,7 +375,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (targetType.isInterface()) {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 Node n = nodes.item(i).cloneNode(true);
-                Projection subprojection = (Projection) xmlProjector.projectXML(n, method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType());
+                Projection subprojection = (Projection) xmlProjector.create().projectXML(n, method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType());
                 linkedList.add(subprojection);
             }
             return linkedList;
