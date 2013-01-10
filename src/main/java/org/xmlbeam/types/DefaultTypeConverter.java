@@ -22,61 +22,76 @@ import java.util.Map;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @SuppressWarnings("serial")
-public  class DefaultTypeConverter implements TypeConverter {
+public class DefaultTypeConverter implements TypeConverter {
 
-    private final Map<Class<?>, Conversion<?>> CONVERSIONS = new HashMap<Class<?>, Conversion<?>>();
+    public static abstract class Conversio<T> {
+
+        private final T defaultValue;
+
+        protected Conversio(T defaultValue) {
+            this.defaultValue = defaultValue;
+        }
+
+        public abstract T convert(final String data);
+
+        public T getDefaultValue() {
+            return defaultValue;
+        }
+    }
+
+    private final Map<Class<?>, Conversio<?>> CONVERSIONS = new HashMap<Class<?>, Conversio<?>>();
 
     public DefaultTypeConverter() {
-        CONVERSIONS.put(Boolean.class, new ConversionWithDefault<Boolean>(false) {
+        CONVERSIONS.put(Boolean.class, new Conversio<Boolean>(false) {
             @Override
             public Boolean convert(final String data) {
                 return Boolean.valueOf(data);
             }
         });
         CONVERSIONS.put(Boolean.TYPE, CONVERSIONS.get(Boolean.class));
-        CONVERSIONS.put(Byte.class, new ConversionWithDefault<Byte>((byte) 0) {
+        CONVERSIONS.put(Byte.class, new Conversio<Byte>((byte) 0) {
             @Override
             public Byte convert(final String data) {
                 return Byte.valueOf(data);
             }
         });
         CONVERSIONS.put(Byte.TYPE, CONVERSIONS.get(Byte.class));
-        CONVERSIONS.put(Float.class, new ConversionWithDefault<Float>(0F) {
+        CONVERSIONS.put(Float.class, new Conversio<Float>(0F) {
             @Override
             public Float convert(final String data) {
                 return Float.valueOf(data);
             }
         });
         CONVERSIONS.put(Float.TYPE, CONVERSIONS.get(Float.class));
-        CONVERSIONS.put(Double.class, new ConversionWithDefault<Double>(0D) {
+        CONVERSIONS.put(Double.class, new Conversio<Double>(0D) {
             @Override
             public Double convert(final String data) {
                 return Double.valueOf(data);
             }
         });
         CONVERSIONS.put(Double.TYPE, CONVERSIONS.get(Double.class));
-        CONVERSIONS.put(Short.class, new ConversionWithDefault<Short>((short) 0) {
+        CONVERSIONS.put(Short.class, new Conversio<Short>((short) 0) {
             @Override
             public Short convert(final String data) {
                 return Short.valueOf(data);
             }
         });
         CONVERSIONS.put(Short.TYPE, CONVERSIONS.get(Short.class));
-        CONVERSIONS.put(Integer.class, new ConversionWithDefault<Integer>(0) {
+        CONVERSIONS.put(Integer.class, new Conversio<Integer>(0) {
             @Override
             public Integer convert(final String data) {
                 return Integer.valueOf(data);
             }
         });
         CONVERSIONS.put(Integer.TYPE, CONVERSIONS.get(Integer.class));
-        CONVERSIONS.put(Long.class, new ConversionWithDefault<Long>(0L) {
+        CONVERSIONS.put(Long.class, new Conversio<Long>(0L) {
             @Override
             public Long convert(final String data) {
                 return Long.valueOf(data);
             }
         });
         CONVERSIONS.put(Long.TYPE, CONVERSIONS.get(Long.class));
-        CONVERSIONS.put(String.class, new ConversionWithDefault<String>("") {
+        CONVERSIONS.put(String.class, new Conversio<String>("") {
             @Override
             public String convert(final String data) {
                 return data;
@@ -91,8 +106,7 @@ public  class DefaultTypeConverter implements TypeConverter {
     @Override
     public <T> T convertTo(Class<T> targetType, String data) {
         assert data != null;
-
-        Conversion<?> conversion = CONVERSIONS.get(targetType);
+        Conversio<?> conversion = CONVERSIONS.get(targetType);
         assert conversion != null : "Method caller must check existence of conversion.";
 
         if (data.isEmpty()) {
@@ -108,14 +122,6 @@ public  class DefaultTypeConverter implements TypeConverter {
     @Override
     public <T> boolean isConvertable(Class<T> targetType) {
         return CONVERSIONS.containsKey(targetType);
-    }
-
-
-    /**
-     * @return the conversions
-     */
-    protected Map<Class<?>, Conversion<?>> getConversions() {
-        return CONVERSIONS;
     }
 
 }

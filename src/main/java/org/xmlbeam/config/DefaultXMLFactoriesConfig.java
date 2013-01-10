@@ -130,7 +130,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             }
-            if (isOmitXMLDeclaration) {
+            if (isOmitXMLDeclaration()) {
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             }
             return transformer;
