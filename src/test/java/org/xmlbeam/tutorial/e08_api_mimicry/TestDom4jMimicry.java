@@ -35,7 +35,7 @@ public class TestDom4jMimicry {
         System.out.println(attribute.getValue());
         
         org.w3c.dom.Element newRootNode = projector.getXMLDocForProjection(document).createElement("newRoot");
-        Element newRootElement = projector.create().projectXML(newRootNode, Element.class);
+        Element newRootElement = projector.projectDOMNode(newRootNode, Element.class);
         
         document.setRootElement(newRootElement);
         System.out.println(document);

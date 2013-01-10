@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -31,12 +31,12 @@ public class TestSetterXPathSyntax {
     @Before
     public void init() throws IOException {
         projector = new XBProjector();
-        projection = projector.create().createEmptyDocumentProjection(GenericXPathProjection.class);
+        projection = projector.projectEmptyDocument(GenericXPathProjection.class);
     }
 
     @Test
     public void rootElementAccessAllowed() {
-        projection.setterXPathProjection("/*", projector.create().createEmptyElementProjection("value", GenericXPathProjection.class));
+        projection.setterXPathProjection("/*", projector.projectEmptyElement("value", GenericXPathProjection.class));
         assertEquals("value",projector.getXMLDocForProjection(projection).getDocumentElement().getNodeName());
     }
 

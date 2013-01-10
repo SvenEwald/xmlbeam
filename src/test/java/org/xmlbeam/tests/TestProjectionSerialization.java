@@ -46,7 +46,7 @@ public class TestProjectionSerialization {
     @SuppressWarnings("unchecked")
     @Test
     public void testEmptyProjectionSerialization() throws IOException, ClassNotFoundException {
-        SerializeMe projection = new XBProjector().create().createEmptyDocumentProjection(SerializeMe.class);
+        SerializeMe projection = new XBProjector().projectEmptyDocument(SerializeMe.class);
         SerializeMe squishedProjection = cloneBySerialization(projection);
         assertNotSame(projection, squishedProjection);
     }

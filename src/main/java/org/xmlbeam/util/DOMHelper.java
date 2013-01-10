@@ -50,17 +50,17 @@ public class DOMHelper {
         }
     }
 
-    public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String uri, Map<String, String> requestParams, final Class<?> resourceAwareClass) throws IOException {
+    public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestParams, final Class<?> resourceAwareClass) throws IOException {
         try {
-            if (uri.startsWith("resource://")) {
-                return documentBuilder.parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
+            if (url.startsWith("resource://")) {
+                return documentBuilder.parse(resourceAwareClass.getResourceAsStream(url.substring("resource://".length())));
             }
-            if (uri.startsWith("http:")||uri.startsWith("https:")) {
-                return documentBuilder.parse(IOHelper.httpGet(uri, requestParams));
+            if (url.startsWith("http:")||url.startsWith("https:")) {
+                return documentBuilder.parse(IOHelper.httpGet(url, requestParams), url);
             }
-            Document document = documentBuilder.parse(uri);
+            Document document = documentBuilder.parse(url);
             if (document == null) {
-                throw new IOException("Document could not be created form uri " + uri);
+                throw new IOException("Document could not be created form uri " + url);
             }
             return document;
         } catch (SAXException e) {
