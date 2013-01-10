@@ -127,7 +127,7 @@ public class IOHelper {
      * @return String with stream content
      */
     public static String inputStreamToString(InputStream inputStream, String... charsetName) {
-        Scanner scanner = new Scanner(inputStream, charsetName == null ? null : charsetName[0]).useDelimiter("\\A");
-        return scanner.hasNext() ? scanner.next() : "";
+        Scanner scanner = charsetName.length == 0 ? new Scanner(inputStream) : new Scanner(inputStream, charsetName[0]);
+        return scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
     }
 }
