@@ -45,11 +45,10 @@ public class IOViaFile {
         
         String systemID = null;
 
-// new XBProjector().projectEmptyDocument(projectionInterface, systemID);
+        new XBProjector().projectEmptyDocument(projectionInterface);
         new XBProjector().projectEmptyElement(name, projectionInterface);
 
         new XBProjector().projectXMLString("<xml/>", projectionInterface);
-// new XBProjector().projectXMLString("<xml/>", projectionInterface, systemID);
 
         new XBProjector().projectDOMNode(node, projectionInterface);
 
