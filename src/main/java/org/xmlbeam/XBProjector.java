@@ -267,9 +267,8 @@ public class XBProjector implements Serializable {
      * @param projectionInterface
      * @return a new projection instance
      */
-    public <T> T projectEmptyDocument(Class<T> projectionInterface, String... systemID) {
+    public <T> T projectEmptyDocument(Class<T> projectionInterface) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
-        document.setDocumentURI(systemID == null ? null : systemID[0]);
         return projectDOMNode(document, projectionInterface);
     }
 
@@ -304,10 +303,10 @@ public class XBProjector implements Serializable {
         return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, node, projectionInterface)));
     }
 
-    public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface, String... systemID) {
+    public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
-            return new XBStreamInput(this, inputStream).setSystemID(systemID == null ? null : systemID[0]).read(projectionInterface);
+            return new XBStreamInput(this, inputStream).read(projectionInterface);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
