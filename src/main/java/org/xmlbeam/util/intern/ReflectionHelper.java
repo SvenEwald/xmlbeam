@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util;
+package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Method;
 
@@ -22,9 +22,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A set of tiny helper methods internally used in the projection framework. This methods are
+ * <b>not</b> part of the public framework API and might change in minor version updates.
+ * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class ReflectionHelper {
+
     public static Set<Class<?>> findAllCommonSuperInterfaces(Class<?> a, Class<?> b) {
         Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
         Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));

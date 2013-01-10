@@ -44,7 +44,7 @@ public class XBFileIO {
     public <T> T read(Class<T> projectionInterface) throws IOException {
         try {
             Document document = projector.config().getDocumentBuilder().parse(file);
-            return projector.create().projectXML(document, projectionInterface);
+            return projector.projectDOMNode(document, projectionInterface);
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }

@@ -15,16 +15,13 @@
  */
 package org.xmlbeam.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.IOException;
+
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.IOHelper;
 
@@ -35,7 +32,7 @@ public class XBUrlIO {
 
     private final XBProjector projector;
     private final Map<String,String> requestParams = new HashMap<String,String>();
-    private String url;
+    private final String url;
 
     public XBUrlIO(XBProjector projector, String url) {
         this.projector = projector;
@@ -56,7 +53,7 @@ public class XBUrlIO {
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), url, requestParams, projectionInterface);
-        return projector.create().projectXML(document, projectionInterface);
+        return projector.projectDOMNode(document, projectionInterface);
     }
 
     /**

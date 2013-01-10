@@ -18,10 +18,11 @@ package org.xmlbeam.test.behavior.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.util.HTTPParrot;
 import org.xmlbeam.util.IOHelper;
@@ -46,11 +47,28 @@ public class IOViaUrl {
     @Test
     public void ensureHTTPPostRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");    
-        FooProjection projection = new XBProjector().create().createEmptyDocumentProjection(FooProjection.class);
+        FooProjection projection = new XBProjector().projectEmptyDocument(FooProjection.class);
         addRequestParams(new XBUrlIO(new XBProjector(),parrot.getURL())).write(projection);
         validateRequest(parrot.getRequest());
     }
     
+    @Test
+    public void ensureHTTPGetRespectsSystemID() throws Exception {
+        HTTPParrot parrot = HTTPParrot.serve("<foo/>");
+        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL())).read(FooProjection.class);
+        assertEquals("foo", projection.getRootName());
+        assertEquals(parrot.getURL(), new XBProjector().getXMLDocForProjection(projection).getBaseURI());
+    }
+
+    @Test
+    public void ensureStreamParsingRespectsSystemID() throws Exception {
+        String systemID = "http://xmlbeam.org/MyFineSystemID";
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("<foo/>".getBytes());
+        FooProjection projection = new XBProjector().io().stream(inputStream).setSystemID(systemID).read(FooProjection.class);
+        assertEquals(systemID, new XBProjector().getXMLDocForProjection(projection).getBaseURI());
+        assertEquals("foo", projection.getRootName());
+    }
+
     private XBUrlIO addRequestParams(XBUrlIO io) {
         return io.addRequestParam("testparam", "mustBeInRequest").addRequestParams(IOHelper.createBasicAuthenticationProperty("user", "password"));
     }

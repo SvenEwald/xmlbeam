@@ -34,7 +34,7 @@ public class TestCreationOfXHTMLDocument {
 
     @Test
     public void testCreateWellFormedXHTML() {
-        XHTML xhtml = projector.create().createEmptyDocumentProjection(XHTML.class);
+        XHTML xhtml = projector.projectEmptyDocument(XHTML.class);
 
         xhtml.setRootNameSpace("http://www.w3.org/1999/xhtml").setRootLang("en");
         xhtml.setTitle("This Is My Fine Title");

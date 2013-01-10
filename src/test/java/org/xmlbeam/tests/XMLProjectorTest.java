@@ -255,7 +255,7 @@ public class XMLProjectorTest {
 
     @Test
     public void documentFromScratch() {
-        XMLBeamTestSuite emptyDocumentProjection = new XBProjector().create().createEmptyDocumentProjection(XMLBeamTestSuite.class);
+        XMLBeamTestSuite emptyDocumentProjection = new XBProjector().projectEmptyDocument(XMLBeamTestSuite.class);
         Document xmlDocForProjection = new XBProjector().getXMLDocForProjection(emptyDocumentProjection);
         assertNull(xmlDocForProjection.getDocumentElement());
     }

@@ -15,16 +15,18 @@
  */
 package org.xmlbeam;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import java.text.MessageFormat;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,11 +47,10 @@ import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
-import org.xmlbeam.io.XBStringIO;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.TypeConverter;
-import org.xmlbeam.util.ReflectionHelper;
+import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
  * <p>
@@ -110,7 +111,7 @@ public class XBProjector implements Serializable {
      * builder class.
      */
     public class ConfigBuilder {
-             
+
         public DocumentBuilder getDocumentBuilder() {
             return xMLFactoriesConfig.createDocumentBuilder();
         }
@@ -198,60 +199,60 @@ public class XBProjector implements Serializable {
     }
 
     public class IOBuilder {
-        
+
         public XBFileIO file(File file) {
-            return new XBFileIO(XBProjector.this,file);
+            return new XBFileIO(XBProjector.this, file);
         }
-        
+
         public XBUrlIO url(String url) {
-            return new XBUrlIO(XBProjector.this,url);
+            return new XBUrlIO(XBProjector.this, url);
         }
-        
+
         public XBStreamInput stream(InputStream is) {
-            return new XBStreamInput(XBProjector.this,is);
+            return new XBStreamInput(XBProjector.this, is);
         }
-        
+
         public XBStreamOutput stream(OutputStream os) {
-            return new XBStreamOutput(XBProjector.this,os);
+            return new XBStreamOutput(XBProjector.this, os);
         }
-              
+
         /**
-         * Create a new projection using a {@link XBDocURL} annotation on this interface. When the XBDocURL
-         * starts with the protocol identifier "resource://" the class loader of the projection
-         * interface will be used to read the resource from the current class path.
+         * Create a new projection using a {@link XBDocURL} annotation on this interface. When the
+         * XBDocURL starts with the protocol identifier "resource://" the class loader of the
+         * projection interface will be used to read the resource from the current class path.
          * 
          * @param projectionInterface
          *            a public interface.
          * @return a new projection instance
          * @throws IOException
          */
-        public <T> T fromURLAnnotation(final Class<T> projectionInterface,Object... params) throws IOException {
+        public <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... params) throws IOException {
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
-            }            
+            }
             return url(MessageFormat.format(doc.value(), params)).read(projectionInterface);
         }
-        
+
         /**
          * Write projected document to url (file or http post) of {@link XBDocURL} annotation.
          * 
          * @param projection
          * @return response of http post or null for file urls.
          * @throws IOException
-         * @throws URISyntaxException 
+         * @throws URISyntaxException
          */
-        public String toURLAnnotationViaPOST(final Object projection,Object... params) throws IOException, URISyntaxException {
+        public String toURLAnnotationViaPOST(final Object projection, Object... params) throws IOException, URISyntaxException {
             Class<?> projectionInterface = getProjectionInterfaceFor(projection);
             XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
-            String url = MessageFormat.format(doc.value(),params);
+            String url = MessageFormat.format(doc.value(), params);
             if ((url.startsWith("http:")) || (url.startsWith("https:"))) {
                 return url(url).write(projection);
             }
-            if (url.startsWith("file:")) {            
+            if (url.startsWith("file:")) {
                 File file = new File(new URL(url).toURI());
                 file(file).write(projection);
                 return null;
@@ -260,49 +261,58 @@ public class XBProjector implements Serializable {
         }
     }
 
-    public class ProjectionFactory {
-        /**
-         * Create a new projection for an empty document. Use this to create new documents.
-         * 
-         * @param projectionInterface
-         * @return a new projection instance
-         */
-        public <T> T createEmptyDocumentProjection(Class<T> projectionInterface) {
-            Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
-            return projectXML(document, projectionInterface);
-        }
+    /**
+     * Create a new projection for an empty document. Use this to create new documents.
+     * 
+     * @param projectionInterface
+     * @return a new projection instance
+     */
+    public <T> T projectEmptyDocument(Class<T> projectionInterface, String... systemID) {
+        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+        document.setDocumentURI(systemID == null ? null : systemID[0]);
+        return projectDOMNode(document, projectionInterface);
+    }
 
-        /**
-         * Create a new projection for an empty element. Use this to create new elements.
-         * 
-         * @param name Element name
-         * @param projectionInterface 
-         * @return a new projection instance
-         */
-        public <T> T createEmptyElementProjection(final String name,Class<T> projectionInterface) {
-            Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
-            Element element = document.createElement(name);
-            return projectXML(element, projectionInterface);
-        }
+    /**
+     * Create a new projection for an empty element. Use this to create new elements.
+     * 
+     * @param name
+     *            Element name
+     * @param projectionInterface
+     * @return a new projection instance
+     */
+    public <T> T projectEmptyElement(final String name, Class<T> projectionInterface) {
+        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+        Element element = document.createElement(name);
+        return projectDOMNode(element, projectionInterface);
+    }
 
-        /**
-         * Creates a projection from XML to Java.
-         * 
-         * @param node
-         *            XML DOM Node. May be a document or just an element.
-         * @param projectionInterface
-         *            A Java interface to project the data on.
-         * @return a new instance of projectionInterface.
-         */
-        @SuppressWarnings("unchecked")
-        public <T> T projectXML(final Node node, final Class<T> projectionInterface) {
-            if (!isValidProjectionInterface(projectionInterface)) {
-                throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
-            }
-            return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, node, projectionInterface)));
+    /**
+     * Creates a projection from XML Documents or Elements to Java.
+     * 
+     * @param node
+     *            XML DOM Node. May be a document or just an element.
+     * @param projectionInterface
+     *            A Java interface to project the data on.
+     * @return a new instance of projectionInterface.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T projectDOMNode(final Node node, final Class<T> projectionInterface) {
+        if (!isValidProjectionInterface(projectionInterface)) {
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+        }
+        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, node, projectionInterface)));
+    }
+
+    public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface, String... systemID) {
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+            return new XBStreamInput(this, inputStream).setSystemID(systemID == null ? null : systemID[0]).read(projectionInterface);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Marker interface to determine if a Projection instance was created by a Projector. This will
      * be applied automatically to projections.
@@ -311,6 +321,7 @@ public class XBProjector implements Serializable {
 
         /**
          * Getter for the projection interface.
+         * 
          * @return the projection interface of this projection.
          */
         Class<?> getProjectionInterface();
@@ -328,7 +339,7 @@ public class XBProjector implements Serializable {
      * Constructor. Use me to create a projector with defaults.
      */
     public XBProjector() {
-        xMLFactoriesConfig =  new DefaultXMLFactoriesConfig();
+        xMLFactoriesConfig = new DefaultXMLFactoriesConfig();
     }
 
     /**
@@ -356,7 +367,6 @@ public class XBProjector implements Serializable {
         return new MixinBuilder();
     }
 
-  
     /**
      * Use this method to obtain the DOM tree behind a projection. Changing the DOM of a projection
      * is a valid action and may change the results of the projections methods.
@@ -394,21 +404,17 @@ public class XBProjector implements Serializable {
     }
 
     /**
-     * 
-     * @return 
+     * @return
      */
     public IOBuilder io() {
         return new IOBuilder();
     }
 
-    
-    public ProjectionFactory create() {
-        return new ProjectionFactory();
-    }
-    /** 
+    /**
      * Method to determine the projection interface of a projection.
      * 
-     * @param projection a projection created with a XBProjector.
+     * @param projection
+     *            a projection created with a XBProjector.
      * @return projection interface.
      */
     @SuppressWarnings("unchecked")
