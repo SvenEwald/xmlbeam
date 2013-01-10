@@ -46,7 +46,7 @@ public class IOViaUrl {
     @Test
     public void ensureHTTPPostRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");    
-        FooProjection projection = new XBProjector().createEmptyDocumentProjection(FooProjection.class);
+        FooProjection projection = new XBProjector().create().createEmptyDocumentProjection(FooProjection.class);
         addRequestParams(new XBUrlIO(new XBProjector(),parrot.getURL())).write(projection);
         validateRequest(parrot.getRequest());
     }

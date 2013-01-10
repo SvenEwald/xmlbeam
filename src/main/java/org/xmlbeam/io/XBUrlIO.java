@@ -56,7 +56,7 @@ public class XBUrlIO {
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), url, requestParams, projectionInterface);
-        return projector.projectXML(document, projectionInterface);
+        return projector.create().projectXML(document, projectionInterface);
     }
 
     /**

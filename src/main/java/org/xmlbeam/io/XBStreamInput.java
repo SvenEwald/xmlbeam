@@ -58,7 +58,7 @@ public class XBStreamInput {
         try {
             DocumentBuilder documentBuilder = projector.config().getDocumentBuilder();
             Document document = systemID==null ? documentBuilder.parse(is) : documentBuilder.parse(is,systemID);
-            return projector.projectXML(document, projectionInterface);
+            return projector.create().projectXML(document, projectionInterface);
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
