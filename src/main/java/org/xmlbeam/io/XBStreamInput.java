@@ -15,9 +15,14 @@
  */
 package org.xmlbeam.io;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -26,44 +31,41 @@ import org.xmlbeam.XBProjector;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBFileIO {
+public class XBStreamInput {
 
     private final XBProjector projector;
-    boolean append = false;
-    private final  File file;
-
+    private final  InputStream is;
+    private String systemID;
+    
     /**
      * @param xmlProjector
-     * @param file 
      */
-    public XBFileIO(XBProjector xmlProjector, File file) {
+    public XBStreamInput(XBProjector xmlProjector,InputStream is) {
         this.projector = xmlProjector;
-        this.file=file;
+        this.is=is;
     }
 
-    public <T> T read(Class<T> projectionInterface) throws IOException {
+    /**
+     * Create a new projection by parsing the data provided by the input stream.
+     * 
+     * @param is
+     * @param projectionInterface
+     *            A Java interface to project the data on.
+     * @return
+     * @throws IOException
+     */
+    public <T> T read(final Class<T> projectionInterface) throws IOException {
         try {
-            Document document = projector.config().getDocumentBuilder().parse(file);
+            DocumentBuilder documentBuilder = projector.config().getDocumentBuilder();
+            Document document = systemID==null ? documentBuilder.parse(is) : documentBuilder.parse(is,systemID);
             return projector.projectXML(document, projectionInterface);
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
     }
-
-    /**
-     * @param projection
-     * @param file
-     * @throws IOException
-     */
-    public XBFileIO write(Object projection) throws IOException {
-        FileOutputStream os = new FileOutputStream(file, append);
-        new XBStreamOutput(projector,os).write(projection);
+   
+    public XBStreamInput setSystemID(String systemID) {
+        this.systemID=systemID;
         return this;
     }
-
-    public XBFileIO setAppend(boolean append) {
-        this.append = append;
-        return this;
-    }
-
 }

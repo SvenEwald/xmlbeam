@@ -26,7 +26,7 @@ public class TestDom4jMimicry {
     public void testAPIMimicry() throws IOException {
         XBProjector projector = new XBProjector();
         
-        Document document =projector.read().fromURLAnnotation(Document.class);
+        Document document =projector.io().fromURLAnnotation(Document.class);
         Element element = document.getRootElement();
         System.out.println(element.getName());
         Element element2 = element.element("eelement");

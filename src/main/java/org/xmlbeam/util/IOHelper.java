@@ -64,7 +64,7 @@ public class IOHelper {
         HashMap<String, String> map = new HashMap<String, String>();
         try {
             String base64Binary = DatatypeConverter.printBase64Binary((username + ":" + password).getBytes("US-ASCII"));
-            map.put("Authorization", " Basic " + base64Binary);
+            map.put("Authorization", "Basic " + base64Binary);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

@@ -30,40 +30,24 @@ import org.xmlbeam.XBProjector;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBStreamIO {
+public class XBStreamOutput {
 
     private final XBProjector projector;
+    private final  OutputStream os;
 
     /**
      * @param xmlProjector
      */
-    public XBStreamIO(XBProjector xmlProjector) {
+    public XBStreamOutput(XBProjector xmlProjector,OutputStream os) {
         this.projector = xmlProjector;
-    }
-
-    /**
-     * Create a new projection by parsing the data provided by the input stream.
-     * 
-     * @param is
-     * @param projectionInterface
-     *            A Java interface to project the data on.
-     * @return
-     * @throws IOException
-     */
-    public <T> T read(final InputStream is, final Class<T> projectionInterface) throws IOException {
-        try {
-            Document document = projector.config().getDocumentBuilder().parse(is);
-            return projector.projectXML(document, projectionInterface);
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        }
+        this.os=os;
     }
 
     /**
      * @param projection
      * @param os
      */
-    public void write(Object projection, OutputStream os) {
+    public void write(Object projection ) {
         try {
             projector.config().getTransformer().transform(new DOMSource(projector.getXMLDocForProjection(projection)), new StreamResult(os));
         } catch (TransformerException e) {

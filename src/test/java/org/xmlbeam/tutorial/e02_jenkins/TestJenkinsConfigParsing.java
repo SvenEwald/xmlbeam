@@ -34,7 +34,7 @@ public class TestJenkinsConfigParsing {
 
     @Before
     public void readJobConfig() throws IOException {
-        config = new XBProjector().read().fromURLAnnotation(JenkinsJobConfig.class);
+        config = new XBProjector().io().fromURLAnnotation(JenkinsJobConfig.class);
     }
 
     @Test

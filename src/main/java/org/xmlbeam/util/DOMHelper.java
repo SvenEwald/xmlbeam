@@ -55,7 +55,7 @@ public class DOMHelper {
             if (uri.startsWith("resource://")) {
                 return documentBuilder.parse(resourceAwareClass.getResourceAsStream(uri.substring("resource://".length())));
             }
-            if (uri.startsWith("http://")||uri.startsWith("https://")) {
+            if (uri.startsWith("http:")||uri.startsWith("https:")) {
                 return documentBuilder.parse(IOHelper.httpGet(uri, requestParams));
             }
             Document document = documentBuilder.parse(uri);
