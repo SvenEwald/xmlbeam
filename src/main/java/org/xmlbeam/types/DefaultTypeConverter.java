@@ -18,13 +18,15 @@ package org.xmlbeam.types;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.Serializable;
+
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @SuppressWarnings("serial")
 public class DefaultTypeConverter implements TypeConverter {
 
-    public static abstract class Conversio<T> {
+    public static abstract class Conversio<T> implements Serializable {
 
         private final T defaultValue;
 
