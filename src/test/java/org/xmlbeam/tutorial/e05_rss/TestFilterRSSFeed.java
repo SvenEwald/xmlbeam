@@ -36,7 +36,7 @@ public class TestFilterRSSFeed {
     @BeforeClass
     public static void readFeed() throws IOException {
         XBProjector projector = new XBProjector();
-        feed = projector.read().fromURLAnnotation(SlashdotRSSFeed.class);
+        feed = projector.io().fromURLAnnotation(SlashdotRSSFeed.class);
     }
 
     @Test

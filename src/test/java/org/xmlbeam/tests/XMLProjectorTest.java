@@ -44,7 +44,7 @@ public class XMLProjectorTest {
 
     @Before
     public void init() throws Exception {
-        suite = new XBProjector().read().fromURLAnnotation(XMLBeamTestSuite.class);
+        suite = new XBProjector().io().fromURLAnnotation(XMLBeamTestSuite.class);
         assertNotNull(suite);
     }
 

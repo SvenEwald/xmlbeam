@@ -25,8 +25,9 @@ import org.xmlbeam.XBProjector;
  */
 public class XBStringIO {
     
-    private XBProjector projector;
-
+    private final XBProjector projector;
+    private String systemID;
+    
     public XBStringIO(XBProjector xmlProjector) {
         this.projector = xmlProjector;
     }
@@ -34,13 +35,18 @@ public class XBStringIO {
     public <T> T parseXMLString(final String string, final Class<T> projectionInterface) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(string.getBytes());
         try {
-            return new XBStreamIO(projector).read(inputStream, projectionInterface);
-        } catch (IOException e) {            
+            return new XBStreamInput(projector,inputStream).setSystemID(systemID).read(projectionInterface);
+        } catch (IOException e) {
             throw new RuntimeException(e);            
         }
     }
     
     public String asString(Object projection) {
         return projection.toString();
+    }
+    
+    public XBStringIO setSystemID(String systemID) {
+        this.systemID=systemID;
+        return this;
     }
 }

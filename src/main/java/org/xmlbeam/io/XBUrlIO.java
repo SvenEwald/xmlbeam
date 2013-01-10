@@ -15,12 +15,16 @@
  */
 package org.xmlbeam.io;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.IOHelper;
 
@@ -31,9 +35,11 @@ public class XBUrlIO {
 
     private final XBProjector projector;
     private final Map<String,String> requestParams = new HashMap<String,String>();
+    private String url;
 
-    public XBUrlIO(XBProjector projector) {
+    public XBUrlIO(XBProjector projector, String url) {
         this.projector = projector;
+        this.url=url;
         requestParams.put("Content-Type","text/xml");
     }
 
@@ -48,8 +54,8 @@ public class XBUrlIO {
      * @return a new projection instance.
      * @throws IOException
      */
-    public <T> T getFromURL(final String uri, final Class<T> projectionInterface) throws IOException {
-        Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), uri, requestParams, projectionInterface);
+    public <T> T read(final Class<T> projectionInterface) throws IOException {
+        Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), url, requestParams, projectionInterface);
         return projector.projectXML(document, projectionInterface);
     }
 
@@ -61,9 +67,13 @@ public class XBUrlIO {
      * @return response as String
      * @throws IOException
      */
-    public String postToURL(Object projection, String httpurl) throws IOException {          
-        return IOHelper.inputStreamToString(IOHelper.httpPost(httpurl, projection.toString(), requestParams));
+    public String write(Object projection) throws IOException {
+        projector.getProjectionInterfaceFor(projection);
+        return IOHelper.inputStreamToString(IOHelper.httpPost(url, projection.toString(), requestParams));
     }
+    
+   
+    
     
     public XBUrlIO addRequestParams(Map<String,String> params) {
         requestParams.putAll(params);

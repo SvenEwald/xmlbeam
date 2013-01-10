@@ -37,7 +37,7 @@ public class TestObjectInvoker {
     @Test
     public void testToString() throws IOException {
         DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig().setOmitXMLDeclaration(false);
-        XMLBeamTestSuite testSuite = new XBProjector(config).read().fromURLAnnotation(XMLBeamTestSuite.class);
+        XMLBeamTestSuite testSuite = new XBProjector(config).io().fromURLAnnotation(XMLBeamTestSuite.class);
         String orig = IOHelper.inputStreamToString(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(XBDocURL.class).value().substring("resource://".length())));
         assertEquals(orig.replaceAll("\\s", ""), testSuite.toString().replaceAll("\\s", ""));
     }
