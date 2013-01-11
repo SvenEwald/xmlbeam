@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.test.behavior.io;
+package org.xmlbeam.test.behavior;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -29,7 +29,7 @@ import org.xmlbeam.util.IOHelper;
 
 /**
  */
-public class IOBehaviors {
+public class IOBehavior {
 
     public interface FooProjection {
         @XBRead("name(/*)")
@@ -38,20 +38,20 @@ public class IOBehaviors {
 
     @Test
     public void ensureHTTPGetRespectsAdditionalRequestParamsInHeader() throws Exception {
-        HTTPParrot parrot = HTTPParrot.serve("<foo/>");        
-        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(),parrot.getURL())).read(FooProjection.class);
+        HTTPParrot parrot = HTTPParrot.serve("<foo/>");
+        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL())).read(FooProjection.class);
         assertEquals("foo", projection.getRootName());
         validateRequest(parrot.getRequest());
     }
-    
+
     @Test
     public void ensureHTTPPostRespectsAdditionalRequestParamsInHeader() throws Exception {
-        HTTPParrot parrot = HTTPParrot.serve("<foo/>");    
+        HTTPParrot parrot = HTTPParrot.serve("<foo/>");
         FooProjection projection = new XBProjector().projectEmptyDocument(FooProjection.class);
-        addRequestParams(new XBUrlIO(new XBProjector(),parrot.getURL())).write(projection);
+        addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL())).write(projection);
         validateRequest(parrot.getRequest());
     }
-    
+
     @Test
     public void ensureHTTPGetRespectsSystemID() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
@@ -68,13 +68,19 @@ public class IOBehaviors {
         assertEquals(systemID, new XBProjector().getXMLDocForProjection(projection).getBaseURI());
         assertEquals("foo", projection.getRootName());
     }
+
+    @Test
+    public void ensureDocURLAnnotationWorksWithParams() {
+        // FIXME: implement testcase
+    }
     
     private XBUrlIO addRequestParams(XBUrlIO io) {
         return io.addRequestProperty("testparam", "mustBeInRequest").addRequestProperties(IOHelper.createBasicAuthenticationProperty("user", "password"));
     }
-    
+
     private void validateRequest(String request) {
-        assertTrue(request.contains("Authorization: Basic dXNlcjpwYXNzd29yZA=="));        
+        assertTrue(request.contains("Authorization: Basic dXNlcjpwYXNzd29yZA=="));
         assertTrue(request.contains("testparam: mustBeInRequest"));
-    }
+    }    
+    
 }

@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 
+import javax.xml.XMLConstants;
+import javax.xml.crypto.NodeSetData;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -45,6 +47,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -160,6 +163,11 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final XPathExpression expression = xPath.compile(path);
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); ++i) {
+            if (Node.ATTRIBUTE_NODE==nodes.item(i).getNodeType()) {
+                Attr attr = (Attr) nodes.item(i);
+                attr.getOwnerElement().removeAttributeNode(attr);
+                continue;
+            }                     
             Node parentNode = nodes.item(i).getParentNode();
             if (parentNode==null) {
                 continue;
