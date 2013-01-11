@@ -70,7 +70,7 @@ public class IOViaUrl {
     }
 
     private XBUrlIO addRequestParams(XBUrlIO io) {
-        return io.addRequestParam("testparam", "mustBeInRequest").addRequestParams(IOHelper.createBasicAuthenticationProperty("user", "password"));
+        return io.addRequestProperty("testparam", "mustBeInRequest").addRequestProperties(IOHelper.createBasicAuthenticationProperty("user", "password"));
     }
     
     private void validateRequest(String request) {

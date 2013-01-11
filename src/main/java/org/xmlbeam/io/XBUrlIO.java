@@ -31,13 +31,13 @@ import org.xmlbeam.util.intern.DOMHelper;
 public class XBUrlIO {
 
     private final XBProjector projector;
-    private final Map<String,String> requestParams = new HashMap<String,String>();
+    private final Map<String,String> requestProperties = new HashMap<String,String>();
     private final String url;
 
     public XBUrlIO(XBProjector projector, String url) {
         this.projector = projector;
         this.url=url;
-        requestParams.put("Content-Type","text/xml");
+        requestProperties.put("Content-Type","text/xml");
     }
 
     /**
@@ -52,7 +52,7 @@ public class XBUrlIO {
      * @throws IOException
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
-        Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), url, requestParams, projectionInterface);
+        Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), url, requestProperties, projectionInterface);
         return projector.projectDOMNode(document, projectionInterface);
     }
 
@@ -67,16 +67,16 @@ public class XBUrlIO {
     @SuppressWarnings("unchecked")
     public String write(Object projection) throws IOException {
         projector.getProjectionInterfaceFor(projection);
-        return IOHelper.inputStreamToString(IOHelper.httpPost(url, projection.toString(), requestParams));
+        return IOHelper.inputStreamToString(IOHelper.httpPost(url, projection.toString(), requestProperties));
     }        
     
-    public XBUrlIO addRequestParams(Map<String,String> params) {
-        requestParams.putAll(params);
+    public XBUrlIO addRequestProperties(Map<String,String> params) {
+        requestProperties.putAll(params);
         return this;
     }
        
-    public XBUrlIO addRequestParam(String name,String value) {
-        requestParams.put(name,value);
+    public XBUrlIO addRequestProperty(String name,String value) {
+        requestProperties.put(name,value);
         return this;
     }
 }
