@@ -15,6 +15,7 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,6 +84,10 @@ public final class DOMHelper {
     public static Map<String, String> getNamespaceMapping(Document document) {
         Map<String, String> map = new HashMap<String, String>();
         Element root = document.getDocumentElement();
+        if (root==null) {
+            // No document, no namespaces.
+            return Collections.emptyMap();
+        }
         NamedNodeMap attributes = root.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
