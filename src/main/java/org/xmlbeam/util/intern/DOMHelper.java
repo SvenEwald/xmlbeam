@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util;
+package org.xmlbeam.util.intern;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,8 +31,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xmlbeam.util.IOHelper;
 
 /**
+ * A set of tiny helper methods internally used in the projection framework. This methods are
+ * <b>not</b> part of the public framework API and might change in minor version updates.
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public final class DOMHelper {
@@ -50,6 +54,7 @@ public final class DOMHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestParams, final Class<?> resourceAwareClass) throws IOException {
         try {
             if (url.startsWith("resource://")) {

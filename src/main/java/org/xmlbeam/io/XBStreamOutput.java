@@ -15,16 +15,12 @@
  */
 package org.xmlbeam.io;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 
 /**
