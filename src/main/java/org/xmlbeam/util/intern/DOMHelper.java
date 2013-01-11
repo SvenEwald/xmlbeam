@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -31,6 +32,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlbeam.util.IOHelper;
 
@@ -59,7 +61,10 @@ public final class DOMHelper {
     public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
         try {
             if (url.startsWith("resource://")) {
-                return documentBuilder.parse(resourceAwareClass.getResourceAsStream(url.substring("resource://".length())));
+                InputStream is =resourceAwareClass.getResourceAsStream(url.substring("resource://".length()));
+                InputSource source = new InputSource(is);
+                // source.setEncoding("MacRoman");
+                return documentBuilder.parse(source);
             }
             if (url.startsWith("http:")||url.startsWith("https:")) {
                 return documentBuilder.parse(IOHelper.httpGet(url, requestProperties), url);
