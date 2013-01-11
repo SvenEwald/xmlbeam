@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class DOMHelper {
+public final class DOMHelper {
 
     public static void removeAllChildrenByName(Node element, String nodeName) {
         NodeList nodeList = element.getChildNodes();

@@ -27,7 +27,7 @@ import java.util.Set;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class ReflectionHelper {
+public final class ReflectionHelper {
 
     public static Set<Class<?>> findAllCommonSuperInterfaces(Class<?> a, Class<?> b) {
         Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
@@ -47,10 +47,6 @@ public class ReflectionHelper {
         return set;
     };
 
-    public static boolean isSetter(final Method method) {
-        return method.getName().toLowerCase().startsWith("set") && hasParameters(method);
-    }
-
     public static boolean hasReturnType(final Method method) {
         if (method.getReturnType() == null) {
             return false;
@@ -58,11 +54,10 @@ public class ReflectionHelper {
         if (Void.class.equals(method.getReturnType())) {
             return false;
         }
-
         return !Void.TYPE.equals(method.getReturnType());
     }
 
     public static boolean hasParameters(final Method method) {
-        return (method.getParameterTypes().length > 0);
+        return (method!=null) && (method.getParameterTypes().length > 0);
     }
 }
