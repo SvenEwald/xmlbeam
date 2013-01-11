@@ -38,4 +38,5 @@ FAQ / HowTo
 
    Example: "/element1/element2/*"
    This works for projections or collections of projections only.
+   If your setter value is a projection, all existing elements with the same element name will be removed and a single element will be attached. 
    
