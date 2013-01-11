@@ -15,13 +15,14 @@
  */
 package org.xmlbeam;
 
-import java.text.MessageFormat;
-
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,12 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-
-import javax.xml.XMLConstants;
-import javax.xml.crypto.NodeSetData;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -59,6 +54,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
+import org.xmlbeam.tutorial.e04_maven.MavenPOM;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
@@ -79,30 +75,16 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         this.projectionInterface = projectionInterface;
         Projection projectionInvoker = new Projection() {
             @Override
-            public Node getXMLNode() {
-                return ProjectionInvocationHandler.this.node;
-            }
-
-            @Override
             public Class<?> getProjectionInterface() {
                 return ProjectionInvocationHandler.this.projectionInterface;
             }
+
+            @Override
+            public Node getXMLNode() {
+                return ProjectionInvocationHandler.this.node;
+            }
         };
         Object objectInvoker = new Serializable() {
-            @Override
-            public String toString() {
-                try {
-                    StringWriter writer = new StringWriter();
-                    xmlProjector.config().getTransformer().transform(new DOMSource(node), new StreamResult(writer));
-                    String output = writer.getBuffer().toString();
-                    return output;
-                } catch (TransformerConfigurationException e) {
-                    throw new RuntimeException(e);
-                } catch (TransformerException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
             @Override
             public boolean equals(Object o) {
                 if (!(o instanceof Projection)) {
@@ -119,9 +101,150 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             public int hashCode() {
                 return 31 * ProjectionInvocationHandler.this.projectionInterface.hashCode() + 27 * node.hashCode();
             }
+
+            @Override
+            public String toString() {
+                try {
+                    StringWriter writer = new StringWriter();
+                    xmlProjector.config().getTransformer().transform(new DOMSource(node), new StreamResult(writer));
+                    String output = writer.getBuffer().toString();
+                    return output;
+                } catch (TransformerConfigurationException e) {
+                    throw new RuntimeException(e);
+                } catch (TransformerException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         };
         defaultInvokers.put(Projection.class, projectionInvoker);
         defaultInvokers.put(Object.class, objectInvoker);
+    }
+
+    /**
+     * @param collection
+     * @param parentElement
+     */
+    private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement) {
+        Set<String> elementNames = new HashSet<String>();
+        for (Object o : collection) {
+            if (!(o instanceof Projection)) {
+                throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
+            }
+            Projection p = (Projection) o;
+            elementNames.add(p.getXMLNode().getNodeName());
+        }
+        for (String elementName : elementNames) {
+            DOMHelper.removeAllChildrenByName(parentElement, elementName);
+        }
+        for (Object o : collection) {
+            Projection p = (Projection) o;
+            parentElement.appendChild(p.getXMLNode());
+        }
+    }
+
+    private void applySingleSetProjectionOnElement(final Projection projection, final Node element) {
+        DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
+        element.appendChild(projection.getXMLNode());
+    }
+
+    private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
+        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+        List<Object> linkedList = new LinkedList<Object>();
+        Class<?> targetType = findTargetComponentType(method);
+        if (xmlProjector.config().getTypeConverter().isConvertable(targetType)) {
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                linkedList.add(xmlProjector.config().getTypeConverter().convertTo(targetType, nodes.item(i).getTextContent()));
+            }
+            return linkedList;
+        }
+        if (targetType.isInterface()) {
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                Node n = nodes.item(i).cloneNode(true);
+                Projection subprojection = (Projection) xmlProjector.projectDOMNode(n, targetType);
+                linkedList.add(subprojection);
+            }
+            return linkedList;
+        }
+        throw new IllegalArgumentException("Return type " + targetType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + xmlProjector.config().getTypeConverter()
+                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
+    }
+
+    /**
+     * @param method
+     * @return index of fist parameter annotated with {@link XBValue} annotation.
+     */
+    private int findIndexOfValue(Method method) {
+        int index = 0;
+        for (Annotation[] annotations : method.getParameterAnnotations()) {
+            for (Annotation a : annotations) {
+                if (XBValue.class.equals(a.annotationType())) {
+                    return index;
+                }
+            }
+            ++index;
+        }
+        return 0; // If no attribute is annotated, the first one is taken.
+    }
+
+    private Class<?> findTargetComponentType(final Method method) {
+        if (method.getReturnType().isArray()) {
+            return method.getReturnType().getComponentType();
+        }
+        Class<?> targetType = method.getAnnotation(XBRead.class).targetComponentType();
+        if (XBRead.class.equals(targetType)) {
+            throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
+        }
+        return targetType;
+    }
+
+    private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
+        Node evaluationNode = node;
+        if (method.getAnnotation(XBDocURL.class) != null) {
+            String uri = method.getAnnotation(XBDocURL.class).value();
+            uri = MessageFormat.format(uri, args);
+            //FIXME: How to add request properties here?           
+            evaluationNode = DOMHelper.getDocumentFromURL(xmlProjector.config().getDocumentBuilder(), uri, null, projectionInterface);
+        }
+        return evaluationNode;
+    }
+
+    /**
+     * Determine a methods return value that does not depend on the methods execution. Possible
+     * values are void or the proxy itself (would be "this").
+     * 
+     * @param method
+     * @return
+     */
+    private Object getProxyReturnValueForMethod(final Object proxy, final Method method) {
+        if (!ReflectionHelper.hasReturnType(method)) {
+            return null;
+        }
+        if (method.getReturnType().equals(method.getDeclaringClass())) {
+            return proxy;
+        }
+        throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
+    }
+
+    private void injectMeAttribute(Projection me, Object target) {
+        Class<?> projectionInterface = me.getProjectionInterface();
+        for (Field field : target.getClass().getDeclaredFields()) {
+            if (!projectionInterface.equals(field.getType())) {
+                continue;
+            }
+            if (!"me".equalsIgnoreCase(field.getName())) {
+                continue;
+            }
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            try {
+                field.set(target, me);
+                return;
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+Projection.class.getSimpleName()+" me;\" to be able to access the projection.");
     }
 
     @Override
@@ -177,43 +300,34 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         return getProxyReturnValueForMethod(proxy, method);
     }
 
-    /**
-     * Determine a methods return value that does not depend on the methods execution. Possible
-     * values are void or the proxy itself (would be "this").
-     * 
-     * @param method
-     * @return
-     */
-    private Object getProxyReturnValueForMethod(final Object proxy, final Method method) {
-        if (!ReflectionHelper.hasReturnType(method)) {
-            return null;
-        }
-        if (method.getReturnType().equals(method.getDeclaringClass())) {
-            return proxy;
-        }
-        throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
-    }
-
-    private void injectMeAttribute(Projection me, Object target) {
-        Class<?> projectionInterface = me.getProjectionInterface();
-        for (Field field : target.getClass().getDeclaredFields()) {
-            if (!projectionInterface.equals(field.getType())) {
-                continue;
-            }
-            if (!"me".equalsIgnoreCase(field.getName())) {
-                continue;
-            }
-            if (!field.isAccessible()) {
-                field.setAccessible(true);
-            }
+    private Object invokeGetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
+        final Node node = getNodeForMethod(method, args);
+        final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
+        final XPath xPath = xmlProjector.config().getXPath(document);
+        final XPathExpression expression = xPath.compile(path);
+        final Class<?> returnType = method.getReturnType();
+        if (xmlProjector.config().getTypeConverter().isConvertable(returnType)) {
+            String data = (String) expression.evaluate(node, XPathConstants.STRING);
             try {
-                field.set(target, me);
-                return;
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+                return xmlProjector.config().getTypeConverter().convertTo(returnType, data);
+            } catch (NumberFormatException e) {
+                throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
             }
         }
-        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+Projection.class.getSimpleName()+" me;\" to be able to access the projection.");
+        if (List.class.equals(returnType)) {
+            return evaluateAsList(expression, node, method);
+        }
+        if (returnType.isArray()) {
+            List<?> list = evaluateAsList(expression, node, method);            
+            return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
+        }
+        if (returnType.isInterface()) {
+            Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
+            Projection subprojection = (Projection) xmlProjector.projectDOMNode(newNode, returnType);
+
+            return subprojection;
+        }
+        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + xmlProjector.config().getTypeConverter());
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
@@ -254,123 +368,5 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
         }
         return getProxyReturnValueForMethod(proxy, method);
-    }
-
-    /**
-     * @param method
-     * @return index of fist parameter annotated with {@link XBValue} annotation.
-     */
-    private int findIndexOfValue(Method method) {
-        int index = 0;
-        for (Annotation[] annotations : method.getParameterAnnotations()) {
-            for (Annotation a : annotations) {
-                if (XBValue.class.equals(a.annotationType())) {
-                    return index;
-                }
-            }
-            ++index;
-        }
-        return 0; // If no attribute is annotated, the first one is taken.
-    }
-
-    /**
-     * @param collection
-     * @param parentElement
-     */
-    private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement) {
-        Set<String> elementNames = new HashSet<String>();
-        for (Object o : collection) {
-            if (!(o instanceof Projection)) {
-                throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
-            }
-            Projection p = (Projection) o;
-            elementNames.add(p.getXMLNode().getNodeName());
-        }
-        for (String elementName : elementNames) {
-            DOMHelper.removeAllChildrenByName(parentElement, elementName);
-        }
-        for (Object o : collection) {
-            Projection p = (Projection) o;
-            parentElement.appendChild(p.getXMLNode());
-        }
-    }
-
-    private void applySingleSetProjectionOnElement(final Projection projection, final Node element) {
-        DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
-        element.appendChild(projection.getXMLNode());
-    }
-
-    private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
-        Node evaluationNode = node;
-        if (method.getAnnotation(XBDocURL.class) != null) {
-            String uri = method.getAnnotation(XBDocURL.class).value();
-            uri = MessageFormat.format(uri, args);
-            //FIXME: How to add request properties here?           
-            evaluationNode = DOMHelper.getDocumentFromURL(xmlProjector.config().getDocumentBuilder(), uri, null, projectionInterface);
-        }
-        return evaluationNode;
-    }
-
-    private Object invokeGetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
-        final Node node = getNodeForMethod(method, args);
-        final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
-        final XPath xPath = xmlProjector.config().getXPath(document);
-        final XPathExpression expression = xPath.compile(path);
-        final Class<?> returnType = method.getReturnType();
-        if (xmlProjector.config().getTypeConverter().isConvertable(returnType)) {
-            String data = (String) expression.evaluate(node, XPathConstants.STRING);
-            try {
-                return xmlProjector.config().getTypeConverter().convertTo(returnType, data);
-            } catch (NumberFormatException e) {
-                throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
-            }
-        }
-        if (List.class.equals(returnType)) {
-            return evaluateAsList(expression, node, method);
-        }
-        if (returnType.isArray()) {
-            List<?> list = evaluateAsList(expression, node, method);
-            return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
-        }
-        if (returnType.isInterface()) {
-            Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-            Projection subprojection = (Projection) xmlProjector.projectDOMNode(newNode, returnType);
-
-            return subprojection;
-        }
-        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + xmlProjector.config().getTypeConverter());
-    }
-
-    private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
-        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-        List<Object> linkedList = new LinkedList<Object>();
-        Class<?> targetType = findTargetComponentType(method);
-        if (xmlProjector.config().getTypeConverter().isConvertable(targetType)) {
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                linkedList.add(xmlProjector.config().getTypeConverter().convertTo(targetType, nodes.item(i).getTextContent()));
-            }
-            return linkedList;
-        }
-        if (targetType.isInterface()) {
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                Node n = nodes.item(i).cloneNode(true);
-                Projection subprojection = (Projection) xmlProjector.projectDOMNode(n, method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType());
-                linkedList.add(subprojection);
-            }
-            return linkedList;
-        }
-        throw new IllegalArgumentException("Return type " + targetType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + xmlProjector.config().getTypeConverter()
-                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
-    }
-
-    private Class<?> findTargetComponentType(final Method method) {
-        if (method.getReturnType().isArray()) {
-            return method.getReturnType().getComponentType();
-        }
-        Class<?> targetType = method.getAnnotation(XBRead.class).targetComponentType();
-        if (XBRead.class.equals(targetType)) {
-            throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
-        }
-        return targetType;
     }
 }

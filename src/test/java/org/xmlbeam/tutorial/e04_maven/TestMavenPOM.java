@@ -26,6 +26,7 @@ import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.e04_maven.MavenPOM.Artifact;
 
 @Category(Tutorial.class)
 public class TestMavenPOM {
@@ -39,9 +40,14 @@ public class TestMavenPOM {
      */
     @Test
     public void testProjectNameWriting() throws SAXException, IOException, ParserConfigurationException {
-        MavenPOM pom = new XBProjector().io().fromURLAnnotation(MavenPOM.class);
-        assertEquals("Maven core", pom.getName());
-        pom.setName("New name");
-        assertEquals("New name", pom.getName());
+//START SNIPPET: TestMavenPOM
+MavenPOM pom = new XBProjector().io().fromURLAnnotation(MavenPOM.class);
+pom.setName("New name");
+for (Artifact artifact:pom.getDependencies()) {
+    if (artifact.equals(pom.getProjectId())) {
+        System.out.println("Hmm... your project depends on itself!");
+    }
+}
+//START SNIPPET: TestMavenPOM        
     }
 }

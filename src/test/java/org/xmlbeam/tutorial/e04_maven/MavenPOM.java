@@ -26,17 +26,15 @@ import org.xmlbeam.annotation.XBWrite;
  * A simple setter is defined to modify a maven project name.
  * 
  */
+//START SNIPPET: MavenPOM
 @XBDocURL("resource://pom.xml")
 public interface MavenPOM {
 
-    @XBRead("/project/name")
-    String getName();
-
-    @XBWrite("/project/name")
-    void setName(String name);
-
+   /**
+    * When I see an artifact with id and group and version, I call it an artifact.
+    * (adapted from James Whitcomb Riley)
+    */
     public interface Artifact {
-
         @XBRead("child::groupId")
         String getGroupId();
 
@@ -45,13 +43,18 @@ public interface MavenPOM {
 
         @XBRead("child::version")
         String getVersion();
-
     }
+    
+    @XBRead("/project/name")
+    String getName();
+
+    @XBWrite("/project/name")
+    void setName(String name);
 
     @XBRead("/project")
     Artifact getProjectId();
 
-    @XBRead("/project/depencencies/dependency")
+    @XBRead("/project/dependencies/dependency")
     Artifact[] getDependencies();
-
 }
+//END SNIPPET: MavenPOM

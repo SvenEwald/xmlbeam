@@ -147,9 +147,16 @@ Tutorial Examples
 
 *E04: Maven POM
 
- * Modify an element value
+ A Maven project has a group id, artefact id and a version.
+ So does a Maven dependency.
+ Now we reuse the same sub projection for unrelated, but similar parts of the document.
+ This is possible because the structure of our projection does not need to follow the structure of the document.
+ 
+ Second we define a simple setter in the projection interface to show how element values can be modified.  
 
- * Reuse a projection for similar elements 
+%{snippet|id=MavenPOM|url=file:src/test/java/org/xmlbeam/tutorial/e04_maven/MavenPOM.java}
+
+%{snippet|id=TestMavenPOM|url=file:src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}
 
 *E05: RSS
 
