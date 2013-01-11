@@ -24,12 +24,12 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.io.XBUrlIO;
-import org.xmlbeam.util.HTTPParrot;
+import org.xmlbeam.testutils.HTTPParrot;
 import org.xmlbeam.util.IOHelper;
 
 /**
  */
-public class IOViaUrl {
+public class IOBehaviors {
 
     public interface FooProjection {
         @XBRead("name(/*)")
@@ -68,7 +68,7 @@ public class IOViaUrl {
         assertEquals(systemID, new XBProjector().getXMLDocForProjection(projection).getBaseURI());
         assertEquals("foo", projection.getRootName());
     }
-
+    
     private XBUrlIO addRequestParams(XBUrlIO io) {
         return io.addRequestProperty("testparam", "mustBeInRequest").addRequestProperties(IOHelper.createBasicAuthenticationProperty("user", "password"));
     }

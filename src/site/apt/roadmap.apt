@@ -4,6 +4,8 @@ Roadmap
 
  * Option to externalize projection metadata.
  
+ * Option to validate projection metadata.
+ 
  * Generator to create projection stubs from existing documents. 
 
  * Additional library with generic DOM access projections.
