@@ -15,16 +15,14 @@
  */
 package org.xmlbeam.refcards;
 
-import java.util.Map;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.util.IOHelper;
 
 /**
@@ -39,7 +37,6 @@ public class XBProjectorReferenceCard {
         File file = null;
         Class<Object> projectionInterface = null;
         Object projection = null;
-        String a = null, b = null;
         InputStream is = null;
         OutputStream os = null;
         String url=null,httpurl = null;
@@ -84,7 +81,7 @@ new XBProjector().io().url(url).write(projectionInterface);
 //END SNIPPET: XBProjectorReferenceCard6
 
 //START SNIPPET: XBProjectorReferenceCard7
-new XBProjector().io().url(httpurl).addRequestProperty("a", "b").read(projectionInterface);
+new XBProjector().io().url(httpurl).addRequestProperty("key", "value").read(projectionInterface);
 
 new XBProjector().io().url(httpurl).addRequestProperties(props).read(projectionInterface);
 //END SNIPPET: XBProjectorReferenceCard7
