@@ -297,6 +297,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getAnnotation(XBDocURL.class) != null) {
             String uri = method.getAnnotation(XBDocURL.class).value();
             uri = MessageFormat.format(uri, args);
+            //FIXME: How to add request properties here?           
             evaluationNode = DOMHelper.getDocumentFromURL(xmlProjector.config().getDocumentBuilder(), uri, null, projectionInterface);
         }
         return evaluationNode;

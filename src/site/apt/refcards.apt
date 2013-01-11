@@ -1,0 +1,52 @@
+API Reference
+
+ Short API reference examples
+
+%{toc|section=1|fromDepth=2|toDepth=3}
+
+*XBProjector
+
+ Use the XBProjetor class to create, read or write projections.
+
+**Create a projection from scratch
+ 
+%{snippet|id=XBProjectorReferenceCard1|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+**Parse some XML String
+ 
+%{snippet|id=XBProjectorReferenceCard2|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+  Notice: To get a XML String representation for a projection, just use the projections "toString()" method.
+
+**Create a projection for a DOM Document or Element
+
+%{snippet|id=XBProjectorReferenceCard3|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+**Read or write a projection to a file
+
+%{snippet|id=XBProjectorReferenceCard4|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+**Read or write a projection with a document origin annotation "@XBDocURL"
+
+%{snippet|id=XBProjectorReferenceCard5|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+**Read or write a projection from or to a given URL
+
+   Writing is supported for the protocols file, HTTP and HTTPS.
+   HTTP writing means to post the document to the given URL.
+   Reading supports the additional protocol "resource" to get documents from Java resources.
+   It will use the class loader of the projection interfaces.
+   
+%{snippet|id=XBProjectorReferenceCard6|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+**Adding HTPP headers for get/post requests
+
+%{snippet|id=XBProjectorReferenceCard7|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+**You may want to obtain properties for HTTP Basic authentication
+
+%{snippet|id=XBProjectorReferenceCard8|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+**Read or write a projection via Input/Outputstream
+
+%{snippet|id=XBProjectorReferenceCard9|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}

@@ -55,13 +55,13 @@ public final class DOMHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestParams, final Class<?> resourceAwareClass) throws IOException {
+    public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
         try {
             if (url.startsWith("resource://")) {
                 return documentBuilder.parse(resourceAwareClass.getResourceAsStream(url.substring("resource://".length())));
             }
             if (url.startsWith("http:")||url.startsWith("https:")) {
-                return documentBuilder.parse(IOHelper.httpGet(url, requestParams), url);
+                return documentBuilder.parse(IOHelper.httpGet(url, requestProperties), url);
             }
             Document document = documentBuilder.parse(url);
             if (document == null) {
