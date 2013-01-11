@@ -37,7 +37,7 @@ import javax.xml.bind.DatatypeConverter;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class IOHelper {
+public final class IOHelper {
 
     /**
      * Copies request properties to a connection.

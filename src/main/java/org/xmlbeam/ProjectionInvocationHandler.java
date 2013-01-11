@@ -64,8 +64,6 @@ import org.xmlbeam.util.intern.ReflectionHelper;
  */
 @SuppressWarnings("serial")
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    // private static final String LEGAL_XPATH_SELECTORS_FOR_SETTERS =
-// "^(/)|(/[a-zA-Z]+)+((/@[a-z:A-Z]+)?|(/\\*))$";
     private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");
     private final Node node;
     private final Class<?> projectionInterface;
@@ -81,12 +79,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             public Node getXMLNode() {
                 return ProjectionInvocationHandler.this.node;
             }
-
             @Override
             public Class<?> getProjectionInterface() {
                 return ProjectionInvocationHandler.this.projectionInterface;
             }
-
         };
         Object objectInvoker = new Serializable() {
             @Override
@@ -120,14 +116,12 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 return 31 * ProjectionInvocationHandler.this.projectionInterface.hashCode() + 27 * node.hashCode();
             }
         };
-
         defaultInvokers.put(Projection.class, projectionInvoker);
         defaultInvokers.put(Object.class, objectInvoker);
     }
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-
         Object defaultInvoker = defaultInvokers.get(method.getDeclaringClass());
         if (defaultInvoker != null) {
             return method.invoke(defaultInvoker, args);
@@ -137,20 +131,22 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             injectMeAttribute((Projection) proxy, customInvoker);
             return method.invoke(customInvoker, args);
         }
-        
+
         XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
-        if (delAnnotation!=null) {
+        if (delAnnotation != null) {
             return invokeDeleter(proxy, method, MessageFormat.format(delAnnotation.value(), args));
         }
 
-        if ((!ReflectionHelper.hasReturnType(method)) && (!ReflectionHelper.hasParameters(method))) {
-            throw new IllegalArgumentException("Invoking void method " + method + " without parameters. What should I do?");
+        XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
+        if (writeAnnotation != null) {
+            return invokeSetter(proxy, method, MessageFormat.format(writeAnnotation.value(), args), args);
         }
 
-        if (ReflectionHelper.isSetter(method) || (!ReflectionHelper.hasReturnType(method))) {
-            return invokeSetter(proxy, method, args);
+        XBRead readAnnotation = method.getAnnotation(XBRead.class);
+        if (readAnnotation != null) {
+            return invokeGetter(proxy, method, MessageFormat.format(readAnnotation.value(), args), args);
         }
-        return invokeGetter(proxy, method, args);
+        throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }
 
     /**
@@ -161,20 +157,27 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
         final XPath xPath = xmlProjector.config().getXPath(document);
         final XPathExpression expression = xPath.compile(path);
-
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); ++i) {
             nodes.item(i).getParentNode().removeChild(nodes.item(i));
         }
+        return getProxyReturnValueForMethod(proxy, method);
+    }
 
+    /**
+     * Determine a methods return value that does not depend on the methods execution. Possible
+     * values are void or the proxy itself (would be "this").
+     * 
+     * @param method
+     * @return
+     */
+    private Object getProxyReturnValueForMethod(final Object proxy, final Method method) {
         if (!ReflectionHelper.hasReturnType(method)) {
             return null;
         }
-
         if (method.getReturnType().equals(method.getDeclaringClass())) {
             return proxy;
         }
-
         throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
     }
 
@@ -201,24 +204,26 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
     }
 
-    private Object invokeSetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        final String path = getSetterXPathExpression(method, args);
+    private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
         if (!LEGAL_XPATH_SELECTORS_FOR_SETTERS.matcher(path).matches()) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
+        }
+        if (!ReflectionHelper.hasParameters(method)) {
+            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
         }
         final String pathToElement = path.replaceAll("/@.*", "");
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
-        assert document!=null;
+        assert document != null;
         final Object valuetToSet = args[findIndexOfValue(method)];
         if ("/*".equals(pathToElement)) { // Setting a new root element.
             if ((valuetToSet != null) && (!(valuetToSet instanceof Projection))) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valuetToSet);
             }
-            Projection projection = (Projection)valuetToSet;
+            Projection projection = (Projection) valuetToSet;
             Element element = Node.DOCUMENT_NODE == projection.getXMLNode().getNodeType() ? ((Document) projection.getXMLNode()).getDocumentElement() : (Element) projection.getXMLNode();
-            assert element !=null;
-            DOMHelper.setDocumentElement(document,element);
+            assert element != null;
+            DOMHelper.setDocumentElement(document, element);
         } else {
             Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
 
@@ -236,14 +241,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 }
             }
         }
-
-        if (!ReflectionHelper.hasReturnType(method)) {
-            return null;
-        }
-        if (method.getReturnType().equals(method.getDeclaringClass())) {
-            return proxy;
-        }
-        throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
+        return getProxyReturnValueForMethod(proxy, method);
     }
 
     /**
@@ -253,16 +251,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private int findIndexOfValue(Method method) {
         int index = 0;
         for (Annotation[] annotations : method.getParameterAnnotations()) {
-            for (Annotation a : annotations) {                
+            for (Annotation a : annotations) {
                 if (XBValue.class.equals(a.annotationType())) {
                     return index;
                 }
             }
             ++index;
         }
-
-        // If no attribute i annotated, the first one is taken.
-        return 0;
+        return 0; // If no attribute is annotated, the first one is taken.
     }
 
     /**
@@ -290,40 +286,19 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private void applySingleSetProjectionOnElement(final Projection projection, final Node element) {
         DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
         element.appendChild(projection.getXMLNode());
-    }
-
-    private String getGetterXPathExpression(final Method method, final Object[] args) {
-        XBRead annotation = findAnnotation(method, XBRead.class);
-        String path = MessageFormat.format(annotation.value(), args);
-        return path;
-    }
-
-    private String getSetterXPathExpression(final Method method, final Object[] args) {
-        XBWrite annotation = findAnnotation(method, XBWrite.class);
-        String path = MessageFormat.format(annotation.value(), args);
-        return path;
-    }
-
-    private <T extends Annotation> T findAnnotation(final Method method, Class<T> annotationClass) {
-        T annotation = method.getAnnotation(annotationClass);
-        if (annotation == null) {
-            throw new IllegalArgumentException("Method " + method + " needs a " + annotationClass.getSimpleName() + " annotation.");
-        }
-        return annotation;
-    }
+    }  
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
         Node evaluationNode = node;
         if (method.getAnnotation(XBDocURL.class) != null) {
             String uri = method.getAnnotation(XBDocURL.class).value();
             uri = MessageFormat.format(uri, args);
-            evaluationNode = DOMHelper.getDocumentFromURL(xmlProjector.config().getDocumentBuilder(), uri,null, projectionInterface);
+            evaluationNode = DOMHelper.getDocumentFromURL(xmlProjector.config().getDocumentBuilder(), uri, null, projectionInterface);
         }
         return evaluationNode;
     }
 
-    private Object invokeGetter(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        final String path = getGetterXPathExpression(method, args);
+    private Object invokeGetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
         final Node node = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
         final XPath xPath = xmlProjector.config().getXPath(document);
@@ -356,16 +331,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         List<Object> linkedList = new LinkedList<Object>();
-        Class<?> targetType;
-        if (method.getReturnType().isArray()) {
-            targetType = method.getReturnType().getComponentType();
-        } else {
-            targetType = method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType();
-            if (XBRead.class.equals(targetType)) {
-                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
-            }
-        }
-
+        Class<?> targetType = findTargetComponentType(method);
         if (xmlProjector.config().getTypeConverter().isConvertable(targetType)) {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 linkedList.add(xmlProjector.config().getTypeConverter().convertTo(targetType, nodes.item(i).getTextContent()));
@@ -380,7 +346,20 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
             return linkedList;
         }
-        throw new IllegalArgumentException("Return type " + method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType() + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
-                + xmlProjector.config().getTypeConverter());
+        throw new IllegalArgumentException("Return type " + targetType + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
+                + xmlProjector.config().getTypeConverter()+". Please change the return type to a sub projection or add a conversion to the type converter.");
+    }
+
+    private Class<?> findTargetComponentType(final Method method) {
+        Class<?> targetType;
+        if (method.getReturnType().isArray()) {
+            targetType = method.getReturnType().getComponentType();
+        } else {
+            targetType = method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType();
+            if (XBRead.class.equals(targetType)) {
+                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
+            }
+        }
+        return targetType;
     }
 }
