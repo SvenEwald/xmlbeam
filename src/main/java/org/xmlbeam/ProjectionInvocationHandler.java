@@ -56,7 +56,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
-import org.xmlbeam.util.DOMHelper;
+import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**

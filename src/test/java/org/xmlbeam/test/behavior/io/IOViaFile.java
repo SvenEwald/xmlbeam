@@ -39,7 +39,7 @@ public class IOViaFile {
         OutputStream os = null;
         String url = null;
         Object[] replacements = null;
-        Map<String, String> params;
+        Map<String, String> params = null;
         String name=null;
         Node node = null;
         
@@ -59,7 +59,7 @@ public class IOViaFile {
         new XBProjector().io().toURLAnnotationViaPOST(projectionInterface, replacements);
 
         new XBProjector().io().url(url).read(projectionInterface);
-        new XBProjector().io().url(url).addRequestParam(a, b).read(projectionInterface);
+        new XBProjector().io().url(url).addRequestParam(a, b).addRequestParams(params).read(projectionInterface);
         new XBProjector().io().url(url).write(projectionInterface);
 
         new XBProjector().io().stream(is).read(projectionInterface);

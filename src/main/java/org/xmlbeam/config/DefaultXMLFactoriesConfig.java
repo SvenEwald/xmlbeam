@@ -32,7 +32,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.util.DOMHelper;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * Default configuration for {@link XBProjector} which uses Java default

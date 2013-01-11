@@ -22,8 +22,8 @@ import java.io.IOException;
 
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.util.DOMHelper;
 import org.xmlbeam.util.IOHelper;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -57,20 +57,18 @@ public class XBUrlIO {
     }
 
     /**
-     * Post the projected document to a http url. The response is provided as a raw string.
+     * Post the projected document to a HTTP URL. The response is provided as a raw string.
      * 
      * @param projection
      * @param httpurl
      * @return response as String
      * @throws IOException
      */
+    @SuppressWarnings("unchecked")
     public String write(Object projection) throws IOException {
         projector.getProjectionInterfaceFor(projection);
         return IOHelper.inputStreamToString(IOHelper.httpPost(url, projection.toString(), requestParams));
-    }
-    
-   
-    
+    }        
     
     public XBUrlIO addRequestParams(Map<String,String> params) {
         requestParams.putAll(params);
