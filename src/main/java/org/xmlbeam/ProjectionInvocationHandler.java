@@ -79,6 +79,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             public Node getXMLNode() {
                 return ProjectionInvocationHandler.this.node;
             }
+
             @Override
             public Class<?> getProjectionInterface() {
                 return ProjectionInvocationHandler.this.projectionInterface;
@@ -159,7 +160,11 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final XPathExpression expression = xPath.compile(path);
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); ++i) {
-            nodes.item(i).getParentNode().removeChild(nodes.item(i));
+            Node parentNode = nodes.item(i).getParentNode();
+            if (parentNode==null) {
+                continue;
+            }
+            parentNode.removeChild(nodes.item(i));
         }
         return getProxyReturnValueForMethod(proxy, method);
     }
@@ -182,8 +187,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     }
 
     private void injectMeAttribute(Projection me, Object target) {
+        Class<?> projectionInterface = me.getProjectionInterface();
         for (Field field : target.getClass().getDeclaredFields()) {
-            if (!me.getProjectionInterface().equals(field.getType())) {
+            if (!projectionInterface.equals(field.getType())) {
                 continue;
             }
             if (!"me".equalsIgnoreCase(field.getName())) {
@@ -195,13 +201,11 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             try {
                 field.set(target, me);
                 return;
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException(e);
-
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
+        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+Projection.class.getSimpleName()+" me;\" to be able to access the projection.");
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
@@ -286,7 +290,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private void applySingleSetProjectionOnElement(final Projection projection, final Node element) {
         DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
         element.appendChild(projection.getXMLNode());
-    }  
+    }
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
         Node evaluationNode = node;
@@ -346,19 +350,17 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             }
             return linkedList;
         }
-        throw new IllegalArgumentException("Return type " + targetType + " is not valid for list or array component type returning from method " + method + " using the current type converter:"
-                + xmlProjector.config().getTypeConverter()+". Please change the return type to a sub projection or add a conversion to the type converter.");
+        throw new IllegalArgumentException("Return type " + targetType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + xmlProjector.config().getTypeConverter()
+                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
     }
 
     private Class<?> findTargetComponentType(final Method method) {
-        Class<?> targetType;
         if (method.getReturnType().isArray()) {
-            targetType = method.getReturnType().getComponentType();
-        } else {
-            targetType = method.getAnnotation(org.xmlbeam.annotation.XBRead.class).targetComponentType();
-            if (XBRead.class.equals(targetType)) {
-                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
-            }
+            return method.getReturnType().getComponentType();
+        }
+        Class<?> targetType = method.getAnnotation(XBRead.class).targetComponentType();
+        if (XBRead.class.equals(targetType)) {
+            throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
         }
         return targetType;
     }

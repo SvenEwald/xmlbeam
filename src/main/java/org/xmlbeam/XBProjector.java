@@ -123,10 +123,7 @@ public class XBProjector implements Serializable {
         public TypeConverter getTypeConverter() {
             return XBProjector.this.typeConverter;
         }
-
-        /**
-         * @return
-         */
+      
         public XPath getXPath(Document document) {
             return xMLFactoriesConfig.createXPath(document);
         }
@@ -303,6 +300,12 @@ public class XBProjector implements Serializable {
         return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, node, projectionInterface)));
     }
 
+    /**
+     * Creates a projection from XML content to Java. 
+     * @param xmlContent a string with XML content
+     * @param projectionInterface  A Java interface to project the data on.
+     * @return a new instance of projectionInterface.
+     */
     public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
@@ -320,11 +323,14 @@ public class XBProjector implements Serializable {
 
         /**
          * Getter for the projection interface.
-         * 
          * @return the projection interface of this projection.
          */
         Class<?> getProjectionInterface();
 
+        /**
+         * Getter for the underlying DOM node holding the data.
+         * @return the projections DOM node. Could be Document or Element.
+         */
         Node getXMLNode();
     }
 
@@ -403,7 +409,8 @@ public class XBProjector implements Serializable {
     }
 
     /**
-     * @return
+     * Access to the input/output features of this projector.
+     * @return A new IOBuilder providing methods to read or write projections. 
      */
     public IOBuilder io() {
         return new IOBuilder();
