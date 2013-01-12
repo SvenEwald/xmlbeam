@@ -10,25 +10,25 @@ API Reference
 
 **Create a projection from scratch
  
-%{snippet|id=XBProjectorReferenceCard1|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard1|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Parse some XML String
  
-%{snippet|id=XBProjectorReferenceCard2|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard2|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
   Notice: To get a XML String representation for a projection, just use the projections "toString()" method.
 
 **Create a projection for a DOM Document or Element
 
-%{snippet|id=XBProjectorReferenceCard3|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard3|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Read or write a projection to a file
 
-%{snippet|id=XBProjectorReferenceCard4|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard4|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Read or write a projection with a document origin annotation "@XBDocURL"
 
-%{snippet|id=XBProjectorReferenceCard5|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard5|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Read or write a projection from or to a given URL
 
@@ -37,16 +37,16 @@ API Reference
    Reading supports the additional protocol "resource" to get documents from Java resources.
    It will use the class loader of the projection interfaces.
    
-%{snippet|id=XBProjectorReferenceCard6|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard6|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Adding HTPP headers for get/post requests
 
-%{snippet|id=XBProjectorReferenceCard7|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard7|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **You may want to obtain properties for HTTP Basic authentication
 
-%{snippet|id=XBProjectorReferenceCard8|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard8|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Read or write a projection via Input/Outputstream
 
-%{snippet|id=XBProjectorReferenceCard9|url=file:src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard9|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}

@@ -38,7 +38,7 @@ import org.xmlbeam.tests.XMLBeamTestSuite.InnerStructure;
 import org.xmlbeam.tests.XMLBeamTestSuite.Setting;
 
 
-public class XMLProjectorTest {
+public class TestXMLProjector {
 
     private XMLBeamTestSuite suite;
 
