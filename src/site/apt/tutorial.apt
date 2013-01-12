@@ -8,7 +8,7 @@
 
 Tutorial Examples
 
- This tutorial guides you through seven examples, each demonstrating a couple of XMLBeam features.
+ This tutorial guides you through nine examples, each demonstrating a couple of XMLBeam features.
  You will find these examples ready to run in "src/test/java/tutorial".
  Each example works on real life XML Data. <<Have fun!>> 
 
@@ -46,7 +46,7 @@ Tutorial Examples
  
  Using data projection we define a single interface, hiding the XML structure:
 
-%{snippet|id=WeatherDataInterface|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/WeatherData.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#WeatherDataInterface|source=src/test/java/org/xmlbeam/tutorial/e01_weather/WeatherData.java}
 
  Hey, what does the inner interface "Location" do there? This declares that we like to group the two attributes holding the coordinates together in one object.
  It is not only possible to hide elements of the xml structure, but to enrich the structure with pretended objects.
@@ -55,7 +55,7 @@ Tutorial Examples
  
  Here the code to run the example:
  
-%{snippet|id=WeatherDataCode|url=file:src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#WeatherDataCode|source=src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}
 
 *E02: Reading a Jenkins Job Configuration
 
@@ -92,15 +92,15 @@ Tutorial Examples
  Our example should read all builder and all publisher elements in the configuration file.
  We like to know the element names of both, so we define a super interface "ModelElement" and let our model objects extend it.
 
-%{snippet|id=JenkinsModelElementInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/ModelElement.java}
-%{snippet|id=JenkinsPublisherInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Publisher.java}
-%{snippet|id=JenkinsBuilderInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Builder.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#JenkinsModelElementInterface|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/ModelElement.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#JenkinsPublisherInterface|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Publisher.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#JenkinsBuilderInterface|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/model/Builder.java}
 
 ** Projection API 
 
  Now that we have our model objects defined, we need to define how to retrieve them. 
 
-%{snippet|id=JenkinsJobConfigInterface|url=file:src/test/java/org/xmlbeam/tutorial/e02_jenkins/JenkinsJobConfig.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#JenkinsJobConfigInterface|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/JenkinsJobConfig.java}
 
 *E03: Eclipse Configuration File
 
@@ -139,11 +139,11 @@ Tutorial Examples
  
 ** Projection API 
 
-%{snippet|id=EclipseCodeFormatterConfig|url=file:src/test/java/org/xmlbeam/tutorial/e03_eclipse/EclipseFormatterConfigFile.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#EclipseCodeFormatterConfig|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/EclipseFormatterConfigFile.java}
 
 ** Example Code
 
-%{snippet|id=TestEclipseCodeFormatterConfig|url=file:src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestEclipseCodeFormatterConfig|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}
 
 *E04: Maven POM
 
@@ -154,19 +154,20 @@ Tutorial Examples
  
  Second we define a simple setter in the projection interface to show how element values can be modified.  
 
-%{snippet|id=MavenPOM|url=file:src/test/java/org/xmlbeam/tutorial/e04_maven/MavenPOM.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#MavenPOM|source=src/test/java/org/xmlbeam/tutorial/e04_maven/MavenPOM.java}
 
-%{snippet|id=TestMavenPOM|url=file:src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestMavenPOM|source=src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}
 
 *E05: RSS
 
- * Modify multiple elements
+ Instead of just setting an elements value like in the last example, we now change a sequence of elements.
+ Notice that there are name spaces in the source XML document and that we work with them intuitively.
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SlashdotRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/SlashdotRSSFeed.java}
+
+ And here some unit tests to print out some data about our RSS feed.
  
- * Accessing namespaced elements
- 
-%{snippet|id=SlashdotRSSFeed|url=file:src/test/java/org/xmlbeam/tutorial/e05_rss/SlashdotRSSFeed.java}
- 
-%{snippet|id=TestFilterRSSFeed|url=file:src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#=TestFilterRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
 
 *E06: XHTML
 
@@ -174,18 +175,18 @@ Tutorial Examples
  
  * Usage of configuration injection to modify the output transformer.
 
-%{snippet|id=XHTML|url=file:src/test/java/org/xmlbeam/tutorial/e06_xhtml/XHTML.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#XHTML|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/XHTML.java}
  
-%{snippet|id=TestCreationOfXHTMLDocument|url=file:src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestCreationOfXHTMLDocument|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
 
  
 *E07: SVG
 
  * Add behavior to projections by adding a Mixin.
  
-%{snippet|id=SVGDocument|url=file:src/test/java/org/xmlbeam/tutorial/e07_svg/SVGDocument.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SVGDocument|source=src/test/java/org/xmlbeam/tutorial/e07_svg/SVGDocument.java}
  
-%{snippet|id=TestSVGElementSorting|url=file:src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestSVGElementSorting|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
  
 *E08: API Mimicry
  

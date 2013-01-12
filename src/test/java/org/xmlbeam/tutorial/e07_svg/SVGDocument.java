@@ -30,6 +30,7 @@ import org.xmlbeam.annotation.XBWrite;
  * 
  */
 @XBDocURL("resource://svg.xml")
+//START SNIPPET:SVGDocument
 public interface SVGDocument {
     
     /**
@@ -50,3 +51,4 @@ public interface SVGDocument {
     SVGDocument setGraphicElements(List<GraphicElement> elements);
 
 }
+//END SNIPPET:SVGDocument

@@ -23,6 +23,7 @@ import org.xmlbeam.annotation.XBWrite;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  *
  */
+//START SNIPPET:XHTML
 public interface XHTML {
 
     @XBWrite("/html/@xmlns")
@@ -37,3 +38,4 @@ public interface XHTML {
     @XBWrite("/html/body")
     XHTML setBody(String body);
 }
+//END SNIPPET:XHTML

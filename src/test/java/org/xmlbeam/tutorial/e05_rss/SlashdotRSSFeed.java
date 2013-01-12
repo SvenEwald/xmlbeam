@@ -97,4 +97,4 @@ public interface SlashdotRSSFeed {
     @XBRead(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
     List<Story> getOpenSourceStories();
 }
-//START SNIPPET:SlashdotRSSFeed
+//END SNIPPET:SlashdotRSSFeed
