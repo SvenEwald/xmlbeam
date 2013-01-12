@@ -26,7 +26,7 @@ import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
-public class DeleterBehavior {    
+public class TestDeleterBehavior {    
     
     @XBDocURL("resource://bigxml.xml")
     public interface DeletingProjection {        
