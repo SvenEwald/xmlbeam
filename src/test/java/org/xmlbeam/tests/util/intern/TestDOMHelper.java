@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xmlbeam.util.intern.DOMHelper;
 
-public class DOMHelperTest {
+public class TestDOMHelper {
 
     private Document document;
 
