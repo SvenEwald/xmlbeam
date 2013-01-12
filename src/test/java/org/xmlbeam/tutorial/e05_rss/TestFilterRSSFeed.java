@@ -15,11 +15,12 @@
  */
 package org.xmlbeam.tutorial.e05_rss;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import java.io.IOException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,6 +30,7 @@ import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 
 @Category(Tutorial.class)
+//START SNIPPET:TestFilterRSSFeed
 public class TestFilterRSSFeed {
 
     private static SlashdotRSSFeed feed;
@@ -43,9 +45,7 @@ public class TestFilterRSSFeed {
     public void printSomeStats() {
         Set<String> creators = new HashSet<String>(feed.getCreators());
         System.out.println("There are " + feed.getAllItems().size() + " stories by " + creators.size() + " different creators.");
-
     }
-
 
     /**
      * Remove all but the first three stories from a Slashdot RSS feed. Result
@@ -68,3 +68,4 @@ public class TestFilterRSSFeed {
         System.out.println(feed.toString());
     }
 }
+//END SNIPPET:TestFilterRSSFeed

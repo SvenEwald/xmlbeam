@@ -26,7 +26,7 @@
 		<menu name="XMLBeam">
 			<item name="Welcome" href="index.html" />
 			<item name="Introduction" href="introduction.html" />
-			<item name="Getting Started" href="tutorial.html" />
+			<item name="Tutorial" href="tutorial.html" />
 			<item name="FAQ" href="faq.html" />
 			<item name="Download" href="download.html" />
 			<item name="Release Notes" href="release-notes.html" />
