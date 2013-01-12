@@ -51,6 +51,7 @@ public class TestSVGElementSorting {
 
     @Test
     public void testElements() throws IOException {
+        //START SNIPPET:TestSVGElementSorting
         XBProjector xmlProjector = new XBProjector();
         SVGDocument svgDocument = xmlProjector.io().fromURLAnnotation(SVGDocument.class);
         xmlProjector.mixins().addProjectionMixin(GraphicElement.class, new Comparable<GraphicElement>() {
@@ -66,6 +67,6 @@ public class TestSVGElementSorting {
         List<GraphicElement> list = svgDocument.getGraphicElements();
         Collections.sort(list);
         svgDocument.setGraphicElements(list);
-        System.out.println(svgDocument.toString());
+      //END SNIPPET:TestSVGElementSorting
     }
 }

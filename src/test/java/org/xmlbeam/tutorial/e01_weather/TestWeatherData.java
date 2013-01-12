@@ -50,8 +50,8 @@ public class TestWeatherData {
 
 // START SNIPPET: WeatherDataCode
 private void printWeatherData(String location) throws IOException {
-    String BaseURL = "http://weather.service.msn.com/find.aspx"+
-                     "?outputview=search&weasearchstr=";
+    
+    final String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
     
     // We let the projector fetch the data for us
     WeatherData weatherData = new XBProjector().io().url(BaseURL + location).read(WeatherData.class);
@@ -59,15 +59,13 @@ private void printWeatherData(String location) throws IOException {
     // Print some values
     System.out.println("The weather in " + weatherData.getLocation() + ":");
     System.out.println(weatherData.getSkytext());
-    System.out.println("Temperature: " 
-                      + weatherData.getTemperature() + "°"
-                      + weatherData.getDegreeType());
+    System.out.println("Temperature: " + weatherData.getTemperature() + "°"
+                                       + weatherData.getDegreeType());
     
     // Access our sub projection
     Location coordinates = weatherData.getCoordinates();
-    System.out.println("The place is located at " 
-                     + coordinates.getLatitude() + ","
-                     + coordinates.getLongitude());
-}
+    System.out.println("The place is located at " + coordinates.getLatitude() + ","
+                                                  + coordinates.getLongitude());
+ }
 // END SNIPPET: WeatherDataCode
 }

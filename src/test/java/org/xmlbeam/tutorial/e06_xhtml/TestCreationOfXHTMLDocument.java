@@ -34,12 +34,13 @@ public class TestCreationOfXHTMLDocument {
 
     @Test
     public void testCreateWellFormedXHTML() {
+        //START SNIPPET:TestCreationOfXHTMLDocument
         XHTML xhtml = projector.projectEmptyDocument(XHTML.class);
 
         xhtml.setRootNameSpace("http://www.w3.org/1999/xhtml").setRootLang("en");
         xhtml.setTitle("This Is My Fine Title");
         xhtml.setBody("Here some text...");
-        
+      //END SNIPPET:TestCreationOfXHTMLDocument
                 
         System.out.println(xhtml.toString());
     }
