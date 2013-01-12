@@ -30,6 +30,7 @@ import org.xmlbeam.annotation.XBWrite;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+//START SNIPPET:SlashdotRSSFeed
 @XBDocURL("http://rss.slashdot.org/Slashdot/slashdot")
 public interface SlashdotRSSFeed {
 
@@ -96,3 +97,4 @@ public interface SlashdotRSSFeed {
     @XBRead(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
     List<Story> getOpenSourceStories();
 }
+//START SNIPPET:SlashdotRSSFeed

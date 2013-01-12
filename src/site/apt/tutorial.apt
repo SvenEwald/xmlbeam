@@ -163,13 +163,30 @@ Tutorial Examples
  * Modify multiple elements
  
  * Accessing namespaced elements
+ 
+%{snippet|id=SlashdotRSSFeed|url=file:src/test/java/org/xmlbeam/tutorial/e05_rss/SlashdotRSSFeed.java}
+ 
+%{snippet|id=TestFilterRSSFeed|url=file:src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
 
 *E06: XHTML
 
  * Create a new document from scratch
  
  * Usage of configuration injection to modify the output transformer.
+
+%{snippet|id=XHTML|url=file:src/test/java/org/xmlbeam/tutorial/e06_xhtml/XHTML.java}
+ 
+%{snippet|id=TestCreationOfXHTMLDocument|url=file:src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
+
  
 *E07: SVG
 
  * Add behavior to projections by adding a Mixin.
+ 
+%{snippet|id=SVGDocument|url=file:src/test/java/org/xmlbeam/tutorial/e07_svg/SVGDocument.java}
+ 
+%{snippet|id=TestSVGElementSorting|url=file:src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
+ 
+*E08: API Mimicry
+ 
+ 
