@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.xmlbeam</groupId>
 	<artifactId>xmlprojector</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1-SNAPSHOT</version>
 	<name>XMLBeam</name>
 	<description>
 	A java library to create "projections" of XML-Data to Java (and back). A projection is a defined subset of XML elements or attributes in an XML DOM tree. In contrast to data binding the resulting Java API is much more stable. Requires at least Java6 and has no further runtime dependencies.
@@ -37,7 +42,8 @@
 	</properties>
 	<build>
 		<testResources>
-		<!-- Mapping test resource folders to test source folders. This way the tutorials can be understood by looking at only one directory.-->
+			<!-- Mapping test resource folders to test source folders. This way the 
+				tutorials can be understood by looking at only one directory. -->
 			<testResource>
 				<directory>src/test/java</directory>
 			</testResource>
@@ -58,9 +64,7 @@
 				<version>2.5.2</version>
 				<configuration>
 					<formats>
-					<!--
-					  	<format>html</format>
-					  	-->
+						<!-- <format>html</format> -->
 						<format>xml</format>
 					</formats>
 					<instrumentation>
@@ -76,7 +80,8 @@
 				<version>1.7</version>
 				<executions>
 					<execution>
-					<!-- The github readme file serves as introduction page for the site. So we copy it to the site sources. -->
+						<!-- The github readme file serves as introduction page for the site. 
+							So we copy it to the site sources. -->
 						<phase>pre-site</phase>
 						<configuration>
 							<target>
