@@ -29,7 +29,7 @@ import org.xmlbeam.util.IOHelper;
 
 /**
  */
-public class IOBehavior {
+public class TestIOBehavior {
 
     public interface FooProjection {
         @XBRead("name(/*)")
