@@ -22,10 +22,13 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
- * @author sven
- *
+ * Abstract base class for tutorial test cases. The tutorial tests are printing out a lot of stuff
+ * to demonstrate the example projections. To suppress this output and get a faster and more
+ * readable log, set the "SwallowTutorialOutput" property.
+ * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class TutorialTestCase {
+public abstract class TutorialTestCase {
 
     private PrintStream origSyso;
 
