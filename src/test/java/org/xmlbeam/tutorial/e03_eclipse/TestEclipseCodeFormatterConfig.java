@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
 
 /**
@@ -33,7 +34,7 @@ import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
  * 
  */
 @Category(Tutorial.class)
-public class TestEclipseCodeFormatterConfig {
+public class TestEclipseCodeFormatterConfig extends TutorialTestCase {
 
     @Test
     public void profilesTest() throws IOException {

@@ -27,11 +27,12 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 
 @Category(Tutorial.class)
 //START SNIPPET:TestFilterRSSFeed
-public class TestFilterRSSFeed {
+public class TestFilterRSSFeed extends TutorialTestCase{
 
     private static SlashdotRSSFeed feed;
 

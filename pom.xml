@@ -77,8 +77,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<!--  <version>1.7</version>
-				-->
+				<!-- <version>1.7</version> -->
 				<executions>
 					<execution>
 						<!-- The github readme file serves as introduction page for the site. 
@@ -86,9 +85,9 @@
 						<id>Copy github readme as site content</id>
 						<phase>pre-site</phase>
 						<configuration>
-							<target>
+							<tasks>
 								<copy file="README.md" tofile="src/site/apt/introduction.apt" />
-							</target>
+							</tasks>
 						</configuration>
 						<goals>
 							<goal>run</goal>
@@ -98,9 +97,11 @@
 						<id>Patch syntax highlighter css</id>
 						<phase>post-site</phase>
 						<configuration>
-							<target>
-								<copy file="src/site/shCoreEclipse.css" tofile="target/site/attached-includes/css" />
-							</target>
+							<tasks>
+								<copy file="src/site/shCoreEclipse.css"
+									tofile="target/site/attached-includes/css/shCoreEclipse.css"
+									overwrite="true" />
+							</tasks>
 						</configuration>
 						<goals>
 							<goal>run</goal>
@@ -126,9 +127,7 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
-					 
 					<version>3.0</version>
-					
 					<dependencies>
 						<!-- additional dependencies required by "source-class" implementations 
 							are added here -->
@@ -156,10 +155,10 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	 <distributionManagement>
-    <site>
-      <id>xmlbeam.org</id>
-      <url>file:/tmp</url>
-    </site>
-  </distributionManagement>
+	<distributionManagement>
+		<site>
+			<id>xmlbeam.org</id>
+			<url>file:/tmp</url>
+		</site>
+	</distributionManagement>
 </project>

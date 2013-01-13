@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e07_svg.SVGDocument.GraphicElement;
 
 /**
@@ -47,7 +48,7 @@ import org.xmlbeam.tutorial.e07_svg.SVGDocument.GraphicElement;
  * 
  */
 @Category(Tutorial.class)
-public class TestSVGElementSorting {
+public class TestSVGElementSorting extends TutorialTestCase {
 
     @Test
     public void testElements() throws IOException {
