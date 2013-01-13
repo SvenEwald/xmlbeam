@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.TutorialTestCase;
 
 /**
  * Create and print some XHTML text. 
@@ -28,7 +29,7 @@ import org.xmlbeam.tutorial.Tutorial;
  *
  */
 @Category(Tutorial.class)
-public class TestCreationOfXHTMLDocument {
+public class TestCreationOfXHTMLDocument extends TutorialTestCase {
 
     private final XBProjector projector = new XBProjector();
 

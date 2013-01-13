@@ -19,8 +19,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.tutorial.TutorialTestCase;
 
-public class TestDom4jMimicry {
+public class TestDom4jMimicry extends TutorialTestCase {
 
     @Test
     public void testAPIMimicry() throws IOException {

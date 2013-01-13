@@ -24,6 +24,7 @@ import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e01_weather.WeatherData.Location;
 
 /**
@@ -33,7 +34,7 @@ import org.xmlbeam.tutorial.e01_weather.WeatherData.Location;
  * 
  */
 @Category(Tutorial.class)
-public class TestWeatherData {
+public class TestWeatherData extends TutorialTestCase {
 
     @Test
     public void getWeatherData() throws SAXException, IOException, ParserConfigurationException {

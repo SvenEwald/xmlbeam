@@ -15,8 +15,6 @@
  */
 package org.xmlbeam.tutorial.e04_maven;
 
-import static junit.framework.Assert.assertEquals;
-
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,10 +24,11 @@ import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
+import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e04_maven.MavenPOM.Artifact;
 
 @Category(Tutorial.class)
-public class TestMavenPOM {
+public class TestMavenPOM extends TutorialTestCase {
 
     /**
      * Show how to modify the project name in a maven POM.
