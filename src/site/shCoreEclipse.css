@@ -26,7 +26,7 @@
 .syntaxhighlighter textarea {
   -moz-border-radius: 0 0 0 0 !important;
   -webkit-border-radius: 0 0 0 0 !important;
-  background: #ffe !important;
+  background: none !important;
   border: 0 !important;
   bottom: auto !important;
   float: none !important;
@@ -345,7 +345,6 @@
 }
 
 div.syntaxhighlighter {
-
-border: 1px dashed  #c5c5C5;
-
+  background-color: #fffff8;
+  border: 1px dashed  #c5c5C5;
 }
