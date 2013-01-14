@@ -66,11 +66,10 @@ Tutorial Examples
  
  The solution to this shows: 
   
- * Usage of XPath wildcards
+ * Usage of XPath wildcards.
    Mapping of varying elements to one Java object. 
  
- * Automatic conversion of sequences to lists and arrays
-   Static typed API using Java generics.
+ * Automatic conversion of sequences to lists and arrays utilizing Java generics to provide a static typed API.
    
  * Declarative document origins.
    Just add a source URL via annotation, let the framework get the document.

@@ -36,7 +36,7 @@
   margin: 0 !important;
   outline: 0 !important;
   overflow: visible !important;
-  padding: 6px !important;
+  padding: 0px !important;
   position: static !important;
   right: auto !important;
   text-align: left !important;
@@ -345,6 +345,8 @@
 }
 
 div.syntaxhighlighter {
-  background-color: #fffff8;
+  background-color: #fffff0;
   border: 1px dashed  #c5c5C5;
+  padding: 10px !important;
+  width: auto !important;
 }
