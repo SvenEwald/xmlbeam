@@ -17,7 +17,8 @@ API Reference
 
 **Create a XBProjector instance
  
- A XMLBeam projector is created as any other POJO
+ A XMLBeam projector is created with it's default constructor.
+ Alternatively you may pass a XMLFactoriesConfiguration to inject other DocumentBuilders, Transformers or XPath implementations.
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard0|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java} 
 
@@ -67,7 +68,45 @@ API Reference
 * Annotations
 
 ** @XBDocURL
+ 
+ This annotation may be used on a projection interface do declare a document origin.
+ When the document is fetche from this URL, this value becomes the system id.
+ As any other annotation string values the URL may contain MessageFormats placeholderrs ("{n}", where n=0,1,2... is a parameter index).
+ 
+ When attached to a getter method in a projection interface, this is called an external projection. 
+ The getters XPath expression will be evaluated on the document fetched from this URL.  
 
 ** @XBRead
 
+ This annotation is used to mark a method as getter. A XPath expression is required as value and the method must have one of the following return types:
+ 
+ * a primitive value.
+ 
+ * a String
+ 
+ * a (sub) projection interface
+ 
+ []
+ 
+ or a list or array of any of these types.
+ If you choose a list, you must specify the target component type (the type of the list content) as second annotation parameter.
+ This is because Java's type erasure hits here and the framework can not determine it at runtime.  
+
 ** @XBWrite
+
+ Marking a method with @XBWrite declares it as a setter. The annotation takes a XPath expression as parameter.
+ Notice that only a subset of the XPath syntax is valid for setters. The expression result must be a Node or NodeSet.
+ (Otherwise there would be no place to store the value, right?)
+
+*** @XBValue
+
+  A setter must have at least one parameter.
+  If you choose to declare more than one parameter (because you use them as MessageFormat parameters) then you should mark the parameter to be set in the document with this annotation.
+  If you don't, the first parameter will be the "setting parameter".
+  
+** @XBDelete
+
+ The easiest way to remove something from a document is to declare a deleter method.
+ Again this annotation takes a XPath expression as parameter.
+ Again only XPath expressions selecting Nodes or NodeSets are valid here.  
+ 
