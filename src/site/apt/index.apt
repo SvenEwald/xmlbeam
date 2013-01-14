@@ -9,7 +9,9 @@
 
 Welcome to XMLBeam
 
- If you are new here, please read {{{./introduction.html} the introduction}} or {{{./tutorial.html}the tutorial}} if you are in a hurry.
+ If you are new here, please read {{{./introduction.html} the introduction}}.
+ Are you in a hurry?
+ Read the {{{./tutorial.html}the tutorial}}!
  
 [images/about2.png] It's about letting your API being rock solid.
  
@@ -19,5 +21,6 @@ Welcome to XMLBeam
 
  The project started in the end of 2012 and is currently still in the early publishing phase.
  Sources are hosted at Github, continuous integration is done by Jenkins at a private location.
- Maven snapshot and pre release artifacts will be located at Sonatype soon.
- Until release of version 1.0, the XMLBeam API might keep changing. So the first deployment to maven central repository will version 1.0.
+ Maven snapshot and pre-release artifacts will be located at Sonatype soon.
+ Until release of version 1.0, the XMLBeam API may keep changing.
+ So the first deployment version to maven central will be 1.0.
