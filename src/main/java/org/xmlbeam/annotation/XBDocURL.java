@@ -31,5 +31,5 @@ import java.lang.annotation.Target;
 public @interface XBDocURL {
 
     String value();
-
+    
 }

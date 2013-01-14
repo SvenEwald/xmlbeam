@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import org.junit.Ignore;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.util.IOHelper;
 
 /**
@@ -34,6 +35,12 @@ public class XBProjectorReferenceCard {
     public interface Projection {
         // Define your projection methods in a public interface.
     };
+    
+    @XBDocURL("http://...")
+    public interface ProjectionWithSourceDeclaration {
+        // Define your projection methods in a public interface.
+    };
+    
   //END SNIPPET: XBProjectorReferenceCardI
     @Ignore
     // This must compile, but it won't run
