@@ -15,10 +15,11 @@
  */
 package org.xmlbeam.refcards;
 
+import java.util.Map;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 
 import org.junit.Ignore;
 import org.w3c.dom.Node;
@@ -29,76 +30,93 @@ import org.xmlbeam.util.IOHelper;
  * 
  */
 public class XBProjectorReferenceCard {
-
+    //START SNIPPET: XBProjectorReferenceCardI     
+    public interface Projection {
+        // Define your projection methods in a public interface.
+    };
+  //END SNIPPET: XBProjectorReferenceCardI
     @Ignore
     // This must compile, but it won't run
     public void ensureFileReading() throws Exception {
 
         File file = null;
         Class<Object> projectionInterface = null;
-        Object projection = null;
         InputStream is = null;
         OutputStream os = null;
-        String url=null,httpurl = null;
+        String url = null, httpurl = null;
         Object[] replacements = null;
         Map<String, String> props = null;
         String name = null;
         Node node = null;
         String systemID = null;
-        
+
+        //START SNIPPET: XBProjectorReferenceCard0
+            XBProjector projector = new XBProjector();       
+        //END SNIPPET: XBProjectorReferenceCard0
+
+        {
 //START SNIPPET: XBProjectorReferenceCard1      
-new XBProjector().projectEmptyDocument(projectionInterface);
+        Projection projection = projector.projectEmptyDocument(Projection.class);
 
-new XBProjector().projectEmptyElement(name, projectionInterface);
+        Projection subProjection = projector.projectEmptyElement(name, Projection.class);
 //END SNIPPET: XBProjectorReferenceCard1
-
+        }
+        {
 //START SNIPPET: XBProjectorReferenceCard2
-new XBProjector().projectXMLString("<xml/>", projectionInterface);
+        Projection projection = projector.projectXMLString("<xml/>", Projection.class);
 //END SNIPPET: XBProjectorReferenceCard2
-
+        }
+        {
 //START SNIPPET: XBProjectorReferenceCard3
-new XBProjector().projectDOMNode(node, projectionInterface);
+            Projection projection =  projector.projectDOMNode(node, Projection.class);
 //END SNIPPET: XBProjectorReferenceCard3
-
+        }
+        {
 //START SNIPPET: XBProjectorReferenceCard4
-new XBProjector().io().file(file).read(projectionInterface);
+            Projection projection = projector.io().file(file).read(Projection.class);
 
-new XBProjector().io().file(file).write(projection);
+            projector.io().file(file).write(projection);
 
-new XBProjector().io().file(file).setAppend(true).write(projection);
+            projector.io().file(file).setAppend(true).write(projection);
 //END SNIPPET: XBProjectorReferenceCard4
-
+        }
+        {
 //START SNIPPET: XBProjectorReferenceCard5
-new XBProjector().io().fromURLAnnotation(projectionInterface, replacements);
+            Projection projection = projector.io().fromURLAnnotation(Projection.class, replacements);
 
-new XBProjector().io().toURLAnnotationViaPOST(projectionInterface, replacements);
+            projector.io().toURLAnnotationViaPOST(projectionInterface, projection, replacements);
 //END SNIPPET: XBProjectorReferenceCard5
-
+        }
+        {
 //START SNIPPET: XBProjectorReferenceCard6
-new XBProjector().io().url(url).read(projectionInterface);
+            Projection projection = projector.io().url(url).read(Projection.class);
 
-new XBProjector().io().url(url).write(projectionInterface);
+            projector.io().url(url).write(projection);
 //END SNIPPET: XBProjectorReferenceCard6
-
+        }
+        {
 //START SNIPPET: XBProjectorReferenceCard7
-new XBProjector().io().url(httpurl).addRequestProperty("key", "value").read(projectionInterface);
+            Projection projection = projector.io().url(httpurl).addRequestProperty("key", "value").read(Projection.class);
 
-new XBProjector().io().url(httpurl).addRequestProperties(props).read(projectionInterface);
+            Projection projection2 = projector.io().url(httpurl).addRequestProperties(props).read(Projection.class);
 //END SNIPPET: XBProjectorReferenceCard7
-
+        }
+        {
+            Object projection = null;
 //START SNIPPET: XBProjectorReferenceCard8
 Map<String, String> credentials = IOHelper.createBasicAuthenticationProperty("user","pwd");
 
-new XBProjector().io().url(httpurl).addRequestProperties(credentials).write(projectionInterface);
+projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
 //END SNIPPET: XBProjectorReferenceCard8
-
+        }
+        {
 //START SNIPPET: XBProjectorReferenceCard9
-new XBProjector().io().stream(is).read(projectionInterface);
+            Projection projection = projector.io().stream(is).read(Projection.class);
 
-new XBProjector().io().stream(is).setSystemID(systemID).read(projectionInterface);
+            Projection projectionWithSystemID = projector.io().stream(is).setSystemID(systemID).read(Projection.class);
 
-new XBProjector().io().stream(os).write(projection);
+            projector.io().stream(os).write(projection);
 //END SNIPPET: XBProjectorReferenceCard9
+        }
     }
-
 }
