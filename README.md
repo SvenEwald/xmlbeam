@@ -59,22 +59,24 @@ XMLBeam Feature List
 
  * <<Projections to external documents>>
  
-   Getters and setters in a projection do not need to be projected to the same document. You may unite the access to
-   multiple documents in one projection interface. This is one key feature to provide a stable Java API. 
-   Just add the URL annotation to a method declaration instead of the interface.
-   The document will be fetched on each method call and the related XPath will be evaluated on the external document instead.
-   See example e09 for this applied to a real life use case.  
+   You may unite the access to multiple documents in one projection interface.
+   This is one key feature to provide a stable Java API. 
+   Just add the URL annotation to a method declaration.
+   The document will be fetched each time the method is called and the related XPath will be evaluated on the external document.
+   (See example e09 for a real life use case.)  
 
  * <<Sub projections>>
  
-   You may define sub projections to parts of XML documents. This way you may reflect a XML structure somehow into java,
-   or just group arbitrary elements and attributes to a single Java structure. (See tutorial e01 for an example of grouping 
+   You can define sub projections to parts of XML documents. This would reflect a XML element into Java,
+   or just group arbitrary values to a single Java structure. (See tutorial e01 for an example of grouping 
    data and e07 for element access example.)
    
- * <<Add behavior by adding Mixins (A Mixin is a Java class that handles certain method calls for a projection.)>>
+ * <<Add behavior by adding Mixins>>
  
-   If you want your projections to implement a certain interface (such as Comparable in tutorial e07), or you like to
-   add validation code or such, there is a way to do that.
+   A Mixin is a Java class that handles certain method calls for a projection. Kind of an interface with behavior.
+ 
+   Projections can extend a certain interface (such as Comparable in tutorial e07).
+   This way you can add behavior (e.g validation code) to projections. 
   
  * <<Painless DOM access>>
  
