@@ -80,8 +80,8 @@ XMLBeam Feature List
   
  * <<Painless DOM access>>
  
-   You may at any time access and modify the DOM behind the scenes (find convenient access methods in XMLProjector.java).
-   Because XMLBeam uses the DOM as backend, changes will reflect automatically in projections.
+   You may at any time access and modify the DOM behind the scenes. You will find convenient access methods in XBProjector.java.
+   Changes will reflect automatically in projections, because XMLBeam uses the DOM as backend. 
    
  * <<Easy name space handling>>
  
@@ -89,21 +89,22 @@ XMLBeam Feature List
    
  * <<API Mimicry>>
  
-   XMLBeam is so flexible that it can be used to mimicry other APIs. See tutorial e08 where the DOM4J API is imitated. 
+   XMLBeam is so flexible that it can even be used to mimicry other APIs.
+   (See tutorial e08 where the DOM4J API is imitated.) 
    
-You can not use XMLBeam if:
+You can not use XMLBeam
  
- * Your XML documents won't fit into memory. (XMLBeam works with DOM parsers only.)
+ * If your XML documents doesn't fit into memory. (XMLBeam works with DOM parsers only.)
 
- * Performance by hook or by crook. (XMLBeam surly is not the fastest way to handle XML.)
+ * If you're on performance by hook or by crook. (XMLBeam surely is not the fastest way to handle XML.)
   
-What XMBLeam does not:
+What XMLBeam does not do
 
- * Parse XML. It will use the parser that comes with the JRE (since Java6) as a default. You may specify other parsers.
+ * Parsing XML. It uses the parser that's included within the JRE (since Java6). You may specify other parsers.
  
- * Build or Transform XML. It will use the JRE default DocumentBuilder and Transformers. Again you are able to change this easily.
+ * Building or transforming XML. It utilizes the JRE default DocumentBuilder and Transformers. Again you are able to change this easily.
 
- * Being thread safe. Access to different XML Documents and different XMLProjectors are thread safe. But concurrent access
+ * Being thread safe. Access to different XML documents and different XBProjectors are thread safe. But concurrent access
    to a single XML document is not promised.
   
 What next?
@@ -114,7 +115,7 @@ What next?
 
  * Version 1.0 Release. 
 
- * Implement option to externalize projection declaration to runtime configuration files.
+ * Implement an option to externalize projection declaration to runtime configuration files.
  
  * Add projection interface generator as an alternative to hand crafted XPath expressions.
  
