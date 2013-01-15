@@ -51,7 +51,7 @@ public class XBProjectorReferenceCard {
         InputStream is = null;
         OutputStream os = null;
         String url = null, httpurl = null;
-        Object[] replacements = null;
+        Object[] params = null;
         Map<String, String> props = null;
         String name = null;
         Node node = null;
@@ -89,9 +89,9 @@ public class XBProjectorReferenceCard {
         }
         {
 //START SNIPPET: XBProjectorReferenceCard5
-            Projection projection = projector.io().fromURLAnnotation(Projection.class, replacements);
+            Projection projection = projector.io().fromURLAnnotation(Projection.class, params);
 
-            projector.io().toURLAnnotationViaPOST(projectionInterface, projection, replacements);
+            projector.io().toURLAnnotationViaPOST(projectionInterface, projection, params);
 //END SNIPPET: XBProjectorReferenceCard5
         }
         {
