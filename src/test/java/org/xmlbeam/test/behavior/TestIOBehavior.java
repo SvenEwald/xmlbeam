@@ -43,10 +43,9 @@ public class TestIOBehavior {
     };
 
     @XBDocURL("http://{0}:{1,number,#}/path")
-    public interface FooProjectionWithDocSource extends FooProjection {
-        
-    }
-    
+    public interface FooProjectionWithDocSource extends FooProjection {        
+    }   
+   
     @Test
     public void ensureHTTPGetRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
