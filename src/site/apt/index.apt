@@ -12,8 +12,17 @@ Welcome to XMLBeam
  If you are new here, please read {{{./introduction.html} the introduction}}.
  Are you in a hurry?
  Read the {{{./tutorial.html}the tutorial}}!
+
+* XML Data Projecton Explained
  
-[images/about3.png] It's about letting your API being rock solid.
+[images/about3.png] It's about letting your Java APIs being rock solid.
+
+ XMLBeam is a very small Java library between your XML data and your application.
+ You define your data accessing API by creating statically typed Java interfaces enriched with some metadata.
+ XMBeam was designed to keep your API and application code static, even when the XML structure changes.
+ This approach works so well that you can even use it to mimicry other APIs.
+ 
+ Above all XMLBeam is a handy daily XML tool with convenient features to create, modify and even read or write XML data. 
  
 * Project status
 
@@ -21,6 +30,6 @@ Welcome to XMLBeam
 
  The project started in the end of 2012 and is currently still in the early publishing phase.
  Sources are hosted at Github, continuous integration is done by Jenkins at a private location.
- Maven snapshot and pre-release artifacts will be located at Sonatype soon.
+ Snapshot and pre-release artifacts will be located at Sonatype soon.
  Until release of version 1.0, the XMLBeam API could keep changing.
- So the first deployment version to maven central will be 1.0.
+ So the first deployment version to central repository will be 1.0.
