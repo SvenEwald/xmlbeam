@@ -15,14 +15,16 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -43,6 +45,35 @@ import org.xmlbeam.util.IOHelper;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public final class DOMHelper {
+
+    private static final Comparator<? super Node> ATTRIBUTE_NODE_COMPARATOR = new Comparator<Node>() {
+        private int compareMaybeNull(Comparable<Object> a,Object b){
+            if (a==b) {
+                return 0;
+            }
+            if (a==null) {
+                return -1;
+            }
+            if (b==null) {
+                return 1;
+            }
+            return a.compareTo(b);
+        }
+        
+        @Override
+        public int compare(Node o1, Node o2) {
+            Comparable<Object>[] c1=getNodeAttributes(o1);
+            Comparable<Object>[] c2=getNodeAttributes(o2);
+            assert c1.length == c2.length;
+            for (int i=0;i<c1.length;++i) {
+                int result=compareMaybeNull(c1[i],c2[i]);
+                if (result!=0) {
+                    return result;
+                }
+            }                      
+            return 0;
+        }
+    };
 
     public static void removeAllChildrenByName(Node element, String nodeName) {
         NodeList nodeList = element.getChildNodes();
@@ -161,4 +192,159 @@ public final class DOMHelper {
             document.appendChild(node);
         }
     }
+
+    /**
+     * Implementation independent version of the Node.isEqualNode() method.
+     * Matches the same algorithm as the nodeHashCode method.
+     * <br>Two nodes are equal if and only if the following conditions are 
+     * satisfied: 
+     * <ul>
+     * <li>The two nodes are of the same type.
+     * </li>
+     * <li>The following string 
+     * attributes are equal: <code>nodeName</code>, <code>localName</code>, 
+     * <code>namespaceURI</code>, <code>prefix</code>, <code>nodeValue</code>
+     * . This is: they are both <code>null</code>, or they have the same 
+     * length and are character for character identical.
+     * </li>
+     * <li>The 
+     * <code>attributes</code> <code>NamedNodeMaps</code> are equal. This 
+     * is: they are both <code>null</code>, or they have the same length and 
+     * for each node that exists in one map there is a node that exists in 
+     * the other map and is equal, although not necessarily at the same 
+     * index.
+     * </li>
+     * <li>The <code>childNodes</code> <code>NodeLists</code> are equal. 
+     * This is: they are both <code>null</code>, or they have the same 
+     * length and contain equal nodes at the same index. Note that 
+     * normalization can affect equality; to avoid this, nodes should be 
+     * normalized before being compared.
+     * </li>
+     * </ul> 
+     * <br>For two <code>DocumentType</code> nodes to be equal, the following 
+     * conditions must also be satisfied: 
+     * <ul>
+     * <li>The following string attributes 
+     * are equal: <code>publicId</code>, <code>systemId</code>, 
+     * <code>internalSubset</code>.
+     * </li>
+     * <li>The <code>entities</code> 
+     * <code>NamedNodeMaps</code> are equal.
+     * </li>
+     * <li>The <code>notations</code> 
+     * <code>NamedNodeMaps</code> are equal.
+     * </li>
+     * </ul> 
+     * @param node
+     * @param xmlNode
+     * @return
+     */
+    public static boolean nodesAreEqual(Node a, Node b) {        
+        if (a==b) {
+            return true;
+        }
+        if ((a==null) || (b==null)) {
+            return false;
+        }                
+        if (!Arrays.equals(getNodeAttributes(a), getNodeAttributes(b))){
+            return false;
+        }          
+        if (!namedNodeMapsAreEqual(a.getAttributes(), b.getAttributes())) {
+            return false;
+        }
+        if (!nodeListsAreEqual(a.getChildNodes(),b.getChildNodes())) {
+            return false;
+        }
+        return true;       
+    }
+    
+    /**
+     * NodelLists are equal if and only if their size is equal and the containing nodes 
+     * at the same indexes are equal.  
+     * @param a
+     * @param b
+     * @return
+     */
+    private static boolean nodeListsAreEqual(NodeList a, NodeList b) {
+        if (a==b) {
+            return true;
+        }
+        if ((a==null) || (b==null)) {
+            return false;
+        }
+        if (a.getLength()!=b.getLength()) {
+            return false;
+        }
+        for (int i=0;i<a.getLength();++i) {
+            if (!nodesAreEqual(a.item(i), b.item(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * NamedNodeMaps (e.g. the attributes of a node) are equal if for each containing node an equal node exists in the
+     * other map.  
+     * @param a
+     * @param b
+     * @return
+     */
+    private static boolean namedNodeMapsAreEqual(NamedNodeMap a,NamedNodeMap b){
+        if (a==b) {
+            return true;
+        }
+        if ((a==null) || (b==null)) {
+            return false;
+        }
+        if (a.getLength()!=b.getLength()) {
+            return false;
+        }
+        
+        List<Node> listA=new ArrayList<Node>(a.getLength());
+        List<Node> listB=new ArrayList<Node>(a.getLength());
+                
+        for (int i=0;i<a.getLength();++i ){
+            listA.add(a.item(i));
+            listB.add(b.item(i));            
+        }
+
+        Collections.sort(listA, ATTRIBUTE_NODE_COMPARATOR);
+        Collections.sort(listB, ATTRIBUTE_NODE_COMPARATOR);
+        for (Node n1:listA) {
+            if (!nodesAreEqual(n1,listB.remove(0))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Comparable<Object>[] getNodeAttributes(Node node) {
+        return new Comparable[] { Short.valueOf(node.getNodeType()),node.getNodeName(), node.getLocalName(), node.getNamespaceURI(), node.getPrefix(), node.getNodeValue()};
+    }
+    
+    /**
+     * @param node
+     * @return
+     */
+    public static int nodeHashCode(Node node) {
+        assert node!=null;
+        int hash=1+node.getNodeType();
+        hash=hash * 17 + Arrays.hashCode(getNodeAttributes(node));
+        if (node.hasAttributes()) {
+            NamedNodeMap nodeMap = node.getAttributes();
+           for (int i=0;i<nodeMap.getLength();++i ) {
+              hash=31*hash + nodeHashCode(nodeMap.item(i));
+           }
+        }
+        if (node.hasChildNodes()) {
+            NodeList childNodes = node.getChildNodes();
+            for (int i=0;i<childNodes.getLength();++i) {
+                hash=hash*47+nodeHashCode(childNodes.item(i));
+            }
+        }
+        return hash;
+    }
+ 
 }
