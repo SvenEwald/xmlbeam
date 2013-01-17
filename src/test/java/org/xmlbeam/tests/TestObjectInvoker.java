@@ -15,8 +15,10 @@
  */
 package org.xmlbeam.tests;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -27,13 +29,17 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.util.IOHelper;
 
 /**
- * Tests to ensure the function of toString(), equals() and hashCode() for
- * projections.
+ * Tests to ensure the function of toString(), equals() and hashCode() for projections.
  * 
  * @author sven
- * 
  */
 public class TestObjectInvoker {
+
+    public interface A {
+    };
+
+    public interface B {
+    };
 
     @Test
     public void testToString() throws IOException {
@@ -69,5 +75,32 @@ public class TestObjectInvoker {
         assertFalse(projectionB.equals(projectionA));
         assertTrue(projectionA.hashCode()!=projectionB.hashCode());
     }
+
+    @Test
+    public void testDifferentInstanceOrigin() {
+        assertFalse(new A() {
+        }.equals(new XBProjector().projectEmptyDocument(A.class)));
+        assertFalse(Integer.valueOf(new A() {
+        }.hashCode()).equals(new XBProjector().projectEmptyDocument(A.class).hashCode()));
+        assertFalse(Integer.valueOf(new XBProjector().projectEmptyDocument(A.class).hashCode()).equals(new A() {
+        }.hashCode()));
+    }
     
+    @Test
+    public void testSameDocumentDifferentProjections() {
+        A a = new XBProjector().projectXMLString("<foo/>", A.class);
+        B b = new XBProjector().projectXMLString("<foo/>", B.class);
+        assertFalse(a.equals(b));
+    }
+
+    @Test
+    public void testEmptyProjectionsEqualButNotSame() {
+        assertEquals(new XBProjector().projectEmptyDocument(A.class), new XBProjector().projectEmptyDocument(A.class));
+        assertEquals(new XBProjector().projectEmptyDocument(A.class).hashCode(), new XBProjector().projectEmptyDocument(A.class).hashCode());
+        assertNotSame(new XBProjector().projectEmptyDocument(A.class), new XBProjector().projectEmptyDocument(A.class));
+
+        assertNotSame(new XBProjector().projectEmptyElement("foo", A.class), new XBProjector().projectEmptyElement("foo", A.class));
+        assertEquals(new XBProjector().projectEmptyElement("foo", A.class), new XBProjector().projectEmptyElement("foo", A.class));
+        assertEquals(new XBProjector().projectEmptyElement("foo", A.class).hashCode(), new XBProjector().projectEmptyElement("foo", A.class).hashCode());
+    }
 }
