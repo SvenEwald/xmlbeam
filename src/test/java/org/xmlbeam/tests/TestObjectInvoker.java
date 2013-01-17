@@ -82,6 +82,9 @@ public class TestObjectInvoker {
         }.equals(new XBProjector().projectEmptyDocument(A.class)));
         assertFalse(Integer.valueOf(new A() {
         }.hashCode()).equals(new XBProjector().projectEmptyDocument(A.class).hashCode()));
+        
+        assertFalse(new XBProjector().projectEmptyDocument(A.class).equals(new A() {
+        }));
         assertFalse(Integer.valueOf(new XBProjector().projectEmptyDocument(A.class).hashCode()).equals(new A() {
         }.hashCode()));
     }
