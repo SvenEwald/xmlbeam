@@ -15,9 +15,9 @@ About
 
 Motivation: 
 
- What's wrong with data binding?
+ What's wrong with Java XML data binding?
 
- This library is an alternative to XML binding libraries which convert XML entities into java objects and back.
+ This library is an alternative to Java XML binding libraries which convert XML entities into java objects and back.
  There is quite a list of these libraries, frequently used examples are: JAXB, XStream, XMLBeans, ...
  
  They have in common, that the structures of XML documents is mirrored to Java object structures.
@@ -40,7 +40,7 @@ XMLBeam Feature List
 
  * <<Glue code free framework>>
  
-   You don't need to write more than the declaration of a projection, not even a class. 
+   You don't need to write more than the declaration of a projection, not even a Java class. 
    But you get a statically typed Java API with real Java objects that can even be serialized.  
 
  * <<Declarative document origins>>
