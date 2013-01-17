@@ -13,11 +13,11 @@ Welcome to XMLBeam
  Are you in a hurry?
  Read the {{{./tutorial.html}the tutorial}}!
 
-* XML Data Projection
+* It's XML Data Projection
  
 [images/about3.png] It's about letting your Java APIs being rock solid.
 
- XMLBeam is a very small Java library between your XML data and your application.
+ XMLBeam is a very small Java library located between your XML data and your application.
  You define your data accessing API by creating statically typed Java interfaces enriched with some metadata.
  XMBeam was designed to keep your API and application code static, even when the XML structure changes.
  This approach works so well that you can even use it to mimicry other APIs.
@@ -26,6 +26,12 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2013-01-17
+ 
+ Snapshots are available in the {{{https://oss.sonatype.org/content/repositories/snapshots/}sonatype snapshot repository}}.
+ The I/O API has become more stable now.
+ Preparing to have first release candidate soon.
+ 
 ** 2013-01-04
 
  The project started in the end of 2012 and is currently still in the early publishing phase.
