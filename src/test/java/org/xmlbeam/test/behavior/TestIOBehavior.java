@@ -19,9 +19,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.testutils.HTTPParrot;
@@ -36,10 +42,14 @@ public class TestIOBehavior {
         String getRootName();
     };
 
+    @XBDocURL("http://{0}:{1,number,#}/path")
+    public interface FooProjectionWithDocSource extends FooProjection {        
+    }   
+   
     @Test
     public void ensureHTTPGetRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
-        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL())).read(FooProjection.class);
+        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL().toString())).read(FooProjection.class);
         assertEquals("foo", projection.getRootName());
         validateRequest(parrot.getRequest());
     }
@@ -48,16 +58,16 @@ public class TestIOBehavior {
     public void ensureHTTPPostRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
         FooProjection projection = new XBProjector().projectEmptyDocument(FooProjection.class);
-        addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL())).write(projection);
+        addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL().toString())).write(projection);
         validateRequest(parrot.getRequest());
     }
 
     @Test
     public void ensureHTTPGetRespectsSystemID() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
-        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL())).read(FooProjection.class);
+        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL().toString())).read(FooProjection.class);
         assertEquals("foo", projection.getRootName());
-        assertEquals(parrot.getURL(), new XBProjector().getXMLDocForProjection(projection).getBaseURI());
+        assertEquals(parrot.getURL().toString(), new XBProjector().getXMLDocForProjection(projection).getBaseURI());
     }
 
     @Test
@@ -67,12 +77,35 @@ public class TestIOBehavior {
         FooProjection projection = new XBProjector().io().stream(inputStream).setSystemID(systemID).read(FooProjection.class);
         assertEquals(systemID, new XBProjector().getXMLDocForProjection(projection).getBaseURI());
         assertEquals("foo", projection.getRootName());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new XBProjector().io().stream(outputStream).write(projection);
+        assertEquals("<foo/>", outputStream.toString("UTF-8").trim());
     }
 
-    @Test
-    public void ensureDocURLAnnotationWorksWithParams() {
-        // FIXME: implement testcase
+    @Ignore // FIXME: Enable when implementation is checked in
+    public void ensureGetDocURLAnnotationWorksWithParams() throws Exception {
+       HTTPParrot parrot = HTTPParrot.serve("<foo/>");
+       String host=parrot.getURL().getHost();
+       int port = parrot.getURL().getPort();
+       Map<String,String> requestParams = new HashMap<String,String>(1);
+       requestParams.put("A","B");
+       FooProjectionWithDocSource projection= new XBProjector().io().fromURLAnnotation(FooProjectionWithDocSource.class, host, port, requestParams);
+       assertTrue(parrot.getRequest().contains("A: B"));   
+       assertEquals("foo", projection.getRootName());
     }
+
+    @Ignore // FIXME: Enable when implementation is checked in
+    public void ensurePostDocURLAnnotationWorksWithParams() throws Exception {
+       HTTPParrot parrot = HTTPParrot.serve("<foo/>");
+       String host=parrot.getURL().getHost();
+       int port = parrot.getURL().getPort();
+       Map<String,String> requestParams = new HashMap<String,String>(1);
+       requestParams.put("A","B");
+       FooProjectionWithDocSource projection=     new XBProjector().projectEmptyDocument(FooProjectionWithDocSource.class);
+       new XBProjector().io().toURLAnnotationViaPOST(projection, host, port, requestParams);
+       assertTrue(parrot.getRequest().contains("A: B"));   
+       assertEquals("foo", projection.getRootName());
+    }    
     
     private XBUrlIO addRequestParams(XBUrlIO io) {
         return io.addRequestProperty("testparam", "mustBeInRequest").addRequestProperties(IOHelper.createBasicAuthenticationProperty("user", "password"));

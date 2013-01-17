@@ -4,6 +4,7 @@
 	<version position="right" />
 	<body>
 		<head>
+		    <meta name="description" content="Java XML library providing XPath projections as alternative to data binding." />
 			<script type="text/javascript">
 				var _gaq = _gaq || [];
 				_gaq.push(['_setAccount', 'UA-37415750-1']);
