@@ -18,13 +18,12 @@ package org.xmlbeam.test.behavior;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Ignore;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
@@ -43,9 +42,9 @@ public class TestIOBehavior {
     };
 
     @XBDocURL("http://{0}:{1,number,#}/path")
-    public interface FooProjectionWithDocSource extends FooProjection {        
-    }   
-   
+    public interface FooProjectionWithDocSource extends FooProjection {
+    }
+
     @Test
     public void ensureHTTPGetRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
@@ -82,31 +81,30 @@ public class TestIOBehavior {
         assertEquals("<foo/>", outputStream.toString("UTF-8").trim());
     }
 
-    @Ignore // FIXME: Enable when implementation is checked in
+    @Test
     public void ensureGetDocURLAnnotationWorksWithParams() throws Exception {
-       HTTPParrot parrot = HTTPParrot.serve("<foo/>");
-       String host=parrot.getURL().getHost();
-       int port = parrot.getURL().getPort();
-       Map<String,String> requestParams = new HashMap<String,String>(1);
-       requestParams.put("A","B");
-       FooProjectionWithDocSource projection= new XBProjector().io().fromURLAnnotation(FooProjectionWithDocSource.class, host, port, requestParams);
-       assertTrue(parrot.getRequest().contains("A: B"));   
-       assertEquals("foo", projection.getRootName());
+        HTTPParrot parrot = HTTPParrot.serve("<foo/>");
+        String host = parrot.getURL().getHost();
+        int port = parrot.getURL().getPort();
+        Map<String, String> requestParams = new HashMap<String, String>(1);
+        requestParams.put("A", "B");
+        FooProjectionWithDocSource projection = new XBProjector().io().fromURLAnnotation(FooProjectionWithDocSource.class, host, port, requestParams);
+        assertTrue(parrot.getRequest().contains("A: B"));
+        assertEquals("foo", projection.getRootName());
     }
 
-    @Ignore // FIXME: Enable when implementation is checked in
+    @Test
     public void ensurePostDocURLAnnotationWorksWithParams() throws Exception {
-       HTTPParrot parrot = HTTPParrot.serve("<foo/>");
-       String host=parrot.getURL().getHost();
-       int port = parrot.getURL().getPort();
-       Map<String,String> requestParams = new HashMap<String,String>(1);
-       requestParams.put("A","B");
-       FooProjectionWithDocSource projection=     new XBProjector().projectEmptyDocument(FooProjectionWithDocSource.class);
-       new XBProjector().io().toURLAnnotationViaPOST(projection, host, port, requestParams);
-       assertTrue(parrot.getRequest().contains("A: B"));   
-       assertEquals("foo", projection.getRootName());
-    }    
-    
+        HTTPParrot parrot = HTTPParrot.serve("<foo/>");
+        String host = parrot.getURL().getHost();
+        int port = parrot.getURL().getPort();
+        Map<String, String> requestParams = new HashMap<String, String>(1);
+        requestParams.put("A", "B");
+        FooProjectionWithDocSource projection = new XBProjector().projectEmptyDocument(FooProjectionWithDocSource.class);
+        new XBProjector().io().toURLAnnotationViaPOST(projection, host, port, requestParams);
+        assertTrue(parrot.getRequest().contains("A: B"));
+    }
+
     private XBUrlIO addRequestParams(XBUrlIO io) {
         return io.addRequestProperty("testparam", "mustBeInRequest").addRequestProperties(IOHelper.createBasicAuthenticationProperty("user", "password"));
     }
@@ -114,6 +112,6 @@ public class TestIOBehavior {
     private void validateRequest(String request) {
         assertTrue(request.contains("Authorization: Basic dXNlcjpwYXNzd29yZA=="));
         assertTrue(request.contains("testparam: mustBeInRequest"));
-    }    
-    
+    }
+
 }

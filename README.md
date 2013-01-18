@@ -44,11 +44,12 @@ XMLBeam Feature List
  * <<Glue code free framework>>
  
    You don't need to write more than the declaration of a projection, not even a Java class. 
-   But you get a statically typed Java API with real Java objects that can even be serialized.  
+   But you get a statically typed Java API and work with real Java objects that support the equals() and hashCode() methods and can even be serialized.  
 
  * <<Declarative document origins>>
  
-   Optionally you can let XMLBeam read and write your XML data. A single URL annotation safes quite some code.
+   Optionally you can let XMLBeam read and write your XML data.
+   A single URL annotation safes quite some code.
    Input is supported for XML in a String, resources, InputStream, File and HTTP(S) GET (with basic authorization).
    Output is supported for String, OutputStream, File and HTTP(S) POST (with basic authorization).
     
@@ -91,6 +92,11 @@ XMLBeam Feature List
  * <<Easy name space handling>>
  
    Name spaces of elements and attributes are directly usable in projections by default. They don't leak into your Java API.
+
+ * <<Simple customization>>
+ 
+   Just inject your own XML factory to switch to other XML parsers, transformers or XPath implementations.
+   Change the type conversion rules or even add custom XML data types.
    
  * <<API Mimicry>>
  
