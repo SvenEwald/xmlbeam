@@ -16,15 +16,17 @@
 package org.xmlbeam;
 
 import java.net.URISyntaxException;
-import java.net.URL;
 
+import java.text.Format;
 import java.text.MessageFormat;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -223,12 +225,42 @@ public class XBProjector implements Serializable {
          * @return a new projection instance
          * @throws IOException
          */
+        @SuppressWarnings("unchecked")
         public <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... params) throws IOException {
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
-            return url(MessageFormat.format(doc.value(), params)).read(projectionInterface);
+            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), params)); 
+            urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), params));
+            return urlIO.read(projectionInterface);
+        }
+
+        /**
+         * @param projectionInterface
+         * @param params
+         * @return
+         */
+        Map<String, String> filterRequestParamsFromParams(final String url, final Object... params) {
+            Map<String, String> requestParams = new HashMap<String, String>();
+            Set<Integer> unusedParams=new HashSet<Integer>();
+            Format[] formats = new MessageFormat(url).getFormatsByArgumentIndex();
+            for (int i = 0; i < params.length; ++i) {
+                if (i >= formats.length) {
+                    unusedParams.add(i);
+                    continue;
+                }
+                if (formats[i] == null) {
+                    unusedParams.add(i);// TODO: make this in one pass
+                }
+            }
+            for (int i : unusedParams) {
+                if (!(params[i] instanceof Map)) {
+                    continue;
+                }
+                requestParams.putAll((Map<? extends String, ? extends String>) params[i]);
+            }
+            return requestParams;
         }
 
         /**
@@ -240,21 +272,29 @@ public class XBProjector implements Serializable {
          * @throws URISyntaxException
          */
         public String toURLAnnotationViaPOST(final Object projection, Object... params) throws IOException, URISyntaxException {
-            Class<?> projectionInterface = getProjectionInterfaceFor(projection);
-            XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
+            Class<?> projectionInterface = checkProjectionInstance(projection).getProjectionInterface();
+            org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
-            String url = MessageFormat.format(doc.value(), params);
-            if ((url.startsWith("http:")) || (url.startsWith("https:"))) {
-                return url(url).write(projection);
-            }
-            if (url.startsWith("file:")) {
-                File file = new File(new URL(url).toURI());
-                file(file).write(projection);
-                return null;
-            }
-            throw new IllegalArgumentException("I don't know how to write to url:" + url + " Try again with a http or file url.");
+
+            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), params));
+            urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), params));
+
+            return urlIO.write(projection);
+            /*
+             * Class<?> projectionInterface = getProjectionInterfaceFor(projection); XBDocURL doc =
+             * projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class); if (doc ==
+             * null) { throw new IllegalArgumentException("Class " +
+             * projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName()
+             * + " annotation linking to the document source."); } String url =
+             * MessageFormat.format(doc.value(), params); if ((url.startsWith("http:")) ||
+             * (url.startsWith("https:"))) { return url(url).write(projection); } if
+             * (url.startsWith("file:")) { File file = new File(new URL(url).toURI());
+             * file(file).write(projection); return null; } throw new
+             * IllegalArgumentException("I don't know how to write to url:" + url +
+             * " Try again with a http or file url.");
+             */
         }
     }
 
