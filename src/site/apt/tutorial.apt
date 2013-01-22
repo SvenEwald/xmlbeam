@@ -153,7 +153,11 @@ Tutorial Examples
  
  Second we define a simple setter in the projection interface to show how element values can be modified.  
 
+** Projection API
+
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#MavenPOM|source=src/test/java/org/xmlbeam/tutorial/e04_maven/MavenPOM.java}
+
+** Example Code
 
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestMavenPOM|source=src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}
 
@@ -162,7 +166,11 @@ Tutorial Examples
  Instead of just setting an elements value like in the last example, we now change a sequence of elements.
  Notice that there are name spaces in the source XML document and that we work with them intuitively.
 
+** Projection API
+
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#SlashdotRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/SlashdotRSSFeed.java}
+
+** Example Code
 
  And here some unit tests to print out some data about our RSS feed.
  
@@ -174,19 +182,37 @@ Tutorial Examples
  
  * Usage of configuration injection to modify the output transformer.
 
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#XHTML|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/XHTML.java}
- 
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestCreationOfXHTMLDocument|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
+** Projection API
 
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#XHTML|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/XHTML.java}
+
+** Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestCreationOfXHTMLDocument|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
  
 *E07: SVG
 
  * Add behavior to projections by adding a Mixin.
  
+** Projection API
+ 
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#SVGDocument|source=src/test/java/org/xmlbeam/tutorial/e07_svg/SVGDocument.java}
+ 
+** Example Code
  
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestSVGElementSorting|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
  
 *E08: API Mimicry
+
+** Projection API
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Document|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Document.java}
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Element|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Element.java}
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Attribute|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Attribute.java}
  
- 
+** Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestDom4jMimicry|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/TestDom4jMimicry.java}
+

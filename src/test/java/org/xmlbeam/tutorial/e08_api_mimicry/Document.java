@@ -20,6 +20,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
 @XBDocURL("resource://simple.xml")
+//START SNIPPET:Document
 public interface Document {
 
     @XBRead("/*")
@@ -29,3 +30,4 @@ public interface Document {
     void setRootElement(Element rootElement);
 
 }
+//END SNIPPET:Document

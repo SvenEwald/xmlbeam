@@ -25,6 +25,7 @@ public class TestDom4jMimicry extends TutorialTestCase {
 
     @Test
     public void testAPIMimicry() throws IOException {
+//START SNIPPET:TestDom4jMimicry
         XBProjector projector = new XBProjector();
         
         Document document =projector.io().fromURLAnnotation(Document.class);
@@ -40,5 +41,6 @@ public class TestDom4jMimicry extends TutorialTestCase {
         
         document.setRootElement(newRootElement);
         System.out.println(document);
+//END SNIPPET:TestDom4jMimicry       
     }
 }

@@ -5,7 +5,7 @@
 	<body>
 		<head>
 		    <meta name="description" content="Java XML library providing XPath projections as alternative to data binding." />
-		    <meta name="keywords" content="xml, java,data binding, data projection,glue code/">
+		    <meta name="keywords" content="xml, java,data binding, data projection,glue code"/>
             <meta name="author" content="Sven Ewald"/>
 			<script type="text/javascript">
 				var _gaq = _gaq || [];
