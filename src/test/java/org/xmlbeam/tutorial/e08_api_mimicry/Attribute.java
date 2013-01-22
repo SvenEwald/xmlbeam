@@ -17,7 +17,7 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 
 import org.xmlbeam.annotation.XBRead;
 
-//START SNIPPET:Attrinute
+//START SNIPPET:Attribute
 public interface Attribute {
 
     @XBRead("name()")
