@@ -107,6 +107,10 @@ public interface XMLBeamTestSuite {
 
     @XBRead(value = "/gluerootnode/intermediate/fourthElement", targetComponentType = InnerStructure.class)
     List<InnerStructure> getAllInnerStructures();
+    
+    @XBRead(value = "/gluerootnode/intermediate/fourthElement")
+    InnerStructure[] getAllInnerStructuresAsArray();
+
 
     interface Setting {
         @XBRead("@name")

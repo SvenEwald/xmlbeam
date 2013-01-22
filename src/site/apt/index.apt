@@ -18,7 +18,7 @@ Welcome to XMLBeam
 [images/about3.png] It's about letting your Java APIs being rock solid.
 
  XMLBeam is a very small Java library located between your XML data and your application.
- You define your data accessing API by creating statically typed Java interfaces enriched with some metadata.
+ You define your data accessing API by creating Java interfaces enriched with some metadata.
  XMBeam was designed to keep your API and application code static, even when the XML structure changes.
  This approach works so well that you can even use it to mimicry other APIs.
  

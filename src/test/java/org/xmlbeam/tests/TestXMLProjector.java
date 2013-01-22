@@ -21,15 +21,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import java.io.StringWriter;
+import java.util.List;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -218,7 +218,12 @@ public class TestXMLProjector {
         assertEquals("[A, B, C]",structures.get(0).getB().toString());
 
         assertEquals("A2",structures.get(1).getA());
-        assertEquals("[A2, B2, C2]",structures.get(1).getB().toString());
+        assertEquals("[A2, B2, C2]",structures.get(1).getB().toString());               
+    }
+    
+    @Test 
+    public void listOfInnerStructuresEqualsArray() {
+        Assert.assertArrayEquals(suite.getAllInnerStructures().toArray(),suite.getAllInnerStructuresAsArray());
     }
 
     @Test
