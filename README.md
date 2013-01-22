@@ -20,11 +20,14 @@ Motivation:
  This library is an alternative to Java XML binding libraries which convert XML entities into java objects and back.
  There is quite a list of these libraries, frequently used examples are: JAXB, XStream, XMLBeans, ...
  
- They have in common, that the structures of XML documents is mirrored to Java object structures.
- That means your Java API is determined by XML. 
- Changing the XML schema may lead to code changes.
+ They have in common, that the structures of XML documents are mirrored to Java object structures.
+ That means your Java API is determined by XML.
  
- XMLBeam helps to avoid this by utilizing a mapping layer of tiny XPath expressions.
+ When you use this API scattered in your application code you get harmful dependencies from your code to the XML structure.
+ You may want to prevent this by adding a glue code layer between your application code and your XML API.
+ But anyway will changing the XML schema may lead to code changes. 
+ 
+ XMLBeam helps to avoid glue code and even API changes by utilizing a mapping layer of tiny XPath expressions.
  Don't worry, you won't need a deep knowledge of XPath.
 
 XMLBeam Feature List
@@ -35,7 +38,7 @@ XMLBeam Feature List
  * <<Tiny foot print, dependency free>>
  
    The XMLBeam jar weights under 50kb and does not have any runtime dependency.  
-   It relies reflection only.
+   It relies on reflection only.
    So you won't get any transitive dependencies.
 
  * <<Glue code free framework>>
@@ -46,7 +49,9 @@ XMLBeam Feature List
  * <<Declarative document origins>>
  
    Optionally you can let XMLBeam read and write your XML data.
-   A single URL annotation safes quite some code. 
+   A single URL annotation safes quite some code.
+   Input is supported for XML in a String, resources, InputStream, File and HTTP(S) GET (with basic authorization).
+   Output is supported for String, OutputStream, File and HTTP(S) POST (with basic authorization).
     
  * <<Dynamic projections>>
  
