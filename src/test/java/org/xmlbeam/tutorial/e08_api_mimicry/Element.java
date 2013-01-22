@@ -17,9 +17,10 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 
 import java.util.List;
 
-import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBValue;
 
+//START SNIPPET:Element
 public interface Element {
 
     @XBRead(".")
@@ -53,3 +54,4 @@ public interface Element {
     String getText();
 
 }
+//END SNIPPET:Element
