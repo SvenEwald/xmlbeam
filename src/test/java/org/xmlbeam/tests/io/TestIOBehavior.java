@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.test.behavior;
+package org.xmlbeam.tests.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -23,6 +23,8 @@ import java.util.Map;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -103,6 +105,29 @@ public class TestIOBehavior {
         FooProjectionWithDocSource projection = new XBProjector().projectEmptyDocument(FooProjectionWithDocSource.class);
         new XBProjector().io().toURLAnnotationViaPOST(projection, host, port, requestParams);
         assertTrue(parrot.getRequest().contains("A: B"));
+    }
+
+    @Test
+    public void testFileIO() throws IOException {
+        FooProjection p = new XBProjector().projectXMLString("<foo>\n<bar/>\n</foo>", FooProjection.class);
+        File tempFile = File.createTempFile(this.getClass().getSimpleName(), Long.toBinaryString(System.currentTimeMillis()));
+        {
+            new XBProjector().io().file(tempFile).write(p);
+            assertEquals(20, tempFile.length());
+        }
+        {
+            FooProjection p2 = new XBProjector().io().file(tempFile).read(FooProjection.class);
+            assertEquals(p, p2);
+        }
+        {
+            new XBProjector().io().file(tempFile).setAppend(true).write(p);
+            assertEquals(40, tempFile.length());
+        }
+        {
+            new XBProjector().io().file(tempFile).setAppend(false).write(p);
+            assertEquals(20, tempFile.length());
+        }
+        tempFile.delete();
     }
 
     private XBUrlIO addRequestParams(XBUrlIO io) {

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.test.behavior.xpath;
+package org.xmlbeam.tests.xpath;
 
 import static org.junit.Assert.*;
 
