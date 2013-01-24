@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rootElement xmlns:p="http://xmlbeam.org/org.xmlbeam.tests.namespaces.prefix"
+	xmlns:p2="http://xmlbeam.org/org.xmlbeam.tests.namespaces.secondprefix"
+	xmlns:d="http://xmlbeam.org/org.xmlbeam.tests.namespaces.default">
+	<withoutNamespace a="12345">
+		I have no namespace. 
+	</withoutNamespace>
+	<p:withPrefix a="12345" p2:b="67890">
+		I have a prefix. 
+	</p:withPrefix>
+	<defaultNS xmlns="http://xmlbeam.org/org.xmlbeam.tests.namespaces.default">
+		<withDefaultNS a="12345">
+			I have a default namespace. 
+		</withDefaultNS>
+	</defaultNS>
+</rootElement>

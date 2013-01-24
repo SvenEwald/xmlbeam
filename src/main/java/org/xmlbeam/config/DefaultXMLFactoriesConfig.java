@@ -18,6 +18,7 @@ package org.xmlbeam.config;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -31,6 +32,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.util.intern.DOMHelper;
 
@@ -82,7 +87,9 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
          * namespaces without bothering about prefix mapping.
          */
         HEDONISTIC
-    };
+    }
+
+    private static final String NON_EXISTING_URL = "http://xmlbeam.org/nonexisting_namespace";
 
     private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
     private boolean isPrettyPrinting = true;
@@ -100,7 +107,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     @Override
     public DocumentBuilder createDocumentBuilder() {
         try {
-            return createDocumentBuilderFactory().newDocumentBuilder();
+            DocumentBuilder documentBuilder = createDocumentBuilderFactory().newDocumentBuilder();
+            return documentBuilder;
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -114,7 +122,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         DocumentBuilderFactory instance = DocumentBuilderFactory.newInstance();
         if (!NamespacePhilosophy.AGNOSTIC.equals(namespacePhilosophy)) {
             instance.setNamespaceAware(NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy));
-        }
+        }        
         return instance;
     }
 
@@ -164,7 +172,11 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 if (prefix == null) {
                     throw new IllegalArgumentException("null not allowed as prefix");
                 }
+                if (nameSpaceMapping.containsKey(prefix)) {
                 return nameSpaceMapping.get(prefix);
+                }
+              //Default is a global unique string uri to prevent xpath expression exeptions on nonexisting ns.
+                return NON_EXISTING_URL;
             }
 
             @Override
@@ -233,4 +245,5 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         this.isOmitXMLDeclaration = isOmitXMLDeclaration;
         return this;
     }
+
 }

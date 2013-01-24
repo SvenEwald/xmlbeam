@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests;
+package org.xmlbeam.tests.xpath;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.tests.GenericXPathProjection;
 
 public class TestSetterXPathSyntax {
 
