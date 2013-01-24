@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.testutils.HTTPParrot;
 import org.xmlbeam.util.IOHelper;
@@ -109,23 +110,24 @@ public class TestIOBehavior {
 
     @Test
     public void testFileIO() throws IOException {
-        FooProjection p = new XBProjector().projectXMLString("<foo>\n<bar/>\n</foo>", FooProjection.class);
+        XBProjector projector=new XBProjector(new DefaultXMLFactoriesConfig().setPrettyPrinting(false));
+        FooProjection p = projector.projectXMLString("<foo><bar/></foo>", FooProjection.class);
         File tempFile = File.createTempFile(this.getClass().getSimpleName(), Long.toBinaryString(System.currentTimeMillis()));
         {
-            new XBProjector().io().file(tempFile).write(p);
-            assertEquals(20, tempFile.length());
+            projector.io().file(tempFile).write(p);
+            assertEquals(17, tempFile.length());
         }
         {
             FooProjection p2 = new XBProjector().io().file(tempFile).read(FooProjection.class);
             assertEquals(p, p2);
         }
         {
-            new XBProjector().io().file(tempFile).setAppend(true).write(p);
-            assertEquals(40, tempFile.length());
+            projector.io().file(tempFile).setAppend(true).write(p);
+            assertEquals(34, tempFile.length());
         }
         {
-            new XBProjector().io().file(tempFile).setAppend(false).write(p);
-            assertEquals(20, tempFile.length());
+            projector.io().file(tempFile).setAppend(false).write(p);
+            assertEquals(17, tempFile.length());
         }
         tempFile.delete();
     }
