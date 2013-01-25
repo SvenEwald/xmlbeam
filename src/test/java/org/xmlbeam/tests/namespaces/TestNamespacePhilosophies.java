@@ -15,9 +15,7 @@
  */
 package org.xmlbeam.tests.namespaces;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,7 +26,6 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
-import org.xmlbeam.util.intern.DOMHelper;
 
 public class TestNamespacePhilosophies {
 

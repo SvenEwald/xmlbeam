@@ -244,13 +244,13 @@ public class TestXMLProjector {
     @Test
     public void getXMLDocument() throws Exception {
         suite.setDescription("This is my description");
-        Document document = new XBProjector().getXMLDocForProjection(suite);
+        Document document = suite.getOwnerDocument();
         assertEquals("gluerootnode", document.getDocumentElement().getNodeName());
     }
 
     @Test
     public void getXMLDocumentFromInnerStructure() throws Exception {
-        Document document = new XBProjector().getXMLDocForProjection(suite.getFirstInnerStructure());
+        Document document =suite.getFirstInnerStructure().getOwnerDocument();
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();
@@ -261,7 +261,7 @@ public class TestXMLProjector {
     @Test
     public void documentFromScratch() {
         XMLBeamTestSuite emptyDocumentProjection = new XBProjector().projectEmptyDocument(XMLBeamTestSuite.class);
-        Document xmlDocForProjection = new XBProjector().getXMLDocForProjection(emptyDocumentProjection);
+        Document xmlDocForProjection = emptyDocumentProjection.getOwnerDocument();
         assertNull(xmlDocForProjection.getDocumentElement());
     }
 }

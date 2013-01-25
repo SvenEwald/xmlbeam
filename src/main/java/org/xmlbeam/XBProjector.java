@@ -46,6 +46,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
+import org.xmlbeam.dom.Projection;
 import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
@@ -326,18 +327,21 @@ public class XBProjector implements Serializable {
     /**
      * Creates a projection from XML Documents or Elements to Java.
      * 
-     * @param node
+     * @param documentOrElement
      *            XML DOM Node. May be a document or just an element.
      * @param projectionInterface
      *            A Java interface to project the data on.
      * @return a new instance of projectionInterface.
      */
     @SuppressWarnings("unchecked")
-    public <T> T projectDOMNode(final Node node, final Class<T> projectionInterface) {
+    public <T> T projectDOMNode(final Node documentOrElement, final Class<T> projectionInterface) {        
         if (!isValidProjectionInterface(projectionInterface)) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
         }
-        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, Projection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, node, projectionInterface)));
+        if (documentOrElement==null) {
+            throw new IllegalArgumentException("Parameter node must not be null");
+        }
+        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, InternalProjection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface)));
     }
 
     /**
@@ -359,19 +363,7 @@ public class XBProjector implements Serializable {
      * Marker interface to determine if a Projection instance was created by a Projector. This will
      * be applied automatically to projections.
      */
-    interface Projection extends Serializable {
-
-        /**
-         * Getter for the projection interface.
-         * @return the projection interface of this projection.
-         */
-        Class<?> getProjectionInterface();
-
-        /**
-         * Getter for the underlying DOM node holding the data.
-         * @return the projections DOM node. Could be Document or Element.
-         */
-        Node getXMLNode();
+    interface InternalProjection extends Projection {      
     }
 
     private final XMLFactoriesConfig xMLFactoriesConfig;
@@ -413,31 +405,16 @@ public class XBProjector implements Serializable {
     }
 
     /**
-     * Use this method to obtain the DOM tree behind a projection. Changing the DOM of a projection
-     * is a valid action and may change the results of the projections methods.
-     * 
-     * @param projection
-     * @return Document holding projections data.
-     */
-    public Document getXMLDocForProjection(final Object projection) {
-        Node node = checkProjectionInstance(projection).getXMLNode();
-        if (Node.DOCUMENT_NODE == node.getNodeType()) {
-            return (Document) node;
-        }
-        return node.getOwnerDocument();
-    }
-
-    /**
      * Ensures that the given object is a projection created by a projector.
      * 
      * @param projection
      * @return
      */
-    private Projection checkProjectionInstance(Object projection) {
-        if (!(projection instanceof Projection)) {
+    private InternalProjection checkProjectionInstance(Object projection) {
+        if (!(projection instanceof InternalProjection)) {
             throw new IllegalArgumentException("Given object " + projection + " is not a projection.");
         }
-        return (Projection) projection;
+        return (InternalProjection) projection;
     }
 
     /**

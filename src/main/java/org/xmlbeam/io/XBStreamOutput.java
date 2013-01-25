@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.xmlbeam.dom.Projection;
 import org.xmlbeam.XBProjector;
 
 /**
@@ -43,9 +44,9 @@ public class XBStreamOutput {
      * @param projection
      * @param os
      */
-    public void write(Object projection ) {
+    public void write(Object projection ) {        
         try {
-            projector.config().getTransformer().transform(new DOMSource(projector.getXMLDocForProjection(projection)), new StreamResult(os));
+            projector.config().getTransformer().transform(new DOMSource(((Projection)projection).getXMLNode()), new StreamResult(os));
         } catch (TransformerException e) {
             throw new RuntimeException(e);
         }
