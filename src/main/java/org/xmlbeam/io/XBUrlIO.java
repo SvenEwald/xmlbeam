@@ -52,7 +52,7 @@ public class XBUrlIO {
      * @throws IOException
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
-        Document document = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), url, requestProperties, projectionInterface);
+        Document document = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, projectionInterface);
         return projector.projectDOMNode(document, projectionInterface);
     }
 
@@ -66,7 +66,6 @@ public class XBUrlIO {
      */
     @SuppressWarnings("unchecked")
     public String write(Object projection) throws IOException {
-        projector.getProjectionInterfaceFor(projection);
         return IOHelper.inputStreamToString(IOHelper.httpPost(url, projection.toString(), requestProperties));
     }        
     

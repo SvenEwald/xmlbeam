@@ -42,8 +42,9 @@ public class TestReflectionHelper {
         Method me = TestReflectionHelper.class.getMethod("testNoReturnTypeNoParam");
         assertFalse(ReflectionHelper.hasParameters(me));
         assertFalse(ReflectionHelper.hasReturnType(me));
+        assertFalse(ReflectionHelper.hasReturnType(null));
+        assertFalse(ReflectionHelper.hasParameters(null));
     }
-
 
     @Test
     public void testWithReturnTypeAndParam() throws Exception {

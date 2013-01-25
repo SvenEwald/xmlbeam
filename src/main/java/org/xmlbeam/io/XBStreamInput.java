@@ -52,7 +52,7 @@ public class XBStreamInput {
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         try {
-            DocumentBuilder documentBuilder = projector.config().getDocumentBuilder();
+            DocumentBuilder documentBuilder = projector.config().createDocumentBuilder();
             Document document = systemID==null ? documentBuilder.parse(is) : documentBuilder.parse(is,systemID);
             return projector.projectDOMNode(document, projectionInterface);
         } catch (SAXException e) {

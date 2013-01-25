@@ -63,6 +63,7 @@ public class TestNamespacePhilosophies {
 
     @Test
     public void testAgnosticPhilosophy() throws Exception {
+        @SuppressWarnings("serial")
         DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig() {
             public DocumentBuilderFactory createDocumentBuilderFactory() {
                 DocumentBuilderFactory factory = super.createDocumentBuilderFactory();                

@@ -27,10 +27,12 @@ import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.xmlbeam.dom.Projection;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBValue;
+import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.testutils.HTTPParrot;
@@ -40,13 +42,23 @@ import org.xmlbeam.util.IOHelper;
  */
 public class TestIOBehavior {
 
-    public interface FooProjection extends Projection{
+    public interface FooProjection extends DOMAccess{
         @XBRead("name(/*)")
         String getRootName();
     };
 
     @XBDocURL("http://{0}:{1,number,#}/path")
     public interface FooProjectionWithDocSource extends FooProjection {
+    }
+    
+    public interface ExternalFooProjection extends FooProjection {        
+        @XBRead("//foo")
+        @XBDocURL("{0}")
+        FooProjection getExternalProjection(String url,Map<String,String> requestParams);
+        
+        @XBWrite("/*")
+        @XBDocURL("{0}")
+        FooProjection postExternalProjection(String url,@XBValue FooProjection value);
     }
 
     @Test
@@ -70,7 +82,7 @@ public class TestIOBehavior {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
         FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL().toString())).read(FooProjection.class);
         assertEquals("foo", projection.getRootName());
-        assertEquals(parrot.getURL().toString(), projection.getOwnerDocument().getBaseURI());
+        assertEquals(parrot.getURL().toString(), projection.getDOMOwnerDocument().getBaseURI());
     }
 
     @Test
@@ -78,7 +90,7 @@ public class TestIOBehavior {
         String systemID = "http://xmlbeam.org/MyFineSystemID";
         ByteArrayInputStream inputStream = new ByteArrayInputStream("<foo/>".getBytes());
         FooProjection projection = new XBProjector().io().stream(inputStream).setSystemID(systemID).read(FooProjection.class);
-        assertEquals(systemID, projection.getOwnerDocument().getBaseURI());
+        assertEquals(systemID, projection.getDOMOwnerDocument().getBaseURI());
         assertEquals("foo", projection.getRootName());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new XBProjector().io().stream(outputStream).write(projection);
@@ -96,6 +108,16 @@ public class TestIOBehavior {
         assertTrue(parrot.getRequest().contains("A: B"));
         assertEquals("foo", projection.getRootName());
     }
+    
+    @Test
+    public void ensureGetExternalProjectionsWorksWithParams() throws Exception {
+        HTTPParrot parrot = HTTPParrot.serve("<foo/>");
+        Map<String, String> requestParams = new HashMap<String, String>(1);
+        requestParams.put("A", "B");
+        FooProjection projection =new XBProjector().projectEmptyDocument(ExternalFooProjection.class).getExternalProjection(parrot.getURL().toString(), requestParams);
+        assertTrue(parrot.getRequest().contains("A: B"));
+        assertEquals("foo", projection.getRootName());
+    }
 
     @Test
     public void ensurePostDocURLAnnotationWorksWithParams() throws Exception {
@@ -107,6 +129,12 @@ public class TestIOBehavior {
         FooProjectionWithDocSource projection = new XBProjector().projectEmptyDocument(FooProjectionWithDocSource.class);
         new XBProjector().io().toURLAnnotationViaPOST(projection, host, port, requestParams);
         assertTrue(parrot.getRequest().contains("A: B"));
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void ensurePostExternalProjectionsWorksWithParams() throws Exception {
+        FooProjection postValue = new XBProjector().projectEmptyDocument(FooProjection.class);
+        new XBProjector().projectEmptyDocument(ExternalFooProjection.class).postExternalProjection("http://foo",postValue);
     }
 
     @Test

@@ -16,9 +16,11 @@
 package org.xmlbeam.tests.util.intern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -28,7 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.dom.Projection;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
 
 public class TestDOMHelper {
@@ -40,10 +42,18 @@ public class TestDOMHelper {
         document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
-    public interface HelperProjection extends Projection {
+    public interface HelperProjection extends DOMAccess {
         @XBRead("{0}")
         HelperProjection selectXPath(String xpath);
     }
+    
+    @Test
+    public void trivialNodeEquality() {
+        assertTrue(DOMHelper.nodesAreEqual(null, null));
+        assertFalse(DOMHelper.nodesAreEqual(document, null));
+        assertFalse(DOMHelper.nodesAreEqual(null,document));
+    }
+    
     @Test
     public void testElementCreationByPath() {
         Element third = DOMHelper.ensureElementExists(document, "/root/second/third");
@@ -73,7 +83,7 @@ public class TestDOMHelper {
         DOMHelper.ensureElementExists(document, "/root/a/b/c/d");
         DOMHelper.ensureElementExists(document, "/root/a/b/e/f");
         HelperProjection projection = new XBProjector().projectDOMNode(document, HelperProjection.class);
-        Element b = (Element) projection.selectXPath("/root/a/b").getXMLNode();
+        Element b = (Element) projection.selectXPath("/root/a/b").getDOMNode();
         DOMHelper.removeAllChildrenByName(b, "e");
         assertNull(projection.selectXPath("/root/a/b/e/f"));
         assertNull(projection.selectXPath("/root/a/b/e"));
