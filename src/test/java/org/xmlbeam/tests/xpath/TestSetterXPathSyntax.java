@@ -38,7 +38,7 @@ public class TestSetterXPathSyntax {
     @Test
     public void rootElementAccessAllowed() {
         projection.setterXPathProjection("/*", projector.projectEmptyElement("value", GenericXPathProjection.class));
-        assertEquals("value",projector.getXMLDocForProjection(projection).getDocumentElement().getNodeName());
+        assertEquals("value",projection.getOwnerDocument().getDocumentElement().getNodeName());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -64,8 +64,8 @@ public class TestSetterXPathSyntax {
     @Test
     public void createRootElementWithAttribute() {
         projection.setterXPathString("/newRoot/@newAttribute","value");
-        assertEquals("newRoot",projector.getXMLDocForProjection(projection).getDocumentElement().getNodeName());
-        assertEquals("value",projector.getXMLDocForProjection(projection).getDocumentElement().getAttribute("newAttribute"));        
+        assertEquals("newRoot",projection.getOwnerDocument().getDocumentElement().getNodeName());
+        assertEquals("value",projection.getOwnerDocument().getDocumentElement().getAttribute("newAttribute"));        
     }
     
     @Test

@@ -18,6 +18,7 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.xmlbeam.dom.Projection;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
@@ -36,7 +37,7 @@ public class TestDom4jMimicry extends TutorialTestCase {
         Attribute attribute = element2.attribute("eattribute");
         System.out.println(attribute.getValue());
         
-        org.w3c.dom.Element newRootNode = projector.getXMLDocForProjection(document).createElement("newRoot");
+        org.w3c.dom.Element newRootNode = ((Projection)document).getOwnerDocument().createElement("newRoot");
         Element newRootElement = projector.projectDOMNode(newRootNode, Element.class);
         
         document.setRootElement(newRootElement);

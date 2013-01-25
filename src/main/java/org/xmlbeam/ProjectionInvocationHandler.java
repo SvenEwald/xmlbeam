@@ -51,12 +51,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XBProjector.Projection;
+import org.xmlbeam.XBProjector.InternalProjection;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
+import org.xmlbeam.dom.Projection;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -85,6 +86,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             @Override
             public Node getXMLNode() {
                 return ProjectionInvocationHandler.this.node;
+            }
+
+            @Override
+            public Document getOwnerDocument() {
+              if (Node.DOCUMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType()) {
+                  return (Document) ProjectionInvocationHandler.this.node;
+              }
+              return ProjectionInvocationHandler.this.node.getOwnerDocument();
             }
         };
         Object objectInvoker = new Serializable() {
@@ -132,22 +141,22 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement) {
         Set<String> elementNames = new HashSet<String>();
         for (Object o : collection) {
-            if (!(o instanceof Projection)) {
+            if (!(o instanceof InternalProjection)) {
                 throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
             }
-            Projection p = (Projection) o;
+            InternalProjection p = (InternalProjection) o;
             elementNames.add(p.getXMLNode().getNodeName());
         }
         for (String elementName : elementNames) {
             DOMHelper.removeAllChildrenByName(parentElement, elementName);
         }
         for (Object o : collection) {
-            Projection p = (Projection) o;
+            InternalProjection p = (InternalProjection) o;
             parentElement.appendChild(p.getXMLNode());
         }
     }
 
-    private void applySingleSetProjectionOnElement(final Projection projection, final Node element) {
+    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node element) {
         DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
         element.appendChild(projection.getXMLNode());
     }
@@ -166,7 +175,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (targetType.isInterface()) {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 Node n = nodes.item(i).cloneNode(true);
-                Projection subprojection = (Projection) projector.projectDOMNode(n, targetType);
+                InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(n, targetType);
                 linkedList.add(subprojection);
             }
             return linkedList;
@@ -231,7 +240,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
     }
 
-    private void injectMeAttribute(Projection me, Object target) {
+    private void injectMeAttribute(InternalProjection me, Object target) {
         Class<?> projectionInterface = me.getProjectionInterface();
         for (Field field : target.getClass().getDeclaredFields()) {
             if (!projectionInterface.equals(field.getType())) {
@@ -250,7 +259,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 throw new RuntimeException(e);
             }
         }
-        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+Projection.class.getSimpleName()+" me;\" to be able to access the projection.");
+        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+InternalProjection.class.getSimpleName()+" me;\" to be able to access the projection.");
     }
 
     @Override
@@ -261,7 +270,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
         Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, method.getDeclaringClass());
         if (customInvoker != null) {
-            injectMeAttribute((Projection) proxy, customInvoker);
+            injectMeAttribute((InternalProjection) proxy, customInvoker);
             return method.invoke(customInvoker, args);
         }
 
@@ -329,8 +338,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
         if (returnType.isInterface()) {
             Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-            Projection subprojection = (Projection) projector.projectDOMNode(newNode, returnType);
-
+            if (newNode==null) {
+                return null;
+            }
+            InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
             return subprojection;
         }
         throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
@@ -349,10 +360,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         assert document != null;
         final Object valuetToSet = args[findIndexOfValue(method)];
         if ("/*".equals(pathToElement)) { // Setting a new root element.
-            if ((valuetToSet != null) && (!(valuetToSet instanceof Projection))) {
+            if ((valuetToSet != null) && (!(valuetToSet instanceof InternalProjection))) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valuetToSet);
             }
-            Projection projection = (Projection) valuetToSet;
+            InternalProjection projection = (InternalProjection) valuetToSet;
             Element element = Node.DOCUMENT_NODE == projection.getXMLNode().getNodeType() ? ((Document) projection.getXMLNode()).getDocumentElement() : (Element) projection.getXMLNode();
             assert element != null;
             DOMHelper.setDocumentElement(document, element);
@@ -363,8 +374,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 String attributeName = path.replaceAll(".*@", "");
                 elementToChange.setAttribute(attributeName, valuetToSet.toString());
             } else {
-                if (valuetToSet instanceof Projection) {
-                    applySingleSetProjectionOnElement((Projection) args[0], elementToChange);
+                if (valuetToSet instanceof InternalProjection) {
+                    applySingleSetProjectionOnElement((InternalProjection) args[0], elementToChange);
                 }
                 if (valuetToSet instanceof Collection) {
                     applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, elementToChange);

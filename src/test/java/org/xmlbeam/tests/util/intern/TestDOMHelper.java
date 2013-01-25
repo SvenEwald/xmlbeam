@@ -16,6 +16,8 @@
 package org.xmlbeam.tests.util.intern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,6 +26,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.dom.Projection;
 import org.xmlbeam.util.intern.DOMHelper;
 
 public class TestDOMHelper {
@@ -35,6 +40,10 @@ public class TestDOMHelper {
         document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
+    public interface HelperProjection extends Projection {
+        @XBRead("{0}")
+        HelperProjection selectXPath(String xpath);
+    }
     @Test
     public void testElementCreationByPath() {
         Element third = DOMHelper.ensureElementExists(document, "/root/second/third");
@@ -57,5 +66,18 @@ public class TestDOMHelper {
     @Test(expected = IllegalArgumentException.class)
     public void testElementCreationBoundaries2() {
         DOMHelper.ensureElementExists(document, "");
+    }
+    
+    @Test
+    public void testElementRemoval() {
+        DOMHelper.ensureElementExists(document, "/root/a/b/c/d");
+        DOMHelper.ensureElementExists(document, "/root/a/b/e/f");
+        HelperProjection projection = new XBProjector().projectDOMNode(document, HelperProjection.class);
+        Element b = (Element) projection.selectXPath("/root/a/b").getXMLNode();
+        DOMHelper.removeAllChildrenByName(b, "e");
+        assertNull(projection.selectXPath("/root/a/b/e/f"));
+        assertNull(projection.selectXPath("/root/a/b/e"));
+        assertNotNull(projection.selectXPath("/root/a/b/c"));
+        assertNotNull(projection.selectXPath("/root/a/b/c/d"));
     }
 }
