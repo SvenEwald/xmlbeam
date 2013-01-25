@@ -48,6 +48,9 @@ public final class ReflectionHelper {
     };
 
     public static boolean hasReturnType(final Method method) {
+        if (method==null) {
+            return false;
+        }
         if (method.getReturnType() == null) {
             return false;
         }

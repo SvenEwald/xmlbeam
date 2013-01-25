@@ -57,7 +57,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
-import org.xmlbeam.dom.Projection;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -77,19 +77,19 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
-        Projection projectionInvoker = new Projection() {
+        DOMAccess projectionInvoker = new DOMAccess() {
             @Override
             public Class<?> getProjectionInterface() {
                 return ProjectionInvocationHandler.this.projectionInterface;
             }
 
             @Override
-            public Node getXMLNode() {
+            public Node getDOMNode() {
                 return ProjectionInvocationHandler.this.node;
             }
 
             @Override
-            public Document getOwnerDocument() {
+            public Document getDOMOwnerDocument() {
               if (Node.DOCUMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType()) {
                   return (Document) ProjectionInvocationHandler.this.node;
               }
@@ -99,16 +99,16 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         Object objectInvoker = new Serializable() {
             @Override
             public boolean equals(Object o) {
-                if (!(o instanceof Projection)) {
+                if (!(o instanceof DOMAccess)) {
                     return false;
                 }
-                Projection op = (Projection) o;
+                DOMAccess op = (DOMAccess) o;
                 if (!ProjectionInvocationHandler.this.projectionInterface.equals(op.getProjectionInterface())) {
                     return false;
                 }
                 // Unfortunatly Node.isEqualNode() is implementation specific and does
                 // not need to match our hashCode implementation. 
-                return DOMHelper.nodesAreEqual(node,op.getXMLNode());
+                return DOMHelper.nodesAreEqual(node,op.getDOMNode());
             }
 
             @Override
@@ -120,7 +120,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             public String toString() {
                 try {
                     StringWriter writer = new StringWriter();
-                    projector.config().getTransformer().transform(new DOMSource(node), new StreamResult(writer));
+                    projector.config().createTransformer().transform(new DOMSource(node), new StreamResult(writer));
                     String output = writer.getBuffer().toString();
                     return output;
                 } catch (TransformerConfigurationException e) {
@@ -130,7 +130,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 }
             }
         };
-        defaultInvokers.put(Projection.class, projectionInvoker);
+        defaultInvokers.put(DOMAccess.class, projectionInvoker);
         defaultInvokers.put(Object.class, objectInvoker);
     }
 
@@ -145,20 +145,20 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
             }
             InternalProjection p = (InternalProjection) o;
-            elementNames.add(p.getXMLNode().getNodeName());
+            elementNames.add(p.getDOMNode().getNodeName());
         }
         for (String elementName : elementNames) {
             DOMHelper.removeAllChildrenByName(parentElement, elementName);
         }
         for (Object o : collection) {
             InternalProjection p = (InternalProjection) o;
-            parentElement.appendChild(p.getXMLNode());
+            parentElement.appendChild(p.getDOMNode());
         }
     }
 
     private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node element) {
-        DOMHelper.removeAllChildrenByName(element, projection.getXMLNode().getNodeName());
-        element.appendChild(projection.getXMLNode());
+        DOMHelper.removeAllChildrenByName(element, projection.getDOMNode().getNodeName());
+        element.appendChild(projection.getDOMNode());
     }
 
     private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
@@ -218,7 +218,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             String uri = method.getAnnotation(XBDocURL.class).value();
             Map<String, String> requestParams = projector.io().filterRequestParamsFromParams(uri, args);
             uri = MessageFormat.format(uri, args);   
-            evaluationNode = DOMHelper.getDocumentFromURL(projector.config().getDocumentBuilder(), uri, null, projectionInterface);
+            evaluationNode = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, projectionInterface);
         }
         return evaluationNode;
     }
@@ -297,7 +297,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
      */
     private Object invokeDeleter(Object proxy, Method method, String path) throws Throwable {
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
-        final XPath xPath = projector.config().getXPath(document);
+        final XPath xPath = projector.config().createXPath(document);
         final XPathExpression expression = xPath.compile(path);
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); ++i) {
@@ -318,7 +318,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private Object invokeGetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
         final Node node = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
-        final XPath xPath = projector.config().getXPath(document);
+        final XPath xPath = projector.config().createXPath(document);
         final XPathExpression expression = xPath.compile(path);
         final Class<?> returnType = method.getReturnType();
         if (projector.config().getTypeConverter().isConvertable(returnType)) {
@@ -354,6 +354,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (!ReflectionHelper.hasParameters(method)) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
         }
+        if (method.getAnnotation(XBDocURL.class)!=null) {
+            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @"+XBDocURL.class.getSimpleName()+" annotation. Defining setters on external projections is not valid, because setters always change parts of documents.");
+        }
         final String pathToElement = path.replaceAll("/@.*", "");
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
@@ -364,7 +367,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valuetToSet);
             }
             InternalProjection projection = (InternalProjection) valuetToSet;
-            Element element = Node.DOCUMENT_NODE == projection.getXMLNode().getNodeType() ? ((Document) projection.getXMLNode()).getDocumentElement() : (Element) projection.getXMLNode();
+            Element element = Node.DOCUMENT_NODE == projection.getDOMNode().getNodeType() ? ((Document) projection.getDOMNode()).getDocumentElement() : (Element) projection.getDOMNode();
             assert element != null;
             DOMHelper.setDocumentElement(document, element);
         } else {

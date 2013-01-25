@@ -13,22 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests;
-
-import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.annotation.XBValue;
-import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.annotation.XBWrite;
-
-public interface GenericXPathProjection extends DOMAccess {
-
-    @XBWrite("{0}")
-    void setterXPathString(String path, @XBValue String value);
-    
-    @XBWrite("{0}")
-    void setterXPathProjection(String path,@XBValue GenericXPathProjection projection);
- 
-    @XBRead("{0}")
-    String getXPathValue(String path);
-    
-}
+/**
+ */
+package org.xmlbeam.config;

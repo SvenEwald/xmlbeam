@@ -15,29 +15,26 @@
  */
 package org.xmlbeam;
 
-import java.net.URISyntaxException;
-
-import java.text.Format;
-import java.text.MessageFormat;
-
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.net.URISyntaxException;
+import java.text.Format;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,7 +43,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
-import org.xmlbeam.dom.Projection;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
@@ -113,27 +110,75 @@ public class XBProjector implements Serializable {
      * A variation of the builder pattern. All methods to configure the projector are hidden in this
      * builder class.
      */
-    public class ConfigBuilder {
+    public class ConfigBuilder implements XMLFactoriesConfig {
 
-        public DocumentBuilder getDocumentBuilder() {
-            return xMLFactoriesConfig.createDocumentBuilder();
+        /**
+         * Access the {@link XMLFactoriesConfig} as the given subtype to
+         * conveniently access additional methods.
+         * @param clazz
+         * @return
+         */
+        @SuppressWarnings("unchecked")
+        public <T extends XMLFactoriesConfig> T as(Class<T> clazz) {
+            return (T) xMLFactoriesConfig;
         }
-
-        public Transformer getTransformer() {
-            return xMLFactoriesConfig.createTransformer();
-        }
-
+        
         public TypeConverter getTypeConverter() {
             return XBProjector.this.typeConverter;
         }
       
-        public XPath getXPath(Document document) {
-            return xMLFactoriesConfig.createXPath(document);
-        }
-
         public ConfigBuilder setTypeConverter(TypeConverter converter) {
             XBProjector.this.typeConverter = converter;
             return this;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public TransformerFactory createTransformerFactory() {
+            return XBProjector.this.xMLFactoriesConfig.createTransformerFactory();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+
+        @Override
+        public DocumentBuilderFactory createDocumentBuilderFactory() {
+            return XBProjector.this.xMLFactoriesConfig.createDocumentBuilderFactory();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public XPathFactory createXPathFactory() {
+            return XBProjector.this.xMLFactoriesConfig.createXPathFactory();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Transformer createTransformer(Document... document) {
+            return XBProjector.this.xMLFactoriesConfig.createTransformer(document);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public DocumentBuilder createDocumentBuilder() {
+            return XBProjector.this.xMLFactoriesConfig.createDocumentBuilder();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public XPath createXPath(Document... document) {
+            return XBProjector.this.xMLFactoriesConfig.createXPath(document);
         }
     }
 
@@ -195,9 +240,12 @@ public class XBProjector implements Serializable {
             }
             return (M) mixins.get(projectionInterface).remove(mixinInterface);
         }
-
     }
-
+    
+    /**
+     * A variation of the builder pattern. IO related methods are grouped behind this builder
+     * class.
+     */
     public class IOBuilder {
 
         public XBFileIO file(File file) {
@@ -226,7 +274,6 @@ public class XBProjector implements Serializable {
          * @return a new projection instance
          * @throws IOException
          */
-        @SuppressWarnings("unchecked")
         public <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... params) throws IOException {
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
@@ -242,24 +289,22 @@ public class XBProjector implements Serializable {
          * @param params
          * @return
          */
+        @SuppressWarnings("unchecked")
         Map<String, String> filterRequestParamsFromParams(final String url, final Object... params) {
             Map<String, String> requestParams = new HashMap<String, String>();
-            Set<Integer> unusedParams=new HashSet<Integer>();
             Format[] formats = new MessageFormat(url).getFormatsByArgumentIndex();
             for (int i = 0; i < params.length; ++i) {
                 if (i >= formats.length) {
-                    unusedParams.add(i);
+                    if ((params[i] instanceof Map)) {
+                        requestParams.putAll((Map<? extends String, ? extends String>) params[i]);
+                    }
                     continue;
                 }
                 if (formats[i] == null) {
-                    unusedParams.add(i);// TODO: make this in one pass
+                    if ((params[i] instanceof Map)) {
+                        requestParams.putAll((Map<? extends String, ? extends String>) params[i]);
+                    }
                 }
-            }
-            for (int i : unusedParams) {
-                if (!(params[i] instanceof Map)) {
-                    continue;
-                }
-                requestParams.putAll((Map<? extends String, ? extends String>) params[i]);
             }
             return requestParams;
         }
@@ -283,19 +328,7 @@ public class XBProjector implements Serializable {
             urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), params));
 
             return urlIO.write(projection);
-            /*
-             * Class<?> projectionInterface = getProjectionInterfaceFor(projection); XBDocURL doc =
-             * projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class); if (doc ==
-             * null) { throw new IllegalArgumentException("Class " +
-             * projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName()
-             * + " annotation linking to the document source."); } String url =
-             * MessageFormat.format(doc.value(), params); if ((url.startsWith("http:")) ||
-             * (url.startsWith("https:"))) { return url(url).write(projection); } if
-             * (url.startsWith("file:")) { File file = new File(new URL(url).toURI());
-             * file(file).write(projection); return null; } throw new
-             * IllegalArgumentException("I don't know how to write to url:" + url +
-             * " Try again with a http or file url.");
-             */
+           
         }
     }
 
@@ -363,7 +396,7 @@ public class XBProjector implements Serializable {
      * Marker interface to determine if a Projection instance was created by a Projector. This will
      * be applied automatically to projections.
      */
-    interface InternalProjection extends Projection {      
+    interface InternalProjection extends DOMAccess {      
     }
 
     private final XMLFactoriesConfig xMLFactoriesConfig;
@@ -431,18 +464,6 @@ public class XBProjector implements Serializable {
      */
     public IOBuilder io() {
         return new IOBuilder();
-    }
-
-    /**
-     * Method to determine the projection interface of a projection.
-     * 
-     * @param projection
-     *            a projection created with a XBProjector.
-     * @return projection interface.
-     */
-    @SuppressWarnings("unchecked")
-    public <P> Class<P> getProjectionInterfaceFor(P projection) {
-        return (Class<P>) checkProjectionInstance(projection).getProjectionInterface();
     }
 
 }

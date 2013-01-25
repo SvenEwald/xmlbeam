@@ -28,7 +28,7 @@ import org.xmlbeam.annotation.XBRead;
 
 public class TestDeleterBehavior {    
     
-    @XBDocURL("resource://bigxml.xml")
+    @XBDocURL("resource://deletexml.xml")
     public interface DeletingProjection {        
         @XBDelete("{0}")
         DeletingProjection delete(String xpath);

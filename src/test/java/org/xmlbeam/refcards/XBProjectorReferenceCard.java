@@ -15,11 +15,10 @@
  */
 package org.xmlbeam.refcards;
 
-import java.util.Map;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.w3c.dom.Node;
@@ -42,6 +41,7 @@ public class XBProjectorReferenceCard {
     };
     
   //END SNIPPET: XBProjectorReferenceCardI
+    @SuppressWarnings("unused")
     @Ignore
     // This must compile, but it won't run
     public void ensureFileReading() throws Exception {

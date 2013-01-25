@@ -24,8 +24,11 @@ import org.w3c.dom.Node;
  * Every Projection will be automatically implementing this interface.
  * You may cast your Projection instances to this type and get
  * access to the DOM behind it.
+ * 
+ * You may even let your projection interfaces extend this interface
+ * for a convenient access to the underlying DOM. 
  */
-public interface Projection extends Serializable {
+public interface DOMAccess extends Serializable {
     /**
      * Getter for the projection interface.
      * @return the projection interface of this projection.
@@ -36,12 +39,12 @@ public interface Projection extends Serializable {
      * Getter for the underlying DOM node holding the data.
      * @return the projections DOM node. Could be Document or Element.
      */
-    Node getXMLNode();
+    Node getDOMNode();
 
     /**
      * Getter for the XML Document owning the node for this projection.
      * If this projection node is a document, it is returned. 
      * @return the projections (parent) document.
      */
-    Document getOwnerDocument();
+    Document getDOMOwnerDocument();
 }
