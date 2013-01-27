@@ -17,8 +17,10 @@ package org.xmlbeam.testutils;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -52,8 +54,12 @@ public class HTTPParrot {
         return parrot; 
     }
 
-    public String getURL() {
-        return "http://" + socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort() + "/test";
+    public URL getURL() {
+        try {
+            return new URL("http",socket.getInetAddress().getHostAddress(),socket.getLocalPort(),"/test");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public String getRequest() throws Exception {
