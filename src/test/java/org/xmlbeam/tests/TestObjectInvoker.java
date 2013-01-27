@@ -15,6 +15,7 @@
  */
 package org.xmlbeam.tests;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -41,4 +42,32 @@ public class TestObjectInvoker {
         String orig = IOHelper.inputStreamToString(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(XBDocURL.class).value().substring("resource://".length())), "UTF-8");
         assertEquals(orig.replaceAll("\\s", ""), testSuite.toString().replaceAll("\\s", ""));
     }
+    
+    @Test
+    public void testEqualsAndHashCode() {
+        GenericXPathProjection projectionA = new XBProjector().projectXMLString("<foo a=\"b\" c=\"d\"/>", GenericXPathProjection.class);
+        GenericXPathProjection projectionB = new XBProjector().projectXMLString("<foo c=\"d\" a=\"b\" ></foo>", GenericXPathProjection.class);        
+        assertNotSame(projectionA,projectionB);
+        assertEquals(projectionA, projectionB);
+        assertEquals(projectionA.hashCode(), projectionB.hashCode());
+    }
+    
+    @Test
+    public void testNotEqualsAttributes() {
+        GenericXPathProjection projectionA = new XBProjector().projectXMLString("<foo a=\"b\" c=\"d\"/>", GenericXPathProjection.class);
+        GenericXPathProjection projectionB = new XBProjector().projectXMLString("<foo c=\"d\" a=\"b2\" ></foo>", GenericXPathProjection.class);        
+        assertFalse(projectionA.equals(projectionB));
+        assertFalse(projectionB.equals(projectionA));
+        assertTrue(projectionA.hashCode()!=projectionB.hashCode());
+    }
+    
+    @Test
+    public void testNotEqualsValues() {
+        GenericXPathProjection projectionA = new XBProjector().projectXMLString("<foo><bar/></foo> ", GenericXPathProjection.class);
+        GenericXPathProjection projectionB = new XBProjector().projectXMLString("<foo></foo>", GenericXPathProjection.class);        
+        assertFalse(projectionA.equals(projectionB));
+        assertFalse(projectionB.equals(projectionA));
+        assertTrue(projectionA.hashCode()!=projectionB.hashCode());
+    }
+    
 }

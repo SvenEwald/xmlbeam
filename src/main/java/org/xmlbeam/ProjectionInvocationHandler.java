@@ -97,12 +97,14 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 if (!ProjectionInvocationHandler.this.projectionInterface.equals(op.getProjectionInterface())) {
                     return false;
                 }
-                return node.equals(op.getXMLNode());
+                // Unfortunatly Node.isEqualNode() is implementation specific and does
+                // not need to match our hashCode implementation. 
+                return DOMHelper.nodesAreEqual(node,op.getXMLNode());
             }
 
             @Override
             public int hashCode() {
-                return 31 * ProjectionInvocationHandler.this.projectionInterface.hashCode() + 27 * node.hashCode();
+                return 31 * ProjectionInvocationHandler.this.projectionInterface.hashCode() + 27 * DOMHelper.nodeHashCode(node);
             }
 
             @Override
