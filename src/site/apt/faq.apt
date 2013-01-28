@@ -15,7 +15,6 @@ FAQ / HowTo
    
  * Use a XPath function to create a boolean projection: "count(/path/element) > 0"
 
- 
 * What's the syntax for writable XPath expressions?
 
  XPath expressions used in setters are limited to absolute paths to nonambiguous selectors. 
@@ -38,5 +37,27 @@ FAQ / HowTo
 
    Example: "/element1/element2/*"
    This works for projections or collections of projections only.
-   If your setter value is a projection, all existing elements with the same element name will be removed and a single element will be attached. 
+   If your setter value is a projection, all existing elements with the same element name will be removed and a single element will be attached.
    
+* How to access the DOM behind a projection?
+
+ Every projection is associated with a document, every sub projection with a DOM element.
+ To access the DOM Node you may either:
+ 
+  * Let your projection extend the interface org.xmlbeam.dom.DOMAccess.
+    You will inherit getter methods for the document and the current node. 
+  
+  * Cast your projection directly to DOMAccess. 
+    The projector makes sure that every projection instance implements this interface.  
+    
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}    
+   
+* How do I implement the toString() method for my projection?
+
+ You want to create a mixin: 
+ 
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinOverridingToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+
+ And register it in your projector:
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinRegistration|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}

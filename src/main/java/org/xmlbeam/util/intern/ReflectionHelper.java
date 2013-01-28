@@ -17,8 +17,10 @@ package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Method;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -37,7 +39,7 @@ public final class ReflectionHelper {
     }
 
     public static Collection<? extends Class<?>> findAllSuperInterfaces(Class<?> a) {
-        Set<Class<?>> set = new HashSet<Class<?>>();
+        Set<Class<?>> set = new LinkedHashSet <Class<?>>();        
         if (a.isInterface()) {
             set.add(a);
         }
@@ -62,5 +64,37 @@ public final class ReflectionHelper {
 
     public static boolean hasParameters(final Method method) {
         return (method!=null) && (method.getParameterTypes().length > 0);
+    }
+
+    /**
+     * @param method
+     * @param projectionInterface
+     * @return
+     */
+    public static Class<?> findDeclaringInterface(Method method, Class<?> projectionInterface) {                
+        for (Class<?> interf:findAllSuperInterfaces(projectionInterface)) {
+            if (declaresMethod(interf,method)) {
+                return interf;
+            }
+        }
+        return method.getDeclaringClass();
+    }
+
+    /**
+     * @param interf
+     * @param method
+     * @return
+     */
+    private static boolean declaresMethod(Class<?> interf, Method method) {
+        for (Method m:interf.getDeclaredMethods()) {
+            if (!m.getName().equals(method.getName())) {
+                continue;
+            }
+            if (!Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
+                continue;
+            }
+            return true;
+        }
+        return false;
     }
 }

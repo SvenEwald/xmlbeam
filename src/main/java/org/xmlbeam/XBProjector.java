@@ -219,11 +219,12 @@ public class XBProjector implements Serializable {
          * @param mixinInterface
          * @return the registered mixin implementation. null if none is present.
          */
-        public Object getProjectionMixin(Class<?> projectionInterface, Class<?> mixinInterface) {
+        @SuppressWarnings("unchecked")
+        public <S, M extends S, P extends S> M getProjectionMixin(Class<P> projectionInterface, Class<M> mixinInterface) {
             if (!mixins.containsKey(projectionInterface)) {
                 return null;
             }
-            return mixins.get(projectionInterface).get(mixinInterface);
+            return (M) mixins.get(projectionInterface).get(mixinInterface);
         }
 
         /**
@@ -234,7 +235,7 @@ public class XBProjector implements Serializable {
          * @return the registered mixin implementation. null if none was present.
          */
         @SuppressWarnings("unchecked")
-        public <M, P extends M> M removeProjectionMixin(Class<P> projectionInterface, Class<M> mixinInterface) {
+        public <S, M extends S, P extends S> M removeProjectionMixin(Class<P> projectionInterface, Class<M> mixinInterface) {
             if (!mixins.containsKey(projectionInterface)) {
                 return null;
             }

@@ -16,20 +16,29 @@
 package org.xmlbeam.tests.mixins;
 
 import static junit.framework.Assert.assertNotNull;
-
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.dom.DOMAccess;
 
 public class TestMixins {
 
     public interface Mixin {
-        void doSomething();
+        void doSomething();  
     }
 
+    public interface MixinOverridingToString {
+        String toString();
+    }
+    
     public interface Projection extends Mixin {
+    }
+    
+    public interface OverridingProjection extends MixinOverridingToString {
+        
     }
 
     final Mixin verifyMixin = mock(Mixin.class);
@@ -41,13 +50,24 @@ public class TestMixins {
             assertNotNull(me);
             verifyMixin.doSomething();
         }
-
     };
 
+    final MixinOverridingToString overridingMixin = new MixinOverridingToString() {
+        private OverridingProjection me;
+        @Override
+        public String toString() { return "12345";};
+    };
+    
     @Test
     public void testMixinIsCalled() {
         Projection projection = new XBProjector().mixins().addProjectionMixin(Projection.class, mixin).projectEmptyDocument(Projection.class);
         projection.doSomething();
         verify(verifyMixin).doSomething();
+    }
+    
+    @Test
+    public void testMixinOnDOMAccess() {
+        OverridingProjection projection = new XBProjector().mixins().addProjectionMixin(OverridingProjection.class, overridingMixin).projectEmptyDocument(OverridingProjection.class);
+        assertEquals("12345",projection.toString());
     }
 }

@@ -45,6 +45,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.mockito.cglib.core.ReflectUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -243,10 +244,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private void injectMeAttribute(InternalProjection me, Object target) {
         Class<?> projectionInterface = me.getProjectionInterface();
         for (Field field : target.getClass().getDeclaredFields()) {
-            if (!projectionInterface.equals(field.getType())) {
-                continue;
-            }
-            if (!"me".equalsIgnoreCase(field.getName())) {
+            if (!isValidMeField(field,projectionInterface)) {
                 continue;
             }
             if (!field.isAccessible()) {
@@ -259,19 +257,33 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 throw new RuntimeException(e);
             }
         }
-        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+InternalProjection.class.getSimpleName()+" me;\" to be able to access the projection.");
+        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+projectionInterface.getSimpleName()+" me;\" to be able to access the projection.");
+    }
+    
+    private boolean isValidMeField(Field field, Class<?> projInterface) {
+        if (field==null) {
+            return false;
+        }
+        if (!"me".equalsIgnoreCase(field.getName())) {
+            return false;
+        }
+        if (DOMAccess.class.equals(field.getType())) {
+            return true;
+        }
+        return field.getType().isAssignableFrom(projInterface);
     }
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        Object defaultInvoker = defaultInvokers.get(method.getDeclaringClass());
-        if (defaultInvoker != null) {
-            return method.invoke(defaultInvoker, args);
-        }
-        Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, method.getDeclaringClass());
+        Class<?> methodsDeclaringInterface=ReflectionHelper.findDeclaringInterface(method,projectionInterface);
+        Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
         if (customInvoker != null) {
             injectMeAttribute((InternalProjection) proxy, customInvoker);
             return method.invoke(customInvoker, args);
+        }
+        Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
+        if (defaultInvoker != null) {
+            return method.invoke(defaultInvoker, args);
         }
 
         XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
