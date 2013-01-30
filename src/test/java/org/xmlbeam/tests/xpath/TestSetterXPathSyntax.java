@@ -22,6 +22,10 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBWrite;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tests.GenericXPathProjection;
 
 public class TestSetterXPathSyntax {
@@ -38,7 +42,7 @@ public class TestSetterXPathSyntax {
     @Test
     public void rootElementAccessAllowed() {
         projection.setterXPathProjection("/*", projector.projectEmptyElement("value", GenericXPathProjection.class));
-        assertEquals("value",projection.getDOMOwnerDocument().getDocumentElement().getNodeName());
+        assertEquals("value", projection.getDOMOwnerDocument().getDocumentElement().getNodeName());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -60,18 +64,40 @@ public class TestSetterXPathSyntax {
     public void emptyrootElementEmptyAttributeNameNotAllowed() {
         projection.setterXPathString("/@", "");
     }
-    
+
     @Test
     public void createRootElementWithAttribute() {
-        projection.setterXPathString("/newRoot/@newAttribute","value");
-        assertEquals("newRoot",projection.getDOMOwnerDocument().getDocumentElement().getNodeName());
-        assertEquals("value",projection.getDOMOwnerDocument().getDocumentElement().getAttribute("newAttribute"));        
+        projection.setterXPathString("/newRoot/@newAttribute", "value");
+        assertEquals("newRoot", projection.getDOMOwnerDocument().getDocumentElement().getNodeName());
+        assertEquals("value", projection.getDOMOwnerDocument().getDocumentElement().getAttribute("newAttribute"));
     }
-    
+
     @Test
     public void createDeeperElementWithAttribute() {
-        projection.setterXPathString("/newRoot/someElement/anotherOne/@newAttribute","value");       
-        assertEquals("value",projection.getXPathValue("/newRoot/someElement/anotherOne/@newAttribute"));
+        projection.setterXPathString("/newRoot/someElement/anotherOne/@newAttribute", "value");
+        assertEquals("value", projection.getXPathValue("/newRoot/someElement/anotherOne/@newAttribute"));
+    }
+
+    public interface SubTest {
+    }
+
+    @XBDocURL("resource://testsetter.xml")
+    public interface SetterTest {
+        @XBRead("/a/b/c")
+        SubTest getSubtest();
+
+        @XBWrite("/a/d")
+        public void set(SubTest s);
+
+    }
+
+    @Test
+    public void testSetSubProjection() throws IOException {
+        SetterTest test = projector.io().fromURLAnnotation(SetterTest.class);
+        SubTest subtest = test.getSubtest();
+        test.set(subtest);
+        ((DOMAccess) test).getDOMOwnerDocument().normalizeDocument();
+        assertEquals(projector.io().url("resource://testsetter_expected.xml").read(SetterTest.class), test);
     }
 
 }

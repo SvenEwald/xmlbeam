@@ -90,10 +90,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
             @Override
             public Document getDOMOwnerDocument() {
-              if (Node.DOCUMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType()) {
-                  return (Document) ProjectionInvocationHandler.this.node;
-              }
-              return ProjectionInvocationHandler.this.node.getOwnerDocument();
+                if (Node.DOCUMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType()) {
+                    return (Document) ProjectionInvocationHandler.this.node;
+                }
+                return ProjectionInvocationHandler.this.node.getOwnerDocument();
             }
         };
         Object objectInvoker = new Serializable() {
@@ -107,8 +107,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                     return false;
                 }
                 // Unfortunatly Node.isEqualNode() is implementation specific and does
-                // not need to match our hashCode implementation. 
-                return DOMHelper.nodesAreEqual(node,op.getDOMNode());
+                // not need to match our hashCode implementation.
+                return DOMHelper.nodesAreEqual(node, op.getDOMNode());
             }
 
             @Override
@@ -158,7 +158,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
     private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node element) {
         DOMHelper.removeAllChildrenByName(element, projection.getDOMNode().getNodeName());
-        element.appendChild(projection.getDOMNode());
+        Node newNode = projection.getDOMNode().cloneNode(true);
+        element.appendChild(newNode);
     }
 
     private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
@@ -217,7 +218,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getAnnotation(XBDocURL.class) != null) {
             String uri = method.getAnnotation(XBDocURL.class).value();
             Map<String, String> requestParams = projector.io().filterRequestParamsFromParams(uri, args);
-            uri = MessageFormat.format(uri, args);   
+            uri = MessageFormat.format(uri, args);
             evaluationNode = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, projectionInterface);
         }
         return evaluationNode;
@@ -243,7 +244,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private void injectMeAttribute(InternalProjection me, Object target) {
         Class<?> projectionInterface = me.getProjectionInterface();
         for (Field field : target.getClass().getDeclaredFields()) {
-            if (!isValidMeField(field,projectionInterface)) {
+            if (!isValidMeField(field, projectionInterface)) {
                 continue;
             }
             if (!field.isAccessible()) {
@@ -256,11 +257,11 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 throw new RuntimeException(e);
             }
         }
-        throw new IllegalArgumentException("Mixin "+target.getClass().getSimpleName()+" needs an attribute \"private "+projectionInterface.getSimpleName()+" me;\" to be able to access the projection.");
+        throw new IllegalArgumentException("Mixin " + target.getClass().getSimpleName() + " needs an attribute \"private " + projectionInterface.getSimpleName() + " me;\" to be able to access the projection.");
     }
-    
+
     private boolean isValidMeField(Field field, Class<?> projInterface) {
-        if (field==null) {
+        if (field == null) {
             return false;
         }
         if (!"me".equalsIgnoreCase(field.getName())) {
@@ -274,7 +275,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        Class<?> methodsDeclaringInterface=ReflectionHelper.findDeclaringInterface(method,projectionInterface);
+        Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
         Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
         if (customInvoker != null) {
             injectMeAttribute((InternalProjection) proxy, customInvoker);
@@ -312,13 +313,13 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final XPathExpression expression = xPath.compile(path);
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); ++i) {
-            if (Node.ATTRIBUTE_NODE==nodes.item(i).getNodeType()) {
+            if (Node.ATTRIBUTE_NODE == nodes.item(i).getNodeType()) {
                 Attr attr = (Attr) nodes.item(i);
                 attr.getOwnerElement().removeAttributeNode(attr);
                 continue;
-            }                     
+            }
             Node parentNode = nodes.item(i).getParentNode();
-            if (parentNode==null) {
+            if (parentNode == null) {
                 continue;
             }
             parentNode.removeChild(nodes.item(i));
@@ -344,12 +345,12 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             return evaluateAsList(expression, node, method);
         }
         if (returnType.isArray()) {
-            List<?> list = evaluateAsList(expression, node, method);            
+            List<?> list = evaluateAsList(expression, node, method);
             return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
         }
         if (returnType.isInterface()) {
             Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-            if (newNode==null) {
+            if (newNode == null) {
                 return null;
             }
             InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
@@ -365,39 +366,41 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (!ReflectionHelper.hasParameters(method)) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
         }
-        if (method.getAnnotation(XBDocURL.class)!=null) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @"+XBDocURL.class.getSimpleName()+" annotation. Defining setters on external projections is not valid, because setters always change parts of documents.");
+        if (method.getAnnotation(XBDocURL.class) != null) {
+            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid, because setters always change parts of documents.");
         }
         final String pathToElement = path.replaceAll("/@.*", "");
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
         assert document != null;
-        final Object valuetToSet = args[findIndexOfValue(method)];
+        final Object valueToSet = args[findIndexOfValue(method)];
         if ("/*".equals(pathToElement)) { // Setting a new root element.
-            if ((valuetToSet != null) && (!(valuetToSet instanceof InternalProjection))) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valuetToSet);
+            if ((valueToSet != null) && (!(valueToSet instanceof InternalProjection))) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valueToSet);
             }
-            InternalProjection projection = (InternalProjection) valuetToSet;
+            InternalProjection projection = (InternalProjection) valueToSet;
             Element element = Node.DOCUMENT_NODE == projection.getDOMNode().getNodeType() ? ((Document) projection.getDOMNode()).getDocumentElement() : (Element) projection.getDOMNode();
             assert element != null;
             DOMHelper.setDocumentElement(document, element);
-        } else {
-            Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
-
-            if (path.contains("@")) {
-                String attributeName = path.replaceAll(".*@", "");
-                elementToChange.setAttribute(attributeName, valuetToSet.toString());
-            } else {
-                if (valuetToSet instanceof InternalProjection) {
-                    applySingleSetProjectionOnElement((InternalProjection) args[0], elementToChange);
-                }
-                if (valuetToSet instanceof Collection) {
-                    applyCollectionSetProjectionOnelement((Collection<?>) valuetToSet, elementToChange);
-                } else {
-                    elementToChange.setTextContent(valuetToSet.toString());
-                }
-            }
+            return getProxyReturnValueForMethod(proxy, method);
         }
+        Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+
+        if (path.contains("@")) {
+            String attributeName = path.replaceAll(".*@", "");
+            elementToChange.setAttribute(attributeName, valueToSet.toString());
+            return getProxyReturnValueForMethod(proxy, method);
+        }
+        if (valueToSet instanceof InternalProjection) {
+            applySingleSetProjectionOnElement((InternalProjection) valueToSet, elementToChange);
+            return getProxyReturnValueForMethod(proxy, method);
+        }
+        if (valueToSet instanceof Collection) {
+            applyCollectionSetProjectionOnelement((Collection<?>) valueToSet, elementToChange);
+            return getProxyReturnValueForMethod(proxy, method);
+        }
+        elementToChange.setTextContent(valueToSet.toString());
+
         return getProxyReturnValueForMethod(proxy, method);
     }
 }

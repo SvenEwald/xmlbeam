@@ -82,6 +82,7 @@ public class TestDOMHelper {
     public void testElementRemoval() {
         DOMHelper.ensureElementExists(document, "/root/a/b/c/d");
         DOMHelper.ensureElementExists(document, "/root/a/b/e/f");
+        DOMHelper.ensureElementExists(document, "/root/a/b2/e/f");
         HelperProjection projection = new XBProjector().projectDOMNode(document, HelperProjection.class);
         Element b = (Element) projection.selectXPath("/root/a/b").getDOMNode();
         DOMHelper.removeAllChildrenByName(b, "e");
@@ -89,5 +90,6 @@ public class TestDOMHelper {
         assertNull(projection.selectXPath("/root/a/b/e"));
         assertNotNull(projection.selectXPath("/root/a/b/c"));
         assertNotNull(projection.selectXPath("/root/a/b/c/d"));
+        assertNotNull(projection.selectXPath("/root/a/b2/e/f"));
     }
 }
