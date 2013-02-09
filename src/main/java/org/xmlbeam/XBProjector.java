@@ -15,19 +15,23 @@
  */
 package org.xmlbeam;
 
+import java.net.URISyntaxException;
+
+import java.text.Format;
+import java.text.MessageFormat;
+
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.net.URISyntaxException;
-import java.text.Format;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -251,6 +255,10 @@ public class XBProjector implements Serializable {
 
         public XBFileIO file(File file) {
             return new XBFileIO(XBProjector.this, file);
+        }
+
+        public XBFileIO file(String fileName) {
+            return new XBFileIO(XBProjector.this, fileName);
         }
 
         public XBUrlIO url(String url) {
