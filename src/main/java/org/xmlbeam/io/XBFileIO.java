@@ -33,14 +33,33 @@ public class XBFileIO {
     private final  File file;
 
     /**
+     * Constructor for file input.
+     * 
      * @param xmlProjector
-     * @param file 
+     * @param file
      */
     public XBFileIO(XBProjector xmlProjector, File file) {
         this.projector = xmlProjector;
         this.file=file;
     }
 
+    /**
+     * Convenient constructor using a filename.
+     * 
+     * @param xmlProjector
+     * @param fileName
+     */
+    public XBFileIO(XBProjector xmlProjector, String fileName) {
+        this(xmlProjector, new File(fileName));
+    }
+
+    /**
+     * Read a XML document and return a projection to it.
+     * 
+     * @param projectionInterface
+     * @return
+     * @throws IOException
+     */
     public <T> T read(Class<T> projectionInterface) throws IOException {
         try {
             Document document = projector.config().createDocumentBuilder().parse(file);
@@ -54,6 +73,7 @@ public class XBFileIO {
      * @param projection
      * @param file
      * @throws IOException
+     * @return this to provide a fluent API.
      */
     public XBFileIO write(Object projection) throws IOException {
         FileOutputStream os = new FileOutputStream(file, append);
@@ -61,6 +81,12 @@ public class XBFileIO {
         return this;
     }
 
+    /**
+     * Set whether output should be append to existing file.
+     * 
+     * @param append
+     * @return this to provide a fluent API.
+     */
     public XBFileIO setAppend(boolean append) {
         this.append = append;
         return this;
