@@ -68,13 +68,15 @@ public interface SlashdotRSSFeed {
      * touched.
      * 
      * Notice that we could define another setter which could project a story to
-     * other elements than "item" in the document hierarchy. I just have no real
-     * life example for this right now...
+     * other elements than "item" in the document hierarchy. 
      * 
      * @param items
      */
-    @XBWrite("/rss/channel/item")
+    @XBWrite("/rss/channel/")
     void setAllItems(Collection<Story> items);
+    
+    @XBRead("count(/rss/channel/item)")
+    int getItemCount();
 
     /**
      * This is not part of this lesson about modifying documents. Just to
@@ -82,7 +84,10 @@ public interface SlashdotRSSFeed {
      * keep the object oriented way to the stories. We just define a getter for
      * all creator elements of all stories without a sub projection.
      * 
-     * @return A list of all creators.
+     * Notice the seamless use of the namespace. The projector will use the
+     * namespaces declared in the document.
+     * 
+     * @return A list of all creators in this feed.
      */
     @XBRead(value = "//dc:creator", targetComponentType = String.class)
     List<String> getCreators();
@@ -92,7 +97,7 @@ public interface SlashdotRSSFeed {
      * declaration do some filtering. Usually you would have to code this in
      * java.
      * 
-     * @return A filtered list of stories.
+     * @return A list of open source stories.
      */
     @XBRead(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
     List<Story> getOpenSourceStories();

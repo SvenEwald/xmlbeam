@@ -19,7 +19,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 /**
  * Abstract base class for tutorial test cases. The tutorial tests are printing out a lot of stuff
@@ -31,6 +33,13 @@ import org.junit.Before;
 public abstract class TutorialTestCase {
 
     private PrintStream origSyso;
+    private static JUnitHttpProxy proxy;
+
+    @BeforeClass
+    public static void setTestingProxy() {
+        proxy = new JUnitHttpProxy();
+        proxy.setAsProxy();
+    }
 
     @Before
     public void swallowOutput() {
@@ -51,6 +60,11 @@ public abstract class TutorialTestCase {
             return;
         }
         System.setOut(origSyso);
+    }
+
+    @AfterClass
+    public static void restoreProxySettings() {
+        proxy.stop();
     }
 
 }

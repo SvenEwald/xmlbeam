@@ -98,7 +98,7 @@ public final class DOMHelper {
                 // source.setEncoding("MacRoman");
                 return documentBuilder.parse(source);
             }
-            if (url.startsWith("http:") || url.startsWith("https:")) {
+            if (url.startsWith("http:") || url.startsWith("https:")) {                
                 return documentBuilder.parse(IOHelper.httpGet(url, requestProperties), url);
             }
             Document document = documentBuilder.parse(url);
