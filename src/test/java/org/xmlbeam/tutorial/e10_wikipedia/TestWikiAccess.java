@@ -19,11 +19,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.tutorial.TutorialTestCase;
 
-/**
- *
- */
-public class TestWikiAccess {
+public class TestWikiAccess extends TutorialTestCase{
 
     final private String[] PROGRAMMING_LANGUAGES = new String[] { "Java", "C++", "C", "Scala" };
     

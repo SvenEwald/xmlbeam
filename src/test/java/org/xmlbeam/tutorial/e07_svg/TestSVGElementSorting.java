@@ -69,5 +69,6 @@ public class TestSVGElementSorting extends TutorialTestCase {
         Collections.sort(list);
         svgDocument.setGraphicElements(list);
       //END SNIPPET:TestSVGElementSorting
+        
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.tutorial.e05_rss;
 
+import static org.junit.Assert.*;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,7 +68,9 @@ public class TestFilterRSSFeed extends TutorialTestCase{
         // untouched.
         feed.setAllItems(filteredItems);
 
-        System.out.println(feed.toString());
+        assertEquals(3,feed.getItemCount());
+        
+        // System.out.println(feed.toString());
     }
 }
 //END SNIPPET:TestFilterRSSFeed
