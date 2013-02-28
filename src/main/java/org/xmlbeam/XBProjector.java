@@ -110,6 +110,8 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 @SuppressWarnings("serial")
 public class XBProjector implements Serializable {
 
+    private final ConfigBuilder configBuilder= new ConfigBuilder();
+    
     /**
      * A variation of the builder pattern. All methods to configure the projector are hidden in this
      * builder class.
@@ -434,7 +436,7 @@ public class XBProjector implements Serializable {
      * @return a new ConfigBuilder for this projector.
      */
     public ConfigBuilder config() {
-        return new ConfigBuilder();
+        return configBuilder;
     }
 
     /**
