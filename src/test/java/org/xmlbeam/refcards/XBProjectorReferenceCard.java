@@ -24,12 +24,21 @@ import org.junit.Ignore;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.util.IOHelper;
 
 /**
  * 
  */
 public class XBProjectorReferenceCard {
+    
+    //START SNIPPET: mainExample
+    public interface Example {
+        @XBRead("/xml/example/content")
+        String getContent();
+    }
+    //END SNIPPET: mainExample
+    
     //START SNIPPET: XBProjectorReferenceCardI     
     public interface Projection {
         // Define your projection methods in a public interface.

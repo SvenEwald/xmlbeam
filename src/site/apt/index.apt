@@ -9,6 +9,16 @@
 
 Welcome to XMLBeam
 
+----------------------------------------
+<xml>
+   <example>
+      <content type="foo" >bar</content>
+   </example>
+</xml>
+----------------------------------------
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#mainExample|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
  If you are new here, please read {{{./introduction.html} the introduction}}.
  Are you in a hurry?
  Read the {{{./tutorial.html}the tutorial}}!

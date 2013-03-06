@@ -20,6 +20,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.xmlbeam.externalizer.Externalizer;
+import org.xmlbeam.externalizer.NotExternalizedExternalizer;
+
 /**
  * Define the projection function to delete elements or attributes.
  * 
@@ -36,5 +39,7 @@ public @interface XBDelete {
      */
     String value();
 
+    
+    Class<? extends Externalizer> externalizer() default NotExternalizedExternalizer.class;
 
 }

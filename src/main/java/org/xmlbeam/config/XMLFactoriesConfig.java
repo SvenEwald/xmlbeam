@@ -77,7 +77,8 @@ public interface XMLFactoriesConfig extends Serializable {
 
     /**
      * Factory method to provide a {@link XPath}. Creation and configuration may
-     * depend on the content of a document.
+     * depend on the content of a document. This may happen when you want to use
+     * the namespace mapping of the document in your xpath expresssions. 
      * 
      * @param document
      *            (optional)

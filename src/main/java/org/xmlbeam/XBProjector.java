@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+import javax.management.RuntimeErrorException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -48,6 +49,8 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.externalizer.Externalizer;
+import org.xmlbeam.externalizer.NotExternalizedExternalizer;
 import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
@@ -110,6 +113,9 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 @SuppressWarnings("serial")
 public class XBProjector implements Serializable {
 
+    private static final Externalizer NOOP_EXTERNALIZER = new NotExternalizedExternalizer();
+    static final Map<Class<? extends Externalizer>, Externalizer> EXTERNALIZERS = new HashMap<Class<? extends Externalizer>, Externalizer>();
+
     private final ConfigBuilder configBuilder= new ConfigBuilder();
     
     /**
@@ -136,6 +142,38 @@ public class XBProjector implements Serializable {
         public ConfigBuilder setTypeConverter(TypeConverter converter) {
             XBProjector.this.typeConverter = converter;
             return this;
+        }
+                
+        /**
+         * Every String literal used in a annotation may be externalized (e.g. to a property file).
+         * You may register a Externalizer instance here and reference it in a projection definition.
+         * @param e10r
+         * @param clazz optional 
+         * @return
+         */
+        public ConfigBuilder registerExternalizerInstance(Externalizer e10r,Class<? extends Externalizer>... clazz) {
+            if ((clazz!=null) && (clazz.length>0)) {
+                EXTERNALIZERS.put(clazz[0], e10r);
+                return this;
+            }
+            EXTERNALIZERS.put(e10r.getClass(), e10r);
+            return this;
+        }
+        
+        public Externalizer getExternalizer(Class<? extends Externalizer> e10rClass) {
+            if (NotExternalizedExternalizer.class.equals(e10rClass)) {
+                return NOOP_EXTERNALIZER; 
+            }
+            Externalizer externalizer=EXTERNALIZERS.get(e10rClass);
+            if (externalizer==null) {
+                try {
+                    externalizer = e10rClass.newInstance();
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Could not create instance of "+e10rClass.getName()+". Make sure this class has a default constructor or register an instance.",e);
+                }
+                EXTERNALIZERS.put(e10rClass, externalizer);
+            }
+            return externalizer;
         }
 
         /**

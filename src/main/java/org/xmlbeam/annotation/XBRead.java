@@ -20,6 +20,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.xmlbeam.externalizer.Externalizer;
+import org.xmlbeam.externalizer.NotExternalizedExternalizer;
+
 /**
  * Define the projection function for elements of a projection.
  * 
@@ -42,4 +45,6 @@ public @interface XBRead {
      * @return
      */
     Class<?> targetComponentType() default XBWrite.class;
+    
+    Class<? extends Externalizer> externalizer() default NotExternalizedExternalizer.class;
 }

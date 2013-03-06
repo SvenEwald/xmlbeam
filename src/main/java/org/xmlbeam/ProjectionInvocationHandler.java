@@ -58,6 +58,8 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.externalizer.Externalizer;
+import org.xmlbeam.externalizer.NotExternalizedExternalizer;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -67,7 +69,7 @@ import org.xmlbeam.util.intern.ReflectionHelper;
  */
 @SuppressWarnings("serial")
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");    
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
@@ -215,8 +217,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
         Node evaluationNode = node;
-        if (method.getAnnotation(XBDocURL.class) != null) {
-            String uri = method.getAnnotation(XBDocURL.class).value();
+        XBDocURL docURL = method.getAnnotation(XBDocURL.class);
+        if (docURL != null) {            
+            Externalizer externalizer = projector.config().getExternalizer(docURL.externalizer());
+            String uri = externalizer.resolveString(docURL.value());
             Map<String, String> requestParams = projector.io().filterRequestParamsFromParams(uri, args);
             uri = MessageFormat.format(uri, args);
             evaluationNode = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, projectionInterface);
@@ -288,17 +292,20 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
         if (delAnnotation != null) {
-            return invokeDeleter(proxy, method, MessageFormat.format(delAnnotation.value(), args));
+            Externalizer externalizer = projector.config().getExternalizer(delAnnotation.externalizer()); 
+            return invokeDeleter(proxy, method, MessageFormat.format(externalizer.resolveString(delAnnotation.value()), args));
         }
 
         XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
         if (writeAnnotation != null) {
-            return invokeSetter(proxy, method, MessageFormat.format(writeAnnotation.value(), args), args);
+            Externalizer externalizer = projector.config().getExternalizer(writeAnnotation.externalizer());
+            return invokeSetter(proxy, method, MessageFormat.format(externalizer.resolveString(writeAnnotation.value()), args), args);
         }
 
         XBRead readAnnotation = method.getAnnotation(XBRead.class);
         if (readAnnotation != null) {
-            return invokeGetter(proxy, method, MessageFormat.format(readAnnotation.value(), args), args);
+            Externalizer externalizer = projector.config().getExternalizer(readAnnotation.externalizer());
+            return invokeGetter(proxy, method, MessageFormat.format(externalizer.resolveString(readAnnotation.value()), args), args);
         }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }

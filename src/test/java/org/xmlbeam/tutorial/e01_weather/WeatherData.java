@@ -38,7 +38,7 @@ import org.xmlbeam.annotation.XBRead;
 // START SNIPPET: WeatherDataInterface
 public interface WeatherData {
 
-    @XBRead("/weatherdata/weather/@searchlocation")
+    @XBRead("/weatherdata/weather/@searchlocation")    
     String getLocation();
 
     @XBRead("/weatherdata/weather/current/@temperature")
