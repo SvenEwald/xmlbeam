@@ -15,19 +15,21 @@
  */
 package org.xmlbeam.tutorial;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLEncoder;
+
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import org.xmlbeam.util.IOHelper;
 
@@ -64,29 +66,31 @@ public class JUnitHttpProxy implements Runnable {
         try {
             while (true) {
                 Socket accept = serverSocket.accept();
-                accept.setSoTimeout(5000);
-                String requestHeader = new Scanner(accept.getInputStream()).useDelimiter("(?m)\\r\\n\\r\\n").next();
-                String url = findURL(requestHeader);
-                File file = new File(JUnitHttpProxy.class.getSimpleName() + "." + URLEncoder.encode(url, "UTF-8") + ".tmp");
-                if (file.exists()) {
-                    String content = IOHelper.inputStreamToString(new FileInputStream(file), "UTF-8");
-                    accept.getOutputStream().write(content.getBytes());
-                    accept.close();
-                    continue;
-                }
                 try {
-                    restoreProxySettings();
-                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-                    connection.setReadTimeout(5000);
-                    String string = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
-                    FileOutputStream fileStream = new FileOutputStream(file);
-                    fileStream.write(string.getBytes("UTF-8"));
-                    fileStream.flush();
-                    fileStream.close();
-                    accept.getOutputStream().write(string.getBytes("UTF-8"));
-                    accept.close();
+                    accept.setSoTimeout(5000);
+                    String requestHeader = new Scanner(accept.getInputStream()).useDelimiter("(?m)\\r\\n\\r\\n").next();
+                    String url = findURL(requestHeader);
+                    File file = new File(JUnitHttpProxy.class.getSimpleName() + "." + URLEncoder.encode(url, "UTF-8") + ".tmp");
+                    if (file.exists()) {
+                        String content = IOHelper.inputStreamToString(new FileInputStream(file), "UTF-8");
+                        accept.getOutputStream().write(content.getBytes());
+                        continue;
+                    }
+                    try {
+                        restoreProxySettings();
+                        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                        connection.setReadTimeout(5000);
+                        String string = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
+                        FileOutputStream fileStream = new FileOutputStream(file);
+                        fileStream.write(string.getBytes("UTF-8"));
+                        fileStream.flush();
+                        fileStream.close();
+                        accept.getOutputStream().write(string.getBytes("UTF-8"));
+                    } finally {
+                        setAsProxy();
+                    }
                 } finally {
-                    setAsProxy();
+                    accept.close();
                 }
             }
         } catch (IOException e) {
@@ -108,6 +112,8 @@ public class JUnitHttpProxy implements Runnable {
 
     public void restoreProxySettings() {
         if (origProxyHost == null) {
+            System.clearProperty("http.proxyHost");
+            System.clearProperty("http.proxyPort");
             return;
         }
         System.setProperty("http.proxyHost", origProxyHost);
