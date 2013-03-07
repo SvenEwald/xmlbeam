@@ -45,6 +45,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBExternalizer;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
@@ -423,7 +424,10 @@ public class XBProjector implements Serializable {
         if (documentOrElement==null) {
             throw new IllegalArgumentException("Parameter node must not be null");
         }
-        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, InternalProjection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface)));
+        XBExternalizer e10nAnnotation = projectionInterface.getAnnotation(XBExternalizer.class);
+        
+        Externalizer e10n =e10nAnnotation == null ? NOOP_EXTERNALIZER : config().getExternalizer(e10nAnnotation.value()); 
+        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, InternalProjection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface,e10n)));
     }
 
     /**

@@ -37,7 +37,5 @@ public @interface XBWrite {
      *
      * @return
      */
-    String value();
-
-    Class<? extends Externalizer> externalizer() default NotExternalizedExternalizer.class;
+    String value(); 
 }

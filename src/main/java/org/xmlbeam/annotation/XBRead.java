@@ -45,6 +45,5 @@ public @interface XBRead {
      * @return
      */
     Class<?> targetComponentType() default XBWrite.class;
-    
-    Class<? extends Externalizer> externalizer() default NotExternalizedExternalizer.class;
+       
 }
