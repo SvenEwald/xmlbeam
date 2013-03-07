@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.externalizer;
 
+import java.lang.reflect.Method;
+
 /**
  *
  */
@@ -24,7 +26,7 @@ public class NotExternalizedExternalizer implements Externalizer {
      * {@inheritDoc}
      */
     @Override
-    public String resolveString(String key) {        
+    public String resolveString(String key, Method method, Object[] args) {
         return key;
     }
 

@@ -1,4 +1,6 @@
 package org.xmlbeam.externalizer;
+
+import java.lang.reflect.Method;
 /**
  *  Copyright 2013 Sven Ewald
  *
@@ -16,8 +18,15 @@ package org.xmlbeam.externalizer;
  */
 
 /**
- *
+ * This interface may be used to
  */
 public interface Externalizer {    
-    String resolveString(String key);
+
+    /**
+     * @param key
+     * @param method
+     * @param args
+     * @return
+     */
+    String resolveString(String key, Method method, Object args[]);
 }

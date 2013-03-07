@@ -58,8 +58,6 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.externalizer.Externalizer;
-import org.xmlbeam.externalizer.NotExternalizedExternalizer;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -77,7 +75,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private final XBProjector projector;
     private final Map<Class<?>, Object> defaultInvokers = new HashMap<Class<?>, Object>();
 
-    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface,Externalizer externalizer) {
+    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface) {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
@@ -221,7 +219,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         Node evaluationNode = node;
         XBDocURL docURL = method.getAnnotation(XBDocURL.class);
         if (docURL != null) {
-            String uri = projector.config().getExternalizer().resolveString(docURL.value());
+            String uri = projector.config().getExternalizer().resolveString(docURL.value(), method, args);
             Map<String, String> requestParams = projector.io().filterRequestParamsFromParams(uri, args);
             uri = MessageFormat.format(uri, args);
             evaluationNode = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, projectionInterface);
@@ -278,6 +276,22 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         return field.getType().isAssignableFrom(projInterface);
     }
 
+    private final Map<Method, DOMInvoker> domInvokers = new HashMap<Method, DOMInvoker>();
+
+    private interface DOMInvoker {
+        Object invoke(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable;
+    }
+
+    private class DeleteInvoker implements DOMInvoker {
+
+        @Override
+        public Object invoke(Object proxy, Method method, String path, Object[] args) throws Throwable {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+    }
+
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
@@ -295,17 +309,17 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
         if (delAnnotation != null) {
-            return invokeDeleter(proxy, method, MessageFormat.format(externalizer.resolveString(delAnnotation.value()), args));
+            return invokeDeleter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveString(delAnnotation.value(), method, args), args));
         }
 
         XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
         if (writeAnnotation != null) {
-            return invokeSetter(proxy, method, MessageFormat.format(externalizer.resolveString(writeAnnotation.value()), args), args);
+            return invokeSetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveString(writeAnnotation.value(), method, args), args), args);
         }
 
         XBRead readAnnotation = method.getAnnotation(XBRead.class);
         if (readAnnotation != null) {
-            return invokeGetter(proxy, method, MessageFormat.format(externalizer.resolveString(readAnnotation.value()), args), args);
+            return invokeGetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveString(readAnnotation.value(), method, args), args), args);
         }
         
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");

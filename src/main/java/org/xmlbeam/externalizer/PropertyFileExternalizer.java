@@ -15,11 +15,14 @@
  */
 package org.xmlbeam.externalizer;
 
+import java.lang.reflect.Method;
+
+import java.util.Properties;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Properties;
 
 /**
  *
@@ -50,7 +53,6 @@ public class PropertyFileExternalizer implements Externalizer {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String resolveString(String key) {
         updateProps();
         return props.getProperty(key);
@@ -86,6 +88,11 @@ public class PropertyFileExternalizer implements Externalizer {
                 }
             }
         }
+    }
+
+    @Override
+    public String resolveString(String key, Method method, Object[] args) {
+        return resolveString(key);
     }
 
 }

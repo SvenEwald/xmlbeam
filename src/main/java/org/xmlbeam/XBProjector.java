@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-import javax.management.RuntimeErrorException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -45,7 +44,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.annotation.XBDocURL;
-import org.xmlbeam.annotation.XBExternalizer;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
@@ -115,10 +113,11 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 public class XBProjector implements Serializable {
 
     private static final Externalizer NOOP_EXTERNALIZER = new NotExternalizedExternalizer();
-    static final Map<Class<? extends Externalizer>, Externalizer> EXTERNALIZERS = new HashMap<Class<? extends Externalizer>, Externalizer>();
 
-    private final ConfigBuilder configBuilder= new ConfigBuilder();
-    
+    private final ConfigBuilder configBuilder = new ConfigBuilder();
+
+    public Externalizer externalizer = NOOP_EXTERNALIZER;
+
     /**
      * A variation of the builder pattern. All methods to configure the projector are hidden in this
      * builder class.
@@ -126,8 +125,9 @@ public class XBProjector implements Serializable {
     public class ConfigBuilder implements XMLFactoriesConfig {
 
         /**
-         * Access the {@link XMLFactoriesConfig} as the given subtype to
-         * conveniently access additional methods.
+         * Access the {@link XMLFactoriesConfig} as the given subtype to conveniently access
+         * additional methods.
+         * 
          * @param clazz
          * @return
          */
@@ -135,46 +135,31 @@ public class XBProjector implements Serializable {
         public <T extends XMLFactoriesConfig> T as(Class<T> clazz) {
             return (T) xMLFactoriesConfig;
         }
-        
+
         public TypeConverter getTypeConverter() {
             return XBProjector.this.typeConverter;
         }
-      
+
         public ConfigBuilder setTypeConverter(TypeConverter converter) {
             XBProjector.this.typeConverter = converter;
             return this;
         }
-                
+
         /**
          * Every String literal used in a annotation may be externalized (e.g. to a property file).
-         * You may register a Externalizer instance here and reference it in a projection definition.
+         * You may register a Externalizer instance here and reference it in a projection
+         * definition.
+         * 
          * @param e10r
-         * @param clazz optional 
          * @return
          */
-        public ConfigBuilder registerExternalizerInstance(Externalizer e10r,Class<? extends Externalizer>... clazz) {
-            if ((clazz!=null) && (clazz.length>0)) {
-                EXTERNALIZERS.put(clazz[0], e10r);
-                return this;
-            }
-            EXTERNALIZERS.put(e10r.getClass(), e10r);
+        public ConfigBuilder setExternalizer(Externalizer e10r) {
+            XBProjector.this.externalizer = e10r == null ? NOOP_EXTERNALIZER : e10r;
             return this;
         }
-        
-        public Externalizer getExternalizer(Class<? extends Externalizer> e10rClass) {
-            if (NotExternalizedExternalizer.class.equals(e10rClass)) {
-                return NOOP_EXTERNALIZER; 
-            }
-            Externalizer externalizer=EXTERNALIZERS.get(e10rClass);
-            if (externalizer==null) {
-                try {
-                    externalizer = e10rClass.newInstance();
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Could not create instance of "+e10rClass.getName()+". Make sure this class has a default constructor or register an instance.",e);
-                }
-                EXTERNALIZERS.put(e10rClass, externalizer);
-            }
-            return externalizer;
+
+        public Externalizer getExternalizer() {
+            return XBProjector.this.externalizer;
         }
 
         /**
@@ -287,10 +272,9 @@ public class XBProjector implements Serializable {
             return (M) mixins.get(projectionInterface).remove(mixinInterface);
         }
     }
-    
+
     /**
-     * A variation of the builder pattern. IO related methods are grouped behind this builder
-     * class.
+     * A variation of the builder pattern. IO related methods are grouped behind this builder class.
      */
     public class IOBuilder {
 
@@ -329,7 +313,7 @@ public class XBProjector implements Serializable {
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
-            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), params)); 
+            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), params));
             urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), params));
             return urlIO.read(projectionInterface);
         }
@@ -378,7 +362,7 @@ public class XBProjector implements Serializable {
             urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), params));
 
             return urlIO.write(projection);
-           
+
         }
     }
 
@@ -417,23 +401,24 @@ public class XBProjector implements Serializable {
      * @return a new instance of projectionInterface.
      */
     @SuppressWarnings("unchecked")
-    public <T> T projectDOMNode(final Node documentOrElement, final Class<T> projectionInterface) {        
+    public <T> T projectDOMNode(final Node documentOrElement, final Class<T> projectionInterface) {
         if (!isValidProjectionInterface(projectionInterface)) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
         }
-        if (documentOrElement==null) {
+        if (documentOrElement == null) {
             throw new IllegalArgumentException("Parameter node must not be null");
         }
-        XBExternalizer e10nAnnotation = projectionInterface.getAnnotation(XBExternalizer.class);
-        
-        Externalizer e10n =e10nAnnotation == null ? NOOP_EXTERNALIZER : config().getExternalizer(e10nAnnotation.value()); 
-        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, InternalProjection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface,e10n)));
+
+        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, InternalProjection.class, Serializable.class }, new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface)));
     }
 
     /**
-     * Creates a projection from XML content to Java. 
-     * @param xmlContent a string with XML content
-     * @param projectionInterface  A Java interface to project the data on.
+     * Creates a projection from XML content to Java.
+     * 
+     * @param xmlContent
+     *            a string with XML content
+     * @param projectionInterface
+     *            A Java interface to project the data on.
      * @return a new instance of projectionInterface.
      */
     public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface) {
@@ -449,7 +434,7 @@ public class XBProjector implements Serializable {
      * Marker interface to determine if a Projection instance was created by a Projector. This will
      * be applied automatically to projections.
      */
-    interface InternalProjection extends DOMAccess {      
+    interface InternalProjection extends DOMAccess {
     }
 
     private final XMLFactoriesConfig xMLFactoriesConfig;
@@ -513,7 +498,8 @@ public class XBProjector implements Serializable {
 
     /**
      * Access to the input/output features of this projector.
-     * @return A new IOBuilder providing methods to read or write projections. 
+     * 
+     * @return A new IOBuilder providing methods to read or write projections.
      */
     public IOBuilder io() {
         return new IOBuilder();
