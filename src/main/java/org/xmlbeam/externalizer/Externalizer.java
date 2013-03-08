@@ -1,5 +1,6 @@
 package org.xmlbeam.externalizer;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 /**
  *  Copyright 2013 Sven Ewald
@@ -18,9 +19,11 @@ import java.lang.reflect.Method;
  */
 
 /**
- * This interface may be used to
+ * This interface may be used to define a external source for projection metadata.
+ * By default, all projection metadata is defined via annotations in projection interfaces.
+ *  
  */
-public interface Externalizer {    
+public interface Externalizer extends Serializable {    
 
     /**
      * @param key
@@ -28,5 +31,13 @@ public interface Externalizer {
      * @param args
      * @return
      */
-    String resolveString(String key, Method method, Object args[]);
+    String resolveXPath(String key, Method method, Object args[]);
+
+    /**
+     * @param key
+     * @param method
+     * @param args
+     * @return
+     */
+    String resolveURL(String key, Method method, Object args[]);
 }

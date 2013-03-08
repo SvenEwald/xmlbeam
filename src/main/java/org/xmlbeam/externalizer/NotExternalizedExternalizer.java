@@ -18,15 +18,30 @@ package org.xmlbeam.externalizer;
 import java.lang.reflect.Method;
 
 /**
- *
+ * Default strategy to externalize projection metadata. The metadata defined in
+ * XB-annotations is used directly.
  */
-public class NotExternalizedExternalizer implements Externalizer {
+final public class NotExternalizedExternalizer implements Externalizer {
+
+    private static final long serialVersionUID = -3614849117281620124L;
+
+    /**
+     * This class should never get a state. 
+     */
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String resolveString(String key, Method method, Object[] args) {
+    public String resolveXPath(String key, Method method, Object[] args) {
+        return key;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String resolveURL(String key, Method method, Object[] args) {
         return key;
     }
 

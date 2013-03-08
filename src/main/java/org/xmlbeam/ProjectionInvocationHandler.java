@@ -18,10 +18,13 @@ package org.xmlbeam;
 import java.text.MessageFormat;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,10 +144,16 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
      * @param parentElement
      */
     private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement) {
+        if (collection.isEmpty()) {
+            return;
+        }
         Set<String> elementNames = new HashSet<String>();
         for (Object o : collection) {
             if (!(o instanceof InternalProjection)) {
-                throw new IllegalArgumentException("Setter argument collection contains an object of type " + o.getClass().getName() + ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
+// throw new IllegalArgumentException("Setter argument collection contains an object of type " +
+// o.getClass().getName() +
+// ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
+                continue;
             }
             InternalProjection p = (InternalProjection) o;
             elementNames.add(p.getDOMNode().getNodeName());
@@ -153,6 +162,10 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             DOMHelper.removeAllChildrenByName(parentElement, elementName);
         }
         for (Object o : collection) {
+            if (!(o instanceof InternalProjection)) {
+                parentElement.setTextContent(o.toString());
+                continue;
+            }
             InternalProjection p = (InternalProjection) o;
             parentElement.appendChild(p.getDOMNode());
         }
@@ -219,7 +232,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         Node evaluationNode = node;
         XBDocURL docURL = method.getAnnotation(XBDocURL.class);
         if (docURL != null) {
-            String uri = projector.config().getExternalizer().resolveString(docURL.value(), method, args);
+            String uri = projector.config().getExternalizer().resolveURL(docURL.value(), method, args);
             Map<String, String> requestParams = projector.io().filterRequestParamsFromParams(uri, args);
             uri = MessageFormat.format(uri, args);
             evaluationNode = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, projectionInterface);
@@ -296,12 +309,12 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
         Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
-        
+
         if (customInvoker != null) {
             injectMeAttribute((InternalProjection) proxy, customInvoker);
             return method.invoke(customInvoker, args);
         }
-        
+
         Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
         if (defaultInvoker != null) {
             return method.invoke(defaultInvoker, args);
@@ -309,19 +322,19 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
         if (delAnnotation != null) {
-            return invokeDeleter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveString(delAnnotation.value(), method, args), args));
+            return invokeDeleter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), args));
         }
 
         XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
         if (writeAnnotation != null) {
-            return invokeSetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveString(writeAnnotation.value(), method, args), args), args);
+            return invokeSetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), args), args);
         }
 
         XBRead readAnnotation = method.getAnnotation(XBRead.class);
         if (readAnnotation != null) {
-            return invokeGetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveString(readAnnotation.value(), method, args), args), args);
+            return invokeGetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), args), args);
         }
-        
+
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }
 
@@ -395,7 +408,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
         assert document != null;
-        final Object valueToSet = args[findIndexOfValue(method)];
+        final int findIndexOfValue = findIndexOfValue(method);
+        final Object valueToSet = args[findIndexOfValue];
+        final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
         if ("/*".equals(pathToElement)) { // Setting a new root element.
             if ((valueToSet != null) && (!(valueToSet instanceof InternalProjection))) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valueToSet);
@@ -413,16 +428,38 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             elementToChange.setAttribute(attributeName, valueToSet.toString());
             return getProxyReturnValueForMethod(proxy, method);
         }
+
         if (valueToSet instanceof InternalProjection) {
             applySingleSetProjectionOnElement((InternalProjection) valueToSet, elementToChange);
             return getProxyReturnValueForMethod(proxy, method);
         }
+
         if (valueToSet instanceof Collection) {
             applyCollectionSetProjectionOnelement((Collection<?>) valueToSet, elementToChange);
             return getProxyReturnValueForMethod(proxy, method);
         }
+
+        if (valueToSet.getClass().isArray()) {
+            int length = Array.getLength(valueToSet);
+            List<Object> list = new ArrayList<Object>(length);
+            for (int i = 0; i < length; ++i) {
+                list.add(Array.get(valueToSet, i));
+            }
+            applyCollectionSetProjectionOnelement(list, elementToChange);
+            return getProxyReturnValueForMethod(proxy, method);
+        }
+
         elementToChange.setTextContent(valueToSet.toString());
 
         return getProxyReturnValueForMethod(proxy, method);
+    }
+
+    private boolean isSubProjectionSettingType(Class<?> type) {
+        if (type.isArray()) {
+            type=type.getComponentType();
+        }
+        if (Collection.class.isAssignableFrom(type)) {
+            
+        }
     }
 }

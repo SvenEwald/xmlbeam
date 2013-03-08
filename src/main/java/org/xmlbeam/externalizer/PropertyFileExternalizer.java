@@ -49,15 +49,7 @@ public class PropertyFileExternalizer implements Externalizer {
         this.encodingName=encodingName;
         return this;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String resolveString(String key) {
-        updateProps();
-        return props.getProperty(key);
-    }
-
+        
     private void updateProps() {
         if (!propertyFile.canRead()) {
             throw new RuntimeException("Can not read file '" + propertyFile + "'");
@@ -91,8 +83,23 @@ public class PropertyFileExternalizer implements Externalizer {
     }
 
     @Override
-    public String resolveString(String key, Method method, Object[] args) {
-        return resolveString(key);
+    public String resolveXPath(String key, Method method, Object[] args) {
+        updateProps();
+        return findProperty(key, method);
+    }
+
+    private String findProperty(String key, Method method) {
+        String property = props.getProperty(key);
+        if (property==null) {
+            throw new IllegalArgumentException("Expected to find property with key '"+key+"' in file "+propertyFile.getAbsolutePath()+" for method "+method+". But it does not exist.");
+        }
+        return property;
+    }
+
+    @Override
+    public String resolveURL(String key, Method method, Object[] args) {
+        updateProps();
+        return findProperty(key,method);
     }
 
 }
