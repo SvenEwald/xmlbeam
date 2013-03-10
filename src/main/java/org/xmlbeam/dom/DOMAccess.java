@@ -18,6 +18,7 @@ package org.xmlbeam.dom;
 import java.io.Serializable;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -47,4 +48,12 @@ public interface DOMAccess extends Serializable {
      * @return the projections (parent) document.
      */
     Document getDOMOwnerDocument();
+
+    /**
+     * Getter for the "root" element of this projection.
+     * 
+     * @return the document root element if this is a projection or the base element if this is a
+     *         subprojection.
+     */
+    Element getDOMBaseElement();
 }

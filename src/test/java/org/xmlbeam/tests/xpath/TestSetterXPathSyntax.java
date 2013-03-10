@@ -86,7 +86,7 @@ public class TestSetterXPathSyntax {
         @XBRead("/a/b/c")
         SubTest getSubtest();
 
-        @XBWrite("/a/d")
+        @XBWrite("/a/d/*")
         public void set(SubTest s);
 
     }

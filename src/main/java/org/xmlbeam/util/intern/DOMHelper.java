@@ -76,12 +76,25 @@ public final class DOMHelper {
         }
     };
 
+    /**
+     * Remove all child elements with given node name. If nodeName is "*", then remove all children.
+     * 
+     * @param element
+     * @param nodeName
+     */
     public static void removeAllChildrenByName(Node element, String nodeName) {
+        assert nodeName != null;
         NodeList nodeList = element.getChildNodes();
         List<Element> toBeRemoved = new LinkedList<Element>();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            if (nodeName.equals(nodeList.item(i).getNodeName())) {
+        if ("*".equals(nodeName)) {
+            for (int i = 0; i < nodeList.getLength(); ++i) {
                 toBeRemoved.add((Element) nodeList.item(i));
+            }
+        } else {
+            for (int i = 0; i < nodeList.getLength(); ++i) {
+                if (nodeName.equals(nodeList.item(i).getNodeName())) {
+                    toBeRemoved.add((Element) nodeList.item(i));
+                }
             }
         }
         for (Element e : toBeRemoved) {
@@ -98,7 +111,7 @@ public final class DOMHelper {
                 // source.setEncoding("MacRoman");
                 return documentBuilder.parse(source);
             }
-            if (url.startsWith("http:") || url.startsWith("https:")) {                
+            if (url.startsWith("http:") || url.startsWith("https:")) {
                 return documentBuilder.parse(IOHelper.httpGet(url, requestProperties), url);
             }
             Document document = documentBuilder.parse(url);
@@ -137,6 +150,43 @@ public final class DOMHelper {
     }
 
     /**
+     * Treat the given path as relative path from a base element to an element and return this
+     * element. If any element on this path does not exist, create it.
+     * 
+     * @param base
+     *            the relative path will start here
+     * @param pathToElement
+     *            relative path to element.
+     * @return element with absolute path.
+     */
+    public static Element ensureElementExists(final Document document, final Element base, final String pathToElement) {
+        assert base != null;
+        assert pathToElement != null;
+        assert !pathToElement.isEmpty();
+        assert !pathToElement.contains("@");
+        Element element = base;
+        String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
+        if (splitme.isEmpty()) {
+            throw new IllegalArgumentException("Path must not be empty. I don't know which element to return.");
+        }
+        for (String expectedElementName : splitme.split("/")) {
+            if (".".equals(expectedElementName)) {
+                continue;
+            }
+            if (expectedElementName.equals(element.getNodeName())) {
+                continue;
+            }
+            NodeList nodeList = element.getElementsByTagName(expectedElementName);
+            if (nodeList.getLength() == 0) {
+                element = (Element) element.appendChild(document.createElement(expectedElementName));
+                continue;
+            }
+            element = (Element) nodeList.item(0);
+        }
+        return element;
+    }
+
+    /**
      * Treat the given path as absolute path to an element and return this element. If any element
      * on this path does not exist, create it.
      * 
@@ -158,18 +208,20 @@ public final class DOMHelper {
             document.appendChild(element);
         }
 
-        for (String expectedElementName : splitme.split("/")) {
-            if (expectedElementName.equals(element.getNodeName())) {
-                continue;
-            }
-            NodeList nodeList = element.getElementsByTagName(expectedElementName);
-            if (nodeList.getLength() == 0) {
-                element = (Element) element.appendChild(document.createElement(expectedElementName));
-                continue;
-            }
-            element = (Element) nodeList.item(0);
-        }
-        return element;
+        return ensureElementExists(document, element, pathToElement);
+
+// for (String expectedElementName : splitme.split("/")) {
+// if (expectedElementName.equals(element.getNodeName())) {
+// continue;
+// }
+// NodeList nodeList = element.getElementsByTagName(expectedElementName);
+// if (nodeList.getLength() == 0) {
+// element = (Element) element.appendChild(document.createElement(expectedElementName));
+// continue;
+// }
+// element = (Element) nodeList.item(0);
+// }
+// return element;
     }
 
     /**
@@ -355,5 +407,38 @@ public final class DOMHelper {
             }
             e.removeChild(child);
         }
+    }
+
+    /**
+     * @param element
+     * @param attributeName
+     * @param value
+     */
+    public static void setOrRemoveAttribute(Element element, String attributeName, String value) {
+        if (value == null) {
+            element.removeAttribute(attributeName);
+            return;
+        }
+        element.setAttribute(attributeName, value);
+    }
+
+    /**
+     * @param element
+     * @param newName
+     * @return
+     */
+    public static Element renameElement(Element element, String newName) {
+        Document document = element.getOwnerDocument();
+        Element newElement = document.createElement(newName);
+        NodeList nodeList = element.getChildNodes();
+        List<Node> toBeMoved = new LinkedList<Node>();
+        for (int i = 0; i < nodeList.getLength(); ++i) {
+            toBeMoved.add(nodeList.item(i));
+        }
+        for (Node e : toBeMoved) {
+            element.removeChild(e);
+            newElement.appendChild(e);
+        }
+        return newElement;
     }
 }

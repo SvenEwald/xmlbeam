@@ -15,19 +15,22 @@
  */
 package org.xmlbeam.tests.xpath;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.tests.xpath.SetterVariants.SubProjection;
 
 /**
  *
  */
 public class TestSetterVariants {
 
-    private XBProjector projector = new XBProjector();
+    private final XBProjector projector = new XBProjector();
     private SetterVariants emptyProjection;
     
     @Before
@@ -46,5 +49,17 @@ public class TestSetterVariants {
     public void testSetMultipleElementContent() {
         emptyProjection.setMultipleElementContent(new int[]{1,2,3});
         assertEquals("<a><b>1</b><b>2</b><b>3</b></a>",emptyProjection.toString());
+    }
+
+    @Test
+    public void testSetMultipleElementContentViaCollection() {
+        emptyProjection.setMultipleElementContent(Arrays.asList(1, 2, 3));
+        assertEquals("<a><b>1</b><b>2</b><b>3</b></a>", emptyProjection.toString());
+    }
+
+    @Test
+    public void testSetSingleSubProjection() {
+        emptyProjection.setSingleSubProjection(projector.projectEmptyElement("c", SubProjection.class).setValue(1));
+        assertEquals("<a><b><c>1</c></b></a>", emptyProjection.toString());
     }
 }

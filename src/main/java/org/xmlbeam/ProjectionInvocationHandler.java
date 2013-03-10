@@ -18,20 +18,15 @@ package org.xmlbeam;
 import java.text.MessageFormat;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import java.io.IOException;
@@ -72,7 +67,7 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     // private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS =
 // Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*)|(/))?$");
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("(?!^$)(^\\.?(/[a-z:A-Z]+)*((/?@[a-z:A-Z]+)|(/\\*))?$)");
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
@@ -98,7 +93,17 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
                 if (Node.DOCUMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType()) {
                     return (Document) ProjectionInvocationHandler.this.node;
                 }
+                assert Node.ELEMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType();
                 return ProjectionInvocationHandler.this.node.getOwnerDocument();
+            }
+
+            @Override
+            public Element getDOMBaseElement() {
+                if (Node.DOCUMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType()) {
+                    return ((Document) ProjectionInvocationHandler.this.node).getDocumentElement();
+                }
+                assert Node.ELEMENT_NODE == ProjectionInvocationHandler.this.node.getNodeType();
+                return (Element) ProjectionInvocationHandler.this.node;
             }
         };
         Object objectInvoker = new Serializable() {
@@ -142,39 +147,72 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     /**
      * @param collection
      * @param parentElement
+     * @param elementName
      */
-    private void applyCollectionSetProjectionOnelement(Collection<?> collection, Element parentElement) {
-        if (collection.isEmpty()) {
-            return;
-        }
-        Set<String> elementNames = new HashSet<String>();
+    private void applyCollectionSetOnElement(Collection<?> collection, Element parentElement, String elementName) {
+        Document document = parentElement.getOwnerDocument();
         for (Object o : collection) {
+            if (o==null) {
+                continue;
+            }
             if (!(o instanceof InternalProjection)) {
-// throw new IllegalArgumentException("Setter argument collection contains an object of type " +
-// o.getClass().getName() +
+                Element newElement = document.createElement(elementName);
+                newElement.setTextContent(o.toString());
+                parentElement.appendChild(newElement);
+                continue;
+            }
+            InternalProjection p = (InternalProjection) o;
+            Element pElement = Node.DOCUMENT_NODE == p.getDOMNode().getNodeType() ? p.getDOMOwnerDocument().getDocumentElement() : (Element) p.getDOMNode();
+            if (pElement == null) {
+                continue;
+            }
+            Element clone = (Element) pElement.cloneNode(true);
+            if (!elementName.equals(clone.getNodeName())) {
+                clone = DOMHelper.renameElement(clone, elementName);
+            }
+            parentElement.appendChild(clone);
+        }
+
+// if (collection.isEmpty()) {
+// return;
+// }
+//
+//
+// Set<String> elementNames = new HashSet<String>();
+// for (Object o : collection) {
+// if (!(o instanceof InternalProjection)) {
+// // throw new IllegalArgumentException("Setter argument collection contains an object of type " +
+// // o.getClass().getName() +
+// //
 // ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
-                continue;
-            }
-            InternalProjection p = (InternalProjection) o;
-            elementNames.add(p.getDOMNode().getNodeName());
-        }
-        for (String elementName : elementNames) {
-            DOMHelper.removeAllChildrenByName(parentElement, elementName);
-        }
-        for (Object o : collection) {
-            if (!(o instanceof InternalProjection)) {
-                parentElement.setTextContent(o.toString());
-                continue;
-            }
-            InternalProjection p = (InternalProjection) o;
-            parentElement.appendChild(p.getDOMNode());
-        }
+// continue;
+// }
+// InternalProjection p = (InternalProjection) o;
+// elementNames.add(p.getDOMNode().getNodeName());
+// }
+// for (String elementName : elementNames) {
+// DOMHelper.removeAllChildrenByName(parentElement, elementName);
+// }
+// for (Object o : collection) {
+// if (!(o instanceof InternalProjection)) {
+// parentElement.setTextContent(o.toString());
+// continue;
+// }
+// InternalProjection p = (InternalProjection) o;
+// parentElement.appendChild(p.getDOMNode());
+// }
     }
 
-    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node element) {
-        DOMHelper.removeAllChildrenByName(element, projection.getDOMNode().getNodeName());
-        Node newNode = projection.getDOMNode().cloneNode(true);
-        element.appendChild(newNode);
+    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode) {
+
+        DOMHelper.removeAllChildrenByName(parentNode, projection.getDOMNode().getNodeName());
+        Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
+        
+        if (parentNode.getOwnerDocument() != newElement.getOwnerDocument()) {
+            parentNode.getOwnerDocument().adoptNode(newElement);
+        }
+        
+        parentNode.appendChild(newElement);
     }
 
     private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
@@ -411,55 +449,74 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final int findIndexOfValue = findIndexOfValue(method);
         final Object valueToSet = args[findIndexOfValue];
         final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
+        final boolean isMultiValue = isMultiValue(typeToSet);
+
         if ("/*".equals(pathToElement)) { // Setting a new root element.
-            if ((valueToSet != null) && (!(valueToSet instanceof InternalProjection))) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection but you provided a " + valueToSet);
+            if (isMultiValue) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
+            }
+            if (valueToSet == null) {
+                DOMHelper.setDocumentElement(document, null);
+                return getProxyReturnValueForMethod(proxy, method);
+            }
+            if (!(valueToSet instanceof InternalProjection)) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
             }
             InternalProjection projection = (InternalProjection) valueToSet;
-            Element element = Node.DOCUMENT_NODE == projection.getDOMNode().getNodeType() ? ((Document) projection.getDOMNode()).getDocumentElement() : (Element) projection.getDOMNode();
+            Element element = projection.getDOMBaseElement();// Node.DOCUMENT_NODE ==
+// projection.getDOMNode().getNodeType() ? ((Document) projection.getDOMNode()).getDocumentElement()
+// : (Element) projection.getDOMNode();
             assert element != null;
             DOMHelper.setDocumentElement(document, element);
             return getProxyReturnValueForMethod(proxy, method);
         }
-        Element elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
 
-        if (path.contains("@")) {
-            String attributeName = path.replaceAll(".*@", "");
-            elementToChange.setAttribute(attributeName, valueToSet.toString());
+        if (isMultiValue) {
+            if (path.contains("@")) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+            }
+            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
+            final String elementName = pathToElement.replaceAll(".*/", "");
+            final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
+            DOMHelper.removeAllChildrenByName(parentElement, elementName);
+            if (valueToSet == null) {
+                return getProxyReturnValueForMethod(proxy, method);
+            }
+            Collection<?> collection2Set = valueToSet.getClass().isArray() ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
+            applyCollectionSetOnElement(collection2Set, parentElement, elementName);
             return getProxyReturnValueForMethod(proxy, method);
         }
 
         if (valueToSet instanceof InternalProjection) {
-            applySingleSetProjectionOnElement((InternalProjection) valueToSet, elementToChange);
+            String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
+            Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
+            applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode);
             return getProxyReturnValueForMethod(proxy, method);
         }
-
-        if (valueToSet instanceof Collection) {
-            applyCollectionSetProjectionOnelement((Collection<?>) valueToSet, elementToChange);
-            return getProxyReturnValueForMethod(proxy, method);
+        
+        Element elementToChange;
+        if (node.getNodeType() == Node.DOCUMENT_NODE) {
+            elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+        } else {
+            assert node.getNodeType() == Node.ELEMENT_NODE;
+            elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
         }
 
-        if (valueToSet.getClass().isArray()) {
-            int length = Array.getLength(valueToSet);
-            List<Object> list = new ArrayList<Object>(length);
-            for (int i = 0; i < length; ++i) {
-                list.add(Array.get(valueToSet, i));
-            }
-            applyCollectionSetProjectionOnelement(list, elementToChange);
+        if (path.contains("@")) {
+            String attributeName = path.replaceAll(".*@", "");
+            DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
             return getProxyReturnValueForMethod(proxy, method);
         }
 
         elementToChange.setTextContent(valueToSet.toString());
-
         return getProxyReturnValueForMethod(proxy, method);
     }
 
-    private boolean isSubProjectionSettingType(Class<?> type) {
-        if (type.isArray()) {
-            type=type.getComponentType();
-        }
-        if (Collection.class.isAssignableFrom(type)) {
-            
-        }
+    /**
+     * @param typeToSet
+     * @return
+     */
+    private boolean isMultiValue(Class<?> type) {
+        return type.isArray() || Collection.class.isAssignableFrom(type);
     }
 }

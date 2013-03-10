@@ -28,8 +28,9 @@ public interface SetterVariants {
     public interface SubProjection {
         @XBRead(".")
         int getValue();
+
         @XBWrite(".")
-        void setValue(int value);
+        SubProjection setValue(int value);
     }
     
     /**

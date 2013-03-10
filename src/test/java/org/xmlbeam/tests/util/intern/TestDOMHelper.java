@@ -92,4 +92,15 @@ public class TestDOMHelper {
         assertNotNull(projection.selectXPath("/root/a/b/c/d"));
         assertNotNull(projection.selectXPath("/root/a/b2/e/f"));
     }
+
+    @Test
+    public void testElementCreationByRelativePath() {
+        DOMHelper.ensureElementExists(document, "/root/a");
+        HelperProjection projection = new XBProjector().projectDOMNode(document, HelperProjection.class);
+        Element a = (Element) projection.selectXPath("/root/a").getDOMNode();
+        assertSame(a, DOMHelper.ensureElementExists(document, a, "."));
+        assertSame(a, DOMHelper.ensureElementExists(document, a, "a"));
+        DOMHelper.ensureElementExists(document, a, "a/b/c/d");
+        assertNotNull(projection.selectXPath("/root/a/b/c/d"));
+    }
 }

@@ -72,7 +72,7 @@ public interface SlashdotRSSFeed {
      * 
      * @param items
      */
-    @XBWrite("/rss/channel/")
+    @XBWrite("/rss/channel/item")
     void setAllItems(Collection<Story> items);
     
     @XBRead("count(/rss/channel/item)")

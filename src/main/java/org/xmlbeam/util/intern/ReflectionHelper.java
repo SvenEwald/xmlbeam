@@ -15,12 +15,15 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -96,5 +99,14 @@ public final class ReflectionHelper {
             return true;
         }
         return false;
+    }
+
+    public static List<Object> array2ObjectList(Object array) {
+        int length = Array.getLength(array);
+        List<Object> list = new ArrayList<Object>(length);
+        for (int i = 0; i < length; ++i) {
+            list.add(Array.get(array, i));
+        }
+        return list;
     }
 }
