@@ -170,6 +170,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             if (!elementName.equals(clone.getNodeName())) {
                 clone = DOMHelper.renameElement(clone, elementName);
             }
+            DOMHelper.ensureOwnership(document, clone);
             parentElement.appendChild(clone);
         }
 
@@ -208,9 +209,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         DOMHelper.removeAllChildrenByName(parentNode, projection.getDOMNode().getNodeName());
         Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
         
-        if (parentNode.getOwnerDocument() != newElement.getOwnerDocument()) {
-            parentNode.getOwnerDocument().adoptNode(newElement);
-        }
+        DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newElement);
         
         parentNode.appendChild(newElement);
     }

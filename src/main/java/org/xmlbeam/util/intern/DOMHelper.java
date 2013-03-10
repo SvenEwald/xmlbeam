@@ -441,4 +441,14 @@ public final class DOMHelper {
         }
         return newElement;
     }
+
+    /**
+     * @param ownerDocument
+     * @param element
+     */
+    public static void ensureOwnership(Document ownerDocument, Element element) {
+        if (ownerDocument != element.getOwnerDocument()) {
+            ownerDocument.adoptNode(element);
+        }
+    }
 }

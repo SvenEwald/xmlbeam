@@ -18,6 +18,7 @@ package org.xmlbeam.tests.xpath;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,8 +59,35 @@ public class TestSetterVariants {
     }
 
     @Test
+    public void testRootAttribute() {
+        emptyProjection.setRootAttribute("Huhu");
+        assertEquals("<a att=\"Huhu\"/>", emptyProjection.toString());
+    }
+
+    @Test
+    public void testDeeperAttribute() {
+        emptyProjection.setDeeperAttribute("Huhu");
+        assertEquals("<a><b><c att=\"Huhu\"/></b></a>", emptyProjection.toString());
+    }
+
+    @Test
     public void testSetSingleSubProjection() {
         emptyProjection.setSingleSubProjection(projector.projectEmptyElement("c", SubProjection.class).setValue(1));
         assertEquals("<a><b><c>1</c></b></a>", emptyProjection.toString());
     }
+
+    @Test
+    public void testSetMultipleSubProjectionArray() {
+        SubProjection[] subs = new SubProjection[] { projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3) };
+        emptyProjection.setMultipleSubProjectionArray(subs);
+        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", emptyProjection.toString());
+    }
+
+    @Test
+    public void testSetMultipleSubProjectionCollection() {
+        List<SubProjection> subs = Arrays.asList(projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3));
+        emptyProjection.setMultipleSubProjectionCollection(subs);
+        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", emptyProjection.toString());
+    }
+
 }

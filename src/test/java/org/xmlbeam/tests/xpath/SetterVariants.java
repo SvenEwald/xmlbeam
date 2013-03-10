@@ -52,6 +52,12 @@ public interface SetterVariants {
     @XBWrite("/a/b")
     void setMultipleElementContent(Collection<Integer> content);
     
+    @XBWrite("/a/@att")
+    void setRootAttribute(String att);
+
+    @XBWrite("/a/b/c/@att")
+    void setDeeperAttribute(String att);
+
     /**
      * Create or replace all existing /a/b[1]/c
      * Create <a><b><c></c></b></a>.  
@@ -65,9 +71,9 @@ public interface SetterVariants {
      * 
      */
     @XBWrite("/a/b/c")
-    void setMultipleSubProjection(SubProjection[] content);
+    void setMultipleSubProjectionArray(SubProjection[] content);
 
     @XBWrite("/a/b/c")
-    void setMultipleSubProjection(Collection<SubProjection> content);
+    void setMultipleSubProjectionCollection(Collection<SubProjection> content);
     
 }
