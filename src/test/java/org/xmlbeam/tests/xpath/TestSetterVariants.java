@@ -62,12 +62,16 @@ public class TestSetterVariants {
     public void testRootAttribute() {
         emptyProjection.setRootAttribute("Huhu");
         assertEquals("<a att=\"Huhu\"/>", emptyProjection.toString());
+        emptyProjection.setRootAttribute(null);
+        assertEquals("<a/>", emptyProjection.toString());
     }
 
     @Test
     public void testDeeperAttribute() {
         emptyProjection.setDeeperAttribute("Huhu");
         assertEquals("<a><b><c att=\"Huhu\"/></b></a>", emptyProjection.toString());
+        emptyProjection.setDeeperAttribute(null);
+        assertEquals("<a><b><c/></b></a>", emptyProjection.toString());
     }
 
     @Test
