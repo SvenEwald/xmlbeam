@@ -59,7 +59,7 @@ public interface SetterVariants {
     void setDeeperAttribute(String att);
 
     /**
-     * Create or replace all existing /a/b[1]/c
+     * Create or replace all existing /a[1]/b[1]/c
      * Create <a><b><c></c></b></a>.  
      * 
      */

@@ -78,6 +78,8 @@ public class TestSetterVariants {
     public void testSetSingleSubProjection() {
         emptyProjection.setSingleSubProjection(projector.projectEmptyElement("c", SubProjection.class).setValue(1));
         assertEquals("<a><b><c>1</c></b></a>", emptyProjection.toString());
+        emptyProjection.setSingleSubProjection(null);
+        assertEquals("<a><b><c/></b></a>", emptyProjection.toString());        
     }
 
     @Test

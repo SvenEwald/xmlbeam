@@ -152,7 +152,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private void applyCollectionSetOnElement(Collection<?> collection, Element parentElement, String elementName) {
         Document document = parentElement.getOwnerDocument();
         for (Object o : collection) {
-            if (o==null) {
+            if (o == null) {
                 continue;
             }
             if (!(o instanceof InternalProjection)) {
@@ -208,9 +208,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
         DOMHelper.removeAllChildrenByName(parentNode, projection.getDOMNode().getNodeName());
         Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
-        
+
         DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newElement);
-        
+
         parentNode.appendChild(newElement);
     }
 
@@ -492,7 +492,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode);
             return getProxyReturnValueForMethod(proxy, method);
         }
-        
+
         Element elementToChange;
         if (node.getNodeType() == Node.DOCUMENT_NODE) {
             elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
@@ -506,8 +506,11 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
             return getProxyReturnValueForMethod(proxy, method);
         }
-
-        elementToChange.setTextContent(valueToSet.toString());
+        if (valueToSet == null) {
+            DOMHelper.removeAllChildrenByName(elementToChange, "*");
+        } else {
+            elementToChange.setTextContent(valueToSet.toString());
+        }
         return getProxyReturnValueForMethod(proxy, method);
     }
 

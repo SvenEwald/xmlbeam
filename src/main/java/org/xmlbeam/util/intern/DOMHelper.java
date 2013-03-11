@@ -85,10 +85,10 @@ public final class DOMHelper {
     public static void removeAllChildrenByName(Node element, String nodeName) {
         assert nodeName != null;
         NodeList nodeList = element.getChildNodes();
-        List<Element> toBeRemoved = new LinkedList<Element>();
+        List<Node> toBeRemoved = new LinkedList<Node>();
         if ("*".equals(nodeName)) {
             for (int i = 0; i < nodeList.getLength(); ++i) {
-                toBeRemoved.add((Element) nodeList.item(i));
+                toBeRemoved.add((Node) nodeList.item(i));
             }
         } else {
             for (int i = 0; i < nodeList.getLength(); ++i) {
@@ -97,7 +97,7 @@ public final class DOMHelper {
                 }
             }
         }
-        for (Element e : toBeRemoved) {
+        for (Node e : toBeRemoved) {
             element.removeChild(e);
         }
     }
