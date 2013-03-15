@@ -33,23 +33,23 @@ public class PropertyFileExternalizer implements Externalizer {
     private final Properties props = new Properties();
     private final boolean useXmlFormat;
     private long lastReadTS = 0;
-    private String encodingName = "ISO 8859-1";
+    private String encodingName = "ISO8859-1";
 
-    PropertyFileExternalizer(File propertyFile) {
+    public PropertyFileExternalizer(File propertyFile) {
         this.propertyFile = propertyFile;
         this.useXmlFormat = false;
     }
 
-    PropertyFileExternalizer(File propertyFile, boolean useXmlFormat) {
+    public PropertyFileExternalizer(File propertyFile, boolean useXmlFormat) {
         this.propertyFile = propertyFile;
         this.useXmlFormat = useXmlFormat;
     }
 
     public PropertyFileExternalizer setEncoding(String encodingName) {
-        this.encodingName=encodingName;
+        this.encodingName = encodingName;
         return this;
     }
-        
+
     private void updateProps() {
         if (!propertyFile.canRead()) {
             throw new RuntimeException("Can not read file '" + propertyFile + "'");
@@ -69,14 +69,14 @@ public class PropertyFileExternalizer implements Externalizer {
             InputStreamReader reader = new InputStreamReader(inputStream, encodingName);
             props.load(reader);
         } catch (IOException e) {
-            throw new RuntimeException("Error while reading file '" + propertyFile + "'",e);
+            throw new RuntimeException("Error while reading file '" + propertyFile + "'", e);
         } finally {
-            lastReadTS=fileTS;
+            lastReadTS = fileTS;
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    throw new RuntimeException("Can not close file '" + propertyFile + "'",e);
+                    throw new RuntimeException("Can not close file '" + propertyFile + "'", e);
                 }
             }
         }
@@ -85,21 +85,34 @@ public class PropertyFileExternalizer implements Externalizer {
     @Override
     public String resolveXPath(String key, Method method, Object[] args) {
         updateProps();
-        return findProperty(key, method);
-    }
-
-    private String findProperty(String key, Method method) {
-        String property = props.getProperty(key);
-        if (property==null) {
-            throw new IllegalArgumentException("Expected to find property with key '"+key+"' in file "+propertyFile.getAbsolutePath()+" for method "+method+". But it does not exist.");
-        }
-        return property;
+        return findProperty(key, method, args);
     }
 
     @Override
     public String resolveURL(String key, Method method, Object[] args) {
         updateProps();
-        return findProperty(key,method);
+        return findProperty(key, method, args);
+    }
+
+    /**
+     * @param key
+     * @param method
+     * @param args
+     * @return
+     */
+    protected String findProperty(String key, Method method, Object[] args) {
+        String[] propNameCandidates = new String[] {//
+        method.getDeclaringClass().getName() + "." + method.getName(),//
+                method.getDeclaringClass().getSimpleName() + "." + method.getName(),//
+                method.getName(),//
+                key //
+        };
+        for (String propName : propNameCandidates) {
+            if (props.containsKey(propName)) {
+                return props.getProperty(propName);
+            }
+        }
+        throw new IllegalArgumentException("Expected to find property with key '" + key + "' in file " + propertyFile.getAbsolutePath() + " for method " + method + ". But it does not exist.");
     }
 
 }

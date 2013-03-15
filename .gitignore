@@ -5,6 +5,7 @@
 *.war
 *.ear
 
+*.tmp
+
 target
 /cobertura.ser
-/JUnitHttpProxy.http%3A%2F%2Fen.wikipedia.org%2Fwiki%2FC_%28programming_language%29.tmp
