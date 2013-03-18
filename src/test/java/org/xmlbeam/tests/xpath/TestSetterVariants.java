@@ -43,57 +43,57 @@ public class TestSetterVariants {
     @Test
     public void testSingleContent() {       
         emptyProjection.setSingleElementContent(1);
-        assertEquals("<a><b>1</b></a>",emptyProjection.toString());
+        assertEquals("<a><b>1</b></a>", projector.asString(emptyProjection));
     }
     
     @Test
     public void testSetMultipleElementContent() {
         emptyProjection.setMultipleElementContent(new int[]{1,2,3});
-        assertEquals("<a><b>1</b><b>2</b><b>3</b></a>",emptyProjection.toString());
+        assertEquals("<a><b>1</b><b>2</b><b>3</b></a>", projector.asString(emptyProjection));
     }
 
     @Test
     public void testSetMultipleElementContentViaCollection() {
         emptyProjection.setMultipleElementContent(Arrays.asList(1, 2, 3));
-        assertEquals("<a><b>1</b><b>2</b><b>3</b></a>", emptyProjection.toString());
+        assertEquals("<a><b>1</b><b>2</b><b>3</b></a>", projector.asString(emptyProjection));
     }
 
     @Test
     public void testRootAttribute() {
         emptyProjection.setRootAttribute("Huhu");
-        assertEquals("<a att=\"Huhu\"/>", emptyProjection.toString());
+        assertEquals("<a att=\"Huhu\"/>", projector.asString(emptyProjection));
         emptyProjection.setRootAttribute(null);
-        assertEquals("<a/>", emptyProjection.toString());
+        assertEquals("<a/>", projector.asString(emptyProjection));
     }
 
     @Test
     public void testDeeperAttribute() {
         emptyProjection.setDeeperAttribute("Huhu");
-        assertEquals("<a><b><c att=\"Huhu\"/></b></a>", emptyProjection.toString());
+        assertEquals("<a><b><c att=\"Huhu\"/></b></a>", projector.asString(emptyProjection));
         emptyProjection.setDeeperAttribute(null);
-        assertEquals("<a><b><c/></b></a>", emptyProjection.toString());
+        assertEquals("<a><b><c/></b></a>", projector.asString(emptyProjection));
     }
 
     @Test
     public void testSetSingleSubProjection() {
         emptyProjection.setSingleSubProjection(projector.projectEmptyElement("c", SubProjection.class).setValue(1));
-        assertEquals("<a><b><c>1</c></b></a>", emptyProjection.toString());
+        assertEquals("<a><b><c>1</c></b></a>", projector.asString(emptyProjection));
         emptyProjection.setSingleSubProjection(null);
-        assertEquals("<a><b><c/></b></a>", emptyProjection.toString());        
+        assertEquals("<a><b><c/></b></a>", projector.asString(emptyProjection));
     }
 
     @Test
     public void testSetMultipleSubProjectionArray() {
         SubProjection[] subs = new SubProjection[] { projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3) };
         emptyProjection.setMultipleSubProjectionArray(subs);
-        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", emptyProjection.toString());
+        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
     }
 
     @Test
     public void testSetMultipleSubProjectionCollection() {
         List<SubProjection> subs = Arrays.asList(projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3));
         emptyProjection.setMultipleSubProjectionCollection(subs);
-        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", emptyProjection.toString());
+        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
     }
 
 }

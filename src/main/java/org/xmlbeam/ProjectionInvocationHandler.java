@@ -31,13 +31,8 @@ import java.util.regex.Pattern;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringWriter;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -128,16 +123,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
             @Override
             public String toString() {
-                try {
-                    StringWriter writer = new StringWriter();
-                    projector.config().createTransformer().transform(new DOMSource(node), new StreamResult(writer));
-                    String output = writer.getBuffer().toString();
-                    return output;
-                } catch (TransformerConfigurationException e) {
-                    throw new RuntimeException(e);
-                } catch (TransformerException e) {
-                    throw new RuntimeException(e);
-                }
+                final String typeDesc = node.getNodeType() == Node.DOCUMENT_NODE ? "document '" + node.getBaseURI() + "'" : "element " + "<" + node.getNodeName() + ">";
+                return "Projection [" + ProjectionInvocationHandler.this.projectionInterface.getName() + "]" + "+to " + typeDesc;
             }
         };
         defaultInvokers.put(DOMAccess.class, projectionInvoker);

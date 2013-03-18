@@ -33,16 +33,16 @@ final public class NotExternalizedExternalizer implements Externalizer {
      * {@inheritDoc}
      */
     @Override
-    public String resolveXPath(String key, Method method, Object[] args) {
-        return key;
+    public String resolveXPath(String annotationValue, Method method, Object[] args) {
+        return annotationValue;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String resolveURL(String key, Method method, Object[] args) {
-        return key;
+    public String resolveURL(String annotationValue, Method method, Object[] args) {
+        return annotationValue;
     }
 
 }

@@ -46,7 +46,7 @@ public class TestObjectInvoker {
         DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig().setOmitXMLDeclaration(false);
         XMLBeamTestSuite testSuite = new XBProjector(config).io().fromURLAnnotation(XMLBeamTestSuite.class);
         String orig = IOHelper.inputStreamToString(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(XBDocURL.class).value().substring("resource://".length())), "UTF-8");
-        assertEquals(orig.replaceAll("\\s", ""), testSuite.toString().replaceAll("\\s", ""));
+        assertEquals(orig.replaceAll("\\s", ""), new XBProjector(config).asString(testSuite).replaceAll("\\s", ""));
     }
     
     @Test

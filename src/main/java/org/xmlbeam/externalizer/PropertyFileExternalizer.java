@@ -83,15 +83,15 @@ public class PropertyFileExternalizer implements Externalizer {
     }
 
     @Override
-    public String resolveXPath(String key, Method method, Object[] args) {
+    public String resolveXPath(String annotationValue, Method method, Object[] args) {
         updateProps();
-        return findProperty(key, method, args);
+        return findProperty(annotationValue, method, args);
     }
 
     @Override
-    public String resolveURL(String key, Method method, Object[] args) {
+    public String resolveURL(String annotationValue, Method method, Object[] args) {
         updateProps();
-        return findProperty(key, method, args);
+        return findProperty(annotationValue, method, args);
     }
 
     /**

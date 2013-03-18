@@ -1,7 +1,8 @@
 package org.xmlbeam.externalizer;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
+
+import java.io.Serializable;
 /**
  *  Copyright 2013 Sven Ewald
  *
@@ -26,18 +27,22 @@ import java.lang.reflect.Method;
 public interface Externalizer extends Serializable {    
 
     /**
-     * @param key
+     * Implement this method to provide a XPath expression for a given method invocation.
+     * 
+     * @param annotationValue
      * @param method
      * @param args
      * @return
      */
-    String resolveXPath(String key, Method method, Object args[]);
+    String resolveXPath(String annotationValue, Method method, Object args[]);
 
     /**
-     * @param key
+     * Implement this method to provide an URL for a given method invocation.
+     * 
+     * @param annotationValue
      * @param method
      * @param args
      * @return
      */
-    String resolveURL(String key, Method method, Object args[]);
+    String resolveURL(String annotationValue, Method method, Object args[]);
 }

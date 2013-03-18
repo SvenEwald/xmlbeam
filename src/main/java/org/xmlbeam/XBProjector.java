@@ -32,11 +32,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
@@ -503,6 +508,27 @@ public class XBProjector implements Serializable {
      */
     public IOBuilder io() {
         return new IOBuilder();
+    }
+
+    /**
+     * @param emptyProjection
+     * @return
+     */
+    public String asString(Object projection) {
+        if (!(projection instanceof InternalProjection)) {
+            throw new IllegalArgumentException("Argument is not a projection.");
+        }
+        final DOMAccess domAccess = (DOMAccess) projection;
+        try {
+            StringWriter writer = new StringWriter();
+            config().createTransformer().transform(new DOMSource(domAccess.getDOMNode()), new StreamResult(writer));
+            String output = writer.getBuffer().toString();
+            return output;
+        } catch (TransformerConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (TransformerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

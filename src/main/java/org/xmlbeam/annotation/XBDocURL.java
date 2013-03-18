@@ -21,9 +21,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.xmlbeam.externalizer.Externalizer;
-import org.xmlbeam.externalizer.NotExternalizedExternalizer;
-
 /**
  * Bind the decorated projection to a XML document location. When used on methods, an implicit
  * projection is created every time the method is invoked.
@@ -35,6 +32,14 @@ import org.xmlbeam.externalizer.NotExternalizedExternalizer;
 @Inherited
 public @interface XBDocURL {
 
+    @interface Prefs {
+        boolean prettyPrint() default true;
+
+        boolean omitXMLDeclaration() default true;
+    }
+    
+    
     String value();
      
+    Prefs prefs() default @Prefs;
 }

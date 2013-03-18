@@ -20,9 +20,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.xmlbeam.externalizer.Externalizer;
-import org.xmlbeam.externalizer.NotExternalizedExternalizer;
-
 /**
  * Define the projection function for elements of a projection.
  * 
@@ -37,7 +34,7 @@ public @interface XBRead {
      * 
      * @return
      */
-    String value();
+    String value() default "";
 
     /**
      * Type of desired collection content. My be omitted for arrays.

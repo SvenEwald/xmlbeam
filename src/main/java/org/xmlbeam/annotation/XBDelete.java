@@ -37,7 +37,7 @@ public @interface XBDelete {
      * 
      * @return
      */
-    String value();
+    String value() default "";
 
     
     Class<? extends Externalizer> externalizer() default NotExternalizedExternalizer.class;
