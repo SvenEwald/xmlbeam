@@ -39,5 +39,8 @@ public interface MindMap {
     Node[] getLeftSubNodes();    
     
     @XBRead("//node[@POSITION=''right'']/descendant-or-self::node")
-    Node[] getRightSubNodes();    
+    Node[] getRightSubNodes();
+
+    @XBRead(value = "//node[@POSITION=''left'']")
+    Node[] getLeftNodes();
 }

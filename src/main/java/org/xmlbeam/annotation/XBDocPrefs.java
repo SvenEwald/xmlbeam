@@ -16,14 +16,16 @@
 package org.xmlbeam.annotation;
 
 /**
- * @author sven
  *
  */
 public @interface XBDocPrefs {
+
+
     enum Prefs {
         PRETTY_PRINT,
 
     }
 
     Prefs[] value();
+
 }
