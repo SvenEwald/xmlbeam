@@ -173,6 +173,13 @@ public final class DOMHelper {
             if (".".equals(expectedElementName)) {
                 continue;
             }
+            if ("..".equals(expectedElementName)) {
+                Node parent=element.getParentNode();
+                if ((parent==null)||(Node.ELEMENT_NODE!=parent.getNodeType())) {
+                    throw new IllegalArgumentException("Reference to parent node via '..' bounced out of scope.");
+                }
+                element=(Element) parent;
+            }
             if (expectedElementName.equals(element.getNodeName())) {
                 continue;
             }

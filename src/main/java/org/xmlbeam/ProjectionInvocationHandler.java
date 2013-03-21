@@ -62,7 +62,7 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     // private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS =
 // Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("(?!^$)(^\\.?(/[a-z:A-Z]+)*((/?@[a-z:A-Z]+)|(/\\*))?$)");
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("(?!^$)(^\\.?((/[a-z:A-Z]+)*(/\\.\\.)*)*((/?@[a-z:A-Z]+)|(/\\*))?$)");
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
@@ -123,8 +123,8 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
             @Override
             public String toString() {
-                final String typeDesc = node.getNodeType() == Node.DOCUMENT_NODE ? "document '" + node.getBaseURI() + "'" : "element " + "<" + node.getNodeName() + ">";
-                return "Projection [" + ProjectionInvocationHandler.this.projectionInterface.getName() + "]" + "+to " + typeDesc;
+                final String typeDesc = node.getNodeType() == Node.DOCUMENT_NODE ? "document '" + node.getBaseURI() + "'" : "element " + "'" + node.getNodeName()+"["+Integer.toString(node.hashCode(),16) + "]'";
+                return "Projection [" + ProjectionInvocationHandler.this.projectionInterface.getName() + "]" + " to " + typeDesc;
             }
         };
         defaultInvokers.put(DOMAccess.class, projectionInvoker);
@@ -214,8 +214,9 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         }
         if (targetType.isInterface()) {
             for (int i = 0; i < nodes.getLength(); ++i) {
-                Node n = nodes.item(i).cloneNode(true);
-                InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(n, targetType);
+//                Node n = nodes.item(i).cloneNode(true);
+//                n=nodes.item(i);
+                InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(nodes.item(i), targetType);
                 linkedList.add(subprojection);
             }
             return linkedList;
@@ -390,7 +391,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         final Node node = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == node.getNodeType() ? ((Document) node) : node.getOwnerDocument();
         final XPath xPath = projector.config().createXPath(document);
-        final XPathExpression expression = xPath.compile(path);
+        final XPathExpression expression = xPath.compile(path);        
         final Class<?> returnType = method.getReturnType();
         if (projector.config().getTypeConverter().isConvertable(returnType)) {
             String data = (String) expression.evaluate(node, XPathConstants.STRING);

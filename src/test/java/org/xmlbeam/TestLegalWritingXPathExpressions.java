@@ -32,7 +32,7 @@ import org.junit.Test;
  */
 public class TestLegalWritingXPathExpressions {
 
-    private final static List<String> LEGAL_EXPRESSIONS = Arrays.asList(".", "/a", "/a/b/asdfZRc/d", "/a/b/@c", "@xasd");
+    private final static List<String> LEGAL_EXPRESSIONS = Arrays.asList(".", "/a", "/a/b/asdfZRc/d", "/a/b/@c", "@xasd","/a/../b");
     private final static List<String> ILLEGAL_EXPRESSIONS = Arrays.asList("", "/", "@", "function()", "/trailing/slash/", "//double/slash", "/a/@b/c", "/a/b/.");
 
     private Pattern pattern;

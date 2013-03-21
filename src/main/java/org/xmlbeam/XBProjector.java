@@ -313,35 +313,35 @@ public class XBProjector implements Serializable {
          * @return a new projection instance
          * @throws IOException
          */
-        public <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... params) throws IOException {
+        public <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... optionalParams) throws IOException {
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
-            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), params));
-            urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), params));
+            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), optionalParams));
+            urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), optionalParams));
             return urlIO.read(projectionInterface);
         }
 
         /**
          * @param projectionInterface
-         * @param params
+         * @param optionalParams
          * @return
          */
         @SuppressWarnings("unchecked")
-        Map<String, String> filterRequestParamsFromParams(final String url, final Object... params) {
+        Map<String, String> filterRequestParamsFromParams(final String url, final Object... optionalParams) {
             Map<String, String> requestParams = new HashMap<String, String>();
             Format[] formats = new MessageFormat(url).getFormatsByArgumentIndex();
-            for (int i = 0; i < params.length; ++i) {
+            for (int i = 0; i < optionalParams.length; ++i) {
                 if (i >= formats.length) {
-                    if ((params[i] instanceof Map)) {
-                        requestParams.putAll((Map<? extends String, ? extends String>) params[i]);
+                    if ((optionalParams[i] instanceof Map)) {
+                        requestParams.putAll((Map<? extends String, ? extends String>) optionalParams[i]);
                     }
                     continue;
                 }
                 if (formats[i] == null) {
-                    if ((params[i] instanceof Map)) {
-                        requestParams.putAll((Map<? extends String, ? extends String>) params[i]);
+                    if ((optionalParams[i] instanceof Map)) {
+                        requestParams.putAll((Map<? extends String, ? extends String>) optionalParams[i]);
                     }
                 }
             }
@@ -356,15 +356,15 @@ public class XBProjector implements Serializable {
          * @throws IOException
          * @throws URISyntaxException
          */
-        public String toURLAnnotationViaPOST(final Object projection, Object... params) throws IOException, URISyntaxException {
+        public String toURLAnnotationViaPOST(final Object projection, Object... optionalParams) throws IOException, URISyntaxException {
             Class<?> projectionInterface = checkProjectionInstance(projection).getProjectionInterface();
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
 
-            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), params));
-            urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), params));
+            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), optionalParams));
+            urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), optionalParams));
 
             return urlIO.write(projection);
 
