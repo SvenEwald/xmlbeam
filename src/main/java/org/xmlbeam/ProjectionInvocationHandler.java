@@ -429,7 +429,7 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         if (method.getAnnotation(XBDocURL.class) != null) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid, because setters always change parts of documents.");
         }
-        final String pathToElement = path.replaceAll("/@.*", "");
+        final String pathToElement = path.replaceAll("/?@.*", "");
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = Node.DOCUMENT_NODE == settingNode.getNodeType() ? ((Document) settingNode) : settingNode.getOwnerDocument();
         assert document != null;

@@ -161,9 +161,11 @@ public final class DOMHelper {
      */
     public static Element ensureElementExists(final Document document, final Element base, final String pathToElement) {
         assert base != null;
-        assert pathToElement != null;
-        assert !pathToElement.isEmpty();
+        assert pathToElement != null;       
         assert !pathToElement.contains("@");
+        if ((pathToElement.isEmpty())||(".".equals(pathToElement))) {
+            return base;
+        }
         Element element = base;
         String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
         if (splitme.isEmpty()) {
@@ -179,6 +181,7 @@ public final class DOMHelper {
                     throw new IllegalArgumentException("Reference to parent node via '..' bounced out of scope.");
                 }
                 element=(Element) parent;
+                continue;
             }
             if (expectedElementName.equals(element.getNodeName())) {
                 continue;

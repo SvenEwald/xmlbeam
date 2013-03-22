@@ -15,6 +15,7 @@
  */
 package org.xmlbeam.tutorial.e11_freemind;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -39,6 +40,20 @@ public class TestDumpMindMap {
         }
     };
 
+    @Test
+    public void test() throws Exception {
+        MindMap mindMap = new XBProjector().io().fromURLAnnotation(MindMap.class);
+        Node rootNode = mindMap.getRootNode();
+        rootNode.setX(0).setY(0);
+        for (Node n:mindMap.getLeftSubNodes()) {
+            n.setX(-n.getDepth()*10);
+        }
+        for (Node n:mindMap.getRightSubNodes()) {
+            n.setX(n.getDepth()*10);
+        }
+    }
+    
+    
     @Test
     public void dump() throws IOException {
         MindMap mindMap = new XBProjector().io().fromURLAnnotation(MindMap.class);
