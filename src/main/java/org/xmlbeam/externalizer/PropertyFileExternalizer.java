@@ -29,6 +29,10 @@ import java.io.InputStreamReader;
  */
 public class PropertyFileExternalizer implements Externalizer {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2752447643606854521L;
     private final File propertyFile;
     private final Properties props = new Properties();
     private final boolean useXmlFormat;

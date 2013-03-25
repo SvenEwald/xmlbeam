@@ -17,9 +17,8 @@ package org.xmlbeam.tutorial.e11_freemind;
 
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.annotation.XBWrite;
 
-@XBDocURL("file:./doc/XMLBeam.mm")
+@XBDocURL("resource://XMLBeam.mm")
 public interface MindMap {
 
     public interface Node {
@@ -28,41 +27,18 @@ public interface MindMap {
 
         @XBRead("@TEXT")
         String getText();
-
-        @XBRead("count(./ancestor::node)")
-        int getDepth();
-
-        @XBRead("count(./preceding-sibling::node)")
-        int getPosition();
-
-        @XBRead("count(descendant::node)")
-        int getChildNodeCount();
-
-        @XBRead("@x")
-        int getX();
-
-        @XBRead("@y")
-        int getY();
-
-        @XBWrite("@x")
-        Node setX(int x);
-
-        @XBWrite("@y")
-        Node setY(int y);
     }
-
-    @XBRead("//node")
-    Node[] getNodes();
-
+          
     @XBRead("/map/node")
     Node getRootNode();
 
-    @XBRead(value = "//node[@POSITION=''left'']/descendant-or-self::node")
-    Node[] getLeftSubNodes();
-
-    @XBRead("//node[@POSITION=''right'']/descendant-or-self::node")
-    Node[] getRightSubNodes();
-
     @XBRead(value = "//node[@POSITION=''left'']")
     Node[] getLeftNodes();
+    
+    @XBRead(value = "//node[@POSITION=''right'']")
+    Node[] getRightNodes();
+    
+    @XBRead("count(descendant-or-self::node)")
+    int getNodeCount();
+
 }

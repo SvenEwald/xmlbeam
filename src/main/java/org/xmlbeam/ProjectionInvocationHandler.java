@@ -60,8 +60,6 @@ import org.xmlbeam.util.intern.ReflectionHelper;
  */
 @SuppressWarnings("serial")
 class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    // private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS =
-// Pattern.compile("^(/[a-zA-Z]+)*((/@[a-z:A-Z]+)|(/\\*))?$");
     private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("(?!^$)(^\\.?((/[a-z:A-Z]+)*(/\\.\\.)*)*((/?@[a-z:A-Z]+)|(/\\*))?$)");
     private final Node node;
     private final Class<?> projectionInterface;
@@ -160,35 +158,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
             DOMHelper.ensureOwnership(document, clone);
             parentElement.appendChild(clone);
         }
-
-// if (collection.isEmpty()) {
-// return;
-// }
-//
-//
-// Set<String> elementNames = new HashSet<String>();
-// for (Object o : collection) {
-// if (!(o instanceof InternalProjection)) {
-// // throw new IllegalArgumentException("Setter argument collection contains an object of type " +
-// // o.getClass().getName() +
-// //
-// ". When setting a collection on a Projection, the collection must not contain other types than Projections.");
-// continue;
-// }
-// InternalProjection p = (InternalProjection) o;
-// elementNames.add(p.getDOMNode().getNodeName());
-// }
-// for (String elementName : elementNames) {
-// DOMHelper.removeAllChildrenByName(parentElement, elementName);
-// }
-// for (Object o : collection) {
-// if (!(o instanceof InternalProjection)) {
-// parentElement.setTextContent(o.toString());
-// continue;
-// }
-// InternalProjection p = (InternalProjection) o;
-// parentElement.appendChild(p.getDOMNode());
-// }
     }
 
     private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode) {
@@ -314,24 +283,39 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         return field.getType().isAssignableFrom(projInterface);
     }
 
-    private final Map<Method, DOMInvoker> domInvokers = new HashMap<Method, DOMInvoker>();
-
-    private interface DOMInvoker {
-        Object invoke(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable;
-    }
-
-    private class DeleteInvoker implements DOMInvoker {
-
-        @Override
-        public Object invoke(Object proxy, Method method, String path, Object[] args) throws Throwable {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-    }
+//    private final Map<Method, DOMInvoker> domInvokers = new HashMap<Method, DOMInvoker>();
+//
+//    private interface DOMInvoker {
+//        Object invoke(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable;
+//    }
+//
+//    private class DeleteInvoker implements DOMInvoker {
+//
+//        @Override
+//        public Object invoke(Object proxy, Method method, String path, Object[] args) throws Throwable {
+//          
+//            return null;
+//        }
+//
+//    }
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+        XBRead readAnnotation = method.getAnnotation(XBRead.class);
+        if (readAnnotation != null) {
+            return invokeGetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), args), args);
+        }
+
+        XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
+        if (writeAnnotation != null) {
+            return invokeSetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), args), args);
+        }
+        
+        XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
+        if (delAnnotation != null) {
+            return invokeDeleter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), args));
+        }
+
         Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
         Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
 
@@ -343,21 +327,6 @@ class ProjectionInvocationHandler implements InvocationHandler, Serializable {
         Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
         if (defaultInvoker != null) {
             return method.invoke(defaultInvoker, args);
-        }
-
-        XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
-        if (delAnnotation != null) {
-            return invokeDeleter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), args));
-        }
-
-        XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
-        if (writeAnnotation != null) {
-            return invokeSetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), args), args);
-        }
-
-        XBRead readAnnotation = method.getAnnotation(XBRead.class);
-        if (readAnnotation != null) {
-            return invokeGetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), args), args);
         }
 
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");

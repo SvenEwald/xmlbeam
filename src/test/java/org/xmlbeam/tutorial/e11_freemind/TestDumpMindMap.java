@@ -15,82 +15,52 @@
  */
 package org.xmlbeam.tutorial.e11_freemind;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import java.io.IOException;
-
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.e11_freemind.MindMap.Node;
 
-/**
- *
- */
 public class TestDumpMindMap {
 
     private static final Comparator<? super String> STRING_LENGTH_COMPARATOR = new Comparator<String>() {
-
         @Override
         public int compare(String o1, String o2) {
             return Integer.valueOf(o1.length()).compareTo(o2.length());
         }
     };
-
-    @Test
-    public void test() throws Exception {
-        MindMap mindMap = new XBProjector().io().fromURLAnnotation(MindMap.class);
-        Node rootNode = mindMap.getRootNode();
-        rootNode.setX(0).setY(0);
-        for (Node n:mindMap.getLeftSubNodes()) {
-            n.setX(-n.getDepth()*10);
-        }
-        for (Node n:mindMap.getRightSubNodes()) {
-            n.setX(n.getDepth()*10);
-        }
-    }
-    
     
     @Test
     public void dump() throws IOException {
         MindMap mindMap = new XBProjector().io().fromURLAnnotation(MindMap.class);
-        // dumpNode("", mindMap.getRootNode());
         List<String> leftLines = new LinkedList<String>();
-        dumpLeft("", mindMap.getLeftNodes(), leftLines);
+        List<String> rightLines= new LinkedList<String>();
+        walkNodes("", mindMap.getLeftNodes(), leftLines,true);        
+        walkNodes("",mindMap.getRightNodes(),rightLines,false);
         int maxLength = Collections.max(leftLines, STRING_LENGTH_COMPARATOR).length();
-        List<String> lines = new LinkedList<String>();
-        int i = 0;
+        String rootText = mindMap.getRootNode().getText();
+        System.out.println(String.format("%1$-" + maxLength + "s", "")+rootText);
+        String midSpace=rootText.replaceAll(".", " ");
         for (String s : leftLines) {
-            String line = reverse(String.format("%1$-" + maxLength + "s", s));
-            if (++i == leftLines.size() / 2) {
-                line += mindMap.getRootNode().getText();
-            }
+            String right=rightLines.isEmpty()?"":rightLines.get(0);
+            if (!rightLines.isEmpty()){rightLines.remove(0);};
+            String line = reverse(String.format("%1$-" + maxLength + "s", s))+midSpace+right;
             System.out.println(line);
         }
-
-    }
-
-    /**
-     * @param leftNodes
-     */
-    private void dumpLeft(String prefix, Node[] leftNodes, List<String> lines) {
-        for (Node n : leftNodes) {
-            lines.add((prefix + reverse(n.getText())));
-            dumpLeft(prefix + "         ", n.getSubNodes(), lines);
+        for (String s:rightLines) {
+            String line=String.format("%1$-" + maxLength + "s", "")+midSpace+s;
+            System.out.println(line);
         }
-
     }
 
-    /**
-     * @param rootNode
-     */
-    private void dumpNode(String prefix, Node node) {
-        System.out.println(prefix + node.getText());
-        for (Node subnode : node.getSubNodes()) {
-            dumpNode(prefix + "  ", subnode);
+    private void walkNodes(String prefix, Node[] leftNodes, List<String> lines,boolean reverse) {
+        for (Node n : leftNodes) {
+            lines.add((prefix + (reverse ?  reverse(n.getText()) : n.getText()) ));
+            walkNodes(prefix + (n.getText()).replaceAll(".", " "), n.getSubNodes(), lines,reverse);
         }
     }
 
