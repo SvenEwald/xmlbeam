@@ -219,19 +219,6 @@ public final class DOMHelper {
         }
 
         return ensureElementExists(document, element, pathToElement);
-
-// for (String expectedElementName : splitme.split("/")) {
-// if (expectedElementName.equals(element.getNodeName())) {
-// continue;
-// }
-// NodeList nodeList = element.getElementsByTagName(expectedElementName);
-// if (nodeList.getLength() == 0) {
-// element = (Element) element.appendChild(document.createElement(expectedElementName));
-// continue;
-// }
-// element = (Element) nodeList.item(0);
-// }
-// return element;
     }
 
     /**
@@ -460,5 +447,16 @@ public final class DOMHelper {
         if (ownerDocument != element.getOwnerDocument()) {
             ownerDocument.adoptNode(element);
         }
+    }
+
+    /**
+     * @param documentOrElement
+     * @return
+     */
+    public static Document getOwnerDocumentFor(Node documentOrElement) {
+            if (Node.DOCUMENT_NODE == documentOrElement.getNodeType()) {
+                return (Document) documentOrElement;
+            }
+            return documentOrElement.getOwnerDocument();       
     }
 }
