@@ -15,6 +15,22 @@
  */
 package org.xmlbeam;
 
+import java.net.URISyntaxException;
+
+import java.text.Format;
+import java.text.MessageFormat;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -22,18 +38,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.net.URISyntaxException;
-import java.text.Format;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -127,7 +131,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private final Set<Flags> flags;
 
-    private final class DefaultDOMAccessInvoker<T> implements DOMAccess {
+    private class DefaultDOMAccessInvoker<T> implements DOMAccess {
         private final Node documentOrElement;
         private final Class<T> projectionInterface;
 
@@ -163,21 +167,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
             assert Node.ELEMENT_NODE == documentOrElement.getNodeType();
             return (Element) documentOrElement;
         }
-    }
-
-    private final class DefaultObjectInvoker<T> implements Serializable {
-        private final Class<T> projectionInterface;
-        private final Node documentOrElement;
-
-        /**
-         * @param projectionInterface
-         * @param documentOrElement
-         */
-        private DefaultObjectInvoker(Class<T> projectionInterface, Node documentOrElement) {
-            this.projectionInterface = projectionInterface;
-            this.documentOrElement = documentOrElement;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof DOMAccess)) {
@@ -199,57 +188,40 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
 
         @Override
-        public String toString() {
-            final String typeDesc = documentOrElement.getNodeType() == Node.DOCUMENT_NODE ? "document '" + documentOrElement.getBaseURI() + "'" : "element " + "'" + documentOrElement.getNodeName() + "[" + Integer.toString(documentOrElement.hashCode(), 16) + "]'";
-            return "Projection [" + projectionInterface.getName() + "]" + " to " + typeDesc;
-        }
-    }
-
-    private final class XMLRenderingObjectInvoker<T> implements Serializable {
-        private final Class<T> projectionInterface;
-        private final Node documentOrElement;
-
-        /**
-         * @param projectionInterface
-         * @param documentOrElement
-         */
-        private XMLRenderingObjectInvoker(Class<T> projectionInterface, Node documentOrElement) {
-            this.projectionInterface = projectionInterface;
-            this.documentOrElement = documentOrElement;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof DOMAccess)) {
-                return false;
-            }
-            DOMAccess op = (DOMAccess) o;
-            if (!projectionInterface.equals(op.getProjectionInterface())) {
-                return false;
-            }
-            // Unfortunately Node.isEqualNode() is implementation specific and does
-            // not need to match our hashCode implementation.
-            // So we define our own node equality.
-            return DOMHelper.nodesAreEqual(documentOrElement, op.getDOMNode());
-        }
-
-        @Override
-        public int hashCode() {
-            return 31 * projectionInterface.hashCode() + 27 * DOMHelper.nodeHashCode(documentOrElement);
-        }
-
-        @Override
-        public String toString() {
+        public String asString() {
             try {
-                StringWriter writer = new StringWriter();
-                config().createTransformer().transform(new DOMSource(documentOrElement), new StreamResult(writer));
-                String output = writer.getBuffer().toString();
+                final StringWriter writer = new StringWriter();
+                config().createTransformer().transform(new DOMSource(getDOMNode()), new StreamResult(writer));
+                final String output = writer.getBuffer().toString();
                 return output;
             } catch (TransformerConfigurationException e) {
                 throw new RuntimeException(e);
             } catch (TransformerException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private final class DefaultObjectInvoker<T> extends DefaultDOMAccessInvoker<T> {
+        private DefaultObjectInvoker(Class<T> projectionInterface, Node documentOrElement) {
+            super(documentOrElement, projectionInterface);
+        }
+
+        @Override
+        public String toString() {
+            final String typeDesc = getDOMNode().getNodeType() == Node.DOCUMENT_NODE ? "document '" + getDOMNode().getBaseURI() + "'" : "element " + "'" + getDOMNode().getNodeName() + "[" + Integer.toString(getDOMNode().hashCode(), 16) + "]'";
+            return "Projection [" + getProjectionInterface().getName() + "]" + " to " + typeDesc;
+        }
+    }
+
+    private final class XMLRenderingObjectInvoker<T> extends DefaultDOMAccessInvoker<T> {
+        private XMLRenderingObjectInvoker(Class<T> projectionInterface, Node documentOrElement) {
+            super(documentOrElement, projectionInterface);
+        }
+
+        @Override
+        public String toString() {
+            return super.asString();
         }
     }
     
@@ -535,12 +507,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
 
         Map<Class<?>, Object> defaultInvokers = new HashMap<Class<?>, Object>();
-        defaultInvokers.put(DOMAccess.class, new DefaultDOMAccessInvoker<T>(documentOrElement, projectionInterface));
+        DefaultDOMAccessInvoker<T> invoker;
         if (flags.contains(Flags.TO_STRING_RENDERS_XML)) {
-            defaultInvokers.put(Object.class, new XMLRenderingObjectInvoker<T>(projectionInterface, documentOrElement));
+            invoker=new XMLRenderingObjectInvoker<T>(projectionInterface, documentOrElement);
         } else {
-            defaultInvokers.put(Object.class, new DefaultObjectInvoker<T>(projectionInterface, documentOrElement));
+            invoker = new DefaultObjectInvoker<T>(projectionInterface, documentOrElement);
         }
+        defaultInvokers.put(DOMAccess.class, invoker);
+        defaultInvokers.put(Object.class, invoker);
         final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, defaultInvokers);
         if (flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS)) {
             final Document document = DOMHelper.getOwnerDocumentFor(documentOrElement);
@@ -679,16 +653,17 @@ public class XBProjector implements Serializable, ProjectionFactory {
             throw new IllegalArgumentException("Argument is not a projection.");
         }
         final DOMAccess domAccess = (DOMAccess) projection;
-        try {
-            StringWriter writer = new StringWriter();
-            config().createTransformer().transform(new DOMSource(domAccess.getDOMNode()), new StreamResult(writer));
-            String output = writer.getBuffer().toString();
-            return output;
-        } catch (TransformerConfigurationException e) {
-            throw new RuntimeException(e);
-        } catch (TransformerException e) {
-            throw new RuntimeException(e);
-        }
+        return domAccess.asString();
+// try {
+// StringWriter writer = new StringWriter();
+// config().createTransformer().transform(new DOMSource(domAccess.getDOMNode()), new
+// StreamResult(writer));
+// String output = writer.getBuffer().toString();
+// return output;
+// } catch (TransformerConfigurationException e) {
+// throw new RuntimeException(e);
+// } catch (TransformerException e) {
+// throw new RuntimeException(e);
+// }
     }
-
 }
