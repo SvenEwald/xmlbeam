@@ -56,4 +56,11 @@ public interface DOMAccess extends Serializable {
      *         subprojection.
      */
     Element getDOMBaseElement();
+
+    /**
+     * This method may be used to get a string representation of the projected document or element.
+     * 
+     * @return DOM node as XML string.
+     */
+    String asString();
 }
