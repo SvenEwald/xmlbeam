@@ -60,7 +60,7 @@ import org.xmlbeam.util.intern.ReflectionHelper;
  */
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("(?!^$)(^\\.?((/[a-z:A-Z]+)*(/\\.\\.)*)*((/?@[a-z:A-Z]+)|(/\\*))?$)");
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("(?!^$)(^\\.?((/[a-z:A-Z0-9]+)*(/\\.\\.)*)*((/?@[a-z:A-Z0-9]+)|(/\\*))?$)");
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
