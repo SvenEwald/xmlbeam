@@ -161,8 +161,7 @@ public final class DOMHelper {
      */
     public static Element ensureElementExists(final Document document, final Element base, final String pathToElement) {
         assert base != null;
-        assert pathToElement != null;       
-        assert !pathToElement.contains("@");
+        assert pathToElement != null;               
         if ((pathToElement.isEmpty())||(".".equals(pathToElement))) {
             return base;
         }
@@ -186,14 +185,45 @@ public final class DOMHelper {
             if (expectedElementName.equals(element.getNodeName())) {
                 continue;
             }
-            NodeList nodeList = element.getElementsByTagName(expectedElementName);
-            if (nodeList.getLength() == 0) {
+            
+            String name=expectedElementName.replaceAll("\\[.*", "");
+            String selector=expectedElementName.replaceAll(".*\\[", "").replaceAll("\\]$", "");
+            
+            Element child = findElementByTagNameAndSelector(element,name,selector);
+            if (child==null) {
                 element = (Element) element.appendChild(document.createElement(expectedElementName));
                 continue;
             }
-            element = (Element) nodeList.item(0);
+            element = child;
         }
         return element;
+    }
+
+    /**
+     * @param element
+     * @param expectedElementName
+     * @return
+     */
+    private static Element findElementByTagNameAndSelector(Element element, String name,String selector) {               
+        NodeList nodeList = element.getElementsByTagName(name);
+        for (int i=0;i<nodeList.getLength();++i) {
+            if (selectorMatches(selector,(Element)nodeList.item(i)) ) {
+                return (Element) nodeList.item(i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param selector
+     * @param item
+     * @return
+     */
+    private static boolean selectorMatches(String selector, Element item) {
+        if (selector.isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     /**

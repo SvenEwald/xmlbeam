@@ -1,29 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>A simple Mesh embedded into XHTML</title>
-     
-     <script  type="text/javascript" src="http://www.xml3d.org/xml3d/script/xml3d.js"></script>
-      
- <!-- 
-  <script type="text/javascript" src="/xml3d.js"></script>
-  -->
-   
-  <script type="text/javascript" src="http://www.xml3d.org/xml3d/script/tools/camera.js"></script>
-   
-  </head>
-  <body>
-<xml3d id="MyXml3d" class="xml3d" style="width: 450px; height: 300px; border: 1px solid gray"
- xmlns="http://www.xml3d.org/2009/xml3d">
-  <mesh type="triangles">
-    <int name="index">0 1 2</int>
-    <float3 name="position">-1 -1 -5  1 -1 -5  0 1 -5</float3>
-    <float3 name="normal">
-      0 0 1
-      0 0 1
-      0 0 1
-    </float3>
-  </mesh>
-</xml3d>
-  </body>
+	<head>
+		<script type="text/javascript" src="http://www.xml3d.org/xml3d/script/xml3d.js"></script>
+		<script type="text/javascript" src="http://www.xml3d.org/xml3d/script/tools/camera.js"></script>
+	</head>
+	<body>
+		<xml3d id="MyXml3d" class="xml3d" style="width: 450px; height: 300px; border: 1px solid gray" xmlns="http://www.xml3d.org/2009/xml3d">
+			<mesh type="triangles">
+				<int name="index">0 1 2 </int>
+				<float3	name="position">-1 -1 -5 1 -1 -5 0 1 -5 </float3>
+				<float3 name="normal">0 0 1 0 0 1 0 0 1 </float3>
+			</mesh> 
+		</xml3d>
+	</body>
 </html>

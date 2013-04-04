@@ -60,7 +60,11 @@ import org.xmlbeam.util.intern.ReflectionHelper;
  */
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile("(?!^$)(^\\.?((/[a-z:A-Z0-9]+)*(/\\.\\.)*)*((/?@[a-z:A-Z0-9]+)|(/\\*))?$)");
+    private final static String NONEMPTY="(?!^$)";
+    private final static String ELEMENT_PATH=    "(/[a-z:A-Z0-9]+(\\[@?[a-zA-Z0-9]+='.+'\\])?)";
+    private final static String ATTRIBUTE_PATH="(/?@[a-z:A-Z0-9]+)";
+    private final static String PARENT_PATH="(/\\.\\.)";
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile(NONEMPTY+"(^\\.?("+ELEMENT_PATH+"*"+PARENT_PATH+"*)*("+ATTRIBUTE_PATH+"|(/\\*))?$)");
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
@@ -70,8 +74,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
-        this.defaultInvokers=defaultInvokers;
-     
+        this.defaultInvokers=defaultInvokers;     
     }
 
     /**
@@ -120,6 +123,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (typeConverter.isConvertable(targetType)) {
             for (int i = 0; i < nodes.getLength(); ++i) {
                 linkedList.add(typeConverter.convertTo(targetType, nodes.item(i).getTextContent()));
+            }
+            return linkedList;
+        }
+        if (Node.class.equals(targetType)) {
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                linkedList.add(nodes.item(i));
             }
             return linkedList;
         }
@@ -307,6 +316,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
             }
         }
+        if (Node.class.equals(returnType)) {
+            return expression.evaluate(node, XPathConstants.NODE);
+        }
+        
         if (List.class.equals(returnType)) {
             return evaluateAsList(expression, node, method);
         }

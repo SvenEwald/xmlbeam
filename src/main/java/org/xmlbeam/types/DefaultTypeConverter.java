@@ -20,6 +20,8 @@ import java.util.Map;
 
 import java.io.Serializable;
 
+import javax.xml.soap.Node;
+
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
@@ -99,6 +101,13 @@ public class DefaultTypeConverter implements TypeConverter {
                 return data;
             }
         });
+        
+//        CONVERSIONS.put(Node.class, new Conversion<Node>(null){
+//
+//            @Override
+//            public Node convert(String data) {
+//                return null;
+//            }});
     }
 
     /**

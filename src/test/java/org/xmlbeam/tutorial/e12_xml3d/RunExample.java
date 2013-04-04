@@ -15,36 +15,57 @@
  */
 package org.xmlbeam.tutorial.e12_xml3d;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+
+import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 
 /**
  * @author sven
- *
  */
-public class RunExample extends NanoHTTPD {
+public class RunExample {
 
-    /**
-     * @param port
-     * @param wwwroot
-     * @throws IOException
-     */
-    public RunExample() throws IOException {
-        super(8088, new File("/Users/sven/git/xmlbeam/src/test/java/org/xmlbeam/tutorial/xml3d"));
+    public static class Vector {
+        public float x,y,z;
+
+        @Override
+        public String toString() {
+            return x + " " + y + " " + z;
+        }        
     }
+    
+    public static class Vertex {
+        public Vector position;
+        public Vector normal;
+    }
+    
+    
+    private void addVertex(Xml3d mesh,Vertex v) {
+        List<String> indexes=new ArrayList(Arrays.asList(mesh.getIndexes().split(" ")));
+    }
+    
+    public static void main(String[] args) throws IOException {
+        XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+        projector.config().as(DefaultXMLFactoriesConfig.class).setNamespacePhilosophy(NamespacePhilosophy.NIHILISTIC);
+        Xml3d xml3d = projector.io().fromURLAnnotation(Xml3d.class);
+        xml3d.getIndexes();
+        xml3d.getNormals();
+        xml3d.getPositions();
 
-    public static void main(String[] args) {
-        try {
-            new RunExample();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        
+        
+        ServerSocket ss = new ServerSocket(8088);
+        while (true) {
+            String page = new Scanner(RunExample.class.getResourceAsStream("test.html")).useDelimiter("\\A").next();
+            String header = "HTTP/1.0 200 OK\r\nContent-Type: application/xhtml+xml\r\nContent-Length: " + page.getBytes("UTF-8").length + "\r\n\r\n";
+            ss.accept().getOutputStream().write((header + page).getBytes("UTF-8"));
         }
     }
 }
