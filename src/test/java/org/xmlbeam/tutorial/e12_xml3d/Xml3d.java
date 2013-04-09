@@ -15,29 +15,28 @@
  */
 package org.xmlbeam.tutorial.e12_xml3d;
 
-import org.w3c.dom.Node;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
 @XBDocURL("resource://test.html")
-public interface Xml3d  {   
-        
+public interface Xml3d {
+
     @XBRead("/html/body/xml3d/mesh/int[@name=''index'']")
     String getIndexes();
-    
+
     @XBWrite("/html/body/xml3d/mesh/int[@name=''index'']")
     Xml3d setIndexes(String indexes);
-    
+
     @XBRead("/html/body/xml3d/mesh/float3[@name=''position'']")
     String getPositions();
-    
+
     @XBWrite("/html/body/xml3d/mesh/float3[@name=''position'']")
     Xml3d setPositions(String positions);
-    
+
     @XBRead("/html/body/xml3d/mesh/float3[@name=''normal'']")
     String getNormals();
-    
+
     @XBWrite("/html/body/xml3d/mesh/float3[@name=''normal'']")
     Xml3d setNormals(String normals);
 }

@@ -187,15 +187,38 @@ public final class DOMHelper {
             }
             
             String name=expectedElementName.replaceAll("\\[.*", "");
-            String selector=expectedElementName.replaceAll(".*\\[", "").replaceAll("\\]$", "");
+            String selector=expectedElementName.contains("[")? expectedElementName.replaceAll(".*\\[", "").replaceAll("\\]$", ""):"";
             
             Element child = findElementByTagNameAndSelector(element,name,selector);
             if (child==null) {
-                element = (Element) element.appendChild(document.createElement(expectedElementName));
+                //element = (Element) element.appendChild(document.createElement(expectedElementName));
+                element = (Element) element.appendChild(createElementByTagNameAndSelector(document,name,selector));
                 continue;
             }
             element = child;
         }
+        return element;
+    }
+
+    /**
+     * @param document
+     * @param expectedElementName
+     * @param selector
+     * @return
+     */
+    private static Node createElementByTagNameAndSelector(Document document, String name, String selector) {
+        Element element = document.createElement(name);
+        if (selector.isEmpty()) {
+            return element;
+        }
+        String[] selectorValues = splitSelector(selector);
+        if (selectorValues[0].startsWith("@")) {
+            element.setAttribute(selectorValues[0].substring(1), selectorValues[1]);
+            return element;
+        }
+        Element child = document.createElement(selectorValues[0]);
+        child.setTextContent(selectorValues[1]);
+        element.appendChild(child);
         return element;
     }
 
@@ -223,7 +246,31 @@ public final class DOMHelper {
         if (selector.isEmpty()) {
             return true;
         }
-        return false;
+        String[] selectorValues = splitSelector(selector);
+        if (selectorValues[0].startsWith("@")) {
+            return selectorValues[1].equals(item.getAttribute(selectorValues[0].substring(1)));
+        }        
+         NodeList nodeList = item.getElementsByTagName(selectorValues[0]);
+         for (int i=0;i<nodeList.getLength();++i) {
+             if (selectorValues[1].equals(nodeList.item(i).getTextContent())) {
+                 return true;
+             }
+         }
+         return false;
+    }
+
+    /**
+     * @param selector
+     * @return
+     */
+    private static String[] splitSelector(String selector) {
+        if (!selector.matches("@?[^=]+=[^=]+")) {
+            throw new IllegalArgumentException("When using a predicate to create elements, predicate expressions must assign values via '=' to an attribute or direct child element.");
+        }
+        selector=selector.replaceAll("(^\\[)|(\\]$)", "");
+        String[] split = selector.split("=");
+        split[1]=split[1].replaceAll("(^')|('$)", "");
+        return split;
     }
 
     /**

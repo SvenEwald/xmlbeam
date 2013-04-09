@@ -346,9 +346,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
         }
         if (method.getAnnotation(XBDocURL.class) != null) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid, because setters always change parts of documents.");
-        }
-        final String pathToElement = path.replaceAll("/?@.*", "");
+            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
+        }        
+        final String pathToElement = path.replaceAll("\\[@","[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = DOMHelper.getOwnerDocumentFor(settingNode);
         assert document != null;
@@ -406,7 +406,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
         }
 
-        if (path.contains("@")) {
+        if (path.replaceAll("\\[@", "[attribue::").contains("@")) {
             String attributeName = path.replaceAll(".*@", "");
             DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
             return getProxyReturnValueForMethod(proxy, method);
