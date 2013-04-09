@@ -39,6 +39,15 @@ public class XBFileIO {
      * @param file
      */
     public XBFileIO(XBProjector xmlProjector, File file) {
+        if (xmlProjector==null) {
+            throw new NullPointerException("Parameter xmlProjector must not be null.");
+        }
+        if (file==null) {
+            throw new NullPointerException("Parameter file must not be null.");
+        }
+        if (file.isDirectory()) {
+            throw new IllegalArgumentException("File "+file+" is a directory.");
+        }
         this.projector = xmlProjector;
         this.file=file;
     }
@@ -75,7 +84,7 @@ public class XBFileIO {
      * @throws IOException
      * @return this to provide a fluent API.
      */
-    public XBFileIO write(Object projection) throws IOException {
+    public XBFileIO write(Object projection) throws IOException {       
         FileOutputStream os = new FileOutputStream(file, append);
         new XBStreamOutput(projector,os).write(projection);
         return this;
