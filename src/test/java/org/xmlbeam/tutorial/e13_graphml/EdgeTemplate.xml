@@ -1,0 +1,10 @@
+<g:edge xmlns:g="http://graphml.graphdrawing.org/xmlns" xmlns:y="http://www.yworks.com/xml/graphml">
+      <g:data key="d7">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"></y:Path>
+          <y:LineStyle color="#505050" type="line" width="1.0"></y:LineStyle>
+          <y:Arrows source="none" target="standard"></y:Arrows>
+          <y:BendStyle smoothed="false"></y:BendStyle>
+        </y:PolyLineEdge>
+      </g:data>
+</g:edge>
