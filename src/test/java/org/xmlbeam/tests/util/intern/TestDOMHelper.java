@@ -85,7 +85,7 @@ public class TestDOMHelper {
         DOMHelper.ensureElementExists(document, "/root/a/b2/e/f");
         HelperProjection projection = new XBProjector().projectDOMNode(document, HelperProjection.class);
         Element b = (Element) projection.selectXPath("/root/a/b").getDOMNode();
-        DOMHelper.removeAllChildrenByName(b, "e");
+        DOMHelper.removeAllChildrenBySelector(b, "e");
         assertNull(projection.selectXPath("/root/a/b/e/f"));
         assertNull(projection.selectXPath("/root/a/b/e"));
         assertNotNull(projection.selectXPath("/root/a/b/c"));

@@ -77,22 +77,26 @@ public final class DOMHelper {
     };
 
     /**
-     * Remove all child elements with given node name. If nodeName is "*", then remove all children.
+     * Remove all child elements with given node name. If nodeSelector is "*", then remove all children.
      * 
      * @param element
      * @param nodeName
      */
-    public static void removeAllChildrenByName(Node element, String nodeName) {
-        assert nodeName != null;
+    public static void removeAllChildrenBySelector(Node element, String nodeSelector) {
+        assert nodeSelector != null;
         NodeList nodeList = element.getChildNodes();
         List<Node> toBeRemoved = new LinkedList<Node>();
-        if ("*".equals(nodeName)) {
+        if ("*".equals(nodeSelector)) {
             for (int i = 0; i < nodeList.getLength(); ++i) {
                 toBeRemoved.add((Node) nodeList.item(i));
             }
         } else {
             for (int i = 0; i < nodeList.getLength(); ++i) {
-                if (nodeName.equals(nodeList.item(i).getNodeName())) {
+                Node node=nodeList.item(i);
+                if (Node.ELEMENT_NODE!=node.getNodeType()) {
+                    continue;
+                }
+                if (selectorMatches(nodeSelector, (Element)node)) {
                     toBeRemoved.add((Element) nodeList.item(i));
                 }
             }
@@ -141,7 +145,11 @@ public final class DOMHelper {
         NamedNodeMap attributes = root.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
-            if (!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix())) {
+            if ((!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix()))&&(!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getLocalName()))) {
+                continue;
+            }
+            if (XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getLocalName())) {
+                map.put("xbdefaultns", attribute.getNodeValue());
                 continue;
             }
             map.put(attribute.getLocalName(), attribute.getNodeValue());
@@ -243,8 +251,14 @@ public final class DOMHelper {
      * @return
      */
     private static boolean selectorMatches(String selector, Element item) {
-        if (selector.isEmpty()) {
+        if (item==null) {
+            return false;
+        }
+        if ((selector==null)||(selector.isEmpty())) {
             return true;
+        }
+        if (!selector.contains("[")) {
+            return selector.equals(item.getNodeName());
         }
         String[] selectorValues = splitSelector(selector);
         if (selectorValues[0].startsWith("@")) {

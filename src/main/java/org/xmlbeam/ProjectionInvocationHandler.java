@@ -80,10 +80,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     /**
      * @param collection
      * @param parentElement
-     * @param elementName
+     * @param elementSelector
      */
-    private void applyCollectionSetOnElement(Collection<?> collection, Element parentElement, String elementName) {
+    private void applyCollectionSetOnElement(Collection<?> collection, Element parentElement, String elementSelector) {
         final Document document = parentElement.getOwnerDocument();
+        DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
+        assert !elementSelector.contains("/"):"Selector should be the trail of the path.";
+        final String elementName=elementSelector.replaceAll("\\[.*", "");
+        if (collection==null) {
+            return;
+        }
         for (Object o : collection) {
             if (o == null) {
                 continue;
@@ -108,9 +114,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
     }
 
-    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode) {
-        DOMHelper.removeAllChildrenByName(parentNode, projection.getDOMNode().getNodeName());
+    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode,final String elementSelector) {
         final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
+        DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
         DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newElement);
         parentNode.appendChild(newElement);
     }
@@ -380,21 +386,22 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
             }
             final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
-            final String elementName = pathToElement.replaceAll(".*/", "");
+            final String elementSelector = pathToElement.replaceAll(".*/", "");
             final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
-            DOMHelper.removeAllChildrenByName(parentElement, elementName);
-            if (valueToSet == null) {
-                return getProxyReturnValueForMethod(proxy, method);
-            }
-            Collection<?> collection2Set = valueToSet.getClass().isArray() ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-            applyCollectionSetOnElement(collection2Set, parentElement, elementName);
+         //   DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
+//            if (valueToSet == null) {
+//                return getProxyReturnValueForMethod(proxy, method);
+//            }
+            Collection<?> collection2Set = (valueToSet!=null)&&(valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
+            applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
             return getProxyReturnValueForMethod(proxy, method);
         }
 
         if (valueToSet instanceof InternalProjection) {
             String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
+            String elementSelector = pathToElement.replaceAll(".*/", "");
             Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-            applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode);
+            applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode,elementSelector);
             return getProxyReturnValueForMethod(proxy, method);
         }
 
@@ -412,7 +419,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return getProxyReturnValueForMethod(proxy, method);
         }
         if (valueToSet == null) {
-            DOMHelper.removeAllChildrenByName(elementToChange, "*");
+            DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
         } else {
             elementToChange.setTextContent(valueToSet.toString());
         }
