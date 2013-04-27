@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import java.awt.geom.QuadCurve2D;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -77,7 +78,8 @@ public final class DOMHelper {
     };
 
     /**
-     * Remove all child elements with given node name. If nodeSelector is "*", then remove all children.
+     * Remove all child elements with given node name. If nodeSelector is "*", then remove all
+     * children.
      * 
      * @param element
      * @param nodeName
@@ -92,11 +94,11 @@ public final class DOMHelper {
             }
         } else {
             for (int i = 0; i < nodeList.getLength(); ++i) {
-                Node node=nodeList.item(i);
-                if (Node.ELEMENT_NODE!=node.getNodeType()) {
+                Node node = nodeList.item(i);
+                if (Node.ELEMENT_NODE != node.getNodeType()) {
                     continue;
                 }
-                if (selectorMatches(nodeSelector, (Element)node)) {
+                if (selectorMatches(nodeSelector, (Element) node)) {
                     toBeRemoved.add((Element) nodeList.item(i));
                 }
             }
@@ -145,7 +147,7 @@ public final class DOMHelper {
         NamedNodeMap attributes = root.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
-            if ((!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix()))&&(!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getLocalName()))) {
+            if ((!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix())) && (!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getLocalName()))) {
                 continue;
             }
             if (XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getLocalName())) {
@@ -169,8 +171,8 @@ public final class DOMHelper {
      */
     public static Element ensureElementExists(final Document document, final Element base, final String pathToElement) {
         assert base != null;
-        assert pathToElement != null;               
-        if ((pathToElement.isEmpty())||(".".equals(pathToElement))) {
+        assert pathToElement != null;
+        if ((pathToElement.isEmpty()) || (".".equals(pathToElement))) {
             return base;
         }
         Element element = base;
@@ -183,29 +185,41 @@ public final class DOMHelper {
                 continue;
             }
             if ("..".equals(expectedElementName)) {
-                Node parent=element.getParentNode();
-                if ((parent==null)||(Node.ELEMENT_NODE!=parent.getNodeType())) {
+                Node parent = element.getParentNode();
+                if ((parent == null) || (Node.ELEMENT_NODE != parent.getNodeType())) {
                     throw new IllegalArgumentException("Reference to parent node via '..' bounced out of scope.");
                 }
-                element=(Element) parent;
+                element = (Element) parent;
                 continue;
             }
             if (expectedElementName.equals(element.getNodeName())) {
                 continue;
             }
-            
-            String name=expectedElementName.replaceAll("\\[.*", "");
-            String selector=expectedElementName.contains("[")? expectedElementName.replaceAll(".*\\[", "").replaceAll("\\]$", ""):"";
-            
-            Element child = findElementByTagNameAndSelector(element,name,selector);
-            if (child==null) {
-                //element = (Element) element.appendChild(document.createElement(expectedElementName));
-                element = (Element) element.appendChild(createElementByTagNameAndSelector(document,name,selector));
+
+            String[] nameAndSelector = splitToNameAndSelector(expectedElementName);
+
+            // String name = expectedElementName.replaceAll("\\[.*", "");
+            // String selector = expectedElementName.contains("[") ?
+// expectedElementName.replaceAll(".*\\[", "").replaceAll("\\]$", "") : "";
+
+            Element child = findElementByTagNameAndSelector(element, nameAndSelector[0], nameAndSelector[1]);
+            if (child == null) {
+                // element = (Element)
+// element.appendChild(document.createElement(expectedElementName));
+                element = (Element) element.appendChild(createElementByTagNameAndSelector(document, nameAndSelector[0], nameAndSelector[1]));
                 continue;
             }
+            forceSelectorOnElement(document, nameAndSelector[1], child);
             element = child;
         }
         return element;
+    }
+
+    private static String[] splitToNameAndSelector(String nameAndSelector) {
+        return new String[] {//
+        nameAndSelector.replaceAll("\\[.*", ""),//
+                nameAndSelector.contains("[") ? nameAndSelector.replaceAll(".*\\[", "").replaceAll("\\]$", "") : ""//
+        };
     }
 
     /**
@@ -214,17 +228,26 @@ public final class DOMHelper {
      * @param selector
      * @return
      */
-    private static Node createElementByTagNameAndSelector(Document document, String name, String selector) {
-        Element element = document.createElement(name);
+    private static Element createElementByTagNameAndSelector(final Document document,final  String name,final String selector) {
+        //Element element = document.createElement(name);
+        final Element element = createElement(document,name);
+        forceSelectorOnElement(document, selector, element);
+        return element;
+    }
+
+    private static Element forceSelectorOnElement(final Document document, final String selector, final Element element) {
         if (selector.isEmpty()) {
             return element;
         }
-        String[] selectorValues = splitSelector(selector);
+        final String[] selectorValues = splitSelector(selector);
         if (selectorValues[0].startsWith("@")) {
-            element.setAttribute(selectorValues[0].substring(1), selectorValues[1]);
+            final String prefix = selectorValues[0].substring(1).replaceAll(":.*"   , "");
+            final String namespaceURI= ("xmlns".equals(prefix)) ? "http://www.w3.org/2000/xmlns/"  : element.getNamespaceURI();
+            element.setAttributeNS(namespaceURI, selectorValues[0].substring(1), selectorValues[1]);
             return element;
         }
-        Element child = document.createElement(selectorValues[0]);
+       // Element child = document.createElement(selectorValues[0]);
+        final Element child = createElement(document,selectorValues[0]);
         child.setTextContent(selectorValues[1]);
         element.appendChild(child);
         return element;
@@ -235,10 +258,10 @@ public final class DOMHelper {
      * @param expectedElementName
      * @return
      */
-    private static Element findElementByTagNameAndSelector(Element element, String name,String selector) {               
+    private static Element findElementByTagNameAndSelector(Element element, String name, String selector) {
         NodeList nodeList = element.getElementsByTagName(name);
-        for (int i=0;i<nodeList.getLength();++i) {
-            if (selectorMatches(selector,(Element)nodeList.item(i)) ) {
+        for (int i = 0; i < nodeList.getLength(); ++i) {
+            if (selectorMatches(selector, (Element) nodeList.item(i))) {
                 return (Element) nodeList.item(i);
             }
         }
@@ -251,10 +274,10 @@ public final class DOMHelper {
      * @return
      */
     private static boolean selectorMatches(String selector, Element item) {
-        if (item==null) {
+        if (item == null) {
             return false;
         }
-        if ((selector==null)||(selector.isEmpty())) {
+        if ((selector == null) || (selector.isEmpty())) {
             return true;
         }
         if (!selector.contains("[")) {
@@ -263,14 +286,14 @@ public final class DOMHelper {
         String[] selectorValues = splitSelector(selector);
         if (selectorValues[0].startsWith("@")) {
             return selectorValues[1].equals(item.getAttribute(selectorValues[0].substring(1)));
-        }        
-         NodeList nodeList = item.getElementsByTagName(selectorValues[0]);
-         for (int i=0;i<nodeList.getLength();++i) {
-             if (selectorValues[1].equals(nodeList.item(i).getTextContent())) {
-                 return true;
-             }
-         }
-         return false;
+        }
+        NodeList nodeList = item.getElementsByTagName(selectorValues[0]);
+        for (int i = 0; i < nodeList.getLength(); ++i) {
+            if (selectorValues[1].equals(nodeList.item(i).getTextContent())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -279,11 +302,13 @@ public final class DOMHelper {
      */
     private static String[] splitSelector(String selector) {
         if (!selector.matches("@?[^=]+=[^=]+")) {
-            throw new IllegalArgumentException("When using a predicate to create elements, predicate expressions must assign values via '=' to an attribute or direct child element.");
+            return new String[] { selector, "" };
+            // throw new
+// IllegalArgumentException("When using a predicate to create elements, predicate expressions must assign values via '=' to an attribute or direct child element.");
         }
-        selector=selector.replaceAll("(^\\[)|(\\]$)", "");
+        selector = selector.replaceAll("(^\\[)|(\\]$)", "");
         String[] split = selector.split("=");
-        split[1]=split[1].replaceAll("(^')|('$)", "");
+        split[1] = split[1].replaceAll("(^')|('$)", "");
         return split;
     }
 
@@ -304,12 +329,16 @@ public final class DOMHelper {
             throw new IllegalArgumentException("Path must not be empty. I don't know which element to return.");
         }
         Element element = document.getDocumentElement();
+        final String[] nameAndSelector = splitToNameAndSelector(splitme.replaceAll("/.*", ""));
         if (element == null) { // No root element yet
-            element = document.createElement(splitme.replaceAll("/.*", ""));
+            element = createElementByTagNameAndSelector(document, nameAndSelector[0], nameAndSelector[1]);
+            // element = document.createElement(splitme.replaceAll("/.*", ""));
             document.appendChild(element);
+        } else {
+            forceSelectorOnElement(document, nameAndSelector[1], element);
         }
 
-        return ensureElementExists(document, element, pathToElement);
+        return ensureElementExists(document, element, splitme.replaceFirst("[^/]*/", ""));
     }
 
     /**
@@ -517,7 +546,8 @@ public final class DOMHelper {
      */
     public static Element renameElement(Element element, String newName) {
         Document document = element.getOwnerDocument();
-        Element newElement = document.createElement(newName);
+        //Element newElement = document.createElement(newName);
+        final Element newElement = createElement(document,newName);
         NodeList nodeList = element.getChildNodes();
         List<Node> toBeMoved = new LinkedList<Node>();
         for (int i = 0; i < nodeList.getLength(); ++i) {
@@ -545,9 +575,25 @@ public final class DOMHelper {
      * @return
      */
     public static Document getOwnerDocumentFor(Node documentOrElement) {
-            if (Node.DOCUMENT_NODE == documentOrElement.getNodeType()) {
-                return (Document) documentOrElement;
-            }
-            return documentOrElement.getOwnerDocument();       
+        if (Node.DOCUMENT_NODE == documentOrElement.getNodeType()) {
+            return (Document) documentOrElement;
+        }
+        return documentOrElement.getOwnerDocument();
+    }
+    
+    private static Element createElement(final Document document,final String elementName) {
+        
+        final String prefix=elementName.replaceAll("(:.*)|([^:])*", "");
+        final String namespaceURI=prefix.isEmpty() ? null : document.lookupNamespaceURI(prefix);
+        final Element element=document.createElementNS(namespaceURI, elementName);
+        
+  //      final String name=elementName.replaceAll(".*:", "");
+//        final Element element = document.createElement(name);
+//        final String prefix=elementName.replaceAll(":.*", "");
+//        if (!prefix.isEmpty()) {
+//            element.s
+//            element.setPrefix(prefix);
+//        }
+        return element;
     }
 }

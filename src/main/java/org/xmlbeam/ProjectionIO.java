@@ -32,15 +32,15 @@ import org.xmlbeam.io.XBUrlIO;
  */
 public interface ProjectionIO {
 
-    public abstract XBFileIO file(File file);
+    XBFileIO file(File file);
 
-    public abstract XBFileIO file(String fileName);
+    XBFileIO file(String fileName);
 
-    public abstract XBUrlIO url(String url);
+    XBUrlIO url(String url);
 
-    public abstract XBStreamInput stream(InputStream is);
+    XBStreamInput stream(InputStream is);
 
-    public abstract XBStreamOutput stream(OutputStream os);
+    XBStreamOutput stream(OutputStream os);
 
     /**
      * Create a new projection using a {@link XBDocURL} annotation on this interface. When the
@@ -52,7 +52,7 @@ public interface ProjectionIO {
      * @return a new projection instance
      * @throws IOException
      */
-    public abstract <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... optionalParams) throws IOException;
+    <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... optionalParams) throws IOException;
 
     /**
      * Write projected document to url (file or http post) of {@link XBDocURL} annotation.
@@ -62,6 +62,6 @@ public interface ProjectionIO {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public abstract String toURLAnnotationViaPOST(final Object projection, Object... optionalParams) throws IOException, URISyntaxException;
+   String toURLAnnotationViaPOST(final Object projection, Object... optionalParams) throws IOException, URISyntaxException;
 
 }

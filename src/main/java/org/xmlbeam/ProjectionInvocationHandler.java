@@ -220,7 +220,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param target
      */
     private void injectMeAttribute(InternalProjection me, Object target) {
-        final Class<?> projectionInterface = me.getProjectionInterface();
+        //final Class<?> projectionInterface = me.getProjectionInterface();
         for (Field field : target.getClass().getDeclaredFields()) {
             if (!isValidMeField(field, projectionInterface)) {
                 continue;

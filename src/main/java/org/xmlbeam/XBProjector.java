@@ -493,6 +493,15 @@ public class XBProjector implements Serializable, ProjectionFactory {
         return projectDOMNode(element, projectionInterface);
     }
 
+    
+//    public <T> T projectProjection(final T projection,String xpath) {
+//        if (!( projection instanceof InternalProjection)) {
+//            throw new IllegalArgumentException("Given object is not a projection created by a projector.");
+//        }
+//        DOMAccess domAccess = (DOMAccess) projection;
+//        xMLFactoriesConfig.createXPath(domAccess.getDOMOwnerDocument())
+//    }
+    
     /**
      * {@inheritDoc}
      */

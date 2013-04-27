@@ -36,6 +36,7 @@ public @interface XBDocURL {
         boolean prettyPrint() default true;
 
         boolean omitXMLDeclaration() default true;
+        
     }
     
     
