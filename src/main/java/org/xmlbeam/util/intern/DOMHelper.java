@@ -240,7 +240,7 @@ public final class DOMHelper {
         }
         final String[] selectorValues = splitSelector(selector);
         if (selectorValues[0].startsWith("@")) {
-            final String prefix = selectorValues[0].substring(1).replaceAll(":.*"   , "");
+            final String prefix = getPrefixOfQName(selectorValues[0].substring(1));
             final String namespaceURI= ("xmlns".equals(prefix)) ? "http://www.w3.org/2000/xmlns/"  : element.getNamespaceURI();
             element.setAttributeNS(namespaceURI, selectorValues[0].substring(1), selectorValues[1]);
             return element;
@@ -585,14 +585,6 @@ public final class DOMHelper {
         final String prefix = getPrefixOfQName(elementName);// .replaceAll("(:.*)|([^:])*", "");
         final String namespaceURI=prefix.isEmpty() ? null : document.lookupNamespaceURI(prefix);
         final Element element=document.createElementNS(namespaceURI, elementName);
-        
-  //      final String name=elementName.replaceAll(".*:", "");
-//        final Element element = document.createElement(name);
-//        final String prefix=elementName.replaceAll(":.*", "");
-//        if (!prefix.isEmpty()) {
-//            element.s
-//            element.setPrefix(prefix);
-//        }
         return element;
     }
 
