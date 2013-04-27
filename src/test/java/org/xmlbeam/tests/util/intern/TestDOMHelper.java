@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
@@ -126,8 +125,15 @@ public class TestDOMHelper {
     
     @Test
     public void testNamespacedElementCreation() {                
-        Element element = DOMHelper.ensureElementExists(document, "/root[@xmlns:a='huhu']/a:b");        
-        System.out.println(new XBProjector().projectDOMNode(document, HelperProjection.class).asString());
+        Element element = DOMHelper.ensureElementExists(document, "/root[@xmlns:a='huhu']/a:b");
+        HelperProjection projection = new XBProjector().projectDOMNode(document, HelperProjection.class);
+        // System.out.println(new XBProjector().projectDOMNode(document,
+// HelperProjection.class).asString());
+        assertNotNull(projection.selectXPath("/root/a:b"));
+        assertNull(projection.selectXPath("/root/b"));
+        assertNull(projection.selectXPath("/root/a"));
+        assertEquals("b", element.getLocalName());
+        assertEquals("a", element.getPrefix());
     }   
     
 }
