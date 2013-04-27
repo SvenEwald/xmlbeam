@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import java.awt.geom.QuadCurve2D;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -90,7 +89,7 @@ public final class DOMHelper {
         List<Node> toBeRemoved = new LinkedList<Node>();
         if ("*".equals(nodeSelector)) {
             for (int i = 0; i < nodeList.getLength(); ++i) {
-                toBeRemoved.add((Node) nodeList.item(i));
+                toBeRemoved.add(nodeList.item(i));
             }
         } else {
             for (int i = 0; i < nodeList.getLength(); ++i) {
@@ -99,7 +98,7 @@ public final class DOMHelper {
                     continue;
                 }
                 if (selectorMatches(nodeSelector, (Element) node)) {
-                    toBeRemoved.add((Element) nodeList.item(i));
+                    toBeRemoved.add(nodeList.item(i));
                 }
             }
         }
@@ -583,7 +582,7 @@ public final class DOMHelper {
     
     private static Element createElement(final Document document,final String elementName) {
         
-        final String prefix=elementName.replaceAll("(:.*)|([^:])*", "");
+        final String prefix = getPrefixOfQName(elementName);// .replaceAll("(:.*)|([^:])*", "");
         final String namespaceURI=prefix.isEmpty() ? null : document.lookupNamespaceURI(prefix);
         final Element element=document.createElementNS(namespaceURI, elementName);
         
@@ -595,5 +594,16 @@ public final class DOMHelper {
 //            element.setPrefix(prefix);
 //        }
         return element;
+    }
+
+    /**
+     * @param elementName
+     * @return
+     */
+    private static String getPrefixOfQName(String elementName) {
+        if (elementName.contains(":")) {
+            return elementName.replaceAll(":.*", "");
+        }
+        return "";
     }
 }

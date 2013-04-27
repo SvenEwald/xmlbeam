@@ -15,12 +15,16 @@
  */
 package org.xmlbeam.tutorial.e12_xml3d;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import java.io.IOException;
 
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
@@ -28,6 +32,8 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 
 public class RunExample {
+
+    private static final Map<Vector, Vector> HMAP = new HashMap<Vector, Vector>();
 
     public static class Vector {
         public float x, y, z;
@@ -128,7 +134,13 @@ public class RunExample {
     }
 
     private static Vertex middle(Vertex a, Vertex b) {
-        Vector position=new Vector((a.position.x+b.position.x)/2,(a.position.y+b.position.y)/2,(float) (-5.0+Math.sin((a.position.x+b.position.x)+Math.cos(a.position.y+b.position.y))));
+        Vector position=new Vector((a.position.x+b.position.x)/2,(a.position.y+b.position.y)/2,0f);
+        if (!HMAP.containsKey(position)) {
+            position.z = (float) (0f * Math.random() + (a.position.y + b.position.y) / 2);
+            HMAP.put(new Vector((a.position.x+b.position.x)/2,(a.position.y+b.position.y)/2,0f), position);
+        } else {
+            position = HMAP.get(position);
+        }
         return new Vertex(position,new Vector(0,0,1));
     }
 
