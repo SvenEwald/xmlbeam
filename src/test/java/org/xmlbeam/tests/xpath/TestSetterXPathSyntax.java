@@ -96,7 +96,7 @@ public class TestSetterXPathSyntax {
         SetterTest test = projector.io().fromURLAnnotation(SetterTest.class);
         SubTest subtest = test.getSubtest();
         test.set(subtest);
-        ((DOMAccess) test).getDOMOwnerDocument().normalizeDocument();
+        ((DOMAccess<SetterTest>) test).getDOMOwnerDocument().normalizeDocument();
         assertEquals(projector.io().url("resource://testsetter_expected.xml").read(SetterTest.class), test);
     }
 

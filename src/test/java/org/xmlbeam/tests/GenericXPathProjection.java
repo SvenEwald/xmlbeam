@@ -15,12 +15,12 @@
  */
 package org.xmlbeam.tests;
 
-import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
+import org.xmlbeam.dom.DOMAccess;
 
-public interface GenericXPathProjection extends DOMAccess {
+public interface GenericXPathProjection extends DOMAccess<GenericXPathProjection> {
 
     @XBWrite("{0}")
     void setterXPathString(String path, @XBValue String value);

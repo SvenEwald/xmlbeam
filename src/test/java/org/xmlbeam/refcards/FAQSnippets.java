@@ -28,6 +28,7 @@ public class FAQSnippets {
 
     //START SNIPPET: MixinOverridingToString
     public interface MixinOverridingToString {
+        @Override
         String toString();
     }
     //END SNIPPET: MixinOverridingToString
@@ -41,7 +42,8 @@ public class FAQSnippets {
     {        
         //START SNIPPET: MixinRegistration
         Object mixin = new Object() {
-            private DOMAccess me;
+            private DOMAccess<Projection> me;
+            @Override
             public String toString() {
                 return "I'm a "+ me.getProjectionInterface().getSimpleName();
             };

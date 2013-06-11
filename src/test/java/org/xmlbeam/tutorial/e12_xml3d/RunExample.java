@@ -78,7 +78,7 @@ public class RunExample {
         int newIndex = 0;
         String oldIndexes = mesh.getIndexes();
         if (!oldIndexes.isEmpty()) {
-            List<String> indexes = new ArrayList(Arrays.asList(oldIndexes.split(" ")));
+            List<String> indexes = new ArrayList<String>(Arrays.asList(oldIndexes.split(" ")));
             newIndex = Integer.parseInt(indexes.get(indexes.size() - 1)) + 1;
         }
         String newIndexes = oldIndexes + (oldIndexes.endsWith(" ") ? "" : " ") + newIndex;
@@ -130,7 +130,7 @@ public class RunExample {
         spanTriangles(xml3d, new Triangle(t.a, ac, ab), i+1);
         spanTriangles(xml3d, new Triangle(t.b, ab, bc), i+1);        
         spanTriangles(xml3d, new Triangle(t.c, bc, ac), i+1);
-        spanTriangles(xml3d, new Triangle(ac, bc, ab), i+1);
+        // spanTriangles(xml3d, new Triangle(ac, bc, ab), i+1);
     }
 
     private static Vertex middle(Vertex a, Vertex b) {

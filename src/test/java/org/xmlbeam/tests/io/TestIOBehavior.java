@@ -27,13 +27,13 @@ import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.testutils.HTTPParrot;
 import org.xmlbeam.util.IOHelper;
@@ -42,7 +42,7 @@ import org.xmlbeam.util.IOHelper;
  */
 public class TestIOBehavior {
 
-    public interface FooProjection extends DOMAccess{
+    public interface FooProjection extends DOMAccess<FooProjection> {
         @XBRead("name(/*)")
         String getRootName();
     };

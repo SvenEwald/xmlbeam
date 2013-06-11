@@ -131,7 +131,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private final Set<Flags> flags;
 
-    private class DefaultDOMAccessInvoker<T> implements DOMAccess {
+    private class DefaultDOMAccessInvoker<T> implements DOMAccess<T> {
         private final Node documentOrElement;
         private final Class<T> projectionInterface;
 
@@ -145,7 +145,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
 
         @Override
-        public Class<?> getProjectionInterface() {
+        public Class<T> getProjectionInterface() {
             return projectionInterface;
         }
 
@@ -172,7 +172,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             if (!(o instanceof DOMAccess)) {
                 return false;
             }
-            DOMAccess op = (DOMAccess) o;
+            DOMAccess<?> op = (DOMAccess<?>) o;
             if (!projectionInterface.equals(op.getProjectionInterface())) {
                 return false;
             }
@@ -200,6 +200,17 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 throw new RuntimeException(e);
             }
         }
+
+// /*
+// * (non-Javadoc)
+// *
+// * @see org.xmlbeam.dom.DOMAccess#addNameSpace(java.lang.String, java.lang.String)
+// */
+// @Override
+// public T addNameSpace(String URI, String prefix) {
+// getDOMNode().)
+// return null;
+// }
     }
 
     private final class DefaultObjectInvoker<T> extends DefaultDOMAccessInvoker<T> {

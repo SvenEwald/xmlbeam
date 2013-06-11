@@ -17,14 +17,14 @@ package org.xmlbeam.tests;
 
 import java.util.List;
 
-import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
+import org.xmlbeam.dom.DOMAccess;
 
 
 @org.xmlbeam.annotation.XBDocURL("resource://testsuite.xml")
-public interface XMLBeamTestSuite extends DOMAccess {
+public interface XMLBeamTestSuite extends DOMAccess<XMLBeamTestSuite> {
 
     @XBRead("/gluerootnode/intermediate/firstelement/innerElement1")
     String getStringContent();
@@ -95,7 +95,7 @@ public interface XMLBeamTestSuite extends DOMAccess {
     @XBRead(value = "//thirdElement/@*", targetComponentType = String.class)
     List<String> getAttributeValuesAsStringlist();
 
-    interface InnerStructure extends DOMAccess{
+    interface InnerStructure extends DOMAccess<InnerStructure> {
         @XBRead("child::innerStructureA")
         String getA();
 

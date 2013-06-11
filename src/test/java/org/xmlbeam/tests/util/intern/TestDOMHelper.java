@@ -42,7 +42,7 @@ public class TestDOMHelper {
         document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
-    public interface HelperProjection extends DOMAccess {
+    public interface HelperProjection extends DOMAccess<HelperProjection> {
         @XBRead("{0}")
         HelperProjection selectXPath(String xpath);
     }
