@@ -20,7 +20,7 @@ import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 
-public interface GenericXPathProjection extends DOMAccess<GenericXPathProjection> {
+public interface GenericXPathProjection extends DOMAccess {
 
     @XBWrite("{0}")
     void setterXPathString(String path, @XBValue String value);

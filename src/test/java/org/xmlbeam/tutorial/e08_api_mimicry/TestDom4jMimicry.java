@@ -37,7 +37,7 @@ public class TestDom4jMimicry extends TutorialTestCase {
         Attribute attribute = element2.attribute("eattribute");
         System.out.println(attribute.getValue());
         
-        org.w3c.dom.Element newRootNode = ((DOMAccess<Document>)document).getDOMOwnerDocument().createElement("newRoot");
+        org.w3c.dom.Element newRootNode = ((DOMAccess)document).getDOMOwnerDocument().createElement("newRoot");
         Element newRootElement = projector.projectDOMNode(newRootNode, Element.class);
         
         document.setRootElement(newRootElement);
