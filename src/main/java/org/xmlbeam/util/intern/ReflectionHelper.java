@@ -109,4 +109,10 @@ public final class ReflectionHelper {
         }
         return list;
     }
+    
+    @SuppressWarnings("unchecked")
+    public static <A,B> B uncheckedCast(A a) {
+        return (B) a;
+    }
+
 }

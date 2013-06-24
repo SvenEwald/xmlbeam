@@ -133,7 +133,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private class DefaultDOMAccessInvoker implements DOMAccess {
         private final Node documentOrElement;
-        private final Class projectionInterface;
+        private final Class<?> projectionInterface;
 
         /**
          * @param documentOrElement
@@ -260,6 +260,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
         @Override
         public TypeConverter getTypeConverter() {
             return XBProjector.this.typeConverter;
+        }
+                
+        @SuppressWarnings("unchecked")
+        public <T extends TypeConverter> T getTypeConverterAs(Class<T>... clazz) {
+            return (T) XBProjector.this.typeConverter;
         }
 
         /**
