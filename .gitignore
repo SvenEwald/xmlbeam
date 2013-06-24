@@ -9,3 +9,4 @@
 
 target
 /cobertura.ser
+/hs_err_pid*.log
