@@ -35,44 +35,75 @@ public class RunExample {
 
     private static final Map<Vector, Vector> HMAP = new HashMap<Vector, Vector>();
 
-    public static class Vector {
-        public float x, y, z;
-
-        public Vector(float i, float j, float k) {
-            x = i;
-            y = j;
-            z = k;
+    public static class Triplet<T> {
+        public T a,b,c;
+        public Triplet(T a,T b,T c) {
+            this.a=a; this.b=b; this.c=c;
         }
+      @Override
+      public String toString() {
+          return a + " " + b + " " + c;
+      } 
+    }
+    
+    public static class Vector extends Triplet<Float> {
+        public Vector(Float a, Float b, Float c) {
+            super(a, b, c);
+        }};
+        
+        
+//    public static class Vector {
+//        public float x, y, z;
+//
+//        public Vector(float i, float j, float k) {
+//            x = i;
+//            y = j;
+//            z = k;
+//        }
+//
+//        @Override
+//        public String toString() {
+//            return x + " " + y + " " + z;
+//        }
+//    }
 
-        @Override
-        public String toString() {
-            return x + " " + y + " " + z;
+//    public static class Vertex {
+//        public Vertex(Vector p,Vector n) {
+//            this.position=p;
+//            this.normal=n;
+//        }
+//        public Vertex(float i, float j, float k, float nx, float ny, float nz) {
+//            position = new Vector(i, j, k);
+//            normal = new Vector(nx, ny, nz);
+//        }
+//
+//        public Vector position;
+//        public Vector normal;
+//    }
+        
+    public static class Vertex extends Triplet<Vector>{
+
+        public Vertex(Vector a, Vector b, Vector c) {
+            super(a, b, c);
         }
+        
     }
 
-    public static class Vertex {
-        public Vertex(Vector p,Vector n) {
-            this.position=p;
-            this.normal=n;
-        }
-        public Vertex(float i, float j, float k, float nx, float ny, float nz) {
-            position = new Vector(i, j, k);
-            normal = new Vector(nx, ny, nz);
-        }
-
-        public Vector position;
-        public Vector normal;
-    }
-
-    public static class Triangle {
-        public Vertex a, b, c;
-
+    public static class Triangle extends Triplet<Vertex> {
         public Triangle(Vertex a, Vertex b, Vertex c) {
-            this.a = a;
-            this.b = b;
-            this.c = c;
+            super(a, b, c);
         }
     }
+    
+//    public static class Triangle {
+//        public Vertex a, b, c;
+//
+//        public Triangle(Vertex a, Vertex b, Vertex c) {
+//            this.a = a;
+//            this.b = b;
+//            this.c = c;
+//        }
+//    }
 
     private static void addVertex(Xml3d mesh, Vertex v) {
         int newIndex = 0;
@@ -85,11 +116,11 @@ public class RunExample {
         mesh.setIndexes(newIndexes);
 
         String oldPositions = mesh.getPositions();
-        String newPositions = oldPositions + " " + v.position;
+        String newPositions = oldPositions + " " + v.a;
         mesh.setPositions(newPositions);
 
         String oldNormals = mesh.getNormals();
-        String newNormals = oldNormals + " " + v.normal;
+        String newNormals = oldNormals + " " + v.b;
         mesh.setNormals(newNormals);
 
     }
@@ -101,7 +132,9 @@ public class RunExample {
             XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
             projector.config().as(DefaultXMLFactoriesConfig.class).setNamespacePhilosophy(NamespacePhilosophy.NIHILISTIC);
             Xml3d xml3d = projector.io().fromURLAnnotation(Xml3d.class);
-            Triangle t=new Triangle(new Vertex(-1, -1, -4, 0, 0, 1), new Vertex(1, -1, -4, 0, 0, 1), new Vertex(0, 1, -4, 0, 0, 1));
+            Triangle t=new Triangle(new Vertex(new Vector(-1f, -1f, -4f),new Vector(0f, 0f, 1f),null),
+                                    new Vertex(new Vector(1f, -1f, -4f), new Vector(0f, 0f, 1f),null),
+                                    new Vertex(new Vector(0f, 1f, -4f), new Vector(0f, 0f, 1f),null));
             spanTriangles(xml3d,t,0);
             //addTriangle(xml3d,t);
             // String page = new Scanner(RunExample.class.getResourceAsStream("test.html")).useDelimiter("\\A").next();
@@ -109,8 +142,7 @@ public class RunExample {
             String header = "HTTP/1.0 200 OK\r\nContent-Type: application/xhtml+xml\r\nContent-Length: " + page.getBytes("UTF-8").length + "\r\n\r\n";            
             s.getOutputStream().write((header + page).getBytes("UTF-8"));
             s.getOutputStream().flush();
-            s.close();
-            s=null;
+            s.close();            
         }
     }
 
@@ -134,14 +166,14 @@ public class RunExample {
     }
 
     private static Vertex middle(Vertex a, Vertex b) {
-        Vector position=new Vector((a.position.x+b.position.x)/2,(a.position.y+b.position.y)/2,0f);
+        Vector position=new Vector((a.a.a+b.a.a)/2,(a.a.b+b.a.b)/2,0f);
         if (!HMAP.containsKey(position)) {
-            position.z = (float) (0f * Math.random() + (a.position.y + b.position.y) / 2);
-            HMAP.put(new Vector((a.position.x+b.position.x)/2,(a.position.y+b.position.y)/2,0f), position);
+            position.c = (float) (0f * Math.random() + (a.a.b + b.a.b) / 2);
+            HMAP.put(new Vector((a.a.a+b.a.a)/2,(a.a.b+b.a.b)/2,0f), position);
         } else {
             position = HMAP.get(position);
         }
-        return new Vertex(position,new Vector(0,0,1));
+        return new Vertex(position,new Vector(0f,0f,1f),null);
     }
 
     private static void addTriangle(Xml3d xml3d, Triangle t) {
