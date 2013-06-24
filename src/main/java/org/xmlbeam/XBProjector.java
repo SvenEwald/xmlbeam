@@ -131,21 +131,21 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private final Set<Flags> flags;
 
-    private class DefaultDOMAccessInvoker<T> implements DOMAccess<T> {
+    private class DefaultDOMAccessInvoker implements DOMAccess {
         private final Node documentOrElement;
-        private final Class<T> projectionInterface;
+        private final Class projectionInterface;
 
         /**
          * @param documentOrElement
          * @param projectionInterface
          */
-        private DefaultDOMAccessInvoker(Node documentOrElement, Class<T> projectionInterface) {
+        private DefaultDOMAccessInvoker(Node documentOrElement, Class<?> projectionInterface) {
             this.documentOrElement = documentOrElement;
             this.projectionInterface = projectionInterface;
         }
 
         @Override
-        public Class<T> getProjectionInterface() {
+        public Class<?> getProjectionInterface() {
             return projectionInterface;
         }
 
@@ -172,7 +172,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             if (!(o instanceof DOMAccess)) {
                 return false;
             }
-            DOMAccess<?> op = (DOMAccess<?>) o;
+            DOMAccess op = (DOMAccess) o;
             if (!projectionInterface.equals(op.getProjectionInterface())) {
                 return false;
             }
@@ -213,8 +213,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
 // }
     }
 
-    private final class DefaultObjectInvoker<T> extends DefaultDOMAccessInvoker<T> {
-        private DefaultObjectInvoker(Class<T> projectionInterface, Node documentOrElement) {
+    private final class DefaultObjectInvoker extends DefaultDOMAccessInvoker {
+        private DefaultObjectInvoker(Class<?> projectionInterface, Node documentOrElement) {
             super(documentOrElement, projectionInterface);
         }
 
@@ -225,8 +225,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
     }
 
-    private final class XMLRenderingObjectInvoker<T> extends DefaultDOMAccessInvoker<T> {
-        private XMLRenderingObjectInvoker(Class<T> projectionInterface, Node documentOrElement) {
+    private final class XMLRenderingObjectInvoker extends DefaultDOMAccessInvoker {
+        private XMLRenderingObjectInvoker(Class<?> projectionInterface, Node documentOrElement) {
             super(documentOrElement, projectionInterface);
         }
 
@@ -527,11 +527,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
 
         Map<Class<?>, Object> defaultInvokers = new HashMap<Class<?>, Object>();
-        DefaultDOMAccessInvoker<T> invoker;
+        DefaultDOMAccessInvoker invoker;
         if (flags.contains(Flags.TO_STRING_RENDERS_XML)) {
-            invoker=new XMLRenderingObjectInvoker<T>(projectionInterface, documentOrElement);
+            invoker = new XMLRenderingObjectInvoker(projectionInterface, documentOrElement);
         } else {
-            invoker = new DefaultObjectInvoker<T>(projectionInterface, documentOrElement);
+            invoker = new DefaultObjectInvoker(projectionInterface, documentOrElement);
         }
         defaultInvokers.put(DOMAccess.class, invoker);
         defaultInvokers.put(Object.class, invoker);

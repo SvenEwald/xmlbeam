@@ -42,7 +42,7 @@ public class FAQSnippets {
     {        
         //START SNIPPET: MixinRegistration
         Object mixin = new Object() {
-            private DOMAccess<Projection> me;
+            private DOMAccess me;
             @Override
             public String toString() {
                 return "I'm a "+ me.getProjectionInterface().getSimpleName();

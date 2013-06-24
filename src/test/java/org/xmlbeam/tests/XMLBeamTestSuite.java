@@ -24,7 +24,7 @@ import org.xmlbeam.dom.DOMAccess;
 
 
 @org.xmlbeam.annotation.XBDocURL("resource://testsuite.xml")
-public interface XMLBeamTestSuite extends DOMAccess<XMLBeamTestSuite> {
+public interface XMLBeamTestSuite extends DOMAccess {
 
     @XBRead("/gluerootnode/intermediate/firstelement/innerElement1")
     String getStringContent();
@@ -95,7 +95,7 @@ public interface XMLBeamTestSuite extends DOMAccess<XMLBeamTestSuite> {
     @XBRead(value = "//thirdElement/@*", targetComponentType = String.class)
     List<String> getAttributeValuesAsStringlist();
 
-    interface InnerStructure extends DOMAccess<InnerStructure> {
+    interface InnerStructure extends DOMAccess {
         @XBRead("child::innerStructureA")
         String getA();
 

@@ -42,7 +42,7 @@ import org.xmlbeam.util.IOHelper;
  */
 public class TestIOBehavior {
 
-    public interface FooProjection extends DOMAccess<FooProjection> {
+    public interface FooProjection extends DOMAccess {
         @XBRead("name(/*)")
         String getRootName();
     };

@@ -29,12 +29,12 @@ import org.w3c.dom.Node;
  * You may even let your projection interfaces extend this interface
  * for a convenient access to the underlying DOM. 
  */
-public interface DOMAccess<P> extends Serializable {
+public interface DOMAccess extends Serializable {
     /**
      * Getter for the projection interface.
      * @return the projection interface of this projection.
      */
-    Class<P> getProjectionInterface();
+    Class<?> getProjectionInterface();
 
     /**
      * Getter for the underlying DOM node holding the data.
@@ -56,8 +56,6 @@ public interface DOMAccess<P> extends Serializable {
      *         subprojection.
      */
     Element getDOMBaseElement();
-
-    P addNameSpace(String URI, String prefix);
 
     /**
      * This method may be used to get a string representation of the projected document or element.
