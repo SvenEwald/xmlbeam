@@ -28,7 +28,8 @@ public class CoordinateList implements Iterable<Coordinate> {
             if (s.isEmpty()) {
                 continue;
             }
-            coordinates.add(new Coordinate(Double.parseDouble(s.split(",")[0]), Double.parseDouble(s.split(",")[1])));
+            Coordinate coordinate = new Coordinate(Double.parseDouble(s.split(",")[0]), Double.parseDouble(s.split(",")[1]));
+            coordinates.add(coordinate);
         }
     }
 
@@ -40,12 +41,9 @@ public class CoordinateList implements Iterable<Coordinate> {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        for (Coordinate xy : coordinates) {
-            if (s.length()>0) {
-                s.append(" ");
-            }
-            s.append(xy.x).append(",").append(xy.y);
+        for (Coordinate xy : this) {            
+            s.append(xy.x).append(",").append(xy.y).append(" ");
         }
-        return s.toString();
+        return s.toString().trim();
     }
 }

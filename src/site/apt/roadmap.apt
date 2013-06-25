@@ -1,8 +1,6 @@
 Roadmap
 
 * Version 2.x
-
- * Option to externalize projection metadata.
  
  * Option to validate projection metadata.
  
@@ -13,6 +11,8 @@ Roadmap
 * Version 1.x
 
  * Freezing projector API 
+ 
+ * Option to externalize projection metadata.
  
  * Release of artifacts to maven central.
  

@@ -23,15 +23,9 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.types.DefaultTypeConverter;
 
-/**
- *
- */
 @SuppressWarnings("serial")
 public class TestCustomTypeConversion {
-
-    /**
-     *
-     */
+   
     private final class CoordinateListConversion extends DefaultTypeConverter.Conversion<CoordinateList> {
         private CoordinateListConversion() {
             super(new CoordinateList(""));
@@ -45,14 +39,14 @@ public class TestCustomTypeConversion {
 
     @Test
     public void testCoordinateAccess() throws IOException {
-        XBProjector projector = new XBProjector();
-        //projector.config().as(DefaultXMLFactoriesConfig.class).setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC);
+        XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig().setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC));
         DefaultTypeConverter converter = new DefaultTypeConverter().setConversionForType(CoordinateList.class, new CoordinateListConversion());
         projector.config().setTypeConverter(converter);
         KML kml = projector.io().fromURLAnnotation(KML.class);
-        for (Coordinate xy : kml.getCoordinates()) {
-            System.out.println("x:" + xy.x + " y:" + xy.y);
-        }
+        System.out.println(kml.getCoordinates().toString());
+//        for (Coordinate xy : kml.getCoordinates()) {
+//            System.out.println("x:" + xy.x + " y:" + xy.y);
+//        }
     }
 
 }

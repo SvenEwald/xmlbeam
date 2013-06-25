@@ -48,4 +48,5 @@ public interface GraphML {
     
     @XBRead("{0}")
     String xpath(String path);
+    
 }

@@ -22,8 +22,7 @@ import org.xmlbeam.annotation.XBWrite;
 @XBDocURL("resource://polygon-simple.kml")
 public interface KML {
 
-//    @XBRead("//xbdefaultns:coordinates")
-    @XBRead("/xbdefaultns:kml/xbdefaultns:Placemark/xbdefaultns:Polygon/xbdefaultns:outerBoundaryIs/xbdefaultns:LinearRing/xbdefaultns:coordinates")
+    @XBRead("/kml/Placemark/Polygon/outerBoundaryIs/LinearRing/coordinates")
     public CoordinateList getCoordinates();
     
     @XBWrite("/kml/Placemark/Polygon/outerBoundaryIs/LinearRing/coordinates")

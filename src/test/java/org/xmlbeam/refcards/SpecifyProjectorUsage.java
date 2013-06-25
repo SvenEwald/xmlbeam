@@ -13,12 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.usage;
+package org.xmlbeam.refcards;
 
 import java.io.IOException;
 
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.config.XMLFactoriesConfig;
 
 /**
  *
@@ -28,9 +30,19 @@ public class SpecifyProjectorUsage {
     public void testFluentAPI() throws IOException {
 
         new XBProjector(Flags.SYNCHRONIZE_ON_DOCUMENTS).projectEmptyDocument(null);
-
-        new XBProjector(Flags.SYNCHRONIZE_ON_DOCUMENTS,Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(null);
+        new XBProjector(Flags.SYNCHRONIZE_ON_DOCUMENTS, Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(null);
 
     }
 
+    public void testXMLFactoriesConfig() {
+        {
+            DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig();
+            config.setPrettyPrinting(true);
+            XBProjector projector = new XBProjector(config);
+        }
+        {
+            XBProjector projector = new XBProjector();
+            projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(true);
+        }
+    }
 }
