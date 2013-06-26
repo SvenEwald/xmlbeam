@@ -227,9 +227,9 @@ public final class DOMHelper {
      * @param selector
      * @return
      */
-    private static Element createElementByTagNameAndSelector(final Document document,final  String name,final String selector) {
-        //Element element = document.createElement(name);
-        final Element element = createElement(document,name);
+    private static Element createElementByTagNameAndSelector(final Document document, final String name, final String selector) {
+        // Element element = document.createElement(name);
+        final Element element = createElement(document, name);
         forceSelectorOnElement(document, selector, element);
         return element;
     }
@@ -241,12 +241,16 @@ public final class DOMHelper {
         final String[] selectorValues = splitSelector(selector);
         if (selectorValues[0].startsWith("@")) {
             final String prefix = getPrefixOfQName(selectorValues[0].substring(1));
-            final String namespaceURI= ("xmlns".equals(prefix)) ? "http://www.w3.org/2000/xmlns/"  : element.getNamespaceURI();
-            element.setAttributeNS(namespaceURI, selectorValues[0].substring(1), selectorValues[1]);
+            if (prefix.isEmpty()) {
+                element.setAttribute(selectorValues[0].substring(1), selectorValues[1]);
+            } else {
+                final String namespaceURI = ("xmlns".equals(prefix)) ? "http://www.w3.org/2000/xmlns/" : element.getNamespaceURI();
+                element.setAttributeNS(namespaceURI, selectorValues[0].substring(1), selectorValues[1]);
+            }
             return element;
         }
-       // Element child = document.createElement(selectorValues[0]);
-        final Element child = createElement(document,selectorValues[0]);
+        // Element child = document.createElement(selectorValues[0]);
+        final Element child = createElement(document, selectorValues[0]);
         child.setTextContent(selectorValues[1]);
         element.appendChild(child);
         return element;
@@ -279,9 +283,10 @@ public final class DOMHelper {
         if ((selector == null) || (selector.isEmpty())) {
             return true;
         }
-        if (!selector.contains("[")) {
-            return selector.equals(item.getNodeName());
-        }
+// FIXME: what was this supposed to do?        
+//        if (!selector.contains("[")) {
+//            return selector.equals(item.getNodeName());
+//        }
         String[] selectorValues = splitSelector(selector);
         if (selectorValues[0].startsWith("@")) {
             return selectorValues[1].equals(item.getAttribute(selectorValues[0].substring(1)));
@@ -545,8 +550,8 @@ public final class DOMHelper {
      */
     public static Element renameElement(Element element, String newName) {
         Document document = element.getOwnerDocument();
-        //Element newElement = document.createElement(newName);
-        final Element newElement = createElement(document,newName);
+        // Element newElement = document.createElement(newName);
+        final Element newElement = createElement(document, newName);
         NodeList nodeList = element.getChildNodes();
         List<Node> toBeMoved = new LinkedList<Node>();
         for (int i = 0; i < nodeList.getLength(); ++i) {
@@ -579,12 +584,18 @@ public final class DOMHelper {
         }
         return documentOrElement.getOwnerDocument();
     }
-    
-    private static Element createElement(final Document document,final String elementName) {
-        
+
+    private static Element createElement(final Document document, final String elementName) {
         final String prefix = getPrefixOfQName(elementName);// .replaceAll("(:.*)|([^:])*", "");
-        final String namespaceURI=prefix.isEmpty() ? null : document.lookupNamespaceURI(prefix);
-        final Element element=document.createElementNS(namespaceURI, elementName);
+        final String namespaceURI = prefix.isEmpty() ? null : document.lookupNamespaceURI(prefix);
+
+        final Element element;
+        if (namespaceURI == null) {
+            element = document.createElement(elementName);
+        } else {
+            element = document.createElementNS(namespaceURI, elementName);
+        }
+
         return element;
     }
 

@@ -13,49 +13,12 @@ Tutorial Examples
  Each example works on real life XML Data. <<Have fun!>> 
 
 %{toc|section=1|fromDepth=2|toDepth=2}
+	
+*E01: Printing some weather data.			
 			
-*E01: Printing some weather data.
+%{include|source-content-type=apt|source=src/site/apt/t01_desc.txt}
 
- This example should give you a first impression of the basic XMLBeam features:
- 
-  * Accessing XML attributes with automatic type conversion.
-  
-  * Sub projections grouping data
-
-** XML Content
-
- Using the MSN weather service will get you some XML content similar to this:
-   
----------
-<weatherdata>
-      <weather
-        ... 
-      	degreetype="F"
-      	lat="50.5520210266113" lon="6.24060010910034" 
-      	searchlocation="Monschau, Stadt Aachen, NW, Germany" 
-		... >
-        <current ... skytext="Clear" temperature="46"/>
-      </weather>
-</weatherdata>
----------
- We see that the XML structure consists of three elements and number of attributes holding the data. 
- If you execute the tutorial example code you will see that there are even more attributes that are shortened out for readability.
- If you would use a data binding XML library to access this data you would get three Java classes, two of them actually holding interesting parts.
- 
-** Projection 
- 
- Using data projection we define a single interface, hiding the XML structure:
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#WeatherDataInterface|source=src/test/java/org/xmlbeam/tutorial/e01_weather/WeatherData.java}
-
- Hey, what does the inner interface "Location" do there? This declares that we like to group the two attributes holding the coordinates together in one object.
- It is not only possible to hide elements of the xml structure, but to enrich the structure with pretended objects.
- 
-** Example Code
- 
- Here the code to run the example:
- 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#WeatherDataCode|source=src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}
+ {{{./t01.html}Tutorial 1}}!
 
 *E02: Reading a Jenkins Job Configuration
 

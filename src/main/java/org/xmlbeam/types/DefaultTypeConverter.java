@@ -22,6 +22,8 @@ import java.io.Serializable;
 
 import javax.xml.soap.Node;
 
+import org.xmlbeam.util.intern.ReflectionHelper;
+
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
@@ -113,7 +115,6 @@ public class DefaultTypeConverter implements TypeConverter {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T convertTo(Class<T> targetType, String data) {
         assert data != null;
@@ -121,7 +122,7 @@ public class DefaultTypeConverter implements TypeConverter {
         assert conversion != null : "Method caller must check existence of conversion.";
 
         if (data.isEmpty()) {
-            return (T) conversion.getDefaultValue();
+            return ReflectionHelper.uncheckedCast(conversion.getDefaultValue());
         }
 
         return (T) conversion.convert(data);
@@ -135,4 +136,21 @@ public class DefaultTypeConverter implements TypeConverter {
         return CONVERSIONS.containsKey(targetType);
     }
 
+    
+    public <T> Conversion<T> getConversionForType(final Class<T> type) {
+        assert type!=null;
+        return ReflectionHelper.uncheckedCast(CONVERSIONS.get(type));
+    }
+    
+    public <T> DefaultTypeConverter setConversionForType(final Class<T> type,final Conversion<T> conversion) {
+        assert type!=null;
+        if (conversion==null) {
+            CONVERSIONS.remove(type);
+            return this;
+        }
+        CONVERSIONS.put(type, conversion);
+        return this;
+    }
+    
+    
 }
