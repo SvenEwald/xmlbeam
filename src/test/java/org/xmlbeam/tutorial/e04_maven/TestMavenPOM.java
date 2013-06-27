@@ -27,16 +27,19 @@ import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e04_maven.MavenPOM.Artifact;
 
+//START SNIPPET: Tutorial4
 @Category(Tutorial.class)
 public class TestMavenPOM extends TutorialTestCase {
 
-    /**
-     * Show how to modify the project name in a maven POM.
-     * 
-     * @throws SAXException
-     * @throws IOException
-     * @throws ParserConfigurationException
-     */
+/* START SNIPPET: TutorialDescription     
+ A Maven project has a group id, artefact id and a version.
+ So does a Maven dependency.
+ Now we reuse the same sub projection for unrelated, but similar parts of the document.
+ This is possible because the structure of our projection does not need to follow the structure of the document.
+
+ Second we define a simple setter in the projection interface to show how element values can be modified.  
+END SNIPPET: TutorialDescription */
+    
     @Test
     public void testProjectNameWriting() throws SAXException, IOException, ParserConfigurationException {
 //START SNIPPET: TestMavenPOM
@@ -47,6 +50,6 @@ for (Artifact artifact:pom.getDependencies()) {
         System.out.println("Hmm... your project depends on itself!");
     }
 }
-//START SNIPPET: TestMavenPOM        
+//END SNIPPET: TestMavenPOM        
     }
 }

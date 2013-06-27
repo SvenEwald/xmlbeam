@@ -28,6 +28,34 @@ import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
 import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 
+/* START SNIPPET: TutorialDescription
+ In the last example we demonstrated a sub projection pretending a non existing element.
+ This time we like to define some model classes for a Jenkins job configuration and project existing elements to them.
+ But there is one little hurdle: We can not know the exact XML structure, because Jenkins plugins contribute new elements with different names.
+ Our model would have to include one class for each contributed element, but we like to keep the number of model classes low.
+ 
+ The solution to this shows: 
+  
+ * Usage of XPath wildcards.
+   Mapping of varying elements to one Java object. 
+ 
+ * Automatic conversion of sequences to lists and arrays utilizing Java generics to provide a static typed API.
+   
+ * Declarative document origins.
+   Just add a source URL via annotation, let the framework get the document.
+   
+ * Inheritance in projection interface.
+   Java interface inheritance is still supported in projection interfaces.     
+
+ []
+  
+ Instead of defining one model class for each element, we project all elements doing the same stuff to the same model object. 
+ This is done by using XPath wildcards that will simply select all elements in a defined subtree. 
+ Of course we define a getter method to give us the element name, so we can use our model to find out what which elements are really in there. 
+
+ END SNIPPET: TutorialDescription
+ */
+
 @Category(Tutorial.class)
 //START SNIPPET: JenknsCode
 public class TestJenkinsConfigParsing extends TutorialTestCase {
@@ -54,4 +82,4 @@ public class TestJenkinsConfigParsing extends TutorialTestCase {
     }
 
 }
-//START SNIPPET: JenknsCode
+//END SNIPPET: JenknsCode

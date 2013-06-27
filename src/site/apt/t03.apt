@@ -1,0 +1,37 @@
+Tutorial 3
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}
+
+
+**XML Content
+
+-----------
+<profiles version="8">
+    <profile name="Some Profile" version="8">
+        <setting
+            id="org.eclipse.jdt.core.formatter.align_type_members_on_columns"
+            value="false" />
+        <setting
+            id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression"
+            value="16" />
+... 
+    </profile>
+    <profile name="Another Profile" version="8">
+        <setting
+            id="org.eclipse.jdt.core.formatter.align_type_members_on_columns"
+            value="true" />
+        <setting
+            id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression"
+            value="16" />
+ ...
+    </profile>
+</profiles>
+----------- 
+ 
+** Projection API 
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#EclipseCodeFormatterConfig|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/EclipseFormatterConfigFile.java}
+
+** Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestEclipseCodeFormatterConfig|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}

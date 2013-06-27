@@ -2,8 +2,7 @@ Tutorial 1
 
 *E01: Printing some weather data.
 
-%{include|source-content-type=apt|source=src/site/apt/t01_desc.txt}
-
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}}
 
 ** XML Content
 

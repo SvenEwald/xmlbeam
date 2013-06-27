@@ -28,10 +28,10 @@ import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e01_weather.WeatherData.Location;
 
 /**
- * This test demonstrates simple reading and printing of live weather data. Please see projection interface {@link WeatherData} for further description.
+ * This test demonstrates simple reading and printing of live weather data. Please see projection
+ * interface {@link WeatherData} for further description.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
- * 
  */
 @Category(Tutorial.class)
 public class TestWeatherData extends TutorialTestCase {
@@ -49,6 +49,14 @@ public class TestWeatherData extends TutorialTestCase {
         }
     }
 
+/* START SNIPPET: TutorialDescription     
+ This example should give you a first impression of the basic XMLBeam features:
+ 
+  * Accessing XML attributes with automatic type conversion.
+  
+  * Sub projections grouping data
+
+END SNIPPET: TutorialDescription */
 // START SNIPPET: WeatherDataCode
 private void printWeatherData(String location) throws IOException {
     

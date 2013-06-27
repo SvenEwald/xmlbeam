@@ -1,0 +1,13 @@
+Tutorial 4
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=}
+
+
+
+** Projection API
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#MavenPOM|source=src/test/java/org/xmlbeam/tutorial/e04_maven/MavenPOM.java}
+
+** Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestMavenPOM|source=src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}

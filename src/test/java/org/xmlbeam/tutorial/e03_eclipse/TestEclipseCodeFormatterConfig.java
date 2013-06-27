@@ -25,16 +25,25 @@ import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
 
 /**
- * This example is about accessing eclipse configuration profiles with a
- * parameterized projection.
- * 
+ * This example is about accessing eclipse configuration profiles with a parameterized projection.
  * See {@link EclipseFormatterConfigFile} for further description.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
- * 
  */
 @Category(Tutorial.class)
 public class TestEclipseCodeFormatterConfig extends TutorialTestCase {
+// START SNIPPET:
+/* START SNIPPET: TutorialDescription 
+
+ Eclipse code formatter settings are stored in profiles. In this example we like to access the data of a certain profile.
+ Features shown in this example:
+ 
+ * Dynamic projections
+   Getter methods may be declared with parameters. 
+   There parameters will fill placeholders in the XPath declaration to build up the final XPath expression.
+   Syntax of this is the MessageFormat format syntax.  
+   
+END SNIPPET: TutorialDescription */
 
     @Test
     public void profilesTest() throws IOException {
@@ -48,4 +57,3 @@ for (Setting setting:configFile.getAllSettingsForProfile("Some Profile")) {
 //END SNIPPET: TestEclipseCodeFormatterConfig
     }
 }
-
