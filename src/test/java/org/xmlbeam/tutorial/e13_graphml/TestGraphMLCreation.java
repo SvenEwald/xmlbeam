@@ -22,6 +22,11 @@ import java.io.IOException;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
+
+
 public class TestGraphMLCreation {
     
     @Test

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 /**
- * This package contains the {@link XBProjector}.
+ * This package contains the {@link org.xmlbeam.XBProjector}.
  *
  */
 package org.xmlbeam;

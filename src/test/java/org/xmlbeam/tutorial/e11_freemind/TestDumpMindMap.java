@@ -25,6 +25,11 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.e11_freemind.MindMap.Node;
 
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
+
+
 public class TestDumpMindMap {
 
     private static final Comparator<? super String> STRING_LENGTH_COMPARATOR = new Comparator<String>() {

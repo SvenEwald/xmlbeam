@@ -21,6 +21,11 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
+
+
 public class TestWikiAccess extends TutorialTestCase{
 
     final private String[] PROGRAMMING_LANGUAGES = new String[] { "Java", "C++", "C", "Scala" };

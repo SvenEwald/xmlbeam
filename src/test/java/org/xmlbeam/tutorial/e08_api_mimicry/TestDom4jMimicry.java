@@ -22,6 +22,11 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
+
+
 public class TestDom4jMimicry extends TutorialTestCase {
 
     @Test

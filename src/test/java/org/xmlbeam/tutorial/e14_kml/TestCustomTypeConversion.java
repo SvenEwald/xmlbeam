@@ -23,6 +23,11 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.types.DefaultTypeConverter;
 
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
+
+
 @SuppressWarnings("serial")
 public class TestCustomTypeConversion {
    

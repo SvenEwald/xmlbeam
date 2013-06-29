@@ -15,17 +15,23 @@
  */
 package org.xmlbeam.tutorial.e12_xml3d;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import java.io.IOException;
 
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
+
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
 
 public class RunExample {
 

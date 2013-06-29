@@ -27,6 +27,12 @@ import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e07_svg.SVGDocument.GraphicElement;
 
+
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
+
+
 /**
  * Demonstation of the concept of "projection mixins". While its not possible to
  * let your own classes implements projection interfaces without losing the

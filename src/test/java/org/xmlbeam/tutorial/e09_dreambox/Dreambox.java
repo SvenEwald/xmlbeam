@@ -20,6 +20,11 @@ import java.util.List;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
+/* START SNIPPET: TutorialDescription
+~~
+END SNIPPET: TutorialDescription */
+
+
 /**
  * A Dreambox is a hard disk video recorder with a web based interface that works with XML data
  * exchange from multiple URLs. This example is provided to show a real life use case for
