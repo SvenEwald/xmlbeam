@@ -34,7 +34,7 @@ import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
 public class TestEclipseCodeFormatterConfig extends TutorialTestCase {
 // START SNIPPET:
 /* START SNIPPET: TutorialDescription 
-
+~~
  Eclipse code formatter settings are stored in profiles. In this example we like to access the data of a certain profile.
  Features shown in this example:
  

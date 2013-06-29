@@ -42,7 +42,7 @@ public class CoordinateList implements Iterable<Coordinate> {
     public String toString() {
         StringBuilder s = new StringBuilder();
         for (Coordinate xy : this) {            
-            s.append(xy.x).append(",").append(xy.y).append(" ");
+            s.append(xy.getX()).append(",").append(xy.getY()).append(" ");
         }
         return s.toString().trim();
     }

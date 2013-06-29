@@ -1,0 +1,3 @@
+Tutorial 10
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e10_wikipedia/TestWikiAccess.java}

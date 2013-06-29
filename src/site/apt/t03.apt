@@ -2,8 +2,7 @@ Tutorial 3
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}
 
-
-**XML Content
+*XML Content
 
 -----------
 <profiles version="8">
@@ -28,10 +27,10 @@ Tutorial 3
 </profiles>
 ----------- 
  
-** Projection API 
+* Projection API 
 
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#EclipseCodeFormatterConfig|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/EclipseFormatterConfigFile.java}
 
-** Example Code
+* Example Code
 
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestEclipseCodeFormatterConfig|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}

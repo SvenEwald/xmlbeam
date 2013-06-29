@@ -1,0 +1,24 @@
+Tutorial 8
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/TestDom4jMimicry.java}
+
+* Projection API
+
+ In this example we do something special: 
+ 
+ * Projection of a complete unknown XML structure.
+ 
+ * Building our Java API analog to DOM4J.
+ 
+ The result is a generic Java API you can use to analyze every XML document.  
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Document|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Document.java}
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Element|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Element.java}
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Attribute|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Attribute.java}
+ 
+* Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestDom4jMimicry|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/TestDom4jMimicry.java}
+

@@ -9,16 +9,6 @@
 
 Welcome to XMLBeam
 
-----------------------------------------
-<xml>
-   <example>
-      <content type="foo" >bar</content>
-   </example>
-</xml>
-----------------------------------------
-
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#mainExample|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
-
  If you are new here, please read {{{./introduction.html} the introduction}}.
  Are you in a hurry?
  Read the {{{./tutorials.html}the tutorials}}!
@@ -33,6 +23,18 @@ Welcome to XMLBeam
  This approach works so well that you can even use it to mimicry other APIs.
  
  Above all XMLBeam is a handy daily XML tool with convenient features to create, modify and even read or write XML data. 
+ 
+* This is how it looks
+
+----------------------------------------
+<xml>
+   <example>
+      <content type="foo" >bar</content>
+   </example>
+</xml>
+----------------------------------------
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#mainExample|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
  
 * Project status
 

@@ -1,0 +1,14 @@
+Tutorial 7
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
+
+ * Add behavior to projections by adding a Mixin.
+ 
+* Projection API
+ 
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SVGDocument|source=src/test/java/org/xmlbeam/tutorial/e07_svg/SVGDocument.java}
+ 
+* Example Code
+ 
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestSVGElementSorting|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
+ 

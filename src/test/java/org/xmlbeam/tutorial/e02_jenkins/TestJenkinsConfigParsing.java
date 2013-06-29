@@ -28,8 +28,11 @@ import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e02_jenkins.model.Builder;
 import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 
-/* START SNIPPET: TutorialDescription
+/* START SNIPPET: TutorialDescription      
+~~
  In the last example we demonstrated a sub projection pretending a non existing element.
+ 
+ END SNIPPET: TutorialDescription
  This time we like to define some model classes for a Jenkins job configuration and project existing elements to them.
  But there is one little hurdle: We can not know the exact XML structure, because Jenkins plugins contribute new elements with different names.
  Our model would have to include one class for each contributed element, but we like to keep the number of model classes low.

@@ -38,15 +38,22 @@ public class TestCustomTypeConversion {
     }
 
     @Test
-    public void testCoordinateAccess() throws IOException {
+    public void testApplyOffsetToCoordinates() throws IOException {
         XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig().setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC));
         DefaultTypeConverter converter = new DefaultTypeConverter().setConversionForType(CoordinateList.class, new CoordinateListConversion());
         projector.config().setTypeConverter(converter);
         KML kml = projector.io().fromURLAnnotation(KML.class);
-        System.out.println(kml.getCoordinates().toString());
-//        for (Coordinate xy : kml.getCoordinates()) {
-//            System.out.println("x:" + xy.x + " y:" + xy.y);
-//        }
+        
+        // Extract the list of coordinates
+        CoordinateList coordinates = kml.getCoordinates();
+        
+        // Apply some offset
+        for (Coordinate a:coordinates) {
+            a.setX(a.getX()+10);
+        }
+        
+        // Set the list again
+        kml.setCoordinates(coordinates);
     }
 
 }

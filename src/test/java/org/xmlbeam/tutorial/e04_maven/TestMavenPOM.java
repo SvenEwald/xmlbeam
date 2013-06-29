@@ -31,7 +31,8 @@ import org.xmlbeam.tutorial.e04_maven.MavenPOM.Artifact;
 @Category(Tutorial.class)
 public class TestMavenPOM extends TutorialTestCase {
 
-/* START SNIPPET: TutorialDescription     
+/* START SNIPPET: TutorialDescription
+~~     
  A Maven project has a group id, artefact id and a version.
  So does a Maven dependency.
  Now we reuse the same sub projection for unrelated, but similar parts of the document.

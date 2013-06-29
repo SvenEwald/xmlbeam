@@ -17,12 +17,28 @@ package org.xmlbeam.tutorial.e14_kml;
 
 public class Coordinate {
 
-    public final Double x;
-    public final Double y;
+    private Double x;
+    private Double y;
     
     public Coordinate(Double x, Double y) {
-        this.x = x;
+        this.setX(x);
+        this.setY(y);
+    }
+
+    public Double getY() {
+        return y;
+    }
+
+    public void setY(Double y) {
         this.y = y;
+    }
+
+    public Double getX() {
+        return x;
+    }
+
+    public void setX(Double x) {
+        this.x = x;
     }
     
 }

@@ -1,0 +1,16 @@
+Tutorial 6
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
+ 
+ * Create a new document from scratch
+ 
+ * Usage of configuration injection to modify the output transformer.
+
+* Projection API
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#XHTML|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/XHTML.java}
+
+* Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestCreationOfXHTMLDocument|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
+ 

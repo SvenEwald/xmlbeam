@@ -1,5 +1,5 @@
 			------
-            Tutorial 1
+            Tutorials
             ------
             Sven Ewald
             ------
@@ -8,92 +8,59 @@
 
 Tutorial Examples
 
- This tutorial guides you through nine examples, each demonstrating a couple of XMLBeam features.
+ This tutorial guides you through real life examples, each demonstrating a couple of XMLBeam features.
  You will find these examples ready to run in "src/test/java/tutorial".
  Each example works on real life XML Data. <<Have fun!>> 
 
 %{toc|section=1|fromDepth=2|toDepth=2}
 	
-*E01: Printing some weather data.			
-			
+*E01: Printing some weather data			
+
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}}
 
- {{{./t01.html}Tutorial 1}}!
+ {{{./t01.html#E01:_Printing_some_weather_data}Tutorial 1}}!
 
-*E02: Reading a Jenkins Job Configuration
+*E02: Reading a Jenkins Job Configuration.
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/TestJenkinsConfigParsing.java}  
 
  {{{./t02.html}Tutorial 2}}!
  
-
 *E03: Eclipse Configuration File
 
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}  
 
+ {{{./t02.html}Tutorial 3}}!
  
 *E04: Maven POM
 
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}  
+
+ {{{./t02.html}Tutorial 4}}!
  
 *E05: RSS
 
- Instead of just setting an elements value like in the last example, we now change a sequence of elements.
- Notice that there are name spaces in the source XML document and that we work with them intuitively.
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}  
 
-** Projection API
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SlashdotRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/SlashdotRSSFeed.java}
-
-** Example Code
-
- And here some unit tests to print out some data about our RSS feed.
+ {{{./t02.html}Tutorial 5}}!
  
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#=TestFilterRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
 
 *E06: XHTML
 
- * Create a new document from scratch
- 
- * Usage of configuration injection to modify the output transformer.
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}  
 
-** Projection API
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#XHTML|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/XHTML.java}
-
-** Example Code
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestCreationOfXHTMLDocument|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
+ {{{./t02.html}Tutorial 6}}!
  
 *E07: SVG
 
- * Add behavior to projections by adding a Mixin.
- 
-** Projection API
- 
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SVGDocument|source=src/test/java/org/xmlbeam/tutorial/e07_svg/SVGDocument.java}
- 
-** Example Code
- 
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestSVGElementSorting|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
+
+ {{{./t02.html}Tutorial 7}}!
  
 *E08: API Mimicry
 
-** Projection API
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/TestDom4jMimicry.java}  
 
- In this example we do something special: 
+ {{{./t02.html}Tutorial 8}}!
  
- * Projection of a complete unknown XML structure.
- 
- * Building our Java API analog to DOM4J.
- 
- The result is a generic Java API you can use to analyze every XML document.  
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Document|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Document.java}
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Element|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Element.java}
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Attribute|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/Attribute.java}
- 
-** Example Code
-
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestDom4jMimicry|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/TestDom4jMimicry.java}
-

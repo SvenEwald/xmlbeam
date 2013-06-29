@@ -49,12 +49,13 @@ public class TestWeatherData extends TutorialTestCase {
         }
     }
 
-/* START SNIPPET: TutorialDescription     
+/* START SNIPPET: TutorialDescription  
+~~      
  This example should give you a first impression of the basic XMLBeam features:
  
-  * Accessing XML attributes with automatic type conversion.
+ * Accessing XML attributes with automatic type conversion.
   
-  * Sub projections grouping data
+ * Sub projections grouping data
 
 END SNIPPET: TutorialDescription */
 // START SNIPPET: WeatherDataCode

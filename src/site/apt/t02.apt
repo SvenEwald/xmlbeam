@@ -4,9 +4,9 @@ Tutorial 2
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/TestJenkinsConfigParsing.java}  
  
-**XML Content
+** XML Content
 
-**Model Interfaces   
+** Model Interfaces   
 
  Our example should read all builder and all publisher elements in the configuration file.
  We like to know the element names of both, so we define a super interface "ModelElement" and let our model objects extend it.
