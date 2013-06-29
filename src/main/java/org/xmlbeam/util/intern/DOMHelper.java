@@ -283,10 +283,9 @@ public final class DOMHelper {
         if ((selector == null) || (selector.isEmpty())) {
             return true;
         }
-// FIXME: what was this supposed to do?        
-//        if (!selector.contains("[")) {
-//            return selector.equals(item.getNodeName());
-//        }
+        if (!selector.contains("[")) {
+            return selector.equals(item.getNodeName());
+        }
         String[] selectorValues = splitSelector(selector);
         if (selectorValues[0].startsWith("@")) {
             return selectorValues[1].equals(item.getAttribute(selectorValues[0].substring(1)));
