@@ -10,7 +10,7 @@ Tutorial Examples
 
  This tutorial guides you through real life examples, each demonstrating a couple of XMLBeam features.
  You will find these examples ready to run in "src/test/java/tutorial".
- Each example works on real life XML Data. <<Have fun!>> 
+ Each example works on real life XML Data and targets different aspects of data projections. <<Have fun!>> 
 
 %{toc|section=1|fromDepth=2|toDepth=2}
 	
@@ -20,47 +20,82 @@ Tutorial Examples
 
  {{{./t01.html#E01:_Printing_some_weather_data}Tutorial 1}}!
 
-*E02: Reading a Jenkins Job Configuration.
+*E02: Reading previously unknown elements of a Jenkins Job Configuration.
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/TestJenkinsConfigParsing.java}  
 
  {{{./t02.html}Tutorial 2}}!
  
-*E03: Eclipse Configuration File
+*E03: Use a dynamic projection to project parts of a Eclipse configuration file
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e03_eclipse/TestEclipseCodeFormatterConfig.java}  
 
- {{{./t02.html}Tutorial 3}}!
+ {{{./t03.html}Tutorial 3}}!
  
-*E04: Maven POM
+*E04: Reuse a subprojection to different Maven POM elements
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}  
 
- {{{./t02.html}Tutorial 4}}!
+ {{{./t04.html}Tutorial 4}}!
  
-*E05: RSS
+*E05: Filtering a RSS feed
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}  
 
- {{{./t02.html}Tutorial 5}}!
+ {{{./t05.html}Tutorial 5}}!
  
-%{include|highlight-theme=eclipse|show-gutter=false|snippet=#=TestFilterRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
-
-*E06: XHTML
+*E06: Creating a XHTML document from scratch
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}  
 
- {{{./t02.html}Tutorial 6}}!
+ {{{./t06.html}Tutorial 6}}!
  
-*E07: SVG
+*E07: Using mixins to sort SVG elements
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
 
- {{{./t02.html}Tutorial 7}}!
+ {{{./t07.html}Tutorial 7}}!
  
-*E08: API Mimicry
+*E08: Demonstrating API Mimicry
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/TestDom4jMimicry.java}  
 
- {{{./t02.html}Tutorial 8}}!
+ {{{./t08.html}Tutorial 8}}!
+ 
+*E09 Bundle multiple documents to a virtual projection
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e09_dreambox/Dreambox.java}
+
+{{{./t09.html}Tutorial 9}}!
+
+*E10 Parsing HTML Documents
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e10_wikipedia/TestWikiAccess.java}
+
+{{{./t10.html}Tutorial 10}}!
+
+*E11 Using XPath to split the input data
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e11_freemind/TestDumpMindMap.java}
+
+{{{./t11.html}Tutorial 11}}!
+
+*E12 Creating 3D data using a document template
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e12_xml3d/RunExample.java}
+
+{{{./t12.html}Tutorial 12}}!
+
+*E13 Creating subprojections with element templates
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e13_graphml/TestGraphMLCreation.java}
+
+{{{./t13.html}Tutorial 13}}!
+
+*E14 Using a custom type conversion to modify KML coordinates
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e14_kml/TestCustomTypeConversion.java}
+
+{{{./t14.html}Tutorial 14}}!
+
  
