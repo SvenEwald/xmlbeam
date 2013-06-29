@@ -33,7 +33,7 @@ public class TestMavenPOM extends TutorialTestCase {
 
 /* START SNIPPET: TutorialDescription
 ~~     
- A Maven project has a group id, artefact id and a version.
+ A Maven project has a group id, artifact id and a version.
  So does a Maven dependency.
  Now we reuse the same sub projection for unrelated, but similar parts of the document.
  This is possible because the structure of our projection does not need to follow the structure of the document.

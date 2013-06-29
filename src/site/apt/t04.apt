@@ -1,5 +1,7 @@
 Tutorial 4
 
+*E04: Reuse a subprojection to different Maven POM elements
+
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e04_maven/TestMavenPOM.java}
 
 * Projection API

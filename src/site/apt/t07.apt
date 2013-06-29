@@ -1,5 +1,7 @@
 Tutorial 7
 
+*E07: Using mixins to sort SVG elements
+
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e07_svg/TestSVGElementSorting.java}
 
  * Add behavior to projections by adding a Mixin.

@@ -1,5 +1,7 @@
 Tutorial 8
 
+*E08: Demonstrating API Mimicry
+
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e08_api_mimicry/TestDom4jMimicry.java}
 
 * Projection API

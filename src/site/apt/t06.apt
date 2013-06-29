@@ -1,5 +1,7 @@
 Tutorial 6
 
+*E06: Creating a XHTML document from scratch
+
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e06_xhtml/TestCreationOfXHTMLDocument.java}
  
  * Create a new document from scratch

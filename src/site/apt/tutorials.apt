@@ -13,9 +13,9 @@ Tutorial Examples
  Each example works on real life XML Data and targets different aspects of data projections. <<Have fun!>> 
 
 %{toc|section=1|fromDepth=2|toDepth=2}
-	
-*E01: Printing some weather data			
-
+				
+*E01: Printing some weather data   
+			
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e01_weather/TestWeatherData.java}}
 
  {{{./t01.html#E01:_Printing_some_weather_data}Tutorial 1}}!

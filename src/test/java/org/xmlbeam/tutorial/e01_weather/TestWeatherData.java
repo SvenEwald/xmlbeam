@@ -41,7 +41,7 @@ public class TestWeatherData extends TutorialTestCase {
         try {
             printWeatherData("Monschau,DE");
         } catch (IOException e) {
-            // As this is more an example than a unit test. Drop it when no
+            // As this is more an example than a unit test. Drop the exception when no
             // Internet connection is available.
             // Maybe set your proxy via -Dhttp.proxyHost=myproxyserver.com
             // -Dhttp.proxyPort=80
@@ -49,8 +49,10 @@ public class TestWeatherData extends TutorialTestCase {
         }
     }
 
-/* START SNIPPET: TutorialDescription  
-~~      
+// 
+
+/* START SNIPPET: TutorialDescription
+~~
  This example should give you a first impression of the basic XMLBeam features:
  
  * Accessing XML attributes with automatic type conversion.

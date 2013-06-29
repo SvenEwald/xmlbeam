@@ -1,15 +1,14 @@
 Tutorial 5
  
-%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
+*E05: Filtering a RSS feed
  
- Instead of just setting an elements value like in the last example, we now change a sequence of elements.
- Notice that there are name spaces in the source XML document and that we work with them intuitively.
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
 
-* Projection API
+*Projection API
 
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#SlashdotRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/SlashdotRSSFeed.java}
 
-* Example Code
+*Example Code
 
  And here some unit tests to print out some data about our RSS feed.
  
