@@ -37,28 +37,28 @@ import org.w3c.dom.Document;
 public interface XMLFactoriesConfig extends Serializable {
 
     /**
-     * Factory method to provide a {@link TransfomerFactory}.
+     * Factory method to provide a {@link javax.xml.transform.TransfomerFactory}.
      * 
      * @return a new instance.
      */
     TransformerFactory createTransformerFactory();
 
     /**
-     * Factory method to provide a {@link DocumentBuilderFactory}.
+     * Factory method to provide a {@link javax.xml.transform.DocumentBuilderFactory}.
      * 
      * @return a new instance.
      */
     DocumentBuilderFactory createDocumentBuilderFactory();
 
     /**
-     * Factory method to provide a {@link XPathFactory}.
+     * Factory method to provide a {@link javax.xml.transform.XPathFactory}.
      * 
      * @return a new instance.
      */
     XPathFactory createXPathFactory();
 
     /**
-     * Factory method to provide a {@link Transformer}. Creation and
+     * Factory method to provide a {@link javax.xml.transform.Transformer}. Creation and
      * configuration may depend on the content of a document.
      * 
      * @param document
@@ -68,20 +68,19 @@ public interface XMLFactoriesConfig extends Serializable {
     Transformer createTransformer(Document... document);
 
     /**
-     * Factory method to provide a {@link DocumentBuilder}.
+     * Factory method to provide a {@link javax.xml.transform.DocumentBuilder}.
      * 
      * @return a new instance.
      */
     DocumentBuilder createDocumentBuilder();
 
     /**
-     * Factory method to provide a {@link XPath}. Creation and configuration may
-     * depend on the content of a document. This may happen when you want to use
-     * the namespace mapping of the document in your xpath expresssions. 
+     * Factory method to provide a {@link javax.xml.transform.XPath}. Creation and configuration may
+     * depend on the content of a document. This may happen when you want to use the namespace
+     * mapping of the document in your xpath expresssions.
      * 
      * @param document
      *            (optional)
-     * 
      * @return a new instance.
      */
     XPath createXPath(Document... document);
