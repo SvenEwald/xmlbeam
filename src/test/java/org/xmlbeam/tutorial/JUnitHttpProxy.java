@@ -74,7 +74,8 @@ public class JUnitHttpProxy implements Runnable {
                     File file = new File(JUnitHttpProxy.class.getSimpleName() + "." + URLEncoder.encode(url, "UTF-8") + ".tmp");
                     if (file.exists()) {
                         byte[] content = IOHelper.dropUTF8BOM(IOHelper.inputStreamToString(new FileInputStream(file), "UTF-8").getBytes("UTF-8"));
-                        String header = "HTTP/1.1 200 OK\\r\\nContent-Type: application/xml\\r\\nContent-Length: " + content.length + "\\r\\n\\r\\n";
+// String header = "HTTP/1.1 200 OK\\r\\nContent-Type: application/xml\\r\\nContent-Length: " +
+// content.length + "\\r\\n\\r\\n";
 // accept.getOutputStream().write(IOHelper.dropUTF8BOM(header.getBytes("UTF-8")));
 // OutputStreamWriter writer = new OutputStreamWriter(accept.getOutputStream(), "UTF-8");
 // writer.write(header + content);
