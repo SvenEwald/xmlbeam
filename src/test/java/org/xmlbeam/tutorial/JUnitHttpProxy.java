@@ -103,6 +103,14 @@ public class JUnitHttpProxy implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
