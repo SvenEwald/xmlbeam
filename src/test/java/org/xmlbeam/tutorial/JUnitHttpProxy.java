@@ -30,11 +30,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.xmlbeam.util.IOHelper;
 
 /**
- * @author se
  */
 public class JUnitHttpProxy implements Runnable {
 
@@ -67,8 +67,9 @@ public class JUnitHttpProxy implements Runnable {
             while (true) {
                 Socket accept = serverSocket.accept();
                 try {
-                    accept.setSoTimeout(5000);
+                    accept.setSoTimeout(15000);
                     String requestHeader = new Scanner(accept.getInputStream()).useDelimiter("(?m)\\r\\n\\r\\n").next();
+                    swallow(accept.getInputStream());
                     String url = findURL(requestHeader);
                     File file = new File(JUnitHttpProxy.class.getSimpleName() + "." + URLEncoder.encode(url, "UTF-8") + ".tmp");
                     if (file.exists()) {
@@ -84,9 +85,8 @@ public class JUnitHttpProxy implements Runnable {
                     }
                     try {
                         restoreProxySettings();
-
                         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-                        connection.setReadTimeout(5000);
+                        connection.setReadTimeout(15000);
                         String string = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
                         FileOutputStream fileStream = new FileOutputStream(file);
                         byte[] bytes = IOHelper.dropUTF8BOM(string.getBytes("UTF-8"));
@@ -111,6 +111,16 @@ public class JUnitHttpProxy implements Runnable {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    /**
+     * @param inputStream
+     * @throws IOException
+     */
+    private void swallow(InputStream inputStream) throws IOException {
+        while (inputStream.available() > 0) {
+            inputStream.read();
         }
     }
 
