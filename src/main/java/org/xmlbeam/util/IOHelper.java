@@ -18,6 +18,7 @@ package org.xmlbeam.util;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -129,5 +130,18 @@ public final class IOHelper {
     public static String inputStreamToString(InputStream inputStream, String... charsetName) {
         Scanner scanner = charsetName.length == 0 ? new Scanner(inputStream) : new Scanner(inputStream, charsetName[0]);
         return scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+    }
+
+    public static byte[] dropUTF8BOM(final byte[] source) {
+        if (source == null) {
+            return null;
+        }
+        if (source.length < 3) {
+            return source;
+        }
+        if ((source[0] == (byte) 0xef) && (source[1] == (byte) 0xbb) && (source[2] == (byte) 0xbf)) {
+            return Arrays.copyOfRange(source, 3, source.length);
+        }
+        return source;
     }
 }
