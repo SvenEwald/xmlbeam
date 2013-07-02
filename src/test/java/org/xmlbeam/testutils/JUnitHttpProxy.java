@@ -90,12 +90,18 @@ public class JUnitHttpProxy implements Runnable {
                         fileStream.write(bytes);
                         fileStream.flush();
                         fileStream.close();
+                        String header = "HTTP/1.1 200 OK\r\nConnection: Close\r\nContent-Type: application/xml\r\nContent-Length: " + bytes.length + "\r\n\r\n";
+                        accept.getOutputStream().write(IOHelper.dropUTF8BOM(header.getBytes("UTF-8")));
                         accept.getOutputStream().write(bytes);
                     } finally {
                         setAsProxy();
                     }
                 } finally {
-                    accept.close();
+                    try {
+                        accept.close();
+                    } catch (IOException e) {    
+                        e.printStackTrace();
+                    }                    
                 }
             }
         } catch (IOException e) {
