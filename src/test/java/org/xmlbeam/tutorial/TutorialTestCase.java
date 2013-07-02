@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.xmlbeam.testutils.JUnitHttpProxy;
 
 /**
  * Abstract base class for tutorial test cases. The tutorial tests are printing out a lot of stuff

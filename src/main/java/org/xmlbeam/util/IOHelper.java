@@ -85,10 +85,10 @@ public final class IOHelper {
      * @throws IOException
      */
     public static InputStream httpGet(String httpurl, Map<String, String>... requestProperties) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(httpurl).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(httpurl).openConnection();        
         for (Map<String, String> props : requestProperties) {
             addRequestProperties(props, connection);
-        }
+        }        
         return connection.getInputStream();
     }
 

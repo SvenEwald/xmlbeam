@@ -32,10 +32,10 @@ import javax.net.ServerSocketFactory;
 public class HTTPParrot {
 
     private Future<String> future;
-    private ServerSocket socket;   
+    private ServerSocket socket;
 
     public static HTTPParrot serve(final String response) throws IOException {
-        final HTTPParrot parrot= new HTTPParrot();
+        final HTTPParrot parrot = new HTTPParrot();
         parrot.socket = ServerSocketFactory.getDefault().createServerSocket(0, 1, InetAddress.getByName("localhost"));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         parrot.future = executor.submit(new Callable<String>() {
@@ -51,17 +51,17 @@ public class HTTPParrot {
             }
         });
         executor.shutdown();
-        return parrot; 
+        return parrot;
     }
 
     public URL getURL() {
         try {
-            return new URL("http",socket.getInetAddress().getHostAddress(),socket.getLocalPort(),"/test");
+            return new URL("http", socket.getInetAddress().getHostAddress(), socket.getLocalPort(), "/test");
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     public String getRequest() throws Exception {
         return future.get();
     }
