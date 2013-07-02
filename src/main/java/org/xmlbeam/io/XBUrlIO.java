@@ -41,7 +41,7 @@ public class XBUrlIO {
     }
 
     /**
-     * Create a new projection using a given uri parameter. When the uri starts with the protocol
+     * Create a new projection using a given URL parameter. When the URL starts with the protocol
      * identifier "resource://" the classloader of projection interface will be used to read the
      * resource from the current class path.
      * 

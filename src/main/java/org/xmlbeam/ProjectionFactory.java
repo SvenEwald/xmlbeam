@@ -61,8 +61,16 @@ public interface ProjectionFactory {
      */
     <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface);
 
+    /**
+     * Convert a projection to XML string.
+     * @param projection
+     * @return XML string.
+     */
     String asString(Object projection);
 
+    /**
+     * Access a projection IO factory.
+     * @return a {@link org.xmlbeam.ProjectionIO}
+     */
     ProjectionIO io();
-
 }

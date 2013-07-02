@@ -52,6 +52,13 @@ import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
+ * This class implements the "magic" behind projection methods.
+ * Each projection is linked with a ProjectionInvocatonHandler which handles
+ * method invocations on the projections. Notice that this class is not part
+ * of the public API. You should not get in touch with this class at all.
+ * 
+ * See {@link org.xmlbeam.XBProjector} for API usage.
+ * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @SuppressWarnings("serial")

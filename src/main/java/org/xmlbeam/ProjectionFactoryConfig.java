@@ -33,10 +33,14 @@ public interface ProjectionFactoryConfig extends XMLFactoriesConfig {
      * may register a Externalizer instance here and reference it in a projection definition.
      * 
      * @param e10r
-     * @return
+     * @return this for convenience.
      */
     ConfigBuilder setExternalizer(Externalizer e10r);
 
+    /**
+     * Getter for current {@link org.xmlbeam.extenalizer.Externalizer}.
+     * @return the currently used {@link org.xmlbeam.extenalizer.Externalizer}
+     */
     Externalizer getExternalizer();
 
 }

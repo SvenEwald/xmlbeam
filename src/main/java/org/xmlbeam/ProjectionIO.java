@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.io.XBFileIO;
@@ -28,7 +29,8 @@ import org.xmlbeam.io.XBStreamOutput;
 import org.xmlbeam.io.XBUrlIO;
 
 /**
- *
+ * A ProjectionIO is responsible for every IO operation related to projections. Before coding your
+ * own IO implementation, you should have a look at the tutorials for usage examples.
  */
 public interface ProjectionIO {
 
@@ -37,15 +39,15 @@ public interface ProjectionIO {
     XBFileIO file(String fileName);
 
     XBUrlIO url(String url);
-
+    
     XBStreamInput stream(InputStream is);
 
     XBStreamOutput stream(OutputStream os);
 
     /**
      * Create a new projection using a {@link XBDocURL} annotation on this interface. When the
-     * XBDocURL starts with the protocol identifier "resource://" the class loader of the
-     * projection interface will be used to read the resource from the current class path.
+     * XBDocURL starts with the protocol identifier "resource://" the class loader of the projection
+     * interface will be used to read the resource from the current class path.
      * 
      * @param projectionInterface
      *            a public interface.
@@ -55,13 +57,13 @@ public interface ProjectionIO {
     <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... optionalParams) throws IOException;
 
     /**
-     * Write projected document to url (file or http post) of {@link XBDocURL} annotation.
+     * Write projection document to url (file or http post) of {@link XBDocURL} annotation.
      * 
      * @param projection
      * @return response of http post or null for file urls.
      * @throws IOException
      * @throws URISyntaxException
      */
-   String toURLAnnotationViaPOST(final Object projection, Object... optionalParams) throws IOException, URISyntaxException;
+    String toURLAnnotationViaPOST(final Object projection, Object... optionalParams) throws IOException, URISyntaxException;
 
 }
