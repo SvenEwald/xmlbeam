@@ -29,6 +29,13 @@ import java.util.concurrent.Future;
 
 import javax.net.ServerSocketFactory;
 
+
+/**
+ * This class mocks a HTTP server by serving a fixed content.
+ * Used to test the IO behavior. See the IO unit tests for usage examples.
+ * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ */
 public class HTTPParrot {
 
     private Future<String> future;

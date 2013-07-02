@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
-import org.xmlbeam.config.XMLFactoriesConfig;
 
 /**
  *
@@ -38,6 +37,7 @@ public class SpecifyProjectorUsage {
         {
             DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig();
             config.setPrettyPrinting(true);
+            @SuppressWarnings("unused")
             XBProjector projector = new XBProjector(config);
         }
         {

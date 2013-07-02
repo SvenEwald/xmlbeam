@@ -52,6 +52,7 @@ public class TestMixins {
     };
 
     final MixinOverridingToString overridingMixin = new MixinOverridingToString() {
+        @SuppressWarnings("unused")
         private OverridingProjection me;
         @Override
         public String toString() { return "12345";};

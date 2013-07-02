@@ -48,7 +48,6 @@ public interface ProjectionFactory {
      *            A Java interface to project the data on.
      * @return a new instance of projectionInterface.
      */
-    @SuppressWarnings("unchecked")
     <T> T projectDOMNode(final Node documentOrElement, final Class<T> projectionInterface);
 
     /**

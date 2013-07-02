@@ -35,6 +35,11 @@ import java.io.InputStream;
 import org.xmlbeam.util.IOHelper;
 
 /**
+ * This proxy allows unit tests to do external HTTP requests without generating huge traffic.
+ * The content is fetched just once and then reused forever. This ensures independence of external 
+ * server availability for the test results while still working with real live data.
+ * 
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public class JUnitHttpProxy implements Runnable {
 

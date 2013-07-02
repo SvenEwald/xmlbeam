@@ -35,7 +35,7 @@ public @interface XBDelete {
     /**
      * XPath expression to select XML nodes to be deleted.
      * 
-     * @return
+     * @return XPath expression. (Can be omitted if your {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
      */
     String value() default "";
 

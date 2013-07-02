@@ -15,22 +15,18 @@
  */
 package org.xmlbeam;
 
-import java.text.MessageFormat;
-
+import java.io.IOException;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-
+import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import java.io.IOException;
-import java.io.Serializable;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;

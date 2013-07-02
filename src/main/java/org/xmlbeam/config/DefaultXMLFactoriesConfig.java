@@ -35,51 +35,45 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
- * Default configuration for {@link XBProjector} which uses Java default
- * factories to create {@link Transformer} {@link DocumentBuilder} and
- * {@link XPath}.
- * 
- * You may want to inherit from this class to change this behavior.
+ * Default configuration for {@link XBProjector} which uses Java default factories to create
+ * {@link Transformer} {@link DocumentBuilder} and {@link XPath}. You may want to inherit from this
+ * class to change this behavior.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
- * 
  */
 @SuppressWarnings("serial")
 public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
-     * This configuration can use one of three different ways to configure
-     * namespace handling. Namespaces may be ignored ({@link NIHILISTIC}),
-     * handled user defined prefix mappings {@link AGNOSTIC} or mapped
-     * automatically to the document prefixes {@link HEDONISTIC}.
-     * 
+     * This configuration can use one of three different ways to configure namespace handling.
+     * Namespaces may be ignored ({@link NIHILISTIC}), handled user defined prefix mappings
+     * {@link AGNOSTIC} or mapped automatically to the document prefixes {@link HEDONISTIC}.
      */
     public enum NamespacePhilosophy {
 
         /**
-         * There is no such thing as a namespace. Only elements and attributes
-         * without a namespace will be visible to projections. Using this option
-         * prevents getting exceptions when an XPath expression tries to select
-         * a non defined namespace. (You can't get errors if you deny the
-         * existence of errors.)
+         * There is no such thing as a namespace. Only elements and attributes without a namespace
+         * will be visible to projections. Using this option prevents getting exceptions when an
+         * XPath expression tries to select a non defined namespace. (You can't get errors if you
+         * deny the existence of errors.) DocumentBuilders are created with namespace awareness set
+         * to false.
          */
         NIHILISTIC,
 
         /**
-         * Maybe there are namespaces. Maybe not. You have to decide for
-         * yourself. Neither the xml parser, nor the XPath instances bill be
-         * modified by this confiruration. Using this option will require you to
-         * subclass this configuration and specify namespace handling yourself.
-         * This way allowes you to control prefix to namespace mapping for the
-         * XPath expressions.
+         * Maybe there are namespaces. Maybe not. You have to decide for yourself. Neither the xml
+         * parser, nor the XPath instances bill be modified by this confiruration. Using this option
+         * will require you to subclass this configuration and specify namespace handling yourself.
+         * This way allowes you to control prefix to namespace mapping for the XPath expressions.
+         * The namespace awareness flag of created DocumentBuilders won't be touched.
          */
         AGNOSTIC,
 
         /**
-         * Fun without pain. This is the default option in this configuration.
-         * If namespaces are defined in the document, the definition will be
-         * applied to your XPath expressions. Thus you may just use existing
-         * namespaces without bothering about prefix mapping.
+         * Fun without pain. This is the default option in this configuration. If namespaces are
+         * defined in the document, the definition will be applied to your XPath expressions. Thus
+         * you may just use existing namespaces without bothering about prefix mapping.
+         * DocumentBuilders are created with namespace awareness set to false.
          */
         HEDONISTIC
     }
@@ -117,7 +111,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         DocumentBuilderFactory instance = DocumentBuilderFactory.newInstance();
         if (!NamespacePhilosophy.AGNOSTIC.equals(namespacePhilosophy)) {
             instance.setNamespaceAware(NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy));
-        }        
+        }
         return instance;
     }
 
@@ -127,7 +121,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     @Override
     public Transformer createTransformer(Document... document) {
         try {
-            Transformer transformer = createTransformerFactory().newTransformer();           
+            Transformer transformer = createTransformerFactory().newTransformer();
             if (isPrettyPrinting()) {
                 // Enable some pretty printing of the resulting xml.
                 transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -154,30 +148,31 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
      * {@inheritDoc}
      */
     @Override
-    public XPath createXPath(Document... document) {
-
-        if ((document == null) || (!NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy))) {
-            return createXPathFactory().newXPath();
+    public XPath createXPath(final Document... document) {
+        final XPath xPath = createXPathFactory().newXPath();
+        if ((document == null) || (document.length == 0) || (!NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy))) {
+            return xPath;
         }
-
+        // For hedonistic name space philosophy we aspire a reasonable name space mapping.
         final Map<String, String> nameSpaceMapping = DOMHelper.getNamespaceMapping(document[0]);
-        NamespaceContext ctx = new NamespaceContext() {
+        final NamespaceContext ctx = new NamespaceContext() {
             @Override
             public String getNamespaceURI(String prefix) {
                 if (prefix == null) {
                     throw new IllegalArgumentException("null not allowed as prefix");
                 }
                 if (nameSpaceMapping.containsKey(prefix)) {
-                return nameSpaceMapping.get(prefix);
+                    return nameSpaceMapping.get(prefix);
                 }
-              //Default is a global unique string uri to prevent xpath expression exeptions on nonexisting ns.
+                // Default is a global unique string uri to prevent xpath expression exeptions on
+                // nonexisting ns.
                 return NON_EXISTING_URL;
             }
 
             @Override
             public String getPrefix(String uri) {
-                for (Entry<String, String> e:nameSpaceMapping.entrySet()) {
-                    if (e.getValue().equals(uri )) {
+                for (Entry<String, String> e : nameSpaceMapping.entrySet()) {
+                    if (e.getValue().equals(uri)) {
                         return e.getKey();
                     }
                 }
@@ -189,7 +184,6 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 return nameSpaceMapping.keySet().iterator();
             }
         };
-        XPath xPath = createXPathFactory().newXPath();
         xPath.setNamespaceContext(ctx);
         return xPath;
     }
@@ -212,7 +206,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     public boolean isPrettyPrinting() {
         return isPrettyPrinting;
     }
-    
+
     /**
      * @return
      */
@@ -220,10 +214,10 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         this.namespacePhilosophy = namespacePhilosophy;
         return this;
     }
-    
+
     public DefaultXMLFactoriesConfig setPrettyPrinting(boolean on) {
-        this.isPrettyPrinting=on;
-        return this;        
+        this.isPrettyPrinting = on;
+        return this;
     }
 
     /**
@@ -234,7 +228,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     /**
-     * @param isOmitXMLDeclaration the isOmitXMLDeclaration to set
+     * @param isOmitXMLDeclaration
+     *            the isOmitXMLDeclaration to set
      */
     public DefaultXMLFactoriesConfig setOmitXMLDeclaration(boolean isOmitXMLDeclaration) {
         this.isOmitXMLDeclaration = isOmitXMLDeclaration;
