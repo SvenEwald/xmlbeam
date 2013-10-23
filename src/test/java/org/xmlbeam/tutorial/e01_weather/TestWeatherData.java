@@ -39,7 +39,7 @@ public class TestWeatherData extends TutorialTestCase {
     @Test
     public void getWeatherData() throws SAXException, IOException, ParserConfigurationException {
         try {
-            printWeatherData("Monschau,DE");
+            printWeatherData("Monschau");
         } catch (IOException e) {
             // As this is more an example than a unit test. Drop the exception when no
             // Internet connection is available.

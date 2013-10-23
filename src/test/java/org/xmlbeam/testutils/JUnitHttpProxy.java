@@ -89,7 +89,11 @@ public class JUnitHttpProxy implements Runnable {
                         restoreProxySettings();
                         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
                         connection.setReadTimeout(15000);
-                        String string = new Scanner(connection.getInputStream()).useDelimiter("\\A").next();
+                        connection.getResponseCode();
+                        String string = IOHelper.inputStreamToString(connection.getInputStream(), connection.getContentEncoding());
+                        // String string = new
+// Scanner(connection.getInputStream()).useDelimiter("\\A").next();
+                        System.out.println(string);
                         FileOutputStream fileStream = new FileOutputStream(file);
                         byte[] bytes = IOHelper.dropUTF8BOM(string.getBytes("UTF-8"));
                         fileStream.write(bytes);

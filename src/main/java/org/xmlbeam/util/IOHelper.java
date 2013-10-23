@@ -128,8 +128,10 @@ public final class IOHelper {
      * @return String with stream content
      */
     public static String inputStreamToString(InputStream inputStream, String... charsetName) {
-        Scanner scanner = charsetName.length == 0 ? new Scanner(inputStream) : new Scanner(inputStream, charsetName[0]);
-        return scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+        Scanner scanner = (charsetName == null) || (charsetName.length == 0) || (charsetName[0] == null) ? new Scanner(inputStream) : new Scanner(inputStream, charsetName[0]);
+        // return scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+        String content = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+        return content;
     }
 
     public static byte[] dropUTF8BOM(final byte[] source) {
@@ -144,4 +146,5 @@ public final class IOHelper {
         }
         return source;
     }
+
 }
