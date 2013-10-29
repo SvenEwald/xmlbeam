@@ -37,7 +37,7 @@ XMLBeam Feature List
 
  * <<Tiny foot print, dependency free>>
  
-   The XMLBeam jar weights under 50kb and does not have any runtime dependency.  
+   The XMLBeam jar weights about 65kb and does not have any runtime dependency.  
    It relies on reflection only.
    So you won't get any transitive dependencies.
 
@@ -115,9 +115,6 @@ What XMLBeam does not do
  
  * Building or transforming XML. It utilizes the JRE default DocumentBuilder and Transformers. Again you are able to change this easily.
 
- * Being thread safe. Access to different XML documents and different XBProjectors are thread safe. But concurrent access
-   to a single XML document is not promised.
-  
 What next?
 
  * More Documentation.
