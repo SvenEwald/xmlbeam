@@ -2,9 +2,9 @@ What are mixins and how does it work?
 
  Projections are dynamic proxy instances for the projection interfaces.
  Therefore it is not possible to add additional method implementations by simply extending them.
- There would be no way to get working instances.
+ There would be no way to get working instances. All instances have to be created by a projector.
  
-* First approach: Delegator pattern 
+* First approach: Delegator pattern (not recommended)
  
  You may create delegating instances of the projection interfaces. 
  Implement your methods and delegate the projection methods to a projection obtained from a projector.
@@ -19,8 +19,9 @@ What are mixins and how does it work?
  * You are writing glue code between your domain objects and the projections.
    XMLBeam is all about avoiding glue code.
 
-* Second approach: Mixins
+* Second approach: Mixins (use this)
 
  Define a mixin interface with the methods you like to add to add to a projection and let your mixin class implement this interface.
  Instead of extending the projection interface, you let the projection interface extend your mixin interface.
+ Therefore your methods are "mixed into" your projection interface.
  Then register the mixin in the projector to be used as implementation for your projection interface.

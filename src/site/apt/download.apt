@@ -1,0 +1,17 @@
+Download
+
+* Maven
+
+ Just add the following to your pom.xml
+---------
+    <dependencies>
+        <dependency>
+            <groupId>org.xmlbeam</groupId>
+            <artifactId>xmlprojector</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+---------
+
+* Jar download from central repository:
+
+ http://oss.sonatype/central/org/xmlbeam/1.0/xmlprojector-1.0.jar

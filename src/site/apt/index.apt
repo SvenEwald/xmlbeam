@@ -36,7 +36,15 @@ Welcome to XMLBeam
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#mainExample|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
  
+{{{./introduction.html} Learn more}}. 
+ 
 * Project status
+
+** 2013-10-26
+
+ Over 6 months without a change, several productive usages without bug reports.
+ Stable version 1.0 released in maven central repository. 
+
 
 ** 2013-01-17
  

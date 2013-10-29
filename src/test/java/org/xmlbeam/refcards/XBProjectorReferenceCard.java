@@ -15,10 +15,11 @@
  */
 package org.xmlbeam.refcards;
 
+import java.util.Map;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 
 import org.junit.Ignore;
 import org.w3c.dom.Node;
@@ -36,6 +37,8 @@ public class XBProjectorReferenceCard {
     public interface Example {
         @XBRead("/xml/example/content")
         String getContent();
+        @XBRead("/xml/example/content/@type")
+        String getType();
     }
     //END SNIPPET: mainExample
     

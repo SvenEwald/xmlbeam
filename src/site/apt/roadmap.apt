@@ -8,6 +8,16 @@ Roadmap
 
  * Additional library with generic DOM access projections.
 
+* Version 1.0.1
+
+ * Javadoc improvements
+ 
+ * Site improvements
+ 
+ * Minor changes in unit tests 
+
+* Version 1.0 (current stable realese) 
+
 * Version 1.x
 
  * Freezing projector API 
@@ -17,7 +27,7 @@ Roadmap
  * Release of artifacts to maven central.
  
  
-* Version 0.x (current)
+* Version 0.x 
 
  * Documentation
  
