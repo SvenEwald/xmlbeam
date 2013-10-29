@@ -15,12 +15,12 @@
  */
 package org.xmlbeam;
 
+import java.net.URISyntaxException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.io.XBFileIO;

@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define the projection function for elements of a projection.
+ * Define a projection function to read elements of a projection.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */

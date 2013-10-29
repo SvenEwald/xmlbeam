@@ -24,7 +24,7 @@ import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.NotExternalizedExternalizer;
 
 /**
- * Define the projection function to delete elements or attributes.
+ * Define a projection function to delete elements or attributes.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */

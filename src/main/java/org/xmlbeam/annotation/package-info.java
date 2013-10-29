@@ -15,5 +15,8 @@
  */
 /**
  * Use the annotations in this package to declare your projection interfaces.
+ * Projections may read, write or delete parts of the document.
+ * See annotations {@link org.xmlbeam.annotation.XBRead},
+ * {@link org.xmlbeam.annotation.XBWrite} and {@link org.xmlbeam.annotation.XBDelete}. 
  */
 package org.xmlbeam.annotation;
