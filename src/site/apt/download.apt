@@ -1,17 +1,24 @@
 Download
 
+ XMLBeam is available as Maven dependecy via central repository or as direct jar download.
+
 * Maven
 
- Just add the following to your pom.xml
----------
-    <dependencies>
-        <dependency>
-            <groupId>org.xmlbeam</groupId>
-            <artifactId>xmlprojector</artifactId>
-            <version>1.0.0</version>
-        </dependency>
----------
+ Just add the following to your pom.xml:
 
-* Jar download from central repository:
+----------------------------------------
+<dependency>
+    <groupId>org.xmlbeam</groupId>
+    <artifactId>xmlprojector</artifactId>
+    <version>1.0.0</version>
+</dependency>
+----------------------------------------
 
- http://oss.sonatype/central/org/xmlbeam/1.0/xmlprojector-1.0.jar
+* Direct jar download from central repository:
+
+ {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/1.0/xmlprojector-1.0.jar}xmlprojector-1.0.jar}}
+ 
+ {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/1.0/xmlprojector-1.0-javadoc.jar}xmlprojector-1.0-javadoc.jar}}
+ 
+ {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/1.0/xmlprojector-1.0-sources.jar}xmlprojector-1.0-sources.jar}}
+ 
