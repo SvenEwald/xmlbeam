@@ -136,4 +136,12 @@ public class TestDOMHelper {
         assertEquals("a", element.getPrefix());
     }   
     
+    @Test
+    public void testPredicateElementCreation() {
+        Element element = DOMHelper.ensureElementExists(document, "/root/e1/e2[@att=value]");
+        assertTrue(element.hasAttribute("att"));
+        assertEquals("value", element.getAttributeNode("att").getValue());
+        Element element2 = DOMHelper.ensureElementExists(document, "/root/e1/e2[@att=value]");
+        assertSame(element, element2);
+    }
 }
