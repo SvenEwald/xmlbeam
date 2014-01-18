@@ -22,12 +22,13 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
-/* START SNIPPET: TutorialDescription
-~~
-END SNIPPET: TutorialDescription */
-
+//START SNIPPET: Tutorial08
 
 public class TestDom4jMimicry extends TutorialTestCase {
+/* START SNIPPET: TutorialDescription
+~~
+ In this tutorial we make extensive use of XPath to mimicry an existing 3rd Party-API.
+END SNIPPET: TutorialDescription */
 
     @Test
     public void testAPIMimicry() throws IOException {
