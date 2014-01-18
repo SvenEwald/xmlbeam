@@ -20,3 +20,7 @@ Tutorial 2
  Now that we have our model objects defined, we need to define how to retrieve them. 
 
 %{include|highlight-theme=eclipse|show-gutter=false|snippet=#JenkinsJobConfigInterface|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/JenkinsJobConfig.java}
+
+** Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#JenkinsCode|source=src/test/java/org/xmlbeam/tutorial/e02_jenkins/TestJenkinsConfigParsing.java}

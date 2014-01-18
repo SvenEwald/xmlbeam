@@ -21,18 +21,16 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
-/**  
+/**
+ * Create and print some XHTML text. 
+ * (Not that it would be productive to create a website this way, just a demonstration.)
+ * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ *
  */
 @Category(Tutorial.class)
 public class TestCreationOfXHTMLDocument extends TutorialTestCase {
 
-/* START SNIPPET: TutorialDescription
-~~
- Finally we go the other way around. We create a new document and fill the content via a projection.
- (Not that it would not be productive to create a website this way, just a demonstration.)
-END SNIPPET: TutorialDescription */
-    
     private final XBProjector projector = new XBProjector();
 
     @Test
