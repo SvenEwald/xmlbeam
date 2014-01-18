@@ -17,11 +17,14 @@ package org.xmlbeam.tutorial.e12_xml3d;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import java.awt.Desktop;
 import java.io.IOException;
 
 import org.xmlbeam.XBProjector;
@@ -92,11 +95,16 @@ public class RunExample {
         mesh.setNormals(newNormals);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         ServerSocket ss = new ServerSocket(8088);
+        if(Desktop.isDesktopSupported())
+        {
+          Desktop.getDesktop().browse(new URI("http://127.0.0.1:8088"));
+        }
         while (true) {
             Socket s = ss.accept();
             XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+            projector.config().as(DefaultXMLFactoriesConfig.class).setOmitXMLDeclaration(false);
             projector.config().as(DefaultXMLFactoriesConfig.class).setNamespacePhilosophy(NamespacePhilosophy.NIHILISTIC);
             Xml3d xml3d = projector.io().fromURLAnnotation(Xml3d.class);
             Vector normal = new Vector(0f, 0f, 1f);
@@ -108,6 +116,7 @@ public class RunExample {
             String header = "HTTP/1.0 200 OK\r\nContent-Type: application/xhtml+xml\r\nContent-Length: " + page.getBytes("UTF-8").length + "\r\n\r\n";
             s.getOutputStream().write((header + page).getBytes("UTF-8"));
             s.getOutputStream().flush();
+            Thread.sleep(1000);
             s.close();
         }
     }

@@ -283,7 +283,10 @@ public final class DOMHelper {
         if ((selector == null) || (selector.isEmpty())) {
             return true;
         }
-        if (!selector.contains("[")) {
+        if (!selector.contains("=")) {
+            if (selector.matches("^@.+")) {
+                return item.hasAttribute(selector.substring(1));                
+            }            
             return selector.equals(item.getNodeName());
         }
         String[] selectorValues = splitSelector(selector);
