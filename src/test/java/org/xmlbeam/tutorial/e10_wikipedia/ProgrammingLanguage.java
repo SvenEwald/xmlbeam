@@ -21,6 +21,7 @@ import org.xmlbeam.annotation.XBRead;
 /**
  *
  */
+//START SNIPPET:ProgrammingLanguage
 @XBDocURL("http://en.wikipedia.org/wiki/{0}_(programming_language)")
 public interface ProgrammingLanguage {
 
@@ -31,3 +32,4 @@ public interface ProgrammingLanguage {
     String getCreator();
 
 }
+//END SNIPPET:ProgrammingLanguage

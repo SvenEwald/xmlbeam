@@ -21,11 +21,17 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
+//START SNIPPET: Tutorial10
+
 /* START SNIPPET: TutorialDescription
 ~~
+ This tutorial demonstrates the expressiveness of XMLBeam projections.
+ Four web pages about different programming languages will be fetched from Wikipedia and
+ their creator will be extracted.
+ * Shows a projection to HMTL Documents
 END SNIPPET: TutorialDescription */
 
-
+//START SNIPPET: TestWikiAccess
 public class TestWikiAccess extends TutorialTestCase{
 
     final private String[] PROGRAMMING_LANGUAGES = new String[] { "Java", "C++", "C", "Scala" };
@@ -38,3 +44,4 @@ public class TestWikiAccess extends TutorialTestCase{
          }
     }
 }
+//END SNIPPET: TestWikiAccess
