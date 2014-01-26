@@ -114,16 +114,4 @@ What XMLBeam does not do
  * Parsing XML. It uses the parser that's included within the JRE (since Java6). You may specify other parsers.
  
  * Building or transforming XML. It utilizes the JRE default DocumentBuilder and Transformers. Again you are able to change this easily.
-
-What next?
-
- * More Documentation.
-
- * API refinements.
-
- * Version 1.0 Release. 
-
- * Implement an option to externalize projection declaration to runtime configuration files.
- 
- * Add projection interface generator as an alternative to hand crafted XPath expressions.
  
