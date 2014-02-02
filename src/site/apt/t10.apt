@@ -3,3 +3,21 @@ Tutorial 10
 *E10 Parsing HTML Documents
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e10_wikipedia/TestWikiAccess.java}
+
+* Projection
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#=ProgrammingLanguage|source=src/test/java/org/xmlbeam/tutorial/e10_wikipedia/ProgrammingLanguage.java}
+
+* Example Code
+
+ This is the complete code as JUnit testcase. 
+ The pages are being loaded and parsed in just one line of code. 
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestWikiAccess|source=src/test/java/org/xmlbeam/tutorial/e10_wikipedia/TestWikiAccess.java}
+
+* Test Output
+~~
+ James Gosling and Sun Microsystems designed Java
+ Bjarne Stroustrup designed C++
+ Dennis Ritchie designed C
+ Martin Odersky designed Scala
