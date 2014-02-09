@@ -19,7 +19,8 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
-@XBDocURL("resource://test.html")
+//START SNIPPET: Xml3d
+@XBDocURL("resource://xml3d_template.html")
 public interface Xml3d {
 
     @XBRead("/html/body/xml3d/mesh/int[@name=''index'']")
@@ -40,3 +41,4 @@ public interface Xml3d {
     @XBWrite("/html/body/xml3d/mesh/float3[@name=''normal'']")
     Xml3d setNormals(String normals);
 }
+//END SNIPPET: Xml3d

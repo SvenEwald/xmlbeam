@@ -20,20 +20,25 @@ import java.util.List;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
+//START SNIPPET: Tutorial09
 /* START SNIPPET: TutorialDescription
 ~~
-END SNIPPET: TutorialDescription */
+ This tutorial introduces the concept of "external projections". You may specify a document
+ origin per projection method. This way a projection may project data of multiple documents into
+ one Java object. As example we take the XML interfaces of a Dreambox.
+ A Dreambox is a hard disk video recorder with a web based interface that works with XML data
+ exchange from multiple URLs. This example is provided to show a real life use case for
+ integration of multiple external documents to one Java interface. You are surly not able to run
+ this example without access to specific version of this hard disk recorder. Therefore there is no
+ example code provided which uses this interface.
+    
+//END SNIPPET: TutorialDescription */
 
 
 /**
- * A Dreambox is a hard disk video recorder with a web based interface that works with XML data
- * exchange from multiple URLs. This example is provided to show a real life use case for
- * integration of multiple external documents to one Java interface. You are surly not able to run
- * this example without access to specific version of this hard disk recorder. Therefore there is no
- * example code provided which uses this interface.
- * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a> 
  */
+//START SNIPPET: Dreambox
 public interface Dreambox {
 
     // This is the root XBDocURL of my device.
@@ -56,3 +61,5 @@ public interface Dreambox {
     List<String> getLocations();
 
 }
+// END SNIPPET: Dreambox
+// END SNIPPET: Tutorial09

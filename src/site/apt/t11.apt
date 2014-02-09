@@ -3,3 +3,60 @@ Tutorial 11
 *E11 Using XPath to split the input data
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e11_freemind/TestDumpMindMap.java}
+
+* Projection
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#MindMap|source=src/test/java/org/xmlbeam/tutorial/e11_freemind/MindMap.java}
+
+* Example Code
+
+ This is the complete code as JUnit testcase. 
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestDumpMindMap|source=src/test/java/org/xmlbeam/tutorial/e11_freemind/TestDumpMindMap.java}
+
+* Test Output
+~~
++---------------------------------------
+                                                    XMLBeam
+                                           Projector       Metadata
+                              Configuration                        Definition
+                     Factories                                               @XBead
+               Parser                                                              XPath
+     Document Builder                                                              TargetComponentType
+                XPath                                                        @XBWrite
+must be serializeable                                                                Limited XPath
+           NamespacePhilosophy                                               @XBDelete
+                              Instantiation                                  Parameterizing
+                                          Projection               Externalization
+                          Projection Types                                        Properties
+      Projection Interface                                                                  By package.class.method
+             Subprojection                                                                  By class.method
+      External Projections                                                                  By method
+         Projection Method                                                                  By Key
+                                 Instances                                        Custom
+                    Instantiation                                                       must be serializeable
+            "Virtual Projections"                          IO
+                        POJO like                            Input
+       Equals & HashCode                                          String
+           Serialization                                          File
+                  Mixins                                          Stream
+             Inheritance                                          URL
+                                           DataTypes                 HTTP GET
+                                 Converting                                  Request Customization
+                      CustomTypes                                                                 Document
+                                Collections                                                       ExternalDocumentProjection
+                                 Primitives                          Resource
+                             Subprojections                  Output
+                                          DOM Access               Document Building
+                       Projection Document                                          PrettyPrinting
+                        Projection Element                                          XML Header control
+                            Simple Casting                                          Encoding
+                     interface inheritance                         asString()
+    DOM is backend, can be changed anytime                         File
+                                                                       append
+                                                                   Stream
+                                                                   URL
+                                                                      HTTP POST
+                                                             DocumentOrigins
+                                                                            @XBDocULR
++---------------------------------------

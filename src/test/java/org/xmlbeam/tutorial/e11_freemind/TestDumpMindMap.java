@@ -15,21 +15,27 @@
  */
 package org.xmlbeam.tutorial.e11_freemind;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import java.io.IOException;
+
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.e11_freemind.MindMap.Node;
 
+//START SNIPPET: Tutorial11
+
 /* START SNIPPET: TutorialDescription
 ~~
-END SNIPPET: TutorialDescription */
+ In this tutorial we will render a mindmap as formatted characters. Our algotithm will
+ need the input data split into left and right sides. The task of splitting the mindmap
+ will be done by the projection.
+ END SNIPPET: TutorialDescription */
 
-
+//START SNIPPET: TestDumpMindMap
 public class TestDumpMindMap {
 
     private static final Comparator<? super String> STRING_LENGTH_COMPARATOR = new Comparator<String>() {
@@ -72,4 +78,7 @@ public class TestDumpMindMap {
     private String reverse(final String s) {
         return new StringBuffer(s).reverse().toString();
     }
+
 }
+//END SNIPPET: TestDumpMindMap
+// START SNIPPET: Tutorial11

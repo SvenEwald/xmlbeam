@@ -18,24 +18,26 @@ package org.xmlbeam.tutorial.e12_xml3d;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import java.awt.Desktop;
-import java.io.IOException;
 
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 
+//START SNIPPET: Tutorial12
 /* START SNIPPET: TutorialDescription
 ~~
-END SNIPPET: TutorialDescription */
-
+ Instead of parsing existing data we will now create a new document by 
+ enriching a prepared document template with calculated values.
+ 
+//END SNIPPET: TutorialDescription */
+//START SNIPPET: RunExample
 public class RunExample {
 
     public static class Triplet<T> {
@@ -140,3 +142,5 @@ public class RunExample {
         addVertex(xml3d, t.c);
     }
 }
+//END SNIPPET: RunExample
+// END SNIPPET: Tutorial12

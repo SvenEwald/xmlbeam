@@ -51,7 +51,7 @@
 		<menu name="XMLBeam">
 			<item name="Welcome" href="index.html" />
 			<item name="Introduction" href="introduction.html" />
-			<item name="Tutorial" href="tutorials.html" />
+			<item name="Tutorials" href="tutorials.html" />
 			<item name="API Explained" href="refcards.html"/>
 			<item name="FAQ" href="faq.html" />
 			<item name="Download" href="download.html" />

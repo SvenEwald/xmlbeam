@@ -1,5 +1,9 @@
 Tutorial 9
 
-*E09 Bundle multiple documents to a virtual projection
+*E09 Bundling multiple documents to a virtual projection
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e09_dreambox/Dreambox.java}
+
+* Projection interface
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Dreambox|source=src/test/java/org/xmlbeam/tutorial/e09_dreambox/Dreambox.java}

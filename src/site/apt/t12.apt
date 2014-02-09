@@ -2,4 +2,12 @@ Tutorial 12
 
 *E12 Creating 3D data using a document template
 
-%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e12_xml3d/Xml3d.java}
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e12_xml3d/RunExample.java}
+
+* Projection
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Xml3d|source=src/test/java/org/xmlbeam/tutorial/e12_xml3d/Xml3d.java}
+
+* Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#RunExample|source=src/test/java/org/xmlbeam/tutorial/e12_xml3d/RunExample.java}

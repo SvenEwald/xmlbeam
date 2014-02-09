@@ -35,10 +35,13 @@ public class XBProjectorReferenceCard {
     
     //START SNIPPET: mainExample
     public interface Example {
+        
         @XBRead("/xml/example/content")
         String getContent();
+        
         @XBRead("/xml/example/content/@type")
         String getType();
+        
     }
     //END SNIPPET: mainExample
     
