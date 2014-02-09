@@ -26,6 +26,8 @@ Welcome to XMLBeam
  
 * This is how it looks
 
+ Access XML data directly via XPath-annotated Java interfaces:
+ 
 ----------------------------------------
 <xml>
    <example>
@@ -36,7 +38,7 @@ Welcome to XMLBeam
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#mainExample|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
  
-{{{./introduction.html} Learn more}}. 
+ {{{./introduction.html} Learn more}}. 
  
 * Project status
 
