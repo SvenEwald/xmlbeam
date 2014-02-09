@@ -19,6 +19,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
+//START SNIPPET: KML
 @XBDocURL("resource://polygon-simple.kml")
 public interface KML {
 
@@ -29,3 +30,4 @@ public interface KML {
     public KML setCoordinates(CoordinateList coordinates);
     
 }
+//END SNIPPET: KML

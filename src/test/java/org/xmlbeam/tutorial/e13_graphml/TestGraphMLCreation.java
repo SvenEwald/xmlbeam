@@ -22,11 +22,17 @@ import java.io.IOException;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 
-/* START SNIPPET: TutorialDescription
+//START SNIPPET: Tutorial13
+
+/*START SNIPPET: TutorialDescription
 ~~
-END SNIPPET: TutorialDescription */
+ This tutorial demonstrates the creation of elements via template elements.
+ This is achieved by reading template documents and using this projections as
+ sub projections in other template projections. The transition from document projections
+ to element sub projections works just as desired. 
+//END SNIPPET: TutorialDescription */
 
-
+//START SNIPPET: TestGraphMLCreation
 public class TestGraphMLCreation {
     
     @Test
@@ -48,3 +54,6 @@ public class TestGraphMLCreation {
     }
 
 }
+
+//END SNIPPET: TestGraphMLCreation
+// END SNIPPET: Tutorial13

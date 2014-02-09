@@ -25,14 +25,25 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.types.DefaultTypeConverter;
 
+//START SNIPPET: Tutorial14
+
 /* START SNIPPET: TutorialDescription
 ~~
+ This tutorial demonstrates the usage of a custom made type converter.
+ We implement a new Java List "CoordinateList" which will handle our user defined type Coordinate.
+ So far this is not related to data projection, it's just the scenario build up to show how
+ easy user defined typed may be integrated. The actual configuration of the projector is
+ basically just one line of code.
 END SNIPPET: TutorialDescription */
 
-
 @SuppressWarnings("serial")
+//START SNIPPET: TestCustomTypeConversion
 public class TestCustomTypeConversion {
    
+    /**
+     * This Conversion defines how String data is converted to our target type and
+     * what default is to be applied when no data is available.
+     */
     private final class CoordinateListConversion extends DefaultTypeConverter.Conversion<CoordinateList> {
         private CoordinateListConversion() {
             super(new CoordinateList(""));
@@ -66,3 +77,5 @@ public class TestCustomTypeConversion {
     }
 
 }
+//END SNIPPET: TestCustomTypeConversion
+//END SNIPPET: Tutorial14

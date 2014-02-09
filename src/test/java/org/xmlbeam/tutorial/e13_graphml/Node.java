@@ -6,6 +6,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
+//START SNIPPET: Node
 @XBDocURL("resource://NodeTemplate.xml")
 public interface Node {
     @XBRead("/g:node")
@@ -38,3 +39,4 @@ public interface Node {
     @XBRead("{0}")
     String xpath(String path);
 }
+//END SNIPPET: Edge

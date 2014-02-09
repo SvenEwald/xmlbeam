@@ -3,3 +3,16 @@ Tutorial 13
 *E13 Creating subprojections with element templates
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e13_graphml/TestGraphMLCreation.java}
+
+
+* Projections
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Node|source=src/test/java/org/xmlbeam/tutorial/e13_graphml/Node.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#Edge|source=src/test/java/org/xmlbeam/tutorial/e13_graphml/Edge.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#GraphML|source=src/test/java/org/xmlbeam/tutorial/e13_graphml/GraphML.java}
+
+
+
+* Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestGraphMLCreation|source=src/test/java/org/xmlbeam/tutorial/e13_graphml/TestGraphMLCreation.java}

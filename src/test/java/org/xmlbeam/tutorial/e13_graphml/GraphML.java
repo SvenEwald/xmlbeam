@@ -25,6 +25,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 
+//START SNIPPET: GraphML
 @XBDocURL("resource://GraphMLTemplate.xml")
 public interface GraphML {
 
@@ -50,3 +51,4 @@ public interface GraphML {
     String xpath(String path);
     
 }
+//END SNIPPET: GraphML

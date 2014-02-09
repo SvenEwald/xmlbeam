@@ -22,6 +22,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
+//START SNIPPET: Edge
 @XBDocURL("resource://EdgeTemplate.xml")
 public interface Edge {
     @XBRead("/edge")
@@ -40,3 +41,4 @@ public interface Edge {
     String getID();
 
 }
+//END SNIPPET: Edge

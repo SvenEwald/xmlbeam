@@ -9,9 +9,9 @@
 Tutorial Examples
 
  These tutorials guide you through real life examples, each demonstrating a couple of XMLBeam features.
- You will find these examples ready to run in "src/test/java/tutorial".
+ You will find these examples ready to run as JUnit tests in "src/test/java/tutorial".
  Each example works on real life XML Data and targets different aspects of data projections.
- 
+
   <<Have fun!>> 
 
 %{toc|section=1|fromDepth=2|toDepth=2}
