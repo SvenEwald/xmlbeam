@@ -53,12 +53,16 @@
 			<item name="Introduction" href="introduction.html" />
 			<item name="Tutorials" href="tutorials.html" />
 			<item name="API Explained" href="refcards.html"/>
+			<item name="Javadoc" href="apidocs"/>
 			<item name="FAQ" href="faq.html" />
 			<item name="Download" href="download.html" />
 			<item name="Release Notes" href="release-notes.html" />
 			<item name="Road Map" href="roadmap.html" />
-			<item name="About / License" href="about.html" />		
+			<item name="About / License" href="about.html" />
 		</menu>
+       
+		
+		
 <!-- 
 		<menu ref="reports" />
  -->

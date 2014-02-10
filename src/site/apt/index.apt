@@ -22,7 +22,7 @@ Welcome to XMLBeam
  XMBeam was designed to keep your API and application code static, even when the XML structure changes.
  This approach works so well that you can even use it to mimicry other APIs.
  
- Above all XMLBeam is a handy daily XML tool with convenient features to create, modify and even read or write XML data. 
+ Above all XMLBeam is a handy daily XML tool with convenient features to create, modify, read or write XML data. 
  
 * This is how it looks
 
