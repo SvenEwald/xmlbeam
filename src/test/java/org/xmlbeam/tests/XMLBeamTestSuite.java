@@ -86,27 +86,27 @@ public interface XMLBeamTestSuite extends DOMAccess {
     @XBRead("/gluerootnode/intermediate/firstelement/@glueattribute")
     String getAttributeValue();
 
-    @XBRead(value = "/gluerootnode/intermediate/secondElement/list/entry", targetComponentType = String.class)
+    @XBRead(value = "/gluerootnode/intermediate/secondElement/list/entry")
     List<String> getAStringList();
 
-    @XBRead(value = "/gluerootnode/intermediate/secondElement/list/entry", targetComponentType = String.class)
+    @XBRead(value = "/gluerootnode/intermediate/secondElement/list/entry")
     String[] getAStringArray();
 
-    @XBRead(value = "//thirdElement/@*", targetComponentType = String.class)
+    @XBRead(value = "//thirdElement/@*")
     List<String> getAttributeValuesAsStringlist();
 
     interface InnerStructure extends DOMAccess {
         @XBRead("child::innerStructureA")
         String getA();
 
-        @XBRead(value = "child::innerStructureB/item", targetComponentType = String.class)
+        @XBRead(value = "child::innerStructureB/item")
         List<String> getB();
     }
 
     @XBRead("/gluerootnode/intermediate/fourthElement[1]")
     InnerStructure getFirstInnerStructure();
 
-    @XBRead(value = "/gluerootnode/intermediate/fourthElement", targetComponentType = InnerStructure.class)
+    @XBRead(value = "/gluerootnode/intermediate/fourthElement")
     List<InnerStructure> getAllInnerStructures();
     
     @XBRead(value = "/gluerootnode/intermediate/fourthElement")
@@ -125,7 +125,7 @@ public interface XMLBeamTestSuite extends DOMAccess {
     }
 
     @XBDocURL("resource://external_document.{0}")
-    @XBRead(value = "/settings/setting", targetComponentType = Setting.class)
+    @XBRead(value = "/settings/setting")
     List<Setting> getExternalSettings(String externsion);
 
     @XBWrite("/description")

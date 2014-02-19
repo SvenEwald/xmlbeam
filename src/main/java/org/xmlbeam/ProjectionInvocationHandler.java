@@ -15,18 +15,23 @@
  */
 package org.xmlbeam;
 
-import java.io.IOException;
-import java.io.Serializable;
+import java.text.MessageFormat;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import java.io.IOException;
+import java.io.Serializable;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -181,11 +186,28 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return method.getReturnType().getComponentType();
         }
         assert method.getAnnotation(XBRead.class)!=null;
-        final Class<?> targetType = method.getAnnotation(XBRead.class).targetComponentType();
+
+        final Class<?> targetType = determineTargetTypeForList(method);
         if (XBRead.class.equals(targetType)) {
             throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
         }
         return targetType;
+    }
+
+    /**
+     * Extract the generic type of the List which currently is our return type.
+     * 
+     * @param method
+     * @return component type of List to be created.
+     */
+    private Class<?> determineTargetTypeForList(Method method) {
+        assert List.class.equals(method.getReturnType());
+        final Type type = method.getGenericReturnType();
+        if (!(type instanceof ParameterizedType) || (((ParameterizedType) type).getActualTypeArguments() == null) || (((ParameterizedType) type).getActualTypeArguments().length < 1)) {
+            throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify a generic type for the List. Otherwise I do not know which type I should fill the List with.");
+        }
+        assert ((ParameterizedType) type).getActualTypeArguments().length == 1 : "";
+        return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
     }
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {

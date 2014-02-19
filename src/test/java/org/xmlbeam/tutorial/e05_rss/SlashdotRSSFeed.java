@@ -52,7 +52,7 @@ public interface SlashdotRSSFeed {
      * 
      * @return List of all stories
      */
-    @XBRead(value = "/rss/channel/item", targetComponentType = Story.class)
+    @XBRead(value = "/rss/channel/item")
     List<Story> getAllItems();
 
     /**
@@ -84,7 +84,7 @@ public interface SlashdotRSSFeed {
      * 
      * @return A list of all creators in this feed.
      */
-    @XBRead(value = "//dc:creator", targetComponentType = String.class)
+    @XBRead(value = "//dc:creator")
     List<String> getCreators();
 
     /**
@@ -94,7 +94,7 @@ public interface SlashdotRSSFeed {
      * 
      * @return A list of open source stories.
      */
-    @XBRead(value = "/rss/channel/item[dc:subject=opensource]", targetComponentType = Story.class)
+    @XBRead(value = "/rss/channel/item[dc:subject=opensource]")
     List<Story> getOpenSourceStories();
 }
 //END SNIPPET:SlashdotRSSFeed

@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tests.concurrent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class TestConcurrentProjectionAccess {
         @XBWrite("/a/x{0}/b")
         Projection setB(int index, String value);
 
-        @XBRead(value = "/a/x{0}/b", targetComponentType = Projection.class)
+        @XBRead(value = "/a/x{0}/b")
         String getB(int index);
 
         @XBRead("count(//b)")

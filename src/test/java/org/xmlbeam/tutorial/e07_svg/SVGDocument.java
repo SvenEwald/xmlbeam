@@ -44,7 +44,7 @@ public interface SVGDocument {
         Integer getYPosition();
     }
     
-    @XBRead(value = "/svg/rect", targetComponentType = GraphicElement.class)
+    @XBRead(value = "/svg/rect")
     List<GraphicElement> getGraphicElements();
 
     @XBWrite("/svg/rect")

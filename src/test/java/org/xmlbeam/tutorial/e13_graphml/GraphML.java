@@ -38,13 +38,13 @@ public interface GraphML {
     @XBRead("//g:edge[@target=''{0}'']/@source")
     String getParentOf(String node);
 
-    @XBRead(value="//g:edge[@source=''{0}'']/@target",targetComponentType=String.class)
+    @XBRead(value="//g:edge[@source=''{0}'']/@target")
     List<String> getChildrenOf(String node);
 
     @XBRead("//g:node[@id=''{0}'']")
     Node getNode(String id);
     
-    @XBRead(value="//g:node",targetComponentType=Node.class)
+    @XBRead(value="//g:node")
     List<Node> getAllNodes();
     
     @XBRead("{0}")

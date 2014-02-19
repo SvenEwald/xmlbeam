@@ -44,7 +44,7 @@ public interface Element {
     @XBRead("./{0}")
     Element element(String name);
 
-    @XBRead(value = "./*", targetComponentType = Element.class)
+    @XBRead(value = "./*")
     List<Element> elements();
 
     @XBRead("name()")

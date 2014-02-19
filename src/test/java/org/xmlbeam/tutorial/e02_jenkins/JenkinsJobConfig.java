@@ -37,10 +37,10 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 @org.xmlbeam.annotation.XBDocURL("resource://config.xml")
 public interface JenkinsJobConfig {
 
-    @XBRead(value = "//publishers/*", targetComponentType = Publisher.class)
+    @XBRead(value = "//publishers/*")
     List<Publisher> getPublishers();
     
-    @XBRead(value = "//prebuilders/* | //builders/* | //postbuilders/*", targetComponentType = Builder.class)
+    @XBRead(value = "//prebuilders/* | //builders/* | //postbuilders/*")
     List<Builder> getAllBuilders();
 
 }

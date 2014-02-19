@@ -35,12 +35,4 @@ public @interface XBRead {
      * @return
      */
     String value() default "";
-
-    /**
-     * Type of desired collection content. My be omitted for arrays.
-     * 
-     * @return
-     */
-    Class<?> targetComponentType() default XBWrite.class;
-       
 }

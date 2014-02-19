@@ -44,10 +44,10 @@ public interface EclipseFormatterConfigFile {
         
     }
 
-    @XBRead(value = "//profile/@name", targetComponentType = String.class)
+    @XBRead(value = "//profile/@name")
     List<String> getProfileNames();
 
-    @XBRead(value = "//profiles/profile[@name=\"{0}\"]/setting", targetComponentType = Setting.class)
+    @XBRead(value = "//profiles/profile[@name=\"{0}\"]/setting")
     List<Setting> getAllSettingsForProfile(String profileName);
     
 }
