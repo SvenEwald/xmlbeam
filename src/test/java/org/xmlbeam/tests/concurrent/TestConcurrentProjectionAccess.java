@@ -44,7 +44,7 @@ public class TestConcurrentProjectionAccess {
         @XBWrite("/a/x{0}/b")
         Projection setB(int index, String value);
 
-        @XBRead(value = "/a/x{0}/b")
+        @XBRead("/a/x{0}/b")
         String getB(int index);
 
         @XBRead("count(//b)")

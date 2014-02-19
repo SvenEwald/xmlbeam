@@ -44,7 +44,7 @@ public interface SVGDocument {
         Integer getYPosition();
     }
     
-    @XBRead(value = "/svg/rect")
+    @XBRead("/svg/rect")
     List<GraphicElement> getGraphicElements();
 
     @XBWrite("/svg/rect")

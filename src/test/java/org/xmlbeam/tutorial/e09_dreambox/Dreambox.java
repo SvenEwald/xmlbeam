@@ -45,19 +45,19 @@ public interface Dreambox {
     final static String BASE_URL = "http://192.168.1.44/web";
 
     @XBDocURL(BASE_URL + "/movielist?dirname={0}")
-    @XBRead(value = "/e2movielist/e2movie")
+    @XBRead("/e2movielist/e2movie")
     List<Movie> getMovies(String location);
 
     @XBDocURL(BASE_URL + "/getservices?sRef=1%3A7%3A1%3A0%3A0%3A0%3A0%3A0%3A0%3A0%3AFROM%20BOUQUET%20%22userbouquet.favourites.tv%22%20ORDER%20BY%20bouquet")
-    @XBRead(value = "/e2servicelist/e2service")
+    @XBRead("/e2servicelist/e2service")
     List<Service> getServices();
 
     @XBDocURL(BASE_URL + "/web/epgservice?sRef={0}")
-    @XBRead(value = "/e2eventlist/e2event")
+    @XBRead("/e2eventlist/e2event")
     List<Event> getEvents(String serviceReference);
 
     @XBDocURL(BASE_URL + "/web/getlocations")
-    @XBRead(value = "e2locations/e2location")
+    @XBRead("e2locations/e2location")
     List<String> getLocations();
 
 }

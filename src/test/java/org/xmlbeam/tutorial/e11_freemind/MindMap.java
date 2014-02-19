@@ -33,10 +33,10 @@ public interface MindMap {
     @XBRead("/map/node")
     Node getRootNode();
 
-    @XBRead(value = "//node[@POSITION=''left'']")
+    @XBRead("//node[@POSITION=''left'']")
     Node[] getLeftNodes();
     
-    @XBRead(value = "//node[@POSITION=''right'']")
+    @XBRead("//node[@POSITION=''right'']")
     Node[] getRightNodes();
     
     @XBRead("count(descendant-or-self::node)")
