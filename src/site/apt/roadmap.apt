@@ -7,8 +7,20 @@ Roadmap
  * Generator to create projection stubs from existing documents. 
 
  * Additional library with generic DOM access projections.
+ 
+* Version 1.1.1 
+ 
+ * Performance enhancements by pre processing reflection metadata for InvocationHandlers
+ 
+ * More UnitTests on writing projections with element and attribute selectors
 
-* Version 1.0.1
+* Version 1.1.0
+
+ * API Change: Parameter targetComponentType is no longer needed in @XBRead annotations.
+ 
+ * Minor code cleanups
+
+* Version 1.0.1 (Skipped due to nice API improvement, still available as source)
 
  * Javadoc improvements
  
@@ -25,7 +37,6 @@ Roadmap
  * Option to externalize projection metadata.
  
  * Release of artifacts to maven central.
- 
  
 * Version 0.x 
 

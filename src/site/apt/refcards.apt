@@ -86,11 +86,12 @@ API Reference
  
  * a (sub) projection interface
  
+ * a DOM-Node (if you need access to the DOM behind the projection.
+ 
  []
  
  or a list or array of any of these types.
- If you choose a list, you must specify the target component type (the type of the list content) as second annotation parameter.
- This is because Java's type erasure hits here and the framework can not determine it at runtime.  
+  
 
 ** @XBWrite
 

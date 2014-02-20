@@ -1,3 +1,6 @@
 Current Release
 
+* 1.1.0 upcomming release
+ API change in @XBRead annotation. You have to remove all parameters for targetComponentType, this is now determined by reflection.
+
 * 1.0.0 initial release
