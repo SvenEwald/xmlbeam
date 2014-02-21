@@ -42,6 +42,12 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-02-21
+ 
+ * New release 1.1.0 with changes in API. See the {{{./release-notes.html} release notes}}.
+
+ * New {{{./t15.html} tutorial}}. 
+
 ** 2013-10-26
 
  Over 6 months without a change, several productive usages without bug reports.

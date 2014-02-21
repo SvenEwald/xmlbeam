@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+
+<plist version="1.0">
+  <dict>
+    <key>Author</key>
+    <string>Charles Robert Darwin</string>
+    <key>Lines</key>
+    <array>
+      <string>A man who dares to waste one hour of time has not discovered the value of life.</string>
+      <string>I have tried lately to read Shakespeare, and found it so intolerably dull that it nauseated me.</string>
+      <string>I love fools' experiments. I am always making them.</string>
+    </array>
+    <key>Birthdate</key>
+    <integer>1809</integer>
+  </dict>
+</plist>

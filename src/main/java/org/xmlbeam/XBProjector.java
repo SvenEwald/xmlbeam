@@ -15,22 +15,6 @@
  */
 package org.xmlbeam;
 
-import java.net.URISyntaxException;
-
-import java.text.Format;
-import java.text.MessageFormat;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +22,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.net.URISyntaxException;
+import java.text.Format;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -59,7 +55,7 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.externalizer.Externalizer;
-import org.xmlbeam.externalizer.NotExternalizedExternalizer;
+import org.xmlbeam.externalizer.ExternalizerAdapter;
 import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
@@ -123,7 +119,7 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 @SuppressWarnings("serial")
 public class XBProjector implements Serializable, ProjectionFactory {
 
-    private static final Externalizer NOOP_EXTERNALIZER = new NotExternalizedExternalizer();
+    private static final Externalizer NOOP_EXTERNALIZER = new ExternalizerAdapter();
 
     private final ConfigBuilder configBuilder = new ConfigBuilder();
 

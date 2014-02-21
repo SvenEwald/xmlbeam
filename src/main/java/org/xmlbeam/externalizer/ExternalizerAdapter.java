@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 Sven Ewald
+ *  Copyright 2014 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,16 +18,14 @@ package org.xmlbeam.externalizer;
 import java.lang.reflect.Method;
 
 /**
- * Default strategy to externalize projection metadata. The metadata defined in
- * XB-annotations is used directly.
+ * This default implementation for the {@link Externalizer} interface is just a shortcut
+ * if you only want to implement one of the interfaces methods. Feel free to extend
+ * this class and implement your own logic.
+ *  
  */
-final public class NotExternalizedExternalizer implements Externalizer {
+public class ExternalizerAdapter implements Externalizer {
 
-    private static final long serialVersionUID = -3614849117281620124L;
-
-    /**
-     * This class should never get a state. 
-     */
+    private static final long serialVersionUID = 352472023631762615L;
 
     /**
      * {@inheritDoc}

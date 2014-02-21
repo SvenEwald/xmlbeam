@@ -1,0 +1,18 @@
+Tutorial 15
+
+*E15 Reading a complex plist structure and deriving the XPath from method names
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e15_plist/TestPlistAccess.java}
+
+* XML Data
+
+%{include|highlight-theme=eclipse|show-gutter=false|source=src/test/java/org/xmlbeam/tutorial/e15_plist/example.plist}
+
+* Projection
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#PList|source=src/test/java/org/xmlbeam/tutorial/e15_plist/PList.java}
+
+
+* Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#TestPlistAccess|source=src/test/java/org/xmlbeam/tutorial/e15_plist/TestPlistAccess.java}
