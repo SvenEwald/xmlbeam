@@ -102,6 +102,6 @@ Tutorial Examples
 
 *E15 Reading a complex plist structure and deriving the XPath from method names
 
-%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e15_plist/TestPListAccess.java}
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e15_plist/TestPlistAccess.java}
 
  {{{./t15.html}Start tutorial 15}} 
