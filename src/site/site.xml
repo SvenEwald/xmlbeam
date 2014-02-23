@@ -11,6 +11,7 @@
 	
 <custom>
     <fluidoSkin>
+    <skipGenerationDate>true</skipGenerationDate>
       <gitHub>
         <projectId>SvenEwald/xmlbeam</projectId>
         <ribbonOrientation>right</ribbonOrientation>

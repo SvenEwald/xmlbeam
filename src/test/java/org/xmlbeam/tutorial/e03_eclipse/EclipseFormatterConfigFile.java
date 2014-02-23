@@ -51,4 +51,4 @@ public interface EclipseFormatterConfigFile {
     List<Setting> getAllSettingsForProfile(String profileName);
     
 }
-//START SNIPPET: EclipseCodeFormatterConfig
+//END SNIPPET: EclipseCodeFormatterConfig

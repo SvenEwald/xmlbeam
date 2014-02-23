@@ -65,6 +65,7 @@ API Reference
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard9|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
+
 * Annotations
 
 ** @XBDocURL
@@ -86,7 +87,7 @@ API Reference
  
  * a (sub) projection interface
  
- * a DOM-Node (if you need access to the DOM behind the projection.
+ * a DOM-Node (if you need access to the DOM behind the projection).
  
  []
  
