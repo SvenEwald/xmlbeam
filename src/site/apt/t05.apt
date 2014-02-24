@@ -12,5 +12,5 @@ Tutorial 5
 
  And here some unit tests to print out some data about our RSS feed.
  
- %{include|highlight-theme=eclipse|show-gutter=false|snippet=#=TestFilterRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#=TestFilterRSSFeed|source=src/test/java/org/xmlbeam/tutorial/e05_rss/TestFilterRSSFeed.java}
  
