@@ -38,7 +38,8 @@ public class TestDefaultTypeConverter {
                 Integer.class, Integer.valueOf(0), Integer.TYPE, Integer.valueOf(0),//
                 Float.class, Float.valueOf(0), Float.TYPE, Float.valueOf(0),//
                 Double.class, Double.valueOf(0), Double.TYPE, Double.valueOf(0),//
-                Long.class, Long.valueOf(0), Long.TYPE, Long.valueOf(0) //
+                Long.class, Long.valueOf(0), Long.TYPE, Long.valueOf(0), //
+                Character.class, Character.valueOf(' '),Character.TYPE,Character.valueOf(' ')//  
         };
 
         for (int i = 0; i < defaults.length; i += 2) {
@@ -61,10 +62,12 @@ public class TestDefaultTypeConverter {
     @Test
     public void ensureByte() {
         assertEquals(Byte.valueOf((byte) -1), converter.convertTo(Byte.class, "-1"));
+        assertEquals(Byte.valueOf(Byte.MAX_VALUE),converter.convertTo(Byte.class, "127"));
+        assertEquals(Byte.valueOf(Byte.MIN_VALUE),converter.convertTo(Byte.class, "-128"));
     }
 
     @Test
     public void ensureShort() {
-
+        assertEquals(Short.valueOf((byte) -1), converter.convertTo(Short.class, "-1"));
     }
 }

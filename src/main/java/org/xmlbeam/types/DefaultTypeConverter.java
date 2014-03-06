@@ -92,19 +92,31 @@ public class DefaultTypeConverter implements TypeConverter {
             }
         });
         CONVERSIONS.put(Long.TYPE, CONVERSIONS.get(Long.class));
+
+        CONVERSIONS.put(Character.class, new Conversion<Character>(' ') {
+            @Override
+            public Character convert(String data) {      
+                if (data.length()==1) {
+                    return data.charAt(0);
+                }
+                String trimmed=data.trim();
+                return trimmed.isEmpty() ? getDefaultValue() : trimmed.charAt(0);
+            }
+        });
+        CONVERSIONS.put(Character.TYPE, CONVERSIONS.get(Character.class));
+
         CONVERSIONS.put(String.class, new Conversion<String>("") {
             @Override
             public String convert(final String data) {
                 return data;
             }
         });
-        
-//        CONVERSIONS.put(Node.class, new Conversion<Node>(null){
+// CONVERSIONS.put(Node.class, new Conversion<Node>(null){
 //
-//            @Override
-//            public Node convert(String data) {
-//                return null;
-//            }});
+// @Override
+// public Node convert(String data) {
+// return null;
+// }});
     }
 
     /**
@@ -132,22 +144,20 @@ public class DefaultTypeConverter implements TypeConverter {
         return CONVERSIONS.containsKey(targetType);
     }
 
-    
     @SuppressWarnings("unchecked")
     public <T> Conversion<T> getConversionForType(final Class<T> type) {
-        assert type!=null;
+        assert type != null;
         return (Conversion<T>) CONVERSIONS.get(type);
     }
-    
-    public <T> DefaultTypeConverter setConversionForType(final Class<T> type,final Conversion<T> conversion) {
-        assert type!=null;
-        if (conversion==null) {
+
+    public <T> DefaultTypeConverter setConversionForType(final Class<T> type, final Conversion<T> conversion) {
+        assert type != null;
+        if (conversion == null) {
             CONVERSIONS.remove(type);
             return this;
         }
         CONVERSIONS.put(type, conversion);
         return this;
     }
-    
-    
+
 }
