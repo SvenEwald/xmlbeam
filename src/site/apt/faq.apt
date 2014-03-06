@@ -66,4 +66,12 @@ FAQ / HowTo
 
  Caching is not a concern of this library. Implement your own cache to avoid unnecessary XPath overhead.
  The projector does not know anything about the purpose of the data it reads.
- To be able to circumvent unexpected caching side effects you need knowledge about the application context. 
+ To be able to circumvent unexpected caching side effects you need knowledge about the application context.
+ 
+* How do I change the used XPath engine?
+
+ This is done by giving a different XMLFactoriesConfiguration when the XBProjector is created.
+ All implementations that provide an javax.xml.xpath.XPath instance should work out of the box.
+ You may create your own XMLFactoriesConfig, or extend the existing DefaultXMLFactoriesConfig.
+ Depending on your use case you need to override either the method createXPath(Document) or if you need deeper influence the createXPathFactory() method.
+  
