@@ -42,6 +42,11 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-03-06
+ 
+ * Added section to the {{{./faq.html}FAQ}} to explain how to use a different XPath implementation.
+
+
 ** 2014-02-21
  
  * New release 1.1.0 with changes in API. See the {{{./release-notes.html} release notes}}.
