@@ -45,7 +45,7 @@ Welcome to XMLBeam
 ** 2014-03-06
  
  * Added section to the {{{./faq.html}FAQ}} to explain how to use a different XPath implementation.
-
+  (The same way can be be used to change the XML-Parser or DocumentBuilder.) 
 
 ** 2014-02-21
  

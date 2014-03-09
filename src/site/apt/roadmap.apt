@@ -8,11 +8,15 @@ Roadmap
 
  * Additional library with generic DOM access projections.
  
-* Version 1.1.1 
- 
  * Performance enhancements by pre processing reflection metadata for InvocationHandlers
  
+* Version 1.1.1 
+ 
  * More UnitTests on writing projections with element and attribute selectors
+ 
+ * Java8 support (virtual extension methods)
+ 
+ * Integration for application logging
 
 * Version 1.1.0
 
