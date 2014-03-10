@@ -438,7 +438,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
         }
 
-        if (path.replaceAll("\\[@", "[attribue::").contains("@")) {
+        if (path.replaceAll("\\[@", "[attribute::").contains("@")) {
             String attributeName = path.replaceAll(".*@", "");
             DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
             return getProxyReturnValueForMethod(proxy, method);

@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.util.IOHelper;
@@ -47,6 +48,14 @@ public class TestObjectInvoker {
         XMLBeamTestSuite testSuite = new XBProjector(config).io().fromURLAnnotation(XMLBeamTestSuite.class);
         String orig = IOHelper.inputStreamToString(TestObjectInvoker.class.getResourceAsStream(XMLBeamTestSuite.class.getAnnotation(XBDocURL.class).value().substring("resource://".length())), "UTF-8");
         assertEquals(orig.replaceAll("\\s", ""), new XBProjector(config).asString(testSuite).replaceAll("\\s", ""));
+    }
+    
+    @Test
+    public void testToStringCalledViaInvocationHandler() throws IOException {
+        XMLBeamTestSuite testSuiteWithOutInvocationHandler = new XBProjector().io().fromURLAnnotation(XMLBeamTestSuite.class);
+        XMLBeamTestSuite testSuiteWithInvocationHandler = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(XMLBeamTestSuite.class);
+        assertFalse(testSuiteWithInvocationHandler.toString().equals(testSuiteWithOutInvocationHandler.toString()));
+        assertTrue(testSuiteWithOutInvocationHandler.toString().contains(XMLBeamTestSuite.class.getName()));
     }
     
     @Test

@@ -20,6 +20,7 @@ import java.io.IOException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
@@ -49,7 +50,6 @@ END SNIPPET: TutorialDescription */
     public void profilesTest() throws IOException {
 //START SNIPPET: TestEclipseCodeFormatterConfig       
 EclipseFormatterConfigFile configFile = new XBProjector().io().fromURLAnnotation(EclipseFormatterConfigFile.class);
-
 System.out.println("Profile names:" + configFile.getProfileNames());        
 for (Setting setting:configFile.getAllSettingsForProfile("Some Profile")) {
     System.out.println(setting.getName()+" -> "+setting.getValue());    

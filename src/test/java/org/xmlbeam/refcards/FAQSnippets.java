@@ -15,18 +15,28 @@
  */
 package org.xmlbeam.refcards;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.lang.reflect.Method;
+import java.util.List;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 import javax.xml.xpath.XPathFunctionResolver;
 import javax.xml.xpath.XPathVariableResolver;
 
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.externalizer.ExternalizerAdapter;
 
+@SuppressWarnings({"unused","serial"})
 public class FAQSnippets {
     
     /**
@@ -134,7 +144,7 @@ public class FAQSnippets {
                 return "I'm a "+ me.getProjectionInterface().getSimpleName();
             };
         };        
-        projector.mixins().addProjectionMixin(Object.class, mixin);
+        projector.mixins().addProjectionMixin(Projection.class, mixin);
         //END SNIPPET: MixinRegistration  
     }
 
@@ -181,6 +191,31 @@ public class FAQSnippets {
 
         XBProjector projector = new XBProjector(myConfig);
         //END SNIPPET: OwnXPathImplementation
+    }
+    
+    
+    
+    
+    public interface ExampleProjection {        
+        @XBRead
+        List<String> getDepartmentUsersName();       
+    }
+    
+    
+    @Test
+    public void UnCamelCaseTest() {
+        XBProjector projector = new XBProjector();
+        projector.config().setExternalizer(new ExternalizerAdapter() { 
+            @Override
+            public String resolveXPath(String annotationValue, Method method, Object[] args) {
+                // Simplest conversion of camel case getter to xpath expression.
+                return method.getName().substring(3).replaceAll("[A-Z]","/$0");
+            }
+        });        
+        List<String> departmentUsers = projector.projectXMLString("<Department><Users><Name>John Doe</Name><Name>Tommy Atkins</Name></Users></Department>", ExampleProjection.class).getDepartmentUsersName();
+        assertTrue(departmentUsers.size()==2);
+        assertEquals("John Doe",departmentUsers.get(0));
+        assertEquals("Tommy Atkins",departmentUsers.get(1));
     }
 
 }
