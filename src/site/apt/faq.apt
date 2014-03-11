@@ -88,4 +88,11 @@ FAQ / HowTo
  * If you do not want any XPathFactory involved, you even may bypass this:
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#OwnXPathImplementation|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+
+* A single quote "'" in the XPath results in an unexpected exception. Why?
+
+ Mind that every XPath is processed java.text.MessageFormat.
+ So if you want to use a single quote "'", you have to escape that with another single quote: "''"
+ The projector does not decide if an expressions should be processed via MessageFormat or not.
+ Simply all expressions are passed through this class and therefore the single quote must be quoted even if the method has no parameters.
   
