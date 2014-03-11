@@ -21,7 +21,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define a projection function to delete elements or attributes.
+ * Define a projection function to delete elements or attributes. <strong> Mind that every XPath is
+ * processed via {@link java.text.MessageFormat}. So if you want to use a single quote "'", you have
+ * to escape that with another single quote: "''" </strong>
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
