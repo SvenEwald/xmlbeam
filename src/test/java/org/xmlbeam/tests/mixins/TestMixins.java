@@ -16,7 +16,9 @@
 package org.xmlbeam.tests.mixins;
 
 import static junit.framework.Assert.assertNotNull;
+
 import static org.junit.Assert.assertEquals;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -30,6 +32,7 @@ public class TestMixins {
     }
 
     public interface MixinOverridingToString {
+        @Override
         String toString();
     }
     
@@ -68,6 +71,12 @@ public class TestMixins {
     @Test
     public void testMixinOnDOMAccess() {
         OverridingProjection projection = new XBProjector().mixins().addProjectionMixin(OverridingProjection.class, overridingMixin).projectEmptyDocument(OverridingProjection.class);
-        assertEquals("12345",projection.toString());
+        assertEquals("12345", projection.toString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCallWithoutMixin() {
+        Mixin mixin = new XBProjector().projectEmptyDocument(Mixin.class);
+        mixin.doSomething();
     }
 }
