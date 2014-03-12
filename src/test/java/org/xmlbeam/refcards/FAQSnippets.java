@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
+
 import java.util.List;
 
 import javax.xml.xpath.XPath;
@@ -32,95 +33,74 @@ import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
-@SuppressWarnings({"unused","serial"})
+@SuppressWarnings({ "unused", "serial" })
 public class FAQSnippets {
-    
+
     /**
      * @author sven
      */
     public class MyOwnXpathFactory extends XPathFactory {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see javax.xml.xpath.XPathFactory#isObjectModelSupported(java.lang.String)
+        /**
+         * {@inheritDoc}
          */
         @Override
         public boolean isObjectModelSupported(String objectModel) {
-            // TODO Auto-generated method stub
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see javax.xml.xpath.XPathFactory#setFeature(java.lang.String, boolean)
+        /**
+         * {@inheritDoc}
          */
         @Override
         public void setFeature(String name, boolean value) throws XPathFactoryConfigurationException {
-            // TODO Auto-generated method stub
 
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see javax.xml.xpath.XPathFactory#getFeature(java.lang.String)
+        /**
+         * {@inheritDoc}
          */
         @Override
         public boolean getFeature(String name) throws XPathFactoryConfigurationException {
-            // TODO Auto-generated method stub
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * javax.xml.xpath.XPathFactory#setXPathVariableResolver(javax.xml.xpath.XPathVariableResolver
-         * )
+        /**
+         * {@inheritDoc}
          */
         @Override
         public void setXPathVariableResolver(XPathVariableResolver resolver) {
-            // TODO Auto-generated method stub
 
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * javax.xml.xpath.XPathFactory#setXPathFunctionResolver(javax.xml.xpath.XPathFunctionResolver
-         * )
+        /**
+         * {@inheritDoc}
          */
         @Override
         public void setXPathFunctionResolver(XPathFunctionResolver resolver) {
-            // TODO Auto-generated method stub
 
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see javax.xml.xpath.XPathFactory#newXPath()
+        /**
+         * {@inheritDoc}
          */
         @Override
         public XPath newXPath() {
-            // TODO Auto-generated method stub
             return null;
         }
 
     }
 
     XBProjector projector = new XBProjector();
-    
+
     {
-        
-    }    
+
+    }
 
     //START SNIPPET: MixinOverridingToString
     public interface MixinOverridingToString {
@@ -134,8 +114,8 @@ public class FAQSnippets {
         // Your projection methods here
     }
     //END SNIPPET: Projection
-    
-    {        
+
+    {
         //START SNIPPET: MixinRegistration
         Object mixin = new Object() {
             private DOMAccess me;
@@ -192,30 +172,26 @@ public class FAQSnippets {
         XBProjector projector = new XBProjector(myConfig);
         //END SNIPPET: OwnXPathImplementation
     }
-    
-    
-    
-    
-    public interface ExampleProjection {        
+
+    public interface ExampleProjection {
         @XBRead
-        List<String> getDepartmentUsersName();       
+        List<String> getDepartmentUsersName();
     }
-    
-    
+
     @Test
     public void UnCamelCaseTest() {
         XBProjector projector = new XBProjector();
-        projector.config().setExternalizer(new ExternalizerAdapter() { 
+        projector.config().setExternalizer(new ExternalizerAdapter() {
             @Override
             public String resolveXPath(String annotationValue, Method method, Object[] args) {
                 // Simplest conversion of camel case getter to xpath expression.
-                return method.getName().substring(3).replaceAll("[A-Z]","/$0");
+                return method.getName().substring(3).replaceAll("[A-Z]", "/$0");
             }
-        });        
+        });
         List<String> departmentUsers = projector.projectXMLString("<Department><Users><Name>John Doe</Name><Name>Tommy Atkins</Name></Users></Department>", ExampleProjection.class).getDepartmentUsersName();
-        assertTrue(departmentUsers.size()==2);
-        assertEquals("John Doe",departmentUsers.get(0));
-        assertEquals("Tommy Atkins",departmentUsers.get(1));
+        assertTrue(departmentUsers.size() == 2);
+        assertEquals("John Doe", departmentUsers.get(0));
+        assertEquals("Tommy Atkins", departmentUsers.get(1));
     }
 
 }
