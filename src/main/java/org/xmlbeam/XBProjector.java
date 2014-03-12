@@ -245,9 +245,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * @param clazz
          * @return
          */
-        @SuppressWarnings("unchecked")
         public <T extends XMLFactoriesConfig> T as(Class<T> clazz) {
-            return (T) xMLFactoriesConfig;
+            return clazz.cast(xMLFactoriesConfig);
         }
 
         /**
@@ -258,9 +257,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
             return XBProjector.this.typeConverter;
         }
                 
-        @SuppressWarnings("unchecked")
-        public <T extends TypeConverter> T getTypeConverterAs(Class<T>... clazz) {
-            return (T) XBProjector.this.typeConverter;
+        public <T extends TypeConverter> T getTypeConverterAs(Class<T> clazz) {
+            return clazz.cast(getTypeConverter());
         }
 
         /**
@@ -287,6 +285,13 @@ public class XBProjector implements Serializable, ProjectionFactory {
         @Override
         public Externalizer getExternalizer() {
             return XBProjector.this.externalizer;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        public <T extends Externalizer> T getExternalizerAs(Class<? extends T> clazz) {
+            return clazz.cast(getExternalizer());
         }
 
         /**
