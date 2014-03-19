@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import org.junit.Ignore;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.util.IOHelper;
@@ -53,8 +54,13 @@ public class XBProjectorReferenceCard {
     @XBDocURL("http://...")
     public interface ProjectionWithSourceDeclaration {
         // Define your projection methods in a public interface.
-    };
+    }
+
     
+//START SNIPPET: XBProjectorReferenceCard0
+XBProjector projector = new XBProjector();       
+//END SNIPPET: XBProjectorReferenceCard0
+
   //END SNIPPET: XBProjectorReferenceCardI
     @SuppressWarnings("unused")
     @Ignore
@@ -72,9 +78,6 @@ public class XBProjectorReferenceCard {
         Node node = null;
         String systemID = null;
 
-        //START SNIPPET: XBProjectorReferenceCard0
-            XBProjector projector = new XBProjector();       
-        //END SNIPPET: XBProjectorReferenceCard0
 
         {
 //START SNIPPET: XBProjectorReferenceCard1      
@@ -87,6 +90,16 @@ public class XBProjectorReferenceCard {
 //START SNIPPET: XBProjectorReferenceCard2
         Projection projection = projector.projectXMLString("<xml/>", Projection.class);
 //END SNIPPET: XBProjectorReferenceCard2
+
+//START SNIPPET: XBProjectorReferenceCard2b
+        // Let the projector convert your projection
+        String xml = projector.asString(projection);
+        
+        // Or, configure the projector this way before you create a projection
+        XBProjector projector  = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+        //... and later call:
+        projection.toString();
+//END SNIPPET: XBProjectorReferenceCard2b
         }
         {
 //START SNIPPET: XBProjectorReferenceCard3

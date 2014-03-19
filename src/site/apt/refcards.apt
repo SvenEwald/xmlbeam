@@ -30,7 +30,10 @@ API Reference
  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard2|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
-  Notice: To get a XML String representation for a projection, just use the projections "toString()" method.
+**Convert a projection to a String
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard2b|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
 
 **Create a projection for a DOM Document or Element
 
