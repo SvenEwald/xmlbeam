@@ -165,6 +165,11 @@
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>4.2</version>
+		</dependency>
 	</dependencies>
 	<distributionManagement>
 		<site>

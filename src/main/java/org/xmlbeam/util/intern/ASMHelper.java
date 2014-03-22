@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 
 import java.util.UUID;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -35,7 +34,7 @@ import org.objectweb.asm.Type;
 public class ASMHelper implements Opcodes {
 
 
-    public static <T> T create(final Class<T> projectionInterface, final AsmProxyInvocationHandler projectionInvocationHandler) {
+    public static <T> T create(final Class<T> projectionInterface, final Object projectionInvocationHandler) {
         final String proxyClassName = "P" + UUID.randomUUID().toString();
 
         Class<?> clazz = new ClassLoader() {
@@ -65,17 +64,15 @@ public class ASMHelper implements Opcodes {
     private static byte[] getClassData(final String proxyClassName, final Class<?> projectionInterface) {
         ClassWriter cw = new ClassWriter(0);
         FieldVisitor fv;
-        MethodVisitor mv;
-        AnnotationVisitor av0;
 
         cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, proxyClassName, null, "java/lang/Object", new String[] { Type.getInternalName(projectionInterface) });
 
         {
-            fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "handler", Type.getDescriptor(AsmProxyInvocationHandler.class), null, null);
+            fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "handler", Type.getDescriptor(Object.class), null, null);
             fv.visitEnd();
         }
         {
-            addConstructorWithParam(proxyClassName, cw, AsmProxyInvocationHandler.class);
+            addConstructorWithParam(proxyClassName, cw, Object.class);
         }
 
         for (Method method : ReflectionHelper.getNonDefaultMethods(projectionInterface)) {
@@ -129,19 +126,27 @@ public class ASMHelper implements Opcodes {
         mv.visitLabel(l0);
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, proxyClassName, "handler", "Lorg/xmlbeam/util/intern/AsmProxyInvocationHandler;");
-        mv.visitInsn(ACONST_NULL);
+        mv.visitFieldInsn(GETFIELD, proxyClassName, "handler", Type.getDescriptor(Object.class));
+//        mv.visitInsn(ACONST_NULL);
 //        mv.visitInsn(ACONST_NULL);
  //       mv.visitMethodInsn(INVOKEINTERFACE, proxyClassName, "asmInvoke", "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;");
-        mv.visitInsn(ICONST_0);
-        mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-        mv.visitMethodInsn(INVOKEINTERFACE, "org/xmlbeam/util/intern/AsmProxyInvocationHandler", "asmInvoke", "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;");
+        //   mv.visitInsn(ICONST_0);
+        //   mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+
+//        mv.visitVarInsn(ALOAD, 0);
+//        mv.visitFieldInsn(GETFIELD, "org/xmlbeam/tests/util/intern/TestASMProxy$1", "handler", "Lorg/xmlbeam/tests/util/intern/TestASMProxy$ProxyMe;");
+        //  mv.visitMethodInsn(INVOKEINTERFACE, "org/xmlbeam/tests/util/intern/TestASMProxy$ProxyMe", "invokeMePlz", "()I", true);
+        int c = 1;
+        for (Class<?> param : method.getParameterTypes()) {
+            mv.visitVarInsn(ALOAD, c++);
+        }
+        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method));
 
         if (ReflectionHelper.hasReturnType(method)) {
             Class<?> returnType = method.getReturnType();
             //  mv.visitTypeInsn(CHECKCAST, Type.getInternalName(returnType));
             //    if (returnType.isPrimitive()) {
-            autoUnBoxing(mv, Type.getType(returnType));
+            //        autoUnBoxing(mv, Type.getType(returnType));
             //    }
             mv.visitInsn(getReturnOpcodeForType(returnType));
         } else {
@@ -150,72 +155,53 @@ public class ASMHelper implements Opcodes {
         }
         Label l1 = new Label();
         mv.visitLabel(l1);
-        mv.visitMaxs(3, 1);
+        mv.visitMaxs(c + 1, c);
         mv.visitEnd();
 
-        /*
-         * mv.visitCode(); Label l0 = new Label(); mv.visitLabel(l0); mv.visitLineNumber(27, l0);
-         * mv.visitInsn(ICONST_2); mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-         * mv.visitInsn(DUP); mv.visitInsn(ICONST_0); mv.visitVarInsn(ILOAD, 1);
-         * mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
-         * "(I)Ljava/lang/Integer;"); mv.visitInsn(AASTORE); mv.visitInsn(DUP);
-         * mv.visitInsn(ICONST_1); mv.visitVarInsn(ALOAD, 2); mv.visitInsn(AASTORE);
-         * mv.visitVarInsn(ASTORE, 3); Label l1 = new Label(); mv.visitLabel(l1);
-         * mv.visitLineNumber(28, l1); mv.visitVarInsn(ALOAD, 0); mv.visitFieldInsn(GETFIELD,
-         * "org/xmlbeam/AsmProxy", "handler", "Lorg/xmlbeam/AsmProxyInvocationHandler;");
-         * mv.visitInsn(ACONST_NULL); mv.visitVarInsn(ALOAD, 3); mv.visitMethodInsn(INVOKEINTERFACE,
-         * "org/xmlbeam/AsmProxyInvocationHandler", "asmInvoke",
-         * "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;");
-         * mv.visitTypeInsn(CHECKCAST, "java/lang/String"); mv.visitInsn(ARETURN); Label l2 = new
-         * Label(); mv.visitLabel(l2); mv.visitLocalVariable("this", "Lorg/xmlbeam/AsmProxy;", null,
-         * l0, l2, 0); mv.visitLocalVariable("param1", "I", null, l0, l2, 1);
-         * mv.visitLocalVariable("param2", "Ljava/lang/String;", null, l0, l2, 2);
-         * mv.visitLocalVariable("params", "[Ljava/lang/Object;", null, l1, l2, 3); mv.visitMaxs(4,
-         * 4); mv.visitEnd();
-         */
+
     }
 
-    protected static void autoUnBoxing(final MethodVisitor mv, final Type fieldType) {
-        switch (fieldType.getSort()) {
-        case Type.BOOLEAN:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
-            break;
-        case Type.BYTE:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B");
-            break;
-        case Type.CHAR:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C");
-            break;
-        case Type.SHORT:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S");
-            break;
-        case Type.INT:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
-            break;
-        case Type.FLOAT:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F");
-            break;
-        case Type.LONG:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J");
-            break;
-        case Type.DOUBLE:
-            mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
-            break;
-        case Type.ARRAY:
-            mv.visitTypeInsn(CHECKCAST, fieldType.getInternalName());
-            break;
-        default:
-            mv.visitTypeInsn(CHECKCAST, fieldType.getInternalName());
-        }
-    }
+//    protected static void autoUnBoxing(final MethodVisitor mv, final Type fieldType) {
+//        switch (fieldType.getSort()) {
+//        case Type.BOOLEAN:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
+//            break;
+//        case Type.BYTE:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B");
+//            break;
+//        case Type.CHAR:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C");
+//            break;
+//        case Type.SHORT:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S");
+//            break;
+//        case Type.INT:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
+//            break;
+//        case Type.FLOAT:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F");
+//            break;
+//        case Type.LONG:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J");
+//            break;
+//        case Type.DOUBLE:
+//            mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
+//            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
+//            break;
+//        case Type.ARRAY:
+//            mv.visitTypeInsn(CHECKCAST, fieldType.getInternalName());
+//            break;
+//        default:
+//            mv.visitTypeInsn(CHECKCAST, fieldType.getInternalName());
+//        }
+//    }
 
     /**
      * @param returnType
@@ -240,32 +226,32 @@ public class ASMHelper implements Opcodes {
         }
     }
 
-    protected static void autoBoxing(final MethodVisitor mv, final Type fieldType) {
-        switch (fieldType.getSort()) {
-        case Type.BOOLEAN:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
-            break;
-        case Type.BYTE:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
-            break;
-        case Type.CHAR:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
-            break;
-        case Type.SHORT:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
-            break;
-        case Type.INT:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-            break;
-        case Type.FLOAT:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
-            break;
-        case Type.LONG:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
-            break;
-        case Type.DOUBLE:
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
-            break;
-        }
-    }
+//    protected static void autoBoxing(final MethodVisitor mv, final Type fieldType) {
+//        switch (fieldType.getSort()) {
+//        case Type.BOOLEAN:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+//            break;
+//        case Type.BYTE:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
+//            break;
+//        case Type.CHAR:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
+//            break;
+//        case Type.SHORT:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
+//            break;
+//        case Type.INT:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+//            break;
+//        case Type.FLOAT:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+//            break;
+//        case Type.LONG:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+//            break;
+//        case Type.DOUBLE:
+//            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+//            break;
+//        }
+//    }
 }

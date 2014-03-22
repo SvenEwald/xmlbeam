@@ -53,36 +53,35 @@ import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
- * This class implements the "magic" behind projection methods.
- * Each projection is linked with a ProjectionInvocatonHandler which handles
- * method invocations on the projections. Notice that this class is not part
- * of the public API. You should not get in touch with this class at all.
- * 
- * See {@link org.xmlbeam.XBProjector} for API usage.
- * 
+ * This class implements the "magic" behind projection methods. Each projection is linked with a
+ * ProjectionInvocatonHandler which handles method invocations on the projections. Notice that this
+ * class is not part of the public API. You should not get in touch with this class at all. See
+ * {@link org.xmlbeam.XBProjector} for API usage.
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    private final static String NONEMPTY="(?!^$)";
-    private final static String ELEMENT_PATH=    "(/[a-z:A-Z0-9]+(\\[@?[a-zA-Z0-9]+='.+'\\])?)";
-    private final static String ATTRIBUTE_PATH="(/?@[a-z:A-Z0-9]+)";
-    private final static String PARENT_PATH="(/\\.\\.)";
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile(NONEMPTY+"(^\\.?("+ELEMENT_PATH+"*"+PARENT_PATH+"*)*("+ATTRIBUTE_PATH+"|(/\\*))?$)");
+    private final static String NONEMPTY = "(?!^$)";
+    private final static String ELEMENT_PATH = "(/[a-z:A-Z0-9]+(\\[@?[a-zA-Z0-9]+='.+'\\])?)";
+    private final static String ATTRIBUTE_PATH = "(/?@[a-z:A-Z0-9]+)";
+    private final static String PARENT_PATH = "(/\\.\\.)";
+    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile(NONEMPTY + "(^\\.?(" + ELEMENT_PATH + "*" + PARENT_PATH + "*)*(" + ATTRIBUTE_PATH + "|(/\\*))?$)");
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
-    private final Map<Class<?>, Object> defaultInvokers ;//= new HashMap<Class<?>, Object>();
+    private final Map<Class<?>, Object> defaultInvokers;//= new HashMap<Class<?>, Object>();
 
-    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface,Map<Class<?>, Object> defaultInvokers) {
+    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokers) {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
-        this.defaultInvokers=defaultInvokers;     
+        this.defaultInvokers = defaultInvokers;
     }
 
     /**
@@ -90,12 +89,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param parentElement
      * @param elementSelector
      */
-    private void applyCollectionSetOnElement(Collection<?> collection, Element parentElement, String elementSelector) {
+    private void applyCollectionSetOnElement(final Collection<?> collection, final Element parentElement, final String elementSelector) {
         final Document document = parentElement.getOwnerDocument();
         DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
-        assert !elementSelector.contains("/"):"Selector should be the trail of the path.";
-        final String elementName=elementSelector.replaceAll("\\[.*", "");
-        if (collection==null) {
+        assert !elementSelector.contains("/") : "Selector should be the trail of the path.";
+        final String elementName = elementSelector.replaceAll("\\[.*", "");
+        if (collection == null) {
             return;
         }
         for (Object o : collection) {
@@ -122,7 +121,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
     }
 
-    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode,final String elementSelector) {
+    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode, final String elementSelector) {
         final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
         DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
         DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newElement);
@@ -158,12 +157,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
-     * Setter projection methods may have multiple parameters. One of them may
-     * be annotated with {@link XBValue} to select it as value to be set.
+     * Setter projection methods may have multiple parameters. One of them may be annotated with
+     * {@link XBValue} to select it as value to be set.
+     *
      * @param method
      * @return index of fist parameter annotated with {@link XBValue} annotation.
      */
-    private int findIndexOfValue(Method method) {
+    private int findIndexOfValue(final Method method) {
         int index = 0;
         for (Annotation[] annotations : method.getParameterAnnotations()) {
             for (Annotation a : annotations) {
@@ -177,15 +177,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
-     * When reading collections, determine the collection component type. 
+     * When reading collections, determine the collection component type.
+     *
      * @param method
      * @return
      */
-    private Class<?> findTargetComponentType(final Method method) {        
+    private Class<?> findTargetComponentType(final Method method) {
         if (method.getReturnType().isArray()) {
             return method.getReturnType().getComponentType();
         }
-        assert method.getAnnotation(XBRead.class)!=null;
+        assert method.getAnnotation(XBRead.class) != null;
 
         final Class<?> targetType = determineTargetTypeForList(method);
         if (XBRead.class.equals(targetType)) {
@@ -196,11 +197,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     /**
      * Extract the generic type of the List which currently is our return type.
-     * 
+     *
      * @param method
      * @return component type of List to be created.
      */
-    private Class<?> determineTargetTypeForList(Method method) {
+    private Class<?> determineTargetTypeForList(final Method method) {
         assert List.class.equals(method.getReturnType());
         final Type type = method.getGenericReturnType();
         if (!(type instanceof ParameterizedType) || (((ParameterizedType) type).getActualTypeArguments() == null) || (((ParameterizedType) type).getActualTypeArguments().length < 1)) {
@@ -224,7 +225,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     /**
      * Determine a methods return value that does not depend on the methods execution. Possible
      * values are void or the proxy itself (would be "this").
-     * 
+     *
      * @param method
      * @return
      */
@@ -239,12 +240,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
-     * Find the "me" attribute (which is a replacement for "this") and inject 
-     * the projection proxy instance.
+     * Find the "me" attribute (which is a replacement for "this") and inject the projection proxy
+     * instance.
+     *
      * @param me
      * @param target
      */
-    private void injectMeAttribute(InternalProjection me, Object target) {
+    private void injectMeAttribute(final InternalProjection me, final Object target) {
         //final Class<?> projectionInterface = me.getProjectionInterface();
         for (Field field : target.getClass().getDeclaredFields()) {
             if (!isValidMeField(field, projectionInterface)) {
@@ -263,7 +265,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         throw new IllegalArgumentException("Mixin " + target.getClass().getSimpleName() + " needs an attribute \"private " + projectionInterface.getSimpleName() + " me;\" to be able to access the projection.");
     }
 
-    private boolean isValidMeField(Field field, Class<?> projInterface) {
+    private boolean isValidMeField(final Field field, final Class<?> projInterface) {
         if (field == null) {
             return false;
         }
@@ -306,6 +308,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return method.invoke(defaultInvoker, args);
         }
 
+        if (ReflectionHelper.isDefaultMethod(method)) {
+            Object o = ASMHelper.create(projectionInterface, proxy);
+            return method.invoke(o, args);
+        }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }
 
@@ -313,7 +319,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param proxy
      * @param format
      */
-    private Object invokeDeleter(Object proxy, Method method, String path) throws Throwable {
+    private Object invokeDeleter(final Object proxy, final Method method, final String path) throws Throwable {
         final Document document = DOMHelper.getOwnerDocumentFor(node);
         final XPath xPath = projector.config().createXPath(document);
         final XPathExpression expression = xPath.compile(path);
@@ -350,7 +356,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (Node.class.equals(returnType)) {
             return expression.evaluate(node, XPathConstants.NODE);
         }
-        
+
         if (List.class.equals(returnType)) {
             return evaluateAsList(expression, node, method);
         }
@@ -378,8 +384,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
         if (method.getAnnotation(XBDocURL.class) != null) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
-        }        
-        final String pathToElement = path.replaceAll("\\[@","[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
+        }
+        final String pathToElement = path.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
         final Node settingNode = getNodeForMethod(method, args);
         final Document document = DOMHelper.getOwnerDocumentFor(settingNode);
         assert document != null;
@@ -413,11 +419,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
             final String elementSelector = pathToElement.replaceAll(".*/", "");
             final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
-         //   DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
+            //   DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
 //            if (valueToSet == null) {
 //                return getProxyReturnValueForMethod(proxy, method);
 //            }
-            Collection<?> collection2Set = (valueToSet!=null)&&(valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
+            Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
             applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
             return getProxyReturnValueForMethod(proxy, method);
         }
@@ -426,7 +432,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
             String elementSelector = pathToElement.replaceAll(".*/", "");
             Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-            applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode,elementSelector);
+            applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode, elementSelector);
             return getProxyReturnValueForMethod(proxy, method);
         }
 
@@ -455,7 +461,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param typeToSet
      * @return
      */
-    private boolean isMultiValue(Class<?> type) {
+    private boolean isMultiValue(final Class<?> type) {
         return type.isArray() || Collection.class.isAssignableFrom(type);
     }
+
 }
