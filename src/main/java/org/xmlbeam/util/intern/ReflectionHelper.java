@@ -16,6 +16,7 @@
 package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,11 +36,26 @@ import java.util.Set;
  */
 public final class ReflectionHelper {
 
+    private final static Method ISDEFAULT = findIsDefaultMethod();
+    private static final Object NO_ARGS = new Object[0];
+
     public static Set<Class<?>> findAllCommonSuperInterfaces(Class<?> a, Class<?> b) {
         Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
         Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));
         seta.retainAll(setb);
         return seta;
+    }
+
+    /**
+     * @return
+     */
+    private static Method findIsDefaultMethod() {
+        for (Method m : Method.class.getMethods()) {
+            if ("isDefault".equals(m.getName())) {
+                return m;
+            }
+        }
+        return null;
     }
 
     public static Collection<? extends Class<?>> findAllSuperInterfaces(Class<?> a) {
@@ -108,5 +125,36 @@ public final class ReflectionHelper {
             list.add(Array.get(array, i));
         }
         return list;
+    }
+
+    /**
+     * @param projectionInterface
+     * @return
+     */
+    public static List<Method> getNonDefaultMethods(Class<?> projectionInterface) {
+        List<Method> list = new LinkedList<Method>();
+        for (Method m : projectionInterface.getMethods()) {
+            if (isDefaultMethod(m)) {
+                continue;
+            }
+            list.add(m);
+        }
+        return list;
+    }
+
+    /**
+     * @param m
+     * @return
+     */
+    public static boolean isDefaultMethod(Method m) {
+        try {
+            return (ISDEFAULT != null) && ((Boolean)ISDEFAULT.invoke(m, NO_ARGS));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
