@@ -18,7 +18,6 @@ package org.xmlbeam.util.intern;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,17 +30,16 @@ import java.util.Set;
 /**
  * A set of tiny helper methods internally used in the projection framework. This methods are
  * <b>not</b> part of the public framework API and might change in minor version updates.
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public final class ReflectionHelper {
 
     private final static Method ISDEFAULT = findIsDefaultMethod();
-    private static final Object NO_ARGS = new Object[0];
 
-    public static Set<Class<?>> findAllCommonSuperInterfaces(Class<?> a, Class<?> b) {
-        Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
-        Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));
+    public static Set<Class<?>> findAllCommonSuperInterfaces(final Class<?> a, final Class<?> b) {
+        final Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
+        final Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));
         seta.retainAll(setb);
         return seta;
     }
@@ -50,27 +48,28 @@ public final class ReflectionHelper {
      * @return
      */
     private static Method findIsDefaultMethod() {
-        for (Method m : Method.class.getMethods()) {
+        for (final Method m : Method.class.getMethods()) {
             if ("isDefault".equals(m.getName())) {
                 return m;
             }
         }
+
         return null;
     }
 
-    public static Collection<? extends Class<?>> findAllSuperInterfaces(Class<?> a) {
-        Set<Class<?>> set = new LinkedHashSet <Class<?>>();        
+    public static Collection<? extends Class<?>> findAllSuperInterfaces(final Class<?> a) {
+        final Set<Class<?>> set = new LinkedHashSet<Class<?>>();
         if (a.isInterface()) {
             set.add(a);
         }
-        for (Class<?> i : a.getInterfaces()) {
+        for (final Class<?> i : a.getInterfaces()) {
             set.addAll(findAllSuperInterfaces(i));
         }
         return set;
     };
 
     public static boolean hasReturnType(final Method method) {
-        if (method==null) {
+        if (method == null) {
             return false;
         }
         if (method.getReturnType() == null) {
@@ -83,7 +82,7 @@ public final class ReflectionHelper {
     }
 
     public static boolean hasParameters(final Method method) {
-        return (method!=null) && (method.getParameterTypes().length > 0);
+        return (method != null) && (method.getParameterTypes().length > 0);
     }
 
     /**
@@ -91,9 +90,9 @@ public final class ReflectionHelper {
      * @param projectionInterface
      * @return
      */
-    public static Class<?> findDeclaringInterface(Method method, Class<?> projectionInterface) {                
-        for (Class<?> interf:findAllSuperInterfaces(projectionInterface)) {
-            if (declaresMethod(interf,method)) {
+    public static Class<?> findDeclaringInterface(final Method method, final Class<?> projectionInterface) {
+        for (final Class<?> interf : findAllSuperInterfaces(projectionInterface)) {
+            if (declaresMethod(interf, method)) {
                 return interf;
             }
         }
@@ -105,8 +104,8 @@ public final class ReflectionHelper {
      * @param method
      * @return
      */
-    private static boolean declaresMethod(Class<?> interf, Method method) {
-        for (Method m:interf.getDeclaredMethods()) {
+    private static boolean declaresMethod(final Class<?> interf, final Method method) {
+        for (final Method m : interf.getDeclaredMethods()) {
             if (!m.getName().equals(method.getName())) {
                 continue;
             }
@@ -118,9 +117,9 @@ public final class ReflectionHelper {
         return false;
     }
 
-    public static List<Object> array2ObjectList(Object array) {
-        int length = Array.getLength(array);
-        List<Object> list = new ArrayList<Object>(length);
+    public static List<Object> array2ObjectList(final Object array) {
+        final int length = Array.getLength(array);
+        final List<Object> list = new ArrayList<Object>(length);
         for (int i = 0; i < length; ++i) {
             list.add(Array.get(array, i));
         }
@@ -131,9 +130,9 @@ public final class ReflectionHelper {
      * @param projectionInterface
      * @return
      */
-    public static List<Method> getNonDefaultMethods(Class<?> projectionInterface) {
-        List<Method> list = new LinkedList<Method>();
-        for (Method m : projectionInterface.getMethods()) {
+    public static List<Method> getNonDefaultMethods(final Class<?> projectionInterface) {
+        final List<Method> list = new LinkedList<Method>();
+        for (final Method m : projectionInterface.getMethods()) {
             if (isDefaultMethod(m)) {
                 continue;
             }
@@ -146,14 +145,14 @@ public final class ReflectionHelper {
      * @param m
      * @return
      */
-    public static boolean isDefaultMethod(Method m) {
+    public static boolean isDefaultMethod(final Method m) {
         try {
-            return (ISDEFAULT != null) && ((Boolean)ISDEFAULT.invoke(m, NO_ARGS));
-        } catch (IllegalArgumentException e) {
+            return (ISDEFAULT != null) && ((Boolean) ISDEFAULT.invoke(m, (Object[]) null));
+        } catch (final IllegalArgumentException e) {
             throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
