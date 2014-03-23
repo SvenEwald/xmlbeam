@@ -21,12 +21,12 @@ import java.lang.reflect.Method;
 
 import java.util.UUID;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.xmlbeam.util.intern.org.objectweb.asm.ClassWriter;
+import org.xmlbeam.util.intern.org.objectweb.asm.FieldVisitor;
+import org.xmlbeam.util.intern.org.objectweb.asm.Label;
+import org.xmlbeam.util.intern.org.objectweb.asm.MethodVisitor;
+import org.xmlbeam.util.intern.org.objectweb.asm.Opcodes;
+import org.xmlbeam.util.intern.org.objectweb.asm.Type;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -95,7 +95,7 @@ public class ASMHelper implements Opcodes {
         Label l0 = new Label();
         mv.visitLabel(l0);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V");
+        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V", false);
         Label l1 = new Label();
         mv.visitLabel(l1);
         mv.visitVarInsn(ALOAD, 0);
@@ -116,8 +116,6 @@ public class ASMHelper implements Opcodes {
      */
     private static void addMethod(final String proxyClassName, final ClassWriter cw, final Method method) {
         MethodVisitor mv;
-        int maxStackSize = ReflectionHelper.hasReturnType(method) ? 1 : 0;
-        String name = method.getName();
         String methodDescriptor = Type.getMethodDescriptor(method);
         mv = cw.visitMethod(ACC_PUBLIC, method.getName(), methodDescriptor, null, null);
 
@@ -137,10 +135,11 @@ public class ASMHelper implements Opcodes {
 //        mv.visitFieldInsn(GETFIELD, "org/xmlbeam/tests/util/intern/TestASMProxy$1", "handler", "Lorg/xmlbeam/tests/util/intern/TestASMProxy$ProxyMe;");
         //  mv.visitMethodInsn(INVOKEINTERFACE, "org/xmlbeam/tests/util/intern/TestASMProxy$ProxyMe", "invokeMePlz", "()I", true);
         int c = 1;
-        for (Class<?> param : method.getParameterTypes()) {
+        for (@SuppressWarnings("unused")
+        Class<?> param : method.getParameterTypes()) {
             mv.visitVarInsn(ALOAD, c++);
         }
-        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method));
+        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method), true);
 
         if (ReflectionHelper.hasReturnType(method)) {
             Class<?> returnType = method.getReturnType();
