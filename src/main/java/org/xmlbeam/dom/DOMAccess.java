@@ -23,10 +23,10 @@ import org.w3c.dom.Node;
 
 /**
  * Every Projection will be automatically implementing this interface.
- * You may cast your Projection instances to this type and get
+ * You can cast your Projection instances to this type and get
  * access to the DOM behind it.
  * 
- * You may even let your projection interfaces extend this interface
+ * You can even let your projection interfaces extend this interface
  * for a convenient access to the underlying DOM. 
  */
 public interface DOMAccess extends Serializable {

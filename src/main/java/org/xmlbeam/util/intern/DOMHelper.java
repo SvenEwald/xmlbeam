@@ -512,25 +512,25 @@ public final class DOMHelper {
         return hash;
     }
 
-    public static void trimTextNodes(Node e) {
-        NodeList children = e.getChildNodes();
-        for (int i = 0; i < children.getLength(); ++i) {
-            Node child = children.item(i);
-            if (Node.TEXT_NODE != child.getNodeType()) {
-                trimTextNodes(child);
-                continue;
-            }
-            String content = child.getNodeValue();
-            if (content != null) {
-                content = content.trim();
-                if (!content.isEmpty()) {
-                    child.setNodeValue(content);
-                    continue;
-                }
-            }
-            e.removeChild(child);
-        }
-    }
+//    public static void trimTextNodes(Node e) {
+//        NodeList children = e.getChildNodes();
+//        for (int i = 0; i < children.getLength(); ++i) {
+//            Node child = children.item(i);
+//            if (Node.TEXT_NODE != child.getNodeType()) {
+//                trimTextNodes(child);
+//                continue;
+//            }
+//            String content = child.getNodeValue();
+//            if (content != null) {
+//                content = content.trim();
+//                if (!content.isEmpty()) {
+//                    child.setNodeValue(content);
+//                    continue;
+//                }
+//            }
+//            e.removeChild(child);
+//        }
+//    }
 
     /**
      * @param element
