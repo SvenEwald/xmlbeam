@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlValue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -49,8 +51,11 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBValue;
+import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
@@ -354,9 +359,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          */
         @Override
         public <S, M extends S, P extends S> XBProjector addProjectionMixin(Class<P> projectionInterface, M mixinImplementation) {
-            if (!isValidProjectionInterface(projectionInterface)) {
-                throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
-            }
+            ensureIsValidProjectionInterface(projectionInterface);
             Map<Class<?>, Object> map = mixins.containsKey(projectionInterface) ? mixins.get(projectionInterface) : new HashMap<Class<?>, Object>();
             for (Class<?> type : ReflectionHelper.findAllCommonSuperInterfaces(projectionInterface, mixinImplementation.getClass())) {
                 map.put(type, mixinImplementation);
@@ -525,9 +528,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T projectDOMNode(final Node documentOrElement, final Class<T> projectionInterface) {
-        if (!isValidProjectionInterface(projectionInterface)) {
-            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
-        }
+        ensureIsValidProjectionInterface(projectionInterface);
+
         if (documentOrElement == null) {
             throw new IllegalArgumentException("Parameter node must not be null");
         }
@@ -589,7 +591,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 // }
 
     public enum Flags {
-        SYNCHRONIZE_ON_DOCUMENTS, TO_STRING_RENDERS_XML
+        SYNCHRONIZE_ON_DOCUMENTS, TO_STRING_RENDERS_XML, OMIT_EMPTY_NODES
     }
 
     /**
@@ -655,8 +657,48 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @param projectionInterface
      * @return true if param is a public interface.
      */
-    private <T> boolean isValidProjectionInterface(final Class<T> projectionInterface) {
-        return (projectionInterface != null) && (projectionInterface.isInterface()) && ((projectionInterface.getModifiers() & Modifier.PUBLIC) == Modifier.PUBLIC);
+    private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
+        if  ((projectionInterface == null) || 
+            (!projectionInterface.isInterface()) ||
+            ((projectionInterface.getModifiers() & Modifier.PUBLIC) != Modifier.PUBLIC)) {
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+        }
+        if (projectionInterface.isAnnotation()) {
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is an annotation interface. Remove the @ and try again.");
+        }
+        for (Method method : projectionInterface.getMethods()) {
+            boolean isRead=(method.getAnnotation(XBRead.class)!=null);
+            boolean isWrite=(method.getAnnotation(XBWrite.class)!=null);
+            boolean isDelete=(method.getAnnotation(XBDelete.class)!=null);
+            if (isRead ? isWrite || isDelete : isWrite && isDelete) {
+                throw new IllegalArgumentException("Method "+method+" has to many annotations. Decide for one of @"+XBRead.class.getSimpleName()+", @"+XBWrite.class.getSimpleName()+", or @"+XBDelete.class.getSimpleName());
+            }
+            if (isRead) {
+                if (!ReflectionHelper.hasReturnType(method)) {
+                    throw new IllegalArgumentException("Method "+method+" has @"+XBRead.class.getSimpleName()+" annotation, but has no return type,");
+                }
+            }
+            if (isWrite) {
+                if (!ReflectionHelper.hasParameters(method)) {
+                    throw new IllegalArgumentException("Method "+method+" has @"+XBWrite.class.getSimpleName()+" annotaion, but has no paramerter");
+                }                
+            }
+            int count=0;
+            for (Annotation[] paramAnnotations:method.getParameterAnnotations()){
+                for (Annotation a:paramAnnotations) {
+                    if (XBValue.class.equals(a.annotationType())) {
+                        if (!isWrite) {
+                            throw new IllegalArgumentException("Method "+method+" is not a writing projection method, but has an @"+XBValue.class.getSimpleName()+" annotaion.");
+                        }
+                        if (count>0) {
+                            throw new IllegalArgumentException("Method "+method+" has multiple @"+XBValue.class.getSimpleName()+" annotaions.");
+                        }
+                        ++count;                            
+                    }
+                }
+            }
+        }
+       
     }
 
     /**
@@ -680,16 +722,5 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
         final DOMAccess domAccess = (DOMAccess) projection;
         return domAccess.asString();
-// try {
-// StringWriter writer = new StringWriter();
-// config().createTransformer().transform(new DOMSource(domAccess.getDOMNode()), new
-// StreamResult(writer));
-// String output = writer.getBuffer().toString();
-// return output;
-// } catch (TransformerConfigurationException e) {
-// throw new RuntimeException(e);
-// } catch (TransformerException e) {
-// throw new RuntimeException(e);
-// }
     }
 }
