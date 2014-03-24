@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
+import org.xmlbeam.annotation.XBWrite;
 
 //START SNIPPET:Element
 public interface Element {
@@ -26,7 +27,7 @@ public interface Element {
     @XBRead(".")
     Element addAttribute(Attribute attribute);
 
-    @XBRead("@{1}")
+    @XBWrite("@{1}")
     Element addAttribute(String name, @XBValue String value);
 
     @XBRead("@{0}")
