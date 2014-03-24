@@ -22,7 +22,6 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 
-
 @org.xmlbeam.annotation.XBDocURL("resource://testsuite.xml")
 public interface XMLBeamTestSuite extends DOMAccess {
 
@@ -71,9 +70,6 @@ public interface XMLBeamTestSuite extends DOMAccess {
     @XBRead("/gluerootnode/intermediate/firstelement/innerElement6/@boolAttribute")
     boolean getbooleanAttributeContent();
 
-    @XBRead("nothing")
-    void notSupportedReturnType();
-    
     @XBWrite("nothing/")
     void setterWithTrailingSlash(String param);
 
@@ -108,10 +104,9 @@ public interface XMLBeamTestSuite extends DOMAccess {
 
     @XBRead(value = "/gluerootnode/intermediate/fourthElement")
     List<InnerStructure> getAllInnerStructures();
-    
+
     @XBRead(value = "/gluerootnode/intermediate/fourthElement")
     InnerStructure[] getAllInnerStructuresAsArray();
-
 
     interface Setting {
         @XBRead("@name")
