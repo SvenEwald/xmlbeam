@@ -25,13 +25,14 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
+import org.xmlbeam.tutorial.TutorialTestCase;
 
 //START SNIPPET: Tutorial15
 
 /* START SNIPPET: TutorialDescription
 ~~
  In this tutorial we address quite a few challenges in accessing the data in plist files.
- XML plists (XML Property Lists) files are key/value based data storages frequently used by OS X    
+ XML plists (XML Property Lists) files are key/value based data storages frequently used by OS X
  applications. The challenge is that the data is not stored in the key element, but besides.
  A key element is followed by an additional element holding the data. The name of the data containing element
  depends on the type of data. So we need some real XPath magic to cover this :)
@@ -42,52 +43,53 @@ END SNIPPET: TutorialDescription */
 
 @SuppressWarnings("serial")
 //START SNIPPET: TestPlistAccess
-public class TestPlistAccess {
+public class TestPlistAccess extends TutorialTestCase {
 
     /**
      * Every plist file has a DTD referenced which might be unavailable if you are on a non MacOs system.
      * So we tweak the XBProjector configuration to ignore the DTD.
      */
     private final class NonValidatingXMLFactoriesConfig extends DefaultXMLFactoriesConfig {
+        @Override
         public DocumentBuilderFactory createDocumentBuilderFactory()  {
             try {
-            DocumentBuilderFactory factory = super.createDocumentBuilderFactory();
+            final DocumentBuilderFactory factory = super.createDocumentBuilderFactory();
             factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             return factory;
-            }  catch (ParserConfigurationException e) {
+            }  catch (final ParserConfigurationException e) {
                 throw new RuntimeException(e);
             }
         }
     }
-    
+
     /**
      * The projection in this tutorial does not define any XPath expression to the data.
      * Instead we like to derive the XPath from the method name. Although this could be done
      * in a single XPath expression, we split it up for two cases for readability:
      * - Selecting all children of the following element of the key element, if an array is expected
-     * and 
-     * - Selecting the first following element of the key element, in all other cases.  
+     * and
+     * - Selecting the first following element of the key element, in all other cases.
      */
     public class PListExternalizer extends ExternalizerAdapter {
-        
+
         @Override
-        public String resolveXPath(String annotationValue, Method method, Object[] args) {
-            String keyValue = method.getName().substring(3);
+        public String resolveXPath(final String annotationValue, final Method method, final Object[] args) {
+            final String keyValue = method.getName().substring(3);
             if (method.getReturnType().isArray()) {
                 return  "/plist/dict/key[.=\""+keyValue+"\"]/following-sibling::*[1]/child::*";
-            }           
+            }
            return  "/plist/dict/key[.=\""+keyValue+"\"]/following-sibling::*[1]";
         }
-       
+
     }
 
     @Test
     public void testReadPList() throws IOException {
-        XBProjector projector = new XBProjector(new NonValidatingXMLFactoriesConfig());        
+        final XBProjector projector = new XBProjector(new NonValidatingXMLFactoriesConfig());
         projector.config().setExternalizer(new PListExternalizer());
-        PList plist = projector.io().fromURLAnnotation(PList.class);
+        final PList plist = projector.io().fromURLAnnotation(PList.class);
         System.out.println(plist.getAuthor()+" ("+plist.getBirthdate()+")");
-        for (String line:plist.getLines()) {
+        for (final String line:plist.getLines()) {
             System.out.println(line);
         }
     }
