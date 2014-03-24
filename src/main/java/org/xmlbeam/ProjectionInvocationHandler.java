@@ -16,20 +16,19 @@
 package org.xmlbeam;
 
 import java.text.MessageFormat;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -75,7 +74,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
+
+    // Used to handle invocations on Java6 Mixins and Object methods.
     private final Map<Class<?>, Object> defaultInvokers;//= new HashMap<Class<?>, Object>();
+
+    // Used to handle invocations on Java8 default methods.
+    private transient Object defaultMethodInvoker;
 
     ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokers) {
         this.projector = projector;
@@ -309,8 +313,17 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         if (ReflectionHelper.isDefaultMethod(method)) {
-            Object o = ASMHelper.create(projectionInterface, proxy);
-            return method.invoke(o, args);
+            if (defaultMethodInvoker == null) {
+                defaultMethodInvoker = ASMHelper.create(projectionInterface, proxy);
+            }
+            try {
+                return method.invoke(defaultMethodInvoker, args);
+            } catch (InvocationTargetException e) {
+                if (e.getCause() != null) {
+                    throw e.getCause();
+                }
+                throw e;
+            }
         }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }
