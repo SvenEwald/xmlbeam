@@ -15,14 +15,13 @@
  */
 package org.xmlbeam.util.intern;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-import org.xmlbeam.util.intern.org.objectweb.asm.ClassReader;
-import org.xmlbeam.util.intern.org.objectweb.asm.ClassVisitor;
 import org.xmlbeam.util.intern.org.objectweb.asm.ClassWriter;
 import org.xmlbeam.util.intern.org.objectweb.asm.FieldVisitor;
 import org.xmlbeam.util.intern.org.objectweb.asm.Label;
@@ -35,36 +34,35 @@ import org.xmlbeam.util.intern.org.objectweb.asm.Type;
  */
 public class ASMHelper implements Opcodes {
 
-
     public static <T> T create(final Class<T> projectionInterface, final Object projectionInvocationHandler) {
         final String proxyClassName = "P" + UUID.randomUUID().toString();
 
-        Class<?> clazz = new ClassLoader() {
+        final Class<?> clazz = new ClassLoader() {
             public Class<?> defineClass(final String name, final byte[] b) {
                 return defineClass(name, b, 0, b.length);
             }
-        }.defineClass(proxyClassName, getClassData(proxyClassName,projectionInterface));
+        }.defineClass(proxyClassName, getClassData(proxyClassName, projectionInterface));
         T o;
 
         try {
-            Constructor<?> constructor = clazz.getConstructors()[0];
+            final Constructor<?> constructor = clazz.getConstructors()[0];
             o = (T) constructor.newInstance(projectionInvocationHandler);
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             throw new RuntimeException(e);
-        } catch (SecurityException e) {
+        } catch (final SecurityException e) {
             throw new RuntimeException(e);
-        } catch (InstantiationException e) {
+        } catch (final InstantiationException e) {
             throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (final InvocationTargetException e) {
             throw new RuntimeException(e);
         }
         return o;
     }
 
     private static byte[] getClassData(final String proxyClassName, final Class<?> projectionInterface) {
-        ClassWriter cw = new ClassWriter(0);
+        final ClassWriter cw = new ClassWriter(0);
         FieldVisitor fv;
 
         cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, proxyClassName, null, "java/lang/Object", new String[] { Type.getInternalName(projectionInterface) });
@@ -77,7 +75,7 @@ public class ASMHelper implements Opcodes {
             addConstructorWithParam(proxyClassName, cw, Object.class);
         }
 
-        for (Method method : ReflectionHelper.getNonDefaultMethods(projectionInterface)) {
+        for (final Method method : ReflectionHelper.getNonDefaultMethods(projectionInterface)) {
             addMethod(proxyClassName, cw, method);
         }
         cw.visitEnd();
@@ -92,21 +90,21 @@ public class ASMHelper implements Opcodes {
      */
     private static void addConstructorWithParam(final String proxyClassName, final ClassWriter cw, final Class<?> ParamClass) {
         final String paramDescriptor = Type.getDescriptor(ParamClass);
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "("+paramDescriptor+")V", null, null);
+        final MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(" + paramDescriptor + ")V", null, null);
         mv.visitCode();
-        Label l0 = new Label();
+        final Label l0 = new Label();
         mv.visitLabel(l0);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V", false);
-        Label l1 = new Label();
+        final Label l1 = new Label();
         mv.visitLabel(l1);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(PUTFIELD, proxyClassName, "handler", paramDescriptor);
-        Label l2 = new Label();
+        final Label l2 = new Label();
         mv.visitLabel(l2);
         mv.visitInsn(RETURN);
-        Label l3 = new Label();
+        final Label l3 = new Label();
         mv.visitLabel(l3);
         mv.visitMaxs(2, 2);
         mv.visitEnd();
@@ -118,18 +116,18 @@ public class ASMHelper implements Opcodes {
      */
     private static void addMethod(final String proxyClassName, final ClassWriter cw, final Method method) {
         MethodVisitor mv;
-        String methodDescriptor = Type.getMethodDescriptor(method);
+        final String methodDescriptor = Type.getMethodDescriptor(method);
         mv = cw.visitMethod(ACC_PUBLIC, method.getName(), methodDescriptor, null, null);
 
         mv.visitCode();
-        Label l0 = new Label();
+        final Label l0 = new Label();
         mv.visitLabel(l0);
 
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, proxyClassName, "handler", Type.getDescriptor(Object.class));
 //        mv.visitInsn(ACONST_NULL);
 //        mv.visitInsn(ACONST_NULL);
- //       mv.visitMethodInsn(INVOKEINTERFACE, proxyClassName, "asmInvoke", "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;");
+        //       mv.visitMethodInsn(INVOKEINTERFACE, proxyClassName, "asmInvoke", "(Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;");
         //   mv.visitInsn(ICONST_0);
         //   mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
 
@@ -137,19 +135,13 @@ public class ASMHelper implements Opcodes {
 //        mv.visitFieldInsn(GETFIELD, "org/xmlbeam/tests/util/intern/TestASMProxy$1", "handler", "Lorg/xmlbeam/tests/util/intern/TestASMProxy$ProxyMe;");
         //  mv.visitMethodInsn(INVOKEINTERFACE, "org/xmlbeam/tests/util/intern/TestASMProxy$ProxyMe", "invokeMePlz", "()I", true);
         int c = 1;
-        for (@SuppressWarnings("unused")
-        Class<?> param : method.getParameterTypes()) {
-            if (Integer.TYPE.equals(param)) {
-                mv.visitVarInsn(ILOAD, c++);
-                continue;
-            }
-            
-            mv.visitVarInsn(ALOAD, c++);
+        for (final Class<?> param : method.getParameterTypes()) {
+            mv.visitVarInsn(getLoadOpcodeForType(param), c++);
         }
         mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method), true);
 
         if (ReflectionHelper.hasReturnType(method)) {
-            Class<?> returnType = method.getReturnType();
+            final Class<?> returnType = method.getReturnType();
             //  mv.visitTypeInsn(CHECKCAST, Type.getInternalName(returnType));
             //    if (returnType.isPrimitive()) {
             //        autoUnBoxing(mv, Type.getType(returnType));
@@ -159,11 +151,10 @@ public class ASMHelper implements Opcodes {
             mv.visitInsn(POP);
             mv.visitInsn(RETURN);
         }
-        Label l1 = new Label();
+        final Label l1 = new Label();
         mv.visitLabel(l1);
-        mv.visitMaxs(c + 1, c);
+        mv.visitMaxs(c + 1, c + 1);
         mv.visitEnd();
-
 
     }
 
@@ -208,6 +199,29 @@ public class ASMHelper implements Opcodes {
 //            mv.visitTypeInsn(CHECKCAST, fieldType.getInternalName());
 //        }
 //    }
+
+    private final static Map<Class<?>, Integer> LOADOPCODE = new HashMap<Class<?>, Integer>();
+    static {
+        LOADOPCODE.put(Boolean.TYPE, ILOAD);
+        LOADOPCODE.put(Byte.TYPE, ILOAD);
+        LOADOPCODE.put(Character.TYPE, ILOAD);
+        LOADOPCODE.put(Short.TYPE, ILOAD);
+        LOADOPCODE.put(Integer.TYPE, ILOAD);
+        LOADOPCODE.put(Float.TYPE, FLOAD);
+        LOADOPCODE.put(Long.TYPE, LLOAD);
+        LOADOPCODE.put(Double.TYPE, DLOAD);
+    }
+
+    /**
+     * @param param
+     * @return
+     */
+    private static int getLoadOpcodeForType(final Class<?> param) {
+        if (LOADOPCODE.containsKey(param)) {
+            return LOADOPCODE.get(param);
+        }
+        return ALOAD;
+    }
 
     /**
      * @param returnType

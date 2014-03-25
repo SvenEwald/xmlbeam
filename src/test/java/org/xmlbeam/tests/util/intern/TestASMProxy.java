@@ -15,12 +15,14 @@
  */
 package org.xmlbeam.tests.util.intern;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.xmlbeam.util.intern.ASMHelper;
 
 /**
- * @author sven
- *
+ * This test is needed to ensure correct parameter passing in the ASM proxy object. Every primitive
+ * type needs to tested.
  */
 public class TestASMProxy {
 
@@ -30,41 +32,116 @@ public class TestASMProxy {
 
         //String invokeWithParam(String s);
 
+        boolean passBoolean(boolean b);
+
+        byte passByte(byte b);
+
+        char passChar(char c);
+
+        short passShort(short s);
+
+        int passInt(int i);
+
+        float passFloat(float f);
+
+        long passLong(long l);
+
+        double passDouble(double d);
     }
 
+    final Object proxyObeject = new ProxyMe() {
+
+        @Override
+        public int invokeMePlz(final String a, final String b, final String c) {
+            return a.length() + b.length() + c.length();
+        }
+
+        @Override
+        public boolean passBoolean(final boolean b) {
+            return b;
+        }
+
+        @Override
+        public byte passByte(final byte b) {
+            return b;
+        }
+
+        @Override
+        public char passChar(final char c) {
+            return c;
+        }
+
+        @Override
+        public short passShort(final short s) {
+            return s;
+        }
+
+        @Override
+        public int passInt(final int i) {
+            return i;
+        }
+
+        @Override
+        public float passFloat(final float f) {
+            return f;
+        }
+
+        @Override
+        public long passLong(final long l) {
+            return l;
+        }
+
+        @Override
+        public double passDouble(final double d) {
+            return d;
+        }
+
+    };
+
+    final ProxyMe proxyMe = ASMHelper.create(ProxyMe.class, proxyObeject);
 
     @Test
-    public void testProxy() {
-
-        Object proxyObeject = new ProxyMe() {
-
-            ProxyMe handler = new ProxyMe() {
-
-                @Override
-                public int invokeMePlz(final String a, final String b, final String c) {
-
-                    return a.length() + b.length() + c.length();
-                }
-
-            };
-
-            @Override
-            public int invokeMePlz(final String a, final String b, final String c) {
-                return handler.invokeMePlz(a, b, c);
-            }
-
-        };
-
-//        AsmProxyInvocationHandler myHandler = new AsmProxyInvocationHandler() {
-//
-//            @Override
-//            public Object asmInvoke(final Method method, final Object[] args) {
-//                System.out.println(method);
-//                return Integer.valueOf(23);
-//            }
-//        };
-        ProxyMe proxyMe = ASMHelper.create(ProxyMe.class, proxyObeject);
-        System.out.println(proxyMe.invokeMePlz("n.mn", "", ""));
+    public void testProxyObject() {
+        assertEquals(5, proxyMe.invokeMePlz("a", "bb", "cc"));
     }
 
+    @Test
+    public void testProxyBoolean() {
+        assertEquals(true, proxyMe.passBoolean(true));
+    }
+
+    @Test
+    public void testProxyByte() {
+        assertEquals((byte) 7, proxyMe.passByte((byte) 7));
+    }
+
+    @Test
+    public void testProxyChar() {
+        assertEquals('x', proxyMe.passChar('x'));
+    }
+
+    @Test
+    public void testProxyShort() {
+        assertEquals((short) 23, proxyMe.passShort((short) 23));
+    }
+
+    @Test
+    public void testProxyInt() {
+        assertEquals(37, proxyMe.passInt(37));
+    }
+
+    @Test
+    public void testProxyFloat() {
+        assertEquals(37.5f, proxyMe.passFloat(37.5f), 0);
+    }
+
+    @Test
+    public void testProxyLong() {
+        assertEquals(372l, proxyMe.passLong(372l));
+    }
+
+    @Test
+    public void testProxyDouble() {
+        assertEquals(372d, proxyMe.passDouble(372d), 0);
+    }
 }
