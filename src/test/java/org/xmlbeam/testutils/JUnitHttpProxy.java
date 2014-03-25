@@ -17,26 +17,30 @@ package org.xmlbeam.testutils;
 
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
-
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import org.xmlbeam.util.IOHelper;
 
 /**
- * This proxy allows unit tests to do external HTTP requests without generating huge traffic.
- * The content is fetched just once and then reused forever. This ensures independence of external 
+ * This proxy allows unit tests to do external HTTP requests without generating huge traffic. The
+ * content is fetched just once and then reused forever. This ensures independence of external
  * server availability for the test results while still working with real live data.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -70,48 +74,35 @@ public class JUnitHttpProxy implements Runnable {
     public void run() {
         try {
             while (true) {
-                Socket accept = serverSocket.accept();
-                try {
-                    accept.setSoTimeout(15000);
-                    String requestHeader = new Scanner(accept.getInputStream()).useDelimiter("(?m)\\r\\n\\r\\n").next();
-                    swallow(accept.getInputStream());
-                    String url = findURL(requestHeader);
-                    File file = new File(JUnitHttpProxy.class.getSimpleName() + "." + URLEncoder.encode(url, "UTF-8") + ".tmp");
-                    if (file.exists()) {
-                        byte[] content = IOHelper.dropUTF8BOM(IOHelper.inputStreamToString(new FileInputStream(file), "UTF-8").getBytes("UTF-8"));
-                        String header = "HTTP/1.1 200 OK\r\nConnection: Close\r\nContent-Type: application/xml\r\nContent-Length: " + content.length + "\r\n\r\n";
-                        accept.getOutputStream().write(IOHelper.dropUTF8BOM(header.getBytes("UTF-8")));
-                        accept.getOutputStream().write(content);
-                        accept.getOutputStream().flush();
-                        continue;
+                final Socket accept = serverSocket.accept();
+                new Thread() {
+                    {
+                        setDaemon(true);
                     }
-                    try {
-                        restoreProxySettings();
-                        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-                        connection.setReadTimeout(15000);
-                        connection.getResponseCode();
-                        String string = IOHelper.inputStreamToString(connection.getInputStream(), connection.getContentEncoding());
-                        // String string = new
-// Scanner(connection.getInputStream()).useDelimiter("\\A").next();
-                        System.out.println(string);
-                        FileOutputStream fileStream = new FileOutputStream(file);
-                        byte[] bytes = IOHelper.dropUTF8BOM(string.getBytes("UTF-8"));
-                        fileStream.write(bytes);
-                        fileStream.flush();
-                        fileStream.close();
-                        String header = "HTTP/1.1 200 OK\r\nConnection: Close\r\nContent-Type: application/xml\r\nContent-Length: " + bytes.length + "\r\n\r\n";
-                        accept.getOutputStream().write(IOHelper.dropUTF8BOM(header.getBytes("UTF-8")));
-                        accept.getOutputStream().write(bytes);
-                    } finally {
-                        setAsProxy();
-                    }
-                } finally {
-                    try {
-                        accept.close();
-                    } catch (IOException e) {    
-                        e.printStackTrace();
-                    }                    
-                }
+                    public void run() {
+                        
+                        try {
+                            accept.setSoTimeout(15000);
+                            String requestHeader = new Scanner(accept.getInputStream()).useDelimiter("(?m)\\r\\n\\r\\n").next();
+                            swallow(accept.getInputStream());
+                            String url = findURL(requestHeader);
+                            byte[] content = resolveURLContent(url);
+                            dropToHTTPClient(accept, content);
+                        } catch (SocketException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                accept.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        
+                    };
+                }.start();
+                
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -124,6 +115,80 @@ public class JUnitHttpProxy implements Runnable {
                 }
             }
         }
+    }
+
+    /**
+     * @param url
+     * @param file
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     */
+    private byte[] resolveURLContent(String url) throws FileNotFoundException, IOException, MalformedURLException, UnsupportedEncodingException {
+        final File file = new File(JUnitHttpProxy.class.getSimpleName() + "." + URLEncoder.encode(url, "UTF-8") + ".tmp");
+        byte[] content;
+        if (file.exists()) {
+            content = new byte[ (int)file.length()];
+            FileInputStream inputStream = new FileInputStream(file);
+            inputStream.read(content);
+            inputStream.close();
+          //  System.out.println("Load " + content.length + " bytes");
+            return content;
+        }try {
+            restoreProxySettings();
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setReadTimeout(15000);
+            connection.getResponseCode();
+            content = inputStreamToByteArray(connection.getInputStream());
+           // System.out.println("Download " + content.length + " bytes " + " encoding:" + connection.getContentEncoding());
+            FileOutputStream fileStream = new FileOutputStream(file);
+            fileStream.write(content);
+            fileStream.flush();
+            fileStream.close();
+            return content;
+        } finally {
+            setAsProxy();
+        }
+        
+    }
+
+    /**
+     * @param inputStream
+     * @return
+     * @throws IOException
+     */
+    private byte[] inputStreamToByteArray(InputStream inputStream) throws IOException {
+        byte[] buffer = new byte[1024];
+        ByteArrayOutputStream bos= new ByteArrayOutputStream();        
+        while (true) {
+            int count = inputStream.read(buffer);  
+            if (count<0) {
+                break;
+            }            
+            if (count>0) {                
+                bos.write(buffer, 0, count);                
+            }
+            if ((count==buffer.length)&&(buffer.length<64*1024)) {
+                buffer=new byte[buffer.length*2];
+            }
+        }                
+        return bos.toByteArray();
+    }
+
+    /**
+     * @param accept
+     * @param bytes
+     * @throws IOException
+     * @throws UnsupportedEncodingException
+     */
+    private void dropToHTTPClient(Socket accept, byte[] content) throws IOException, UnsupportedEncodingException {
+    //    System.out.println("Dropping " + content.length + " bytes.");
+        String header = "HTTP/1.1 200 OK\r\nConnection: Close\r\nContent-Type: application/xml\r\nContent-Length: " + content.length + "\r\n\r\n";
+        accept.getOutputStream().write(IOHelper.dropUTF8BOM(header.getBytes("UTF-8")));
+        accept.getOutputStream().write(content);
+        accept.getOutputStream().flush();
     }
 
     /**
