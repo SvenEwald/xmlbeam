@@ -16,6 +16,7 @@
 package org.xmlbeam.tutorial.e16_mondial;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Test;
@@ -32,19 +33,24 @@ public class TestMondialAccess extends TutorialTestCase {
     @XBDocURL("http://www.dbis.informatik.uni-goettingen.de/Mondial/mondial.xml")
     public interface Mondial {
 
-        @XBRead("/mondial/country/name()")
+        @XBRead("name2(//country/*)") 
+        String getCountry();
+        
+        @XBRead("/mondial/*/name")
         List<String> getSubs();
 
         @XBRead("count(//*)")
         int getNodeCount();
     }
 
-    @Test
+    @Test 
     public void testStructure() throws IOException {
         final long start = System.currentTimeMillis();
         final Mondial mondial = new XBProjector().io().fromURLAnnotation(Mondial.class);
-        System.out.println(mondial.getNodeCount());
-        //   System.out.println(new HashSet<String>(mondial.getSubs()));
+        
+        System.out.println(mondial.getCountry());
+        
+        System.out.println(new HashSet<String>(mondial.getSubs()));
         final long end = System.currentTimeMillis();
         System.out.println("Test run:" + (end - start) + "ms");
         System.out.println(mondial.getNodeCount());

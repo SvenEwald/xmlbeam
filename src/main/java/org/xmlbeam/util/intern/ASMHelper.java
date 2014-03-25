@@ -15,12 +15,14 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import java.util.UUID;
 
+import org.xmlbeam.util.intern.org.objectweb.asm.ClassReader;
+import org.xmlbeam.util.intern.org.objectweb.asm.ClassVisitor;
 import org.xmlbeam.util.intern.org.objectweb.asm.ClassWriter;
 import org.xmlbeam.util.intern.org.objectweb.asm.FieldVisitor;
 import org.xmlbeam.util.intern.org.objectweb.asm.Label;
@@ -137,6 +139,11 @@ public class ASMHelper implements Opcodes {
         int c = 1;
         for (@SuppressWarnings("unused")
         Class<?> param : method.getParameterTypes()) {
+            if (Integer.TYPE.equals(param)) {
+                mv.visitVarInsn(ILOAD, c++);
+                continue;
+            }
+            
             mv.visitVarInsn(ALOAD, c++);
         }
         mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method), true);
