@@ -284,21 +284,30 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        final XBRead readAnnotation = method.getAnnotation(XBRead.class);
-        if (readAnnotation != null) {
-            return invokeGetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), args), args);
-        }
+        {
+            String resolvedXpath = null;
+            try {
+                final XBRead readAnnotation = method.getAnnotation(XBRead.class);
+                if (readAnnotation != null) {
+                    resolvedXpath = MessageFormat.format(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), args);
+                    return invokeGetter(proxy, method, resolvedXpath, args);
+                }
 
-        final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
-        if (writeAnnotation != null) {
-            return invokeSetter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), args), args);
-        }
+                final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
+                if (writeAnnotation != null) {
+                    resolvedXpath = MessageFormat.format(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), args);
+                    return invokeSetter(proxy, method, resolvedXpath, args);
+                }
 
-        final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
-        if (delAnnotation != null) {
-            return invokeDeleter(proxy, method, MessageFormat.format(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), args));
+                final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
+                if (delAnnotation != null) {
+                    resolvedXpath = MessageFormat.format(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), args);
+                    return invokeDeleter(proxy, method, resolvedXpath);
+                }
+            } catch (XPathExpressionException e) {
+                throw new XBPathException(e, method, resolvedXpath);
+            }
         }
-
         final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
         final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
 
