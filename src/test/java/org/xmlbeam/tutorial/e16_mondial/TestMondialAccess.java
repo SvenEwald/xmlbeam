@@ -33,9 +33,6 @@ public class TestMondialAccess extends TutorialTestCase {
     @XBDocURL("http://www.dbis.informatik.uni-goettingen.de/Mondial/mondial.xml")
     public interface Mondial {
 
-        @XBRead("name2(//country/*)") 
-        String getCountry();
-        
         @XBRead("/mondial/*/name")
         List<String> getSubs();
 
@@ -43,13 +40,11 @@ public class TestMondialAccess extends TutorialTestCase {
         int getNodeCount();
     }
 
-    @Test 
+    @Test
     public void testStructure() throws IOException {
         final long start = System.currentTimeMillis();
         final Mondial mondial = new XBProjector().io().fromURLAnnotation(Mondial.class);
-        
-        System.out.println(mondial.getCountry());
-        
+
         System.out.println(new HashSet<String>(mondial.getSubs()));
         final long end = System.currentTimeMillis();
         System.out.println("Test run:" + (end - start) + "ms");
