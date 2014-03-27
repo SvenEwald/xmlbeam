@@ -1,5 +1,15 @@
 Current Release
 
+* 1.1.1 current release
+ 
+ * Support for Java 8 default methods
+ 
+ * Validation of projection interface during creation
+ 
+ * Improved XPath error reporting
+ 
+ * API-compatible with 1.1.0
+
 * 1.1.0 current release
  
  * API change in @XBRead annotation. You have to remove all parameters for targetComponentType, this is now determined by reflection.

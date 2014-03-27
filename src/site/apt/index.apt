@@ -42,6 +42,15 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-03-27
+
+ * New release 1.1.1 with Java 8 support for projection behaviour.
+ 
+** 2014-03-26
+
+ * XMLBeam now is a nominee for the jax innovation awards 2014.
+   {{{http://jax.de/awards2014/nominees}THAT IS SO AWESOME!!!!!!}}    
+
 ** 2014-03-06
  
  * Added section to the {{{./faq.html}FAQ}} to explain how to use a different XPath implementation.

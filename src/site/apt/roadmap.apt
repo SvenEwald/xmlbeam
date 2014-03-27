@@ -1,22 +1,24 @@
 Roadmap
 
 * Version 2.x
- 
- * Option to validate projection metadata.
- 
+  
  * Generator to create projection stubs from existing documents. 
 
  * Additional library with generic DOM access projections.
  
  * Performance enhancements by pre processing reflection metadata for InvocationHandlers
+
+ * Integration for application logging
  
+ * Replacing dynamic proxy by asm generated class
+
 * Version 1.1.1 
  
  * More UnitTests on writing projections with element and attribute selectors
  
  * Java8 support (virtual extension methods)
  
- * Integration for application logging
+ * Option to validate projection metadata
 
 * Version 1.1.0
 
