@@ -33,22 +33,22 @@ public class TestSetterVariants {
 
     private final XBProjector projector = new XBProjector();
     private SetterVariants emptyProjection;
-    
+
     @Before
-    public void before(){
-    projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(false);
-    emptyProjection = projector.projectEmptyDocument(SetterVariants.class);
+    public void before() {
+        projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(false);
+        emptyProjection = projector.projectEmptyDocument(SetterVariants.class);
     }
 
     @Test
-    public void testSingleContent() {       
+    public void testSingleContent() {
         emptyProjection.setSingleElementContent(1);
         assertEquals("<a><b>1</b></a>", projector.asString(emptyProjection));
     }
-    
+
     @Test
     public void testSetMultipleElementContent() {
-        emptyProjection.setMultipleElementContent(new int[]{1,2,3});
+        emptyProjection.setMultipleElementContent(new int[] { 1, 2, 3 });
         assertEquals("<a><b>1</b><b>2</b><b>3</b></a>", projector.asString(emptyProjection));
     }
 
@@ -96,4 +96,17 @@ public class TestSetterVariants {
         assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
     }
 
+    @Test
+    public void testSetMultipleSubProjectionWildcardCollection() {
+        List<SubProjection> subs = Arrays.asList(projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3));
+        emptyProjection.setMultipleSubProjectionWildcardCollection(subs);
+        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
+    }
+
+    @Test
+    public void testSetMultipleSubProjectionRenamingCollection() {
+        List<SubProjection> subs = Arrays.asList(projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3));
+        emptyProjection.setMultipleSubProjectionRenamingCollection(subs);
+        assertEquals("<a><b><d>1</d><d>2</d><d>3</d></b></a>", projector.asString(emptyProjection));
+    }
 }

@@ -32,14 +32,13 @@ public interface SetterVariants {
         @XBWrite(".")
         SubProjection setValue(int value);
     }
-    
+
     /**
-     * Create <a><b>...</b><a>
-     * "Create or update the content of one element named b." 
+     * Create <a><b>...</b><a> "Create or update the content of one element named b."
      */
-    @XBWrite("/a/b")    
+    @XBWrite("/a/b")
     void setSingleElementContent(int content);
-    
+
     /**
      * Create <a></a> for empty array, else <a><b>...</b><b>...</b><b>...<b></a>
      */
@@ -51,7 +50,7 @@ public interface SetterVariants {
      */
     @XBWrite("/a/b")
     void setMultipleElementContent(Collection<Integer> content);
-    
+
     @XBWrite("/a/@att")
     void setRootAttribute(String att);
 
@@ -59,21 +58,24 @@ public interface SetterVariants {
     void setDeeperAttribute(String att);
 
     /**
-     * Create or replace all existing /a[1]/b[1]/c
-     * Create <a><b><c></c></b></a>.  
-     * 
+     * Create or replace all existing /a[1]/b[1]/c Create <a><b><c></c></b></a>.
      */
     @XBWrite("/a/b/c")
     void setSingleSubProjection(SubProjection content);
-       
-    
+
     /**
-     * 
+     *
      */
     @XBWrite("/a/b/c")
     void setMultipleSubProjectionArray(SubProjection[] content);
 
     @XBWrite("/a/b/c")
     void setMultipleSubProjectionCollection(Collection<SubProjection> content);
-    
+
+    @XBWrite("/a/b/*")
+    void setMultipleSubProjectionWildcardCollection(Collection<SubProjection> content);
+
+    @XBWrite("/a/b/d")
+    void setMultipleSubProjectionRenamingCollection(Collection<SubProjection> content);
+
 }
