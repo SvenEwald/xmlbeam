@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 public @interface XBRead {
 
     /**
-     * XPath to select element or attribute to be changed.
+     * XPath to select element or attribute to be read.
      * 
      * @return
      */

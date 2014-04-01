@@ -16,8 +16,13 @@
 package org.xmlbeam.types;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.w3c.dom.Node;
+import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -35,7 +40,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
         public abstract T convert(final String data);
 
-        public T getDefaultValue() {
+        public T getDefaultValue(final String data) {
             return defaultValue;
         }
     }
@@ -100,7 +105,7 @@ public class DefaultTypeConverter implements TypeConverter {
                     return data.charAt(0);
                 }
                 String trimmed=data.trim();
-                return trimmed.isEmpty() ? getDefaultValue() : trimmed.charAt(0);
+                return trimmed.isEmpty() ? getDefaultValue("") : trimmed.charAt(0);
             }
         });
         CONVERSIONS.put(Character.TYPE, CONVERSIONS.get(Character.class));
@@ -124,13 +129,12 @@ public class DefaultTypeConverter implements TypeConverter {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T convertTo(Class<T> targetType, String data) {
-        assert data != null;
+    public <T> T convertTo(Class<T> targetType, String data) {        
         Conversion<?> conversion = CONVERSIONS.get(targetType);
-        assert conversion != null : "Method caller must check existence of conversion.";
+        assert conversion != null : "Method caller must check existence of conversion. ("+targetType.getName()+")";
 
-        if (data.isEmpty()) {
-            return (T) conversion.getDefaultValue();
+        if ((data==null) || (data.isEmpty())) {
+            return (T) conversion.getDefaultValue(data);
         }
 
         return (T) conversion.convert(data);
@@ -141,7 +145,22 @@ public class DefaultTypeConverter implements TypeConverter {
      */
     @Override
     public <T> boolean isConvertable(Class<T> targetType) {
-        return CONVERSIONS.containsKey(targetType);
+        if (CONVERSIONS.containsKey(targetType)) {
+            return true;
+        }
+        Constructor<T> constructor = ReflectionHelper.getCallableConstructorForParams(targetType,String.class);
+        if (constructor!=null) {
+            CONVERSIONS.put(targetType, new StringConstructorConversion<T>(constructor,null));
+            return true;
+        }
+        
+        Method factory = ReflectionHelper.getCallableFactoryForParams(targetType,String.class);
+        if (factory!=null) {
+            CONVERSIONS.put(targetType, new StringFactoryConversion<T>(factory,null));
+            return true;
+        }
+        
+        return false;
     }
 
     @SuppressWarnings("unchecked")

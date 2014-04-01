@@ -153,5 +153,44 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
             projector.io().stream(os).write(projection);
 //END SNIPPET: XBProjectorReferenceCard9
         }
+    }        
+       
+//START SNIPPET: XBProjectorReferenceCard10
+    public interface MyProjection {
+        @XBRead("some/path/to/data")
+        MyCustomType getData();
     }
+//END SNIPPET: XBProjectorReferenceCard10  
+     
+//START SNIPPET: XBProjectorReferenceCard11    
+    public class MyCustomType {
+        public MyCustomType(String data) {
+            //...
+        }
+    }
+//END SNIPPET: XBProjectorReferenceCard11   
+    
+//START SNIPPET: XBProjectorReferenceCard12    
+    public static MyCustomType valueOf(String data) {
+        return somehowCreateInstanceFor(data);
+    }      
+    
+    public static MyCustomType of(String data) {
+        return somehowCreateInstanceFor(data);
+    } 
+    
+    public static MyCustomType parse(String data) {
+        return somehowCreateInstanceFor(data);
+    } 
+    
+    public static MyCustomType getInstance(String data) {
+        return somehowCreateInstanceFor(data);
+    } 
+//END SNIPPET: XBProjectorReferenceCard12 
+
+        public static MyCustomType somehowCreateInstanceFor(Object o) {
+            return null;
+        }
+        
+    
 }
