@@ -30,9 +30,9 @@ class XBPathException extends XBException {
     private static final long serialVersionUID = -2286603725835988440L;
     private final String resolvedXpath;
 
-    XBPathException(final XPathExpressionException e, final Method method, final String xpath) {
+    XBPathException(final Throwable cause, final Method method, final String xpath) {
         
-        super("Exception invocating "+shortDesc(method)+" [Resolved XPath:'"+xpath+"']",e);
+        super("Exception invocating "+shortDesc(method)+" [Resolved XPath:'"+xpath+"']",cause);
         this.resolvedXpath = xpath;
         List<StackTraceElement> st = new LinkedList<StackTraceElement>(Arrays.asList(getStackTrace()));
         st.remove(0);
