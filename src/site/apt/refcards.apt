@@ -68,14 +68,27 @@ API Reference
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard9|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
+**Let a projection return a custom type that can be created with a String
+
+  To let a projection method return a custom type like this...
+  
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard10|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+  ... you have to define a String-constructor
+  
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard11|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+  ... or define a static factory method named "valueOf", "of", "parse" or "getInstance"
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard12|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}  
 
 * Annotations
 
 ** @XBDocURL
  
  This annotation may be used on a projection interface do declare a document origin.
- When the document is fetche from this URL, this value becomes the system id.
- As any other annotation string values the URL may contain MessageFormats placeholderrs ("{n}", where n=0,1,2... is a parameter index).
+ When the document is fetched from this URL, this value becomes the system id.
+ As any other annotation string values the URL may contain MessageFormats place holders ("\{n\}", where n=0,1,2... is a parameter index).
  
  When attached to a getter method in a projection interface, this is called an external projection. 
  The getters XPath expression will be evaluated on the document fetched from this URL.  
@@ -90,7 +103,11 @@ API Reference
  
  * a (sub) projection interface
  
- * a DOM-Node (if you need access to the DOM behind the projection).
+ * a class with a String constructor
+ 
+ * a class with a static factory method called 'valueOf(String)', 'of(String)', 'parse(String)', 'getInstance(String)' 
+ 
+ * a DOM-Node (if you need access to the DOM behind the projection). 
  
  []
  

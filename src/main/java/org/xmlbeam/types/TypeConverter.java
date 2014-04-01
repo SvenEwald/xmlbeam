@@ -24,7 +24,7 @@ public interface TypeConverter extends Serializable {
 
     /**
      * Check if this converter can convert Strings to the given target type.
-     * 
+     *
      * @param targetType
      * @return true if conversion is possible.
      */
@@ -32,6 +32,8 @@ public interface TypeConverter extends Serializable {
 
     /**
      * Convert a String value to the given target type.
+     * There is no parameter check. Caller <b>must</b> check by
+     * calling {@link isConvertable(...)} before.
      * 
      * @param targetType
      * @param data

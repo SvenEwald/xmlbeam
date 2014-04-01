@@ -16,8 +16,11 @@
 package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * A set of tiny helper methods internally used in the projection framework. This methods are
@@ -36,6 +40,8 @@ import java.util.Set;
 public final class ReflectionHelper {
 
     private final static Method ISDEFAULT = findIsDefaultMethod();
+    private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
+    private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
 
     public static Set<Class<?>> findAllCommonSuperInterfaces(final Class<?> a, final Class<?> b) {
         final Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
@@ -155,5 +161,52 @@ public final class ReflectionHelper {
         } catch (final InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Search for a suitable constructor which is invokable by the given parameter types. Similar to
+     * {@link Class.getConstructor()}, but does not require parameter equality and does not throw
+     * exceptions.
+     * 
+     * @param type
+     * @param params
+     * @return constructor or null if no matching constructor was found.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Constructor<T> getCallableConstructorForParams(final Class<T> type, Class<?>... params) {
+        for (Constructor<T> c : (Constructor<T>[]) type.getConstructors()) {
+            final Class<?>[] parameterTypes = c.getParameterTypes();
+            if (!Arrays.equals(parameterTypes, params)) {
+                continue;
+            }
+            return c;
+        }
+        return null;
+    }
+
+    /**
+     * Search for a static factory method returning the target type.
+     * 
+     * @param type
+     * @param params
+     * @return factory method or null if it is not found.
+     */
+    public static Method getCallableFactoryForParams(final Class<?> type, Class<?>... params) {
+        for (Method m : type.getMethods()) {
+            if ((m.getModifiers() & PUBLIC_STATIC_MODIFIER) != PUBLIC_STATIC_MODIFIER) {
+                continue;
+            }
+            if (!type.isAssignableFrom(m.getReturnType())) {
+                continue;
+            }
+            if (!Arrays.equals(m.getParameterTypes(), params)) {
+                continue;
+            }
+            if (!VALID_FACTORY_METHOD_NAMES.matcher(m.getName()).matches()) {
+                continue;
+            }
+            return m;
+        }
+        return null;
     }
 }
