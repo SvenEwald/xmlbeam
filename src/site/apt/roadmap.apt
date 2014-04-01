@@ -11,6 +11,10 @@ Roadmap
  * Integration for application logging
  
  * Replacing dynamic proxy by asm generated class
+ 
+* Version 1.1.2
+
+ * Automatic type conversion by String constructor or static factory method
 
 * Version 1.1.1 
  

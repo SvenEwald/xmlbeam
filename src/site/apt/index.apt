@@ -42,6 +42,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-04-01
+ 
+ * New release 1.1.2 with supercool automatic type conversion {{{./refcards.html#Let_a_projection_return_a_custom_type_that_can_be_created_with_a_String}(see here).}}
+
 ** 2014-03-27
 
  * New release 1.1.1 with Java 8 support for projection behaviour.

@@ -1,6 +1,6 @@
 What are mixins and how does it work?
 
- Mixins are a pre Java8 feature. If you are using JDK8, this is obsolete.
+ Mixins are a pre Java8 feature. If you are using JDK8, this feature is obsolete.
  Projections are dynamic proxy instances for the projection interfaces.
  Therefore it is not possible to add additional method implementations by simply extending them.
  There would be no way to get working instances. All instances have to be created by a projector.

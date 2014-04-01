@@ -1,6 +1,10 @@
 Current Release
 
-* 1.1.1 current release
+* 1.1.2 current release
+
+ * Automatic type conversion {{{./refcards.html#Let_a_projection_return_a_custom_type_that_can_be_created_with_a_String}(see here).}}
+
+* 1.1.1 
  
  * Support for Java 8 default methods
  
