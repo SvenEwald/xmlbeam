@@ -71,6 +71,7 @@
 						<excludes>
 							<exclude>**/*Exception.class</exclude>
 							<exclude>**/*Error.class</exclude>
+							<exclude>**/org/objectweb/asm/*.class</exclude>
 						</excludes>
 					</instrumentation>
 				</configuration>
