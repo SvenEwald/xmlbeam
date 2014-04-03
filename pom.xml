@@ -125,6 +125,8 @@
 								<copy file="src/site/shCoreEclipse.css"
 									tofile="target/site/attached-includes/css/shCoreEclipse.css"
 									overwrite="true" />
+								<replaceregexp file="${basedir}/target/site/download.html"
+									match="x.x.x" replace="${project.version}" byline="true" flags="g" />
 							</tasks>
 						</configuration>
 						<goals>
@@ -132,6 +134,23 @@
 						</goals>
 					</execution>
 				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>ant</groupId>
+						<artifactId>ant-nodeps</artifactId>
+						<version>1.6.5</version>
+					</dependency>
+					<dependency>
+						<groupId>ant</groupId>
+						<artifactId>ant-apache-regexp</artifactId>
+						<version>1.6.5</version>
+					</dependency>
+					<dependency>
+						<artifactId>jakarta-regexp</artifactId>
+						<groupId>jakarta-regexp</groupId>
+						<version>1.4</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 		</plugins>
@@ -176,12 +195,12 @@
 	<profiles>
 		<profile>
 			<id>sign-artifacts</id>
-			 <activation>
-        <property>
-          <name>sign-artifacts</name>
-          <value>true</value>
-        </property>
-      </activation>
+			<activation>
+				<property>
+					<name>sign-artifacts</name>
+					<value>true</value>
+				</property>
+			</activation>
 			<build>
 				<plugins>
 					<plugin>
