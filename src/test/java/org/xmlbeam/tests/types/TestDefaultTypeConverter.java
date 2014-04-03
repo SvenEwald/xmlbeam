@@ -15,8 +15,8 @@
  */
 package org.xmlbeam.tests.types;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.xmlbeam.types.DefaultTypeConverter;
@@ -39,7 +39,7 @@ public class TestDefaultTypeConverter {
                 Float.class, Float.valueOf(0), Float.TYPE, Float.valueOf(0),//
                 Double.class, Double.valueOf(0), Double.TYPE, Double.valueOf(0),//
                 Long.class, Long.valueOf(0), Long.TYPE, Long.valueOf(0), //
-                Character.class, Character.valueOf(' '),Character.TYPE,Character.valueOf(' ')//  
+                Character.class, Character.valueOf(' '), Character.TYPE, Character.valueOf(' ') //
         };
 
         for (int i = 0; i < defaults.length; i += 2) {
@@ -53,21 +53,37 @@ public class TestDefaultTypeConverter {
 
     @Test
     public void ensureBoolean() {
-        assertEquals(Boolean.FALSE, converter.convertTo(Boolean.class, ""));
-        assertEquals(Boolean.TRUE, converter.convertTo(Boolean.class, "true"));
-        assertEquals(Boolean.FALSE, converter.convertTo(Boolean.class, "false"));
-        assertEquals(Boolean.FALSE, converter.convertTo(Boolean.class, "asdfasdf"));
+        for (Class<?> c : new Class<?>[] { Boolean.class, Boolean.TYPE }) {
+            assertEquals(Boolean.FALSE, converter.convertTo(c, ""));
+            assertEquals(Boolean.TRUE, converter.convertTo(c, "true"));
+            assertEquals(Boolean.FALSE, converter.convertTo(c, "false"));
+            assertEquals(Boolean.FALSE, converter.convertTo(c, "asdfasdf"));
+        }
+    }
+
+    @Test
+    public void ensureCharacter() {
+        for (Class<?> c : new Class<?>[] { Character.class, Character.TYPE }) {
+            assertEquals(Character.valueOf('A'), converter.convertTo(c, "  A "));
+            assertEquals(Character.valueOf('X'), converter.convertTo(c, "X"));
+        }
     }
 
     @Test
     public void ensureByte() {
-        assertEquals(Byte.valueOf((byte) -1), converter.convertTo(Byte.class, "-1"));
-        assertEquals(Byte.valueOf(Byte.MAX_VALUE),converter.convertTo(Byte.class, "127"));
-        assertEquals(Byte.valueOf(Byte.MIN_VALUE),converter.convertTo(Byte.class, "-128"));
+        for (Class<?> c : new Class<?>[] { Byte.class, Byte.TYPE }) {
+            assertEquals(Byte.valueOf((byte) -1), converter.convertTo(c, "-1"));
+            assertEquals(Byte.valueOf(Byte.MAX_VALUE), converter.convertTo(c, "127"));
+            assertEquals(Byte.valueOf(Byte.MIN_VALUE), converter.convertTo(c, "-128"));
+        }
     }
 
     @Test
     public void ensureShort() {
-        assertEquals(Short.valueOf((byte) -1), converter.convertTo(Short.class, "-1"));
+        for (Class<?> c : new Class<?>[] { Short.class, Short.TYPE }) {
+            assertEquals(Short.valueOf((short) -1), converter.convertTo(c, "-1"));
+            assertEquals(Short.valueOf(Short.MIN_VALUE), converter.convertTo(c, "-32768"));
+            assertEquals(Short.valueOf(Short.MAX_VALUE), converter.convertTo(c, "32767"));
+        }
     }
 }
