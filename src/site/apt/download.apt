@@ -10,15 +10,15 @@ Download
 <dependency>
     <groupId>org.xmlbeam</groupId>
     <artifactId>xmlprojector</artifactId>
-    <version>1.1.2</version>
+    <version>x.x.x</version>
 </dependency>
 ----------------------------------------
 
 * Direct jar download from central repository:
 
- {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/1.1.2/xmlprojector-1.1.1.jar}xmlprojector-1.1.1.jar}}
+ {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/x.x.x/xmlprojector-x.x.x.jar}xmlprojector-x.x.x.jar}}
  
- {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/1.1.2/xmlprojector-1.1.1-javadoc.jar}xmlprojector-1.1.1-javadoc.jar}}
+ {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/x.x.x/xmlprojector-x.x.x-javadoc.jar}xmlprojector-x.x.x-javadoc.jar}}
  
- {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/1.1.2/xmlprojector-1.1.1-sources.jar}xmlprojector-1.1.1-sources.jar}}
+ {{{http://search.maven.org/remotecontent?filepath=org/xmlbeam/xmlprojector/x.x.x/xmlprojector-x.x.x-sources.jar}xmlprojector-x.x.x-sources.jar}}
  
