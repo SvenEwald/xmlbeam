@@ -18,12 +18,11 @@ package org.xmlbeam.util.intern;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -39,31 +38,44 @@ import java.util.regex.Pattern;
  */
 public final class ReflectionHelper {
 
-    private final static Method ISDEFAULT = findIsDefaultMethod();
+    private final static Method ISDEFAULT =findMethodByName(Method.class,"isDefault"); 
+    private final static Method GETPARAMETERS = findMethodByName(Method.class,"getParameters");
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
 
+    /**
+     * @param a
+     * @param b
+     * @return a set of all interfaces that a extends and b extends
+     */
     public static Set<Class<?>> findAllCommonSuperInterfaces(final Class<?> a, final Class<?> b) {
         final Set<Class<?>> seta = new HashSet<Class<?>>(findAllSuperInterfaces(a));
         final Set<Class<?>> setb = new HashSet<Class<?>>(findAllSuperInterfaces(b));
         seta.retainAll(setb);
         return seta;
     }
-
+   
     /**
-     * @return
+     * Non exception throwing shortcut to find the first method with a given name.
+     * @param clazz
+     * @param name
+     * @return method with name "name" or null if it does not exist.
      */
-    private static Method findIsDefaultMethod() {
-        for (final Method m : Method.class.getMethods()) {
-            if ("isDefault".equals(m.getName())) {
+    public static Method findMethodByName(final Class<?> clazz, final String name) {
+        for (final Method m: clazz.getMethods()) {
+            if (name.equals(m.getName())) {
                 return m;
             }
         }
-
         return null;
     }
-
-    public static Collection<? extends Class<?>> findAllSuperInterfaces(final Class<?> a) {
+    
+    /**
+     * 
+     * @param a
+     * @return a set of all super interfaces of a
+     */
+    public static Set<Class<?>> findAllSuperInterfaces(final Class<?> a) {
         final Set<Class<?>> set = new LinkedHashSet<Class<?>>();
         if (a.isInterface()) {
             set.add(a);
@@ -74,6 +86,11 @@ public final class ReflectionHelper {
         return set;
     };
 
+    /**
+     * Defensive implemented method to determine if method has a return type. 
+     * @param method
+     * @return true if and only if it is not a void method.
+     */
     public static boolean hasReturnType(final Method method) {
         if (method == null) {
             return false;
@@ -87,6 +104,10 @@ public final class ReflectionHelper {
         return !Void.TYPE.equals(method.getReturnType());
     }
 
+    /**
+     * @param method
+     * @return true if and only if the method has at least one parameter.
+     */
     public static boolean hasParameters(final Method method) {
         return (method != null) && (method.getParameterTypes().length > 0);
     }
@@ -94,7 +115,7 @@ public final class ReflectionHelper {
     /**
      * @param method
      * @param projectionInterface
-     * @return
+     * @return lowest type in hierarchy that defines the given method
      */
     public static Class<?> findDeclaringInterface(final Method method, final Class<?> projectionInterface) {
         for (final Class<?> interf : findAllSuperInterfaces(projectionInterface)) {
@@ -123,7 +144,12 @@ public final class ReflectionHelper {
         return false;
     }
 
-    public static List<Object> array2ObjectList(final Object array) {
+    /**
+     * Same as Arrays.asList(...), but does automatically conversion of primitive arrays.
+     * @param array
+     * @return List of objects representing the given array contents
+     */
+    public static List<Object> array2ObjectList(final Object array) {       
         final int length = Array.getLength(array);
         final List<Object> list = new ArrayList<Object>(length);
         for (int i = 0; i < length; ++i) {
@@ -134,7 +160,7 @@ public final class ReflectionHelper {
 
     /**
      * @param projectionInterface
-     * @return
+     * @return a LinkedList containing all non default methods for the given projection interface.
      */
     public static List<Method> getNonDefaultMethods(final Class<?> projectionInterface) {
         final List<Method> list = new LinkedList<Method>();
@@ -149,7 +175,7 @@ public final class ReflectionHelper {
 
     /**
      * @param m
-     * @return
+     * @return true if the given method is a Java 8 default method
      */
     public static boolean isDefaultMethod(final Method m) {
         try {
@@ -164,8 +190,42 @@ public final class ReflectionHelper {
     }
 
     /**
+     * Try to determine the names of the method parameters.
+     * Does not work on pre Java 8 jdk and given method owner has to be compiled with "-parameters" option.
+     * NOTICE: The correct function depends on the JVM implementation.
+     * @param m
+     * @return Empty list if no parameters present or names could not be determined. List of parameter names else.
+     */
+    public static List<String> getMethodParameterNames(final Method m) {
+        if (GETPARAMETERS==null) {
+            return Collections.emptyList();
+        }
+        try {
+            Object[] params = (Object[]) GETPARAMETERS.invoke(m);
+            if (params.length==0) {
+                return Collections.emptyList();
+            }
+            Method getName = findMethodByName(params[0].getClass(),"getName");
+            if (getName==null) {
+                return Collections.emptyList();
+            }
+            List<String> paramNames = new LinkedList<String>();
+            for (Object o:params) {
+                paramNames.add((String) getName.invoke(o));
+            }
+            return paramNames;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }        
+    }
+    
+    /**
      * Search for a suitable constructor which is invokable by the given parameter types. Similar to
-     * {@link Class.getConstructor()}, but does not require parameter equality and does not throw
+     * {@code Class.getConstructor(...)}, but does not require parameter equality and does not throw
      * exceptions.
      * 
      * @param type
@@ -208,5 +268,12 @@ public final class ReflectionHelper {
             return m;
         }
         return null;
+    }
+
+    /**
+     * @return true if and only if the current runtime may provide parameter names
+     */
+    public static boolean mayProvideParameterNames() {    
+        return GETPARAMETERS!=null;
     }
 }

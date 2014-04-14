@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlValue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -248,7 +247,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * additional methods.
          * 
          * @param clazz
-         * @return
+         * @return casted XMLFactoriesConfig
          */
         public <T extends XMLFactoriesConfig> T as(Class<T> clazz) {
             return clazz.cast(xMLFactoriesConfig);
@@ -262,6 +261,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
             return XBProjector.this.typeConverter;
         }
                 
+        /**
+         * Cast the type converter to the current type.
+         * @param clazz
+         * @return Type converter casted down to clazz.
+         */
         public <T extends TypeConverter> T getTypeConverterAs(Class<T> clazz) {
             return clazz.cast(getTypeConverter());
         }
@@ -293,7 +297,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
         
         /**
-         * {@inheritDoc}
+         * @param clazz 
+         * @return Externalizer cast down to the type clazz
          */
         public <T extends Externalizer> T getExternalizerAs(Class<? extends T> clazz) {
             return clazz.cast(getExternalizer());
@@ -590,12 +595,30 @@ public class XBProjector implements Serializable, ProjectionFactory {
 // this.isSynchronizeOnDocuments = flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS);
 // }
 
+    /**
+     * Global projector configuration options. 
+     */
     public enum Flags {
-        SYNCHRONIZE_ON_DOCUMENTS, TO_STRING_RENDERS_XML, OMIT_EMPTY_NODES
+        
+        /**
+         * Enables thread safety by removing concurrent DOM access.
+         * Useful if the underlying DOM implementation is not thread safe. 
+         */
+        SYNCHRONIZE_ON_DOCUMENTS, 
+        /**
+         * Let the projections toString() method render the projection target as XML.
+         * Be careful if your documents get large. toString() might be used frequently by the IDE your debugging in. 
+         */
+        TO_STRING_RENDERS_XML, 
+        /**
+         * Option to strip empty nodes from the result.
+         */
+        OMIT_EMPTY_NODES
     }
 
     /**
      * Constructor. Use me to create a projector with defaults.
+     * @param optionalFlags 
      */
     public XBProjector(Flags... optionalFlags) {
         this(new DefaultXMLFactoriesConfig(), optionalFlags);
@@ -610,16 +633,16 @@ public class XBProjector implements Serializable, ProjectionFactory {
             enumSet.add(array[i]);
         }
         return enumSet;
-
     }
 
     /**
      * @param xMLFactoriesConfig
+     * @param optionalFlags 
      */
-    public XBProjector(XMLFactoriesConfig xMLFactoriesConfig, Flags... flags) {
+    public XBProjector(XMLFactoriesConfig xMLFactoriesConfig, Flags... optionalFlags) {
         this.xMLFactoriesConfig = xMLFactoriesConfig;
         // isSynchronizeOnDocuments = false;
-        this.flags = unfold(flags);
+        this.flags = unfold(optionalFlags);
     }
 
     /**
@@ -655,7 +678,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * @param projectionInterface
-     * @return true if param is a public interface.
      */
     private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
         if  ((projectionInterface == null) || 
@@ -712,8 +734,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
     }
 
     /**
-     * @param emptyProjection
-     * @return
+     * @param projection
+     * @return an XML string of the projection target. 
      */
     @Override
     public String asString(Object projection) {

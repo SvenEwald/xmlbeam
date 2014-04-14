@@ -53,6 +53,7 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.MethodParamVariableResolver;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
@@ -221,10 +222,24 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (docURL != null) {
             String uri = projector.config().getExternalizer().resolveURL(docURL.value(), method, args);
             final Map<String, String> requestParams = projector.io().filterRequestParamsFromParams(uri, args);
-            uri = MessageFormat.format(uri, args);
+            uri = applyParams(uri, method, args);
             return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, projectionInterface);
         }
         return node;
+    }
+
+    /**
+     * @param uri
+     * @param method
+     * @param args
+     * @return a string with all place holders filled by given parameters
+     */
+    private String applyParams(String string, Method method, Object[] args) {
+        int c = 0;
+        for (String param : ReflectionHelper.getMethodParameterNames(method)) {
+            string = string.replace("{" + param + "}", "" + args[c++]);
+        }
+        return MessageFormat.format(string, args);
     }
 
     /**
@@ -290,20 +305,20 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             try {
                 final XBRead readAnnotation = method.getAnnotation(XBRead.class);
                 if (readAnnotation != null) {
-                    resolvedXpath = MessageFormat.format(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), args);
+                    resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), method, args);
                     return invokeGetter(proxy, method, resolvedXpath, args);
                 }
 
                 final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
                 if (writeAnnotation != null) {
-                    resolvedXpath = MessageFormat.format(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), args);
+                    resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), method, args);
                     return invokeSetter(proxy, method, resolvedXpath, args);
                 }
 
                 final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
                 if (delAnnotation != null) {
-                    resolvedXpath = MessageFormat.format(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), args);
-                    return invokeDeleter(proxy, method, resolvedXpath);
+                    resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), method, args);
+                    return invokeDeleter(proxy, method, resolvedXpath, args);
                 }
             } catch (XPathExpressionException e) {
                 throw new XBPathException(e, method, resolvedXpath);
@@ -324,7 +339,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         if (ReflectionHelper.isDefaultMethod(method)) {
             if (defaultMethodInvoker == null) {
-                defaultMethodInvoker = ASMHelper.create(projectionInterface, proxy);
+                defaultMethodInvoker = ASMHelper.createDefaultMethodProxy(projectionInterface, proxy);
             }
             try {
                 return method.invoke(defaultMethodInvoker, args);
@@ -342,30 +357,44 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param proxy
      * @param format
      */
-    private Object invokeDeleter(final Object proxy, final Method method, final String path) throws Throwable {
+    private Object invokeDeleter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
         final Document document = DOMHelper.getOwnerDocumentFor(node);
         final XPath xPath = projector.config().createXPath(document);
-        final XPathExpression expression = xPath.compile(path);
-        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-        for (int i = 0; i < nodes.getLength(); ++i) {
-            if (Node.ATTRIBUTE_NODE == nodes.item(i).getNodeType()) {
-                Attr attr = (Attr) nodes.item(i);
-                attr.getOwnerElement().removeAttributeNode(attr);
-                continue;
+        try {
+            if (ReflectionHelper.mayProvideParameterNames()) {
+                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, xPath.getXPathVariableResolver()));
             }
-            Node parentNode = nodes.item(i).getParentNode();
-            if (parentNode == null) {
-                continue;
+
+            final XPathExpression expression = xPath.compile(path);
+            NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                if (Node.ATTRIBUTE_NODE == nodes.item(i).getNodeType()) {
+                    Attr attr = (Attr) nodes.item(i);
+                    attr.getOwnerElement().removeAttributeNode(attr);
+                    continue;
+                }
+                Node parentNode = nodes.item(i).getParentNode();
+                if (parentNode == null) {
+                    continue;
+                }
+                parentNode.removeChild(nodes.item(i));
             }
-            parentNode.removeChild(nodes.item(i));
+            return getProxyReturnValueForMethod(proxy, method);
+        } finally {
+            xPath.reset();
         }
-        return getProxyReturnValueForMethod(proxy, method);
     }
 
     private Object invokeGetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
         final Node node = getNodeForMethod(method, args);
         final Document document = DOMHelper.getOwnerDocumentFor(node);
         final XPath xPath = projector.config().createXPath(document);
+// Automatic propagation of parameters as XPath variables
+// disabled so far...        
+//        try {
+//        if (ReflectionHelper.mayProvideParameterNames()) {
+//            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));            
+//        }
         final XPathExpression expression = xPath.compile(path);
         final Class<?> returnType = method.getReturnType();
         if (projector.config().getTypeConverter().isConvertable(returnType)) {
@@ -396,6 +425,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return subprojection;
         }
         throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
+// Automatic propagation of parameters as XPath variables
+// disabled so far...
+//        } finally {
+//            xPath.reset();
+//        }
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
