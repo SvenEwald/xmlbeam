@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- *
+ * A full working example for an Externalizer implementation.
+ * This Externalizer reads the XPaths from a property file instead from
+ * the projection annotations.  
  */
 public class PropertyFileExternalizer implements Externalizer {
 
@@ -39,16 +41,30 @@ public class PropertyFileExternalizer implements Externalizer {
     private long lastReadTS = 0;
     private String encodingName = "ISO8859-1";
 
+    /**
+     * Constructor for a given property file.
+     * @param propertyFile
+     */
     public PropertyFileExternalizer(File propertyFile) {
         this.propertyFile = propertyFile;
         this.useXmlFormat = false;
     }
 
+    /**
+     * Constructor for a given property file with the option to choose XML format.
+     * @param propertyFile
+     * @param useXmlFormat
+     */
     public PropertyFileExternalizer(File propertyFile, boolean useXmlFormat) {
         this.propertyFile = propertyFile;
         this.useXmlFormat = useXmlFormat;
     }
 
+    /**
+     * Setter for file encoding. 
+     * @param encodingName
+     * @return this for convenience
+     */
     public PropertyFileExternalizer setEncoding(String encodingName) {
         this.encodingName = encodingName;
         return this;

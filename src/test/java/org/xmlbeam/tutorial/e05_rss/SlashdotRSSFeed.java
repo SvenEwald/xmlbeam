@@ -25,6 +25,7 @@ import org.xmlbeam.annotation.XBWrite;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+@SuppressWarnings("javadoc")
 //START SNIPPET:SlashdotRSSFeed
 @XBDocURL("http://rss.slashdot.org/Slashdot/slashdot")
 public interface SlashdotRSSFeed {

@@ -34,6 +34,7 @@ import org.xmlbeam.util.IOHelper;
  * 
  * @author sven
  */
+@SuppressWarnings("javadoc")
 public class TestObjectInvoker {
 
     public interface A {

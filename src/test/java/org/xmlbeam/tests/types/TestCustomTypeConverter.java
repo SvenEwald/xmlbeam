@@ -23,7 +23,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","javadoc"})
 public class TestCustomTypeConverter {
 
     public static class HexToLongConversion extends Conversion<Long> {

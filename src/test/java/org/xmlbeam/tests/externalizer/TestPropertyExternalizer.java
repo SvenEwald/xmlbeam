@@ -28,6 +28,7 @@ import org.xmlbeam.externalizer.PropertyFileExternalizer;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestPropertyExternalizer {
 
     private File propFile = new File("test.properties");

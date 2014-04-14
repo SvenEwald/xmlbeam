@@ -37,21 +37,21 @@ import org.w3c.dom.Document;
 public interface XMLFactoriesConfig extends Serializable {
 
     /**
-     * Factory method to provide a {@link javax.xml.transform.TransfomerFactory}.
+     * Factory method to provide a {@link javax.xml.transform.TransformerFactory}.
      * 
      * @return a new instance.
      */
     TransformerFactory createTransformerFactory();
 
     /**
-     * Factory method to provide a {@link javax.xml.transform.DocumentBuilderFactory}.
+     * Factory method to provide a {@link javax.xml.parsers.DocumentBuilderFactory}.
      * 
      * @return a new instance.
      */
     DocumentBuilderFactory createDocumentBuilderFactory();
 
     /**
-     * Factory method to provide a {@link javax.xml.transform.XPathFactory}.
+     * Factory method to provide a {@link javax.xml.xpath.XPathFactory}.
      * 
      * @return a new instance.
      */
@@ -68,14 +68,14 @@ public interface XMLFactoriesConfig extends Serializable {
     Transformer createTransformer(Document... document);
 
     /**
-     * Factory method to provide a {@link javax.xml.transform.DocumentBuilder}.
+     * Factory method to provide a {@link javax.xml.parsers.DocumentBuilder}.
      * 
      * @return a new instance.
      */
     DocumentBuilder createDocumentBuilder();
 
     /**
-     * Factory method to provide a {@link javax.xml.transform.XPath}. Creation and configuration may
+     * Factory method to provide a {@link XPath}. Creation and configuration may
      * depend on the content of a document. This may happen when you want to use the namespace
      * mapping of the document in your xpath expresssions.
      * 

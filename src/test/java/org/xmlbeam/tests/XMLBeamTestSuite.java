@@ -21,7 +21,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
-
+@SuppressWarnings("javadoc")
 @org.xmlbeam.annotation.XBDocURL("resource://testsuite.xml")
 public interface XMLBeamTestSuite extends DOMAccess {
 

@@ -33,6 +33,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
 
+@SuppressWarnings("javadoc")
 public class TestDOMHelper {
 
     private Document document;

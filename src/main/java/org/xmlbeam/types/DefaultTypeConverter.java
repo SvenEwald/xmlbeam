@@ -21,13 +21,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.w3c.dom.Node;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","javadoc"})
 public class DefaultTypeConverter implements TypeConverter {
 
     public static abstract class Conversion<T> implements Serializable {

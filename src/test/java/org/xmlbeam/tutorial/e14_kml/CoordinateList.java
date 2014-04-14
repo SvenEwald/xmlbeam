@@ -18,7 +18,7 @@ package org.xmlbeam.tutorial.e14_kml;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
+@SuppressWarnings("javadoc")
 public class CoordinateList implements Iterable<Coordinate> {
 
     private final List<Coordinate> coordinates = new LinkedList<Coordinate>();

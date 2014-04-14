@@ -33,10 +33,11 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  * 
  */
+@SuppressWarnings("javadoc")
 //START SNIPPET: JenkinsJobConfigInterface
 @org.xmlbeam.annotation.XBDocURL("resource://config.xml")
 public interface JenkinsJobConfig {
-
+    
     @XBRead("//publishers/*")
     List<Publisher> getPublishers();
     

@@ -18,13 +18,12 @@ package org.xmlbeam.tutorial.e10_wikipedia;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
-/**
- *
- */
+@SuppressWarnings("javadoc")
 //START SNIPPET:ProgrammingLanguage
 @XBDocURL("http://en.wikipedia.org/wiki/{0}_(programming_language)")
 public interface ProgrammingLanguage {
 
+    
     @XBRead("//b[1]")
     String getName();
 

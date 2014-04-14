@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
@@ -32,6 +31,7 @@ import org.xmlbeam.tutorial.e03_eclipse.EclipseFormatterConfigFile.Setting;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @Category(Tutorial.class)
+@SuppressWarnings("javadoc")
 public class TestEclipseCodeFormatterConfig extends TutorialTestCase {
 // START SNIPPET:
 /* START SNIPPET: TutorialDescription 
@@ -45,7 +45,6 @@ public class TestEclipseCodeFormatterConfig extends TutorialTestCase {
    Syntax of this is the MessageFormat format syntax.  
    
 END SNIPPET: TutorialDescription */
-
     @Test
     public void profilesTest() throws IOException {
 //START SNIPPET: TestEclipseCodeFormatterConfig       

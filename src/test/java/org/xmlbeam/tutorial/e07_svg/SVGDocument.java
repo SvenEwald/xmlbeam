@@ -30,6 +30,7 @@ import org.xmlbeam.annotation.XBWrite;
  * 
  */
 @XBDocURL("resource://svg.xml")
+@SuppressWarnings("javadoc")
 //START SNIPPET:SVGDocument
 public interface SVGDocument {
     

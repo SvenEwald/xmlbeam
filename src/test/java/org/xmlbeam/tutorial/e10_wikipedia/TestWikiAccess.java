@@ -30,7 +30,7 @@ import org.xmlbeam.tutorial.TutorialTestCase;
  their creator will be extracted.
  * Shows a projection to HMTL Documents
 END SNIPPET: TutorialDescription */
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: TestWikiAccess
 public class TestWikiAccess extends TutorialTestCase{
 

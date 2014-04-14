@@ -23,6 +23,7 @@ import org.xmlbeam.annotation.XBWrite;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public interface SetterVariants {
 
     public interface SubProjection {

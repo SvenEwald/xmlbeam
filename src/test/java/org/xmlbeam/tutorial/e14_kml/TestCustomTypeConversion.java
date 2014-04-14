@@ -24,7 +24,6 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.types.DefaultTypeConverter;
-
 //START SNIPPET: Tutorial14
 
 /* START SNIPPET: TutorialDescription
@@ -36,7 +35,7 @@ import org.xmlbeam.types.DefaultTypeConverter;
  basically just one line of code.
 END SNIPPET: TutorialDescription */
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","javadoc"})
 //START SNIPPET: TestCustomTypeConversion
 public class TestCustomTypeConversion {
    

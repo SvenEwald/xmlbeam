@@ -26,6 +26,7 @@ import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
+@SuppressWarnings("javadoc")
 public class TestDeleterBehavior {    
     
     @XBDocURL("resource://deletexml.xml")

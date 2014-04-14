@@ -31,6 +31,7 @@ import org.xmlbeam.testutils.JUnitHttpProxy;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+@SuppressWarnings("javadoc")
 public abstract class TutorialTestCase {
 
     private PrintStream origSyso;

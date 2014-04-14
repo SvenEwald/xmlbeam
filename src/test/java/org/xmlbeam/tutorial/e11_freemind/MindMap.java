@@ -17,7 +17,7 @@ package org.xmlbeam.tutorial.e11_freemind;
 
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: MindMap
 @XBDocURL("resource://XMLBeam.mm")
 public interface MindMap {

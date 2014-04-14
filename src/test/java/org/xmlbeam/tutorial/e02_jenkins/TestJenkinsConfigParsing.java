@@ -16,7 +16,6 @@
 package org.xmlbeam.tutorial.e02_jenkins;
 
 import java.util.List;
-
 import java.io.IOException;
 
 import org.junit.Before;
@@ -57,7 +56,7 @@ import org.xmlbeam.tutorial.e02_jenkins.model.Publisher;
 
  END SNIPPET: TutorialDescription
  */
-
+@SuppressWarnings("javadoc")
 @Category(Tutorial.class)
 //START SNIPPET: JenkinsCode
 public class TestJenkinsConfigParsing extends TutorialTestCase {

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 package org.xmlbeam.tutorial.e14_kml;
-
+@SuppressWarnings("javadoc")
 public class Coordinate {
 
     private Double x;

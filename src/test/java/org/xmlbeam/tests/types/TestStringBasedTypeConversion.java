@@ -29,6 +29,7 @@ import org.xmlbeam.types.TypeConverter;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestStringBasedTypeConversion {
 
     private final TypeConverter typeConverter = new DefaultTypeConverter();

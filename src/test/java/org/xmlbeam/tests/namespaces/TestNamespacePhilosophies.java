@@ -26,7 +26,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
-
+@SuppressWarnings("javadoc")
 public class TestNamespacePhilosophies {
 
     @Test

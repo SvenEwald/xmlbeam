@@ -29,6 +29,7 @@ import org.xmlbeam.tests.xpath.SetterVariants.SubProjection;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestSetterVariants {
 
     private final XBProjector projector = new XBProjector();

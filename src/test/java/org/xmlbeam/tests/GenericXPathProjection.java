@@ -19,7 +19,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
-
+@SuppressWarnings("javadoc")
 public interface GenericXPathProjection extends DOMAccess {
 
     @XBWrite("{0}")

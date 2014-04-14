@@ -34,7 +34,14 @@ import org.xmlbeam.util.intern.org.objectweb.asm.Type;
  */
 public class ASMHelper implements Opcodes {
 
-    public static <T> T create(final Class<T> projectionInterface, final Object projectionInvocationHandler) {
+    /**
+     * 
+     * @param projectionInterface
+     * @param delegate
+     * @return a new proxy instance forwarding all non default method calls to the delegate
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T createDefaultMethodProxy(final Class<T> projectionInterface, final Object delegate) {
         final String proxyClassName = "P" + UUID.randomUUID().toString();
 
         final Class<?> clazz = new ClassLoader() {
@@ -46,7 +53,7 @@ public class ASMHelper implements Opcodes {
 
         try {
             final Constructor<?> constructor = clazz.getConstructors()[0];
-            o = (T) constructor.newInstance(projectionInvocationHandler);
+            o = (T) constructor.newInstance(delegate);
         } catch (final IllegalArgumentException e) {
             throw new RuntimeException(e);
         } catch (final SecurityException e) {

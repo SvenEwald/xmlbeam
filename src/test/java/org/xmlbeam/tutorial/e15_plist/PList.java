@@ -17,7 +17,7 @@ package org.xmlbeam.tutorial.e15_plist;
 
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: PList
 @XBDocURL("resource://example.plist")
 public interface PList {

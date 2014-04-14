@@ -26,6 +26,7 @@ import org.xmlbeam.annotation.XBWrite;
  * A simple setter is defined to modify a maven project name.
  * 
  */
+@SuppressWarnings("javadoc")
 //START SNIPPET: MavenPOM
 @XBDocURL("resource://pom.xml")
 public interface MavenPOM {

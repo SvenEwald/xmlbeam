@@ -34,14 +34,40 @@ import org.xmlbeam.io.XBUrlIO;
  */
 public interface ProjectionIO {
 
+    /**
+     * Get access to the file IO.
+     * @param file
+     * @return a XBFileIO for this file.
+     */
     XBFileIO file(File file);
 
+    
+    /**
+     * Get access to the file IO.
+     * @param fileName
+     * @return a XBFileIO for this filename.
+     */
     XBFileIO file(String fileName);
 
+    /**
+     * Get access to the url IO.
+     * @param url
+     * @return a XBUrlIO for this url
+     */
     XBUrlIO url(String url);
     
+    /**
+     * Get access to the stream IO
+     * @param is
+     * @return a XBStreamInput for this InputStream
+     */
     XBStreamInput stream(InputStream is);
 
+    /**
+     * Get access to the stream IO
+     * @param os
+     * @return a XBStreamOutput for this OutputStream
+     */
     XBStreamOutput stream(OutputStream os);
 
     /**
@@ -51,6 +77,7 @@ public interface ProjectionIO {
      * 
      * @param projectionInterface
      *            a public interface.
+     * @param optionalParams 
      * @return a new projection instance
      * @throws IOException
      */
@@ -60,6 +87,7 @@ public interface ProjectionIO {
      * Write projection document to url (file or http post) of {@link XBDocURL} annotation.
      * 
      * @param projection
+     * @param optionalParams 
      * @return response of http post or null for file urls.
      * @throws IOException
      * @throws URISyntaxException

@@ -38,6 +38,7 @@ import org.xmlbeam.annotation.XBRead;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a> 
  */
+@SuppressWarnings("javadoc")
 //START SNIPPET: Dreambox
 public interface Dreambox {
 

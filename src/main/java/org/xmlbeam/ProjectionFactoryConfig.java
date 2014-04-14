@@ -24,8 +24,18 @@ import org.xmlbeam.types.TypeConverter;
  */
 public interface ProjectionFactoryConfig extends XMLFactoriesConfig {
 
+    /**
+     * Getter for the current type converter.
+     * You may implement you own type converting mechanism and return it here.
+     * @return type converter.
+     */
     TypeConverter getTypeConverter();
 
+    /**
+     * Setter for type converter. This method allows to plug in other type converting mechanisms.
+     * @param converter
+     * @return this for Convenience
+     */
     ConfigBuilder setTypeConverter(TypeConverter converter);
 
     /**
@@ -38,8 +48,8 @@ public interface ProjectionFactoryConfig extends XMLFactoriesConfig {
     ConfigBuilder setExternalizer(Externalizer e10r);
 
     /**
-     * Getter for current {@link org.xmlbeam.extenalizer.Externalizer}.
-     * @return the currently used {@link org.xmlbeam.extenalizer.Externalizer}
+     * Getter for current {@link Externalizer}.
+     * @return the currently used {@link Externalizer}
      */
     Externalizer getExternalizer();
 

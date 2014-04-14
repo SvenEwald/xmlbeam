@@ -31,16 +31,11 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Inherited
 public @interface XBDocURL {
-
-    @interface Prefs {
-        boolean prettyPrint() default true;
-
-        boolean omitXMLDeclaration() default true;
-        
-    }
     
-    
+    /**
+     * A URL where the document is located.
+     * @return value.
+     */
     String value();
      
-    Prefs prefs() default @Prefs;
 }

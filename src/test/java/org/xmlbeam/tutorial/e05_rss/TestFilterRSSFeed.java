@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
 import java.io.IOException;
 
 import org.junit.BeforeClass;
@@ -42,6 +41,7 @@ import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 END SNIPPET: TutorialDescription */
 
 @Category(Tutorial.class)
+@SuppressWarnings("javadoc")
 //START SNIPPET:TestFilterRSSFeed
 public class TestFilterRSSFeed extends TutorialTestCase{
 

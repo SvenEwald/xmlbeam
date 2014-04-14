@@ -23,9 +23,10 @@ import org.xmlbeam.annotation.XBWrite;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  *
  */
+@SuppressWarnings("javadoc")
 //START SNIPPET:XHTML
 public interface XHTML {
-
+    
     @XBWrite("/html/@xmlns")
     XHTML setRootNameSpace(String ns);
     

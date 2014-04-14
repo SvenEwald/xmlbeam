@@ -21,7 +21,7 @@ package org.xmlbeam.tutorial.e13_graphml;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: Edge
 @XBDocURL("resource://EdgeTemplate.xml")
 public interface Edge {

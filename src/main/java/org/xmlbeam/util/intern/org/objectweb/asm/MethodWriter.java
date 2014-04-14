@@ -608,6 +608,7 @@ class MethodWriter extends MethodVisitor {
     public void visitCode() {
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public void visitFrame(final int type, final int nLocal,
             final Object[] local, final int nStack, final Object[] stack) {
@@ -1846,6 +1847,7 @@ class MethodWriter extends MethodVisitor {
      * Compress and writes the current frame {@link #frame} in the StackMapTable
      * attribute.
      */
+    @SuppressWarnings("incomplete-switch")
     private void writeFrame() {
         int clocalsSize = frame[1];
         int cstackSize = frame[2];

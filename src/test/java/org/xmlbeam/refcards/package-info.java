@@ -13,22 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tutorial.e08_api_mimicry;
-
-import org.xmlbeam.annotation.XBDocURL;
-import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.annotation.XBWrite;
-
-@SuppressWarnings("javadoc")
-@XBDocURL("resource://simple.xml")
-//START SNIPPET:Document
-public interface Document {
-
-    @XBRead("/*")
-    Element getRootElement();
-
-    @XBWrite("/*")
-    void setRootElement(Element rootElement);
-
-}
-//END SNIPPET:Document
+/**
+ * The package contains no tests, but documentation snippets that should at least compile.
+ */
+package org.xmlbeam.refcards;

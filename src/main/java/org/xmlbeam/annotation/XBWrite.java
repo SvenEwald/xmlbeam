@@ -34,7 +34,7 @@ public @interface XBWrite {
     /**
      * XPath expression to project XML data to return type of decorated method.
      *
-     * @return
+     * @return XPath expression. (Can be omitted if your {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
      */
     String value() default "";
 }

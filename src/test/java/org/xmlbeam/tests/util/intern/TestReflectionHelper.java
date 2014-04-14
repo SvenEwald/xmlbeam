@@ -15,8 +15,7 @@
  */
 package org.xmlbeam.tests.util.intern;
 
-import static junit.framework.Assert.assertFalse;
-
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -24,7 +23,7 @@ import java.lang.reflect.Method;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.util.intern.ReflectionHelper;
-
+@SuppressWarnings("javadoc")
 public class TestReflectionHelper {
 
     @Ignore

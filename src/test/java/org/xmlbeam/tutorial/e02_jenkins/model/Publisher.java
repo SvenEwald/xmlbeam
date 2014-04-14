@@ -17,6 +17,7 @@ package org.xmlbeam.tutorial.e02_jenkins.model;
 
 import org.xmlbeam.annotation.XBRead;
 
+@SuppressWarnings("javadoc")
 //START SNIPPET: JenkinsPublisherInterface
 public interface Publisher extends ModelElement{
 

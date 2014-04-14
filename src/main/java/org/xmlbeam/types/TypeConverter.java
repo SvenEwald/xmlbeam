@@ -33,7 +33,7 @@ public interface TypeConverter extends Serializable {
     /**
      * Convert a String value to the given target type.
      * There is no parameter check. Caller <b>must</b> check by
-     * calling {@link isConvertable(...)} before.
+     * calling {@code isConvertable(...)} before.
      * 
      * @param targetType
      * @param data

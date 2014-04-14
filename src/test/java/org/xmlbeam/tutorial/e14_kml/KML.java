@@ -19,6 +19,7 @@ import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
+@SuppressWarnings("javadoc")
 //START SNIPPET: KML
 @XBDocURL("resource://polygon-simple.kml")
 public interface KML {

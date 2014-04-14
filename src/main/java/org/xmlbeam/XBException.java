@@ -25,10 +25,13 @@ public class XBException extends RuntimeException {
 
     private static final long serialVersionUID = 4989019505068594914L;
     
+    /**
+     * Exception constructor.
+     * @param msg
+     * @param e
+     */
     public XBException(String msg, Throwable e) {
         super(msg,e);
     }
-
-
 
 }

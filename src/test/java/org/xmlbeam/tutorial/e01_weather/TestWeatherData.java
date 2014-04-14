@@ -34,6 +34,7 @@ import org.xmlbeam.tutorial.e01_weather.WeatherData.Location;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @Category(Tutorial.class)
+@SuppressWarnings("javadoc")
 public class TestWeatherData extends TutorialTestCase {
 
     @Test

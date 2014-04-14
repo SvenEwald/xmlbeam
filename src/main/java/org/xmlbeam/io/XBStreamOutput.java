@@ -34,6 +34,7 @@ public class XBStreamOutput {
 
     /**
      * @param xmlProjector
+     * @param os 
      */
     public XBStreamOutput(XBProjector xmlProjector,OutputStream os) {
         this.projector = xmlProjector;
@@ -42,7 +43,6 @@ public class XBStreamOutput {
 
     /**
      * @param projection
-     * @param os
      */
     public void write(Object projection ) {        
         try {

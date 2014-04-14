@@ -17,6 +17,7 @@ package org.xmlbeam.tutorial.e09_dreambox;
 
 import org.xmlbeam.annotation.XBRead;
 
+@SuppressWarnings("javadoc")
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */

@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.xpath.XPathExpressionException;
-
 /**
  * Exception to provide error details related to XPath parsing.
  */

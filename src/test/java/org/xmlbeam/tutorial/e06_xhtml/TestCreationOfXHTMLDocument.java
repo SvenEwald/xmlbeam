@@ -30,6 +30,7 @@ import org.xmlbeam.tutorial.TutorialTestCase;
  *
  */
 @Category(Tutorial.class)
+@SuppressWarnings("javadoc")
 public class TestCreationOfXHTMLDocument extends TutorialTestCase {
 /* START SNIPPET: TutorialDescription
 ~~

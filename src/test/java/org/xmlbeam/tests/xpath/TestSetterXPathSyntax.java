@@ -27,7 +27,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tests.GenericXPathProjection;
-
+@SuppressWarnings("javadoc")
 public class TestSetterXPathSyntax {
 
     private XBProjector projector;

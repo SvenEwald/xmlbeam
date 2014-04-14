@@ -1804,6 +1804,7 @@ public class ClassReader {
      *            the visitor that must visit the value.
      * @return the end offset of the annotation value.
      */
+    @SuppressWarnings("incomplete-switch")
     private int readAnnotationValue(int v, final char[] buf, final String name,
             final AnnotationVisitor av) {
         int i;
@@ -2394,6 +2395,7 @@ public class ClassReader {
      *            sufficiently large. It is not automatically resized.
      * @return the String corresponding to the specified UTF8 string.
      */
+    @SuppressWarnings("incomplete-switch")
     private String readUTF(int index, final int utfLen, final char[] buf) {
         int endIndex = index + utfLen;
         byte[] b = this.b;

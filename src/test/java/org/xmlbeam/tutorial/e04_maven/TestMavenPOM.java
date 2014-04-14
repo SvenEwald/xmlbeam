@@ -26,7 +26,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e04_maven.MavenPOM.Artifact;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: Tutorial4
 @Category(Tutorial.class)
 public class TestMavenPOM extends TutorialTestCase {

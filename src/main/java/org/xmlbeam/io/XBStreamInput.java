@@ -35,6 +35,7 @@ public class XBStreamInput {
     
     /**
      * @param xmlProjector
+     * @param is 
      */
     public XBStreamInput(XBProjector xmlProjector,InputStream is) {
         this.projector = xmlProjector;
@@ -44,10 +45,9 @@ public class XBStreamInput {
     /**
      * Create a new projection by parsing the data provided by the input stream.
      * 
-     * @param is
      * @param projectionInterface
      *            A Java interface to project the data on.
-     * @return
+     * @return a new projection instance pointing to the stream content.
      * @throws IOException
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
@@ -60,6 +60,12 @@ public class XBStreamInput {
         }
     }
    
+    /**
+     * As the system id usually cannot be determined by looking at the stream,
+     * this method allows it to be set.
+     * @param systemID
+     * @return this for convenience.
+     */
     public XBStreamInput setSystemID(String systemID) {
         this.systemID=systemID;
         return this;

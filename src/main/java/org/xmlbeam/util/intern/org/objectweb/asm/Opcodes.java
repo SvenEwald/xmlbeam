@@ -41,6 +41,7 @@ package org.xmlbeam.util.intern.org.objectweb.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
+@SuppressWarnings("javadoc")
 public interface Opcodes {
 
     // ASM API versions

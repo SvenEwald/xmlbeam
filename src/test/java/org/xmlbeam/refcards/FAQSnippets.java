@@ -38,7 +38,7 @@ import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
-@SuppressWarnings({ "unused", "serial" })
+@SuppressWarnings({ "unused", "serial","javadoc" })
 public class FAQSnippets {
 
     /**

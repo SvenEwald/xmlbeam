@@ -32,6 +32,7 @@ import org.xmlbeam.XBProjector;
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+@SuppressWarnings("javadoc")
 public class TestProjectionSerialization {
 
     @BeforeClass

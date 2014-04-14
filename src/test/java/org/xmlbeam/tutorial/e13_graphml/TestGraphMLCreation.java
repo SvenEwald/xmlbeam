@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: Tutorial13
 
 /*START SNIPPET: TutorialDescription

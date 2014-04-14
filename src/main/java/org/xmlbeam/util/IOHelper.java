@@ -80,7 +80,7 @@ public final class IOHelper {
      * @param httpurl
      *            get url
      * @param requestProperties
-     *            optional http header fields (key->value)
+     *            optional http header fields (key-&gt;value)
      * @return input stream of response
      * @throws IOException
      */
@@ -101,7 +101,7 @@ public final class IOHelper {
      * @param data
      *            String with content to post
      * @param requestProperties
-     *            optional http header fields (key->value)
+     *            optional http header fields (key-&gt;value)
      * @return input stream of response
      * @throws IOException
      */
@@ -125,15 +125,21 @@ public final class IOHelper {
 
     /**
      * @param inputStream
+     * @param optionalCharsetName optional parameter
      * @return String with stream content
      */
-    public static String inputStreamToString(InputStream inputStream, String... charsetName) {
-        Scanner scanner = (charsetName == null) || (charsetName.length == 0) || (charsetName[0] == null) ? new Scanner(inputStream) : new Scanner(inputStream, charsetName[0]);
+    public static String inputStreamToString(InputStream inputStream, String... optionalCharsetName) {
+        Scanner scanner = (optionalCharsetName == null) || (optionalCharsetName.length == 0) || (optionalCharsetName[0] == null) ? new Scanner(inputStream) : new Scanner(inputStream, optionalCharsetName[0]);
         // return scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
         String content = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
         return content;
     }
 
+    /**
+     * Silently drop UTF8 BOM
+     * @param source
+     * @return data without UTF8 BOM
+     */
     public static byte[] dropUTF8BOM(final byte[] source) {
         if (source == null) {
             return null;

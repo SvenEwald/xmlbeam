@@ -15,12 +15,10 @@
  */
 package org.xmlbeam;
 
-import static junit.framework.Assert.assertTrue;
-
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import java.lang.reflect.Field;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,6 +28,7 @@ import org.junit.Test;
 
 /**
  */
+@SuppressWarnings("javadoc")
 public class TestLegalWritingXPathExpressions {
 
     private final static List<String> LEGAL_EXPRESSIONS = Arrays.asList(".", "/a", "/a/b/asdfZRc/d", "/a/b/@c", "@xasd","/a/../b","/a[b='e']");

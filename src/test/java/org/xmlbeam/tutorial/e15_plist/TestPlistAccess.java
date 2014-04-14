@@ -41,7 +41,7 @@ import org.xmlbeam.tutorial.TutorialTestCase;
  Last but not least we show how to switch the DTD validation of, in case your not on an OS X system.
 END SNIPPET: TutorialDescription */
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","javadoc"})
 //START SNIPPET: TestPlistAccess
 public class TestPlistAccess extends TutorialTestCase {
 

@@ -18,7 +18,7 @@ package org.xmlbeam.tutorial.e12_xml3d;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: Xml3d
 @XBDocURL("resource://xml3d_template.html")
 public interface Xml3d {

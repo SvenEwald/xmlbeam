@@ -29,6 +29,7 @@ import org.xmlbeam.annotation.XBWrite;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestConcurrentProjectionAccess {
 
     private final static int count = 200;

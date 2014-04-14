@@ -29,7 +29,7 @@ public interface MixinHolder {
      * 
      * @param projectionInterface
      * @param mixinImplementation
-     * @return
+     * @return this for convenience
      */
     <S, M extends S, P extends S> XBProjector addProjectionMixin(Class<P> projectionInterface, M mixinImplementation);
 

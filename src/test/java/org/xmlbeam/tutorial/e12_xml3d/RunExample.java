@@ -18,11 +18,9 @@ package org.xmlbeam.tutorial.e12_xml3d;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import java.awt.Desktop;
 
 import org.xmlbeam.XBProjector;
@@ -37,6 +35,7 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
  enriching a prepared document template with calculated values.
  
 //END SNIPPET: TutorialDescription */
+@SuppressWarnings("javadoc")
 //START SNIPPET: RunExample
 public class RunExample {
 

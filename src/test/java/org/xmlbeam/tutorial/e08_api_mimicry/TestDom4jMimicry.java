@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tutorial.TutorialTestCase;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: Tutorial08
 
 public class TestDom4jMimicry extends TutorialTestCase {

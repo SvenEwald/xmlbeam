@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -34,7 +33,7 @@ import org.xmlbeam.tutorial.e11_freemind.MindMap.Node;
  need the input data split into left and right sides. The task of splitting the mindmap
  will be done by the projection.
  END SNIPPET: TutorialDescription */
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: TestDumpMindMap
 public class TestDumpMindMap {
 

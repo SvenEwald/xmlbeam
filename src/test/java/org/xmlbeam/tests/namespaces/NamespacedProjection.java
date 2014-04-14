@@ -18,6 +18,7 @@ package org.xmlbeam.tests.namespaces;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
+@SuppressWarnings("javadoc")
 @XBDocURL("resource://DocumentWithNamespaces.xml")
 public interface NamespacedProjection {
 

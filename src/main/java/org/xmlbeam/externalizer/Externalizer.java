@@ -32,7 +32,7 @@ public interface Externalizer extends Serializable {
      * @param annotationValue
      * @param method
      * @param args
-     * @return
+     * @return resolved xpath with all placeholders filled. Never return null here.
      */
     String resolveXPath(String annotationValue, Method method, Object args[]);
 
@@ -42,7 +42,7 @@ public interface Externalizer extends Serializable {
      * @param annotationValue
      * @param method
      * @param args
-     * @return
+     * @return resolved url with all placeholders filled. Never return null here.
      */
     String resolveURL(String annotationValue, Method method, Object args[]);
 }

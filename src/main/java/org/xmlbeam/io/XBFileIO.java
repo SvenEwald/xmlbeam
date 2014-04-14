@@ -66,7 +66,7 @@ public class XBFileIO {
      * Read a XML document and return a projection to it.
      * 
      * @param projectionInterface
-     * @return
+     * @return a new projection pointing to the content of the file.
      * @throws IOException
      */
     public <T> T read(Class<T> projectionInterface) throws IOException {
@@ -80,7 +80,6 @@ public class XBFileIO {
 
     /**
      * @param projection
-     * @param file
      * @throws IOException
      * @return this to provide a fluent API.
      */

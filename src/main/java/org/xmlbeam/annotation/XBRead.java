@@ -34,7 +34,7 @@ public @interface XBRead {
     /**
      * XPath to select element or attribute to be read.
      * 
-     * @return
+     * @return XPath expression. (Can be omitted if your {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
      */
     String value() default "";
 }

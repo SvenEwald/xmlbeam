@@ -24,8 +24,10 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class SpecifyProjectorUsage {
 
+    
     public void testFluentAPI() throws IOException {
 
         new XBProjector(Flags.SYNCHRONIZE_ON_DOCUMENTS).projectEmptyDocument(null);

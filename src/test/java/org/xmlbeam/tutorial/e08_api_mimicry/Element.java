@@ -20,7 +20,7 @@ import java.util.List;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET:Element
 public interface Element {
 

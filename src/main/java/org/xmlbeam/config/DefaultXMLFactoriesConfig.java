@@ -46,10 +46,10 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
      * This configuration can use one of three different ways to configure namespace handling.
-     * Namespaces may be ignored ({@link NIHILISTIC}), handled user defined prefix mappings
-     * {@link AGNOSTIC} or mapped automatically to the document prefixes {@link HEDONISTIC}.
+     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings
+     * (AGNOSTIC) or mapped automatically to the document prefixes (HEDONISTIC).
      */
-    public enum NamespacePhilosophy {
+    public static enum NamespacePhilosophy {
 
         /**
          * There is no such thing as a namespace. Only elements and attributes without a namespace
@@ -203,18 +203,29 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         return namespacePhilosophy;
     }
 
+    /**
+     * Getter for pretty printing option.
+     * @return true if output will be formatted
+     */
     public boolean isPrettyPrinting() {
         return isPrettyPrinting;
     }
 
     /**
-     * @return
+     * @param namespacePhilosophy
+     * @return this for convenience
      */
     public XMLFactoriesConfig setNamespacePhilosophy(NamespacePhilosophy namespacePhilosophy) {
         this.namespacePhilosophy = namespacePhilosophy;
         return this;
     }
 
+    
+    /**
+     * Setter for pretty printing option
+     * @param on (true == output will be formatted)
+     * @return this for convenience
+     */
     public DefaultXMLFactoriesConfig setPrettyPrinting(boolean on) {
         this.isPrettyPrinting = on;
         return this;
@@ -228,8 +239,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     /**
-     * @param isOmitXMLDeclaration
-     *            the isOmitXMLDeclaration to set
+     * @param isOmitXMLDeclaration the isOmitXMLDeclaration to set
+     * @return this for convenience
      */
     public DefaultXMLFactoriesConfig setOmitXMLDeclaration(boolean isOmitXMLDeclaration) {
         this.isOmitXMLDeclaration = isOmitXMLDeclaration;

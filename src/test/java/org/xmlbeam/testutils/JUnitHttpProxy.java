@@ -15,18 +15,6 @@
  */
 package org.xmlbeam.testutils;
 
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +23,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.xmlbeam.util.IOHelper;
 
@@ -42,10 +41,11 @@ import org.xmlbeam.util.IOHelper;
  * This proxy allows unit tests to do external HTTP requests without generating huge traffic. The
  * content is fetched just once and then reused forever. This ensures independence of external
  * server availability for the test results while still working with real live data.
+ * This class cannot be subclassed (Thread.start in constructor).
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class JUnitHttpProxy implements Runnable {
+public final class JUnitHttpProxy implements Runnable {
 
     private ServerSocket serverSocket;
     private Thread listenThread;
@@ -53,7 +53,6 @@ public class JUnitHttpProxy implements Runnable {
     private String origProxyPort;
 
     /**
-     * @param string
      */
     public JUnitHttpProxy() {
         try {
@@ -212,7 +211,10 @@ public class JUnitHttpProxy implements Runnable {
         }
         return matcher.group(1);
     }
-
+    
+    /**
+     * 
+     */
     public void restoreProxySettings() {
         if (origProxyHost == null) {
             System.clearProperty("http.proxyHost");
@@ -232,6 +234,9 @@ public class JUnitHttpProxy implements Runnable {
         listenThread.interrupt();
     }
 
+    /**
+     * 
+     */
     public void setAsProxy() {
         origProxyHost = System.getProperty("http.proxyHost");
         origProxyPort = System.getProperty("http.proxyPort");

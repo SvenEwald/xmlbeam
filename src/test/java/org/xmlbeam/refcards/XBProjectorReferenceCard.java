@@ -16,7 +16,6 @@
 package org.xmlbeam.refcards;
 
 import java.util.Map;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +31,7 @@ import org.xmlbeam.util.IOHelper;
 /**
  * 
  */
+@SuppressWarnings("javadoc")
 public class XBProjectorReferenceCard {
     
     //START SNIPPET: mainExample
@@ -192,5 +192,18 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
             return null;
         }
         
+  interface Snipped13 {        
+//START SNIPPET: XBProjectorReferenceCard13
+    @XBRead("/{parentNode}/{subnode}[@id=''{id}'']")
+    String readSomeValue(String parentNode,String subnode,int id);
+//END SNIPPET: XBProjectorReferenceCard13       
+ }
+  
+  interface Snipped14 {        
+//START SNIPPET: XBProjectorReferenceCard14
+    @XBRead("/{0}/{1}[@id=''{2}'']")
+    String readSomeValue(String parentNode,String subnode,int id);
+//END SNIPPET: XBProjectorReferenceCard14     
+ }
     
 }

@@ -25,6 +25,7 @@ import org.xmlbeam.annotation.XBWrite;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestProjectionValidation {
 
     public interface A {

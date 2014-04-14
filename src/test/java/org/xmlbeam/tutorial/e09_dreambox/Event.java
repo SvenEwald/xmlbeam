@@ -19,6 +19,7 @@ import org.xmlbeam.annotation.XBRead;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
+@SuppressWarnings("javadoc")
 public interface Event {
 
     @XBRead("//e2eventid")

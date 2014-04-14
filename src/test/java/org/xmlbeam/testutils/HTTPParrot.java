@@ -41,6 +41,12 @@ public class HTTPParrot {
     private Future<String> future;
     private ServerSocket socket;
 
+    /**
+     * Factory method.
+     * @param response
+     * @return new HTTPParrot instance
+     * @throws IOException
+     */
     public static HTTPParrot serve(final String response) throws IOException {
         final HTTPParrot parrot = new HTTPParrot();
         parrot.socket = ServerSocketFactory.getDefault().createServerSocket(0, 1, InetAddress.getByName("localhost"));
@@ -61,6 +67,10 @@ public class HTTPParrot {
         return parrot;
     }
 
+    /**
+     * get current url (depends on local address & port)
+     * @return url
+     */
     public URL getURL() {
         try {
             return new URL("http", socket.getInetAddress().getHostAddress(), socket.getLocalPort(), "/test");
@@ -69,6 +79,11 @@ public class HTTPParrot {
         }
     }
 
+    /**
+     * Getter for current request
+     * @return request
+     * @throws Exception
+     */
     public String getRequest() throws Exception {
         return future.get();
     }

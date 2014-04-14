@@ -24,6 +24,7 @@ import org.xmlbeam.util.intern.ASMHelper;
  * This test is needed to ensure correct parameter passing in the ASM proxy object. Every primitive
  * type needs to tested.
  */
+@SuppressWarnings("javadoc")
 public class TestASMProxy {
 
     public interface ProxyMe {
@@ -98,7 +99,7 @@ public class TestASMProxy {
 
     };
 
-    final ProxyMe proxyMe = ASMHelper.create(ProxyMe.class, proxyObeject);
+    final ProxyMe proxyMe = ASMHelper.createDefaultMethodProxy(ProxyMe.class, proxyObeject);
 
     @Test
     public void testProxyObject() {

@@ -22,7 +22,8 @@ import org.xmlbeam.XBException;
 import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 
 /**
- *  @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ * @param <T> 
  */
 public class StringFactoryConversion<T> extends Conversion<T> {
 

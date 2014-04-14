@@ -81,7 +81,7 @@ public final class DOMHelper {
      * children.
      * 
      * @param element
-     * @param nodeName
+     * @param nodeSelector
      */
     public static void removeAllChildrenBySelector(Node element, String nodeSelector) {
         assert nodeSelector != null;
@@ -107,6 +107,14 @@ public final class DOMHelper {
         }
     }
 
+    /**
+     * @param documentBuilder
+     * @param url
+     * @param requestProperties
+     * @param resourceAwareClass
+     * @return new document instance
+     * @throws IOException
+     */
     @SuppressWarnings("unchecked")
     public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
         try {
@@ -134,7 +142,7 @@ public final class DOMHelper {
      * 
      * @param document
      *            source document.
-     * @return map with prefix->uri relationships.
+     * @return map with prefix-&gt;uri relationships.
      */
     public static Map<String, String> getNamespaceMapping(Document document) {
         Map<String, String> map = new HashMap<String, String>();
@@ -161,6 +169,7 @@ public final class DOMHelper {
     /**
      * Treat the given path as relative path from a base element to an element and return this
      * element. If any element on this path does not exist, create it.
+     * @param document 
      * 
      * @param base
      *            the relative path will start here
@@ -398,9 +407,9 @@ public final class DOMHelper {
      * <li>The <code>notations</code> <code>NamedNodeMaps</code> are equal.</li>
      * </ul>
      * 
-     * @param node
-     * @param xmlNode
-     * @return
+     * @param a 
+     * @param b
+     * @return true if and only if the nodes are equal in the manner explained above
      */
     public static boolean nodesAreEqual(Node a, Node b) {
         if (a == b) {
@@ -490,8 +499,9 @@ public final class DOMHelper {
     }
 
     /**
+     * hashcode() implementation that is compatible with equals().
      * @param node
-     * @return
+     * @return hash code for node
      */
     public static int nodeHashCode(Node node) {
         assert node != null;
@@ -548,7 +558,7 @@ public final class DOMHelper {
     /**
      * @param element
      * @param newName
-     * @return
+     * @return a new Element instance with desired name and content. 
      */
     public static Element renameElement(Element element, String newName) {
         Document document = element.getOwnerDocument();
@@ -578,7 +588,7 @@ public final class DOMHelper {
 
     /**
      * @param documentOrElement
-     * @return
+     * @return document that owns the given node
      */
     public static Document getOwnerDocumentFor(Node documentOrElement) {
         if (Node.DOCUMENT_NODE == documentOrElement.getNodeType()) {

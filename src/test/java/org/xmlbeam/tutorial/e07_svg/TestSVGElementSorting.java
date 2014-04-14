@@ -17,7 +17,6 @@ package org.xmlbeam.tutorial.e07_svg;
 
 import java.util.Collections;
 import java.util.List;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -50,7 +49,7 @@ public class TestSVGElementSorting extends TutorialTestCase {
  (Yes, the result of this example could have been archived by specifying a Comparator when calling
  Collections.sort().)
 END SNIPPET: TutorialDescription */
-
+    @SuppressWarnings("javadoc")
     @Test
     public void testElements() throws IOException {
         //START SNIPPET:TestSVGElementSorting

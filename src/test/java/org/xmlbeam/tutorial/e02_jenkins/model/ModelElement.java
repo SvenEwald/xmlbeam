@@ -16,7 +16,7 @@
 package org.xmlbeam.tutorial.e02_jenkins.model;
 
 import org.xmlbeam.annotation.XBRead;
-
+@SuppressWarnings("javadoc")
 //START SNIPPET: JenkinsModelElementInterface
 public interface ModelElement {
     

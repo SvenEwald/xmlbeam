@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,6 +39,7 @@ import org.xmlbeam.util.IOHelper;
 
 /**
  */
+@SuppressWarnings("javadoc")
 public class TestIOBehavior {
 
     public interface FooProjection extends DOMAccess {

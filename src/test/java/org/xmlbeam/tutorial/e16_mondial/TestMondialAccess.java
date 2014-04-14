@@ -16,10 +16,9 @@
 package org.xmlbeam.tutorial.e16_mondial;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.Ignore;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
@@ -28,10 +27,42 @@ import org.xmlbeam.tutorial.TutorialTestCase;
 /**
  * @author sven
  */
+@SuppressWarnings("javadoc")
 public class TestMondialAccess extends TutorialTestCase {
 
+    
     @XBDocURL("http://www.dbis.informatik.uni-goettingen.de/Mondial/mondial.xml")
     public interface Mondial {
+
+        public interface Location {
+            @XBRead("./longitude")
+            float getLongitude();
+
+            @XBRead("./latitude")
+            float getLatitude();
+        }
+
+        public interface PoulatedEntity {
+            @XBRead("./population")
+            int getPopulation();
+        }
+
+        public interface NamedEntity {
+            @XBRead("./name")
+            String getName();
+        }
+
+        public interface City extends NamedEntity, PoulatedEntity, Location {
+
+        }
+
+        public interface Country extends NamedEntity {
+            @XBRead("./city|./province/city")
+            List<City> getCities();
+        }
+
+        @XBRead("/mondial/country")
+        List<Country> getCountries();
 
         @XBRead("/mondial/*/name")
         List<String> getSubs();
@@ -40,15 +71,36 @@ public class TestMondialAccess extends TutorialTestCase {
         int getNodeCount();
     }
 
-    @Test
+    @Ignore
     public void testStructure() throws IOException {
         final long start = System.currentTimeMillis();
         final Mondial mondial = new XBProjector().io().fromURLAnnotation(Mondial.class);
+        int hash = 0;
+        for (Mondial.Country country : mondial.getCountries()) {
+            //System.out.println(""+country.getName());           
+            for (Mondial.City city : country.getCities()) {
+                country.getName();
+                city.getName();
+                city.getLongitude();
+                city.getLongitude();
+                city.getPopulation();
 
-        System.out.println(new HashSet<String>(mondial.getSubs()));
+                //String s= country.getName()+": "+city.getName()+ " "+ city.getLongitude()+"/"+city.getLongitude()+" Population:"+city.getPopulation();
+//               hash+=country.getName().hashCode();
+//               hash+=city.getName().hashCode();
+//               hash+=city.getLongitude().hashCode();
+//               hash+=city.getName().hashCode();
+//               hash+=city.getName().hashCode();
+//               hash+=city.getName().hashCode();
+//               hash+=city.getName().hashCode();
+//               hash+=city.getName().hashCode();
+
+            }
+
+        }
         final long end = System.currentTimeMillis();
         System.out.println("Test run:" + (end - start) + "ms");
-        System.out.println(mondial.getNodeCount());
+        System.out.println(mondial.getNodeCount() + "/" + hash);
     }
 
 }

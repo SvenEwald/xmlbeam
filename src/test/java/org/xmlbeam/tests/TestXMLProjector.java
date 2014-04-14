@@ -36,7 +36,7 @@ import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tests.XMLBeamTestSuite.InnerStructure;
 import org.xmlbeam.tests.XMLBeamTestSuite.Setting;
-
+@SuppressWarnings("javadoc")
 public class TestXMLProjector {
 
     private XMLBeamTestSuite suite;

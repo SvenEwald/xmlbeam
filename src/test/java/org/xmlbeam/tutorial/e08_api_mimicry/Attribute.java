@@ -17,6 +17,7 @@ package org.xmlbeam.tutorial.e08_api_mimicry;
 
 import org.xmlbeam.annotation.XBRead;
 
+@SuppressWarnings("javadoc")
 //START SNIPPET:Attribute
 public interface Attribute {
 

@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBRead;
 
-
+@SuppressWarnings("javadoc")
 public class TestProjectionOverriding {
 
     public interface BaseProjection {
