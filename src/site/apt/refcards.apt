@@ -82,6 +82,16 @@ API Reference
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard12|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}  
 
+**Use parameter names in dynamic projections
+ 
+ You have to use Java 8 and set the javac option "-parameters" for your projection interfaces. Then you can do something like this:
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard13|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
+ instead of the pre Java 8 solution:
+ 
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard14|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+
 * Annotations
 
 ** @XBDocURL

@@ -1,8 +1,16 @@
 Current Release
 
-* 1.1.2 current release
+* 1.1.3 current release
+
+ * Use Java method parameter names in dynamic projections with Java 8. {{{./refcards.html#Use_parameter_names_in_dynamic_projections}(see here)}}
+ 
+ * API-compatible with 1.1.x
+
+* 1.1.2
 
  * Automatic type conversion {{{./refcards.html#Let_a_projection_return_a_custom_type_that_can_be_created_with_a_String}(see here).}}
+ 
+ * API-compatible with 1.1.x
 
 * 1.1.1 
  

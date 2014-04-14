@@ -42,6 +42,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-04-14
+
+ * New release 1.1.3 with hot new Java 8 feature: {{{./refcards.html#Use_parameter_names_in_dynamic_projections} Use java parameter names in XPath expressions!}}
+
 ** 2014-04-01
  
  * New release 1.1.2 with supercool automatic type conversion {{{./refcards.html#Let_a_projection_return_a_custom_type_that_can_be_created_with_a_String}(see here).}}
