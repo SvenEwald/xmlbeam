@@ -31,8 +31,8 @@ import org.junit.Test;
 @SuppressWarnings("javadoc")
 public class TestLegalWritingXPathExpressions {
 
-    private final static List<String> LEGAL_EXPRESSIONS = Arrays.asList(".", "/a", "/a/b/asdfZRc/d", "/a/b/@c", "@xasd","/a/../b","/a[b='e']");
-    private final static List<String> ILLEGAL_EXPRESSIONS = Arrays.asList("", "/", "@", "function()", "/trailing/slash/", "//double/slash", "/a/@b/c", "/a/b/.");
+    private final static List<String> LEGAL_EXPRESSIONS = Arrays.asList(".", "/a", "/a/b/asdfZRc/d", "/a/b/@c", "@xasd","/a/../b","/a[b='e']","/a.a");
+    private final static List<String> ILLEGAL_EXPRESSIONS = Arrays.asList("", "/", "@", "function()", "/trailing/slash/", "//double/slash", "/a/@b/c", "/a/b/.","/.a");
 
     private Pattern pattern;
 
@@ -55,5 +55,19 @@ public class TestLegalWritingXPathExpressions {
         for (String expr : ILLEGAL_EXPRESSIONS) {
             assertFalse("'" + expr + "' should not be a valid expression, but it is", pattern.matcher(expr).matches());
         }
+    }
+    
+    @Test
+    public void testElementStartChars() throws Exception {
+        Field declaredField = ProjectionInvocationHandler.class.getDeclaredField("XML_NAME_START_CHARS");
+        declaredField.setAccessible(true);
+        String pattern = "["+ ((String) declaredField.get(null)) +"]";
+//        pattern=":A-Z_a-z\\u00C0\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02ff\\u0370-\\u037d"
+//                + "\\u037f-\\u1fff\\u200c\\u200d\\u2070-\\u218f\\u2c00-\\u2fef\\u3001-\\ud7ff"
+        pattern= "\uf900-\ufdcf\ufdf0-\ufffd"+String.valueOf(Character.toChars(0x10000))+"-"+String.valueOf(Character.toChars(0xEFFFF));
+                //\x10000-\xEFFFF";
+        
+        //Integer.toHexString("@".codePointAt(0))
+        assertFalse("@".matches("["+pattern+"]"));
     }
 }

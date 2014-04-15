@@ -67,8 +67,13 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private final static String NONEMPTY = "(?!^$)";
-    private final static String ELEMENT_PATH = "(/[a-z:A-Z0-9]+(\\[@?[a-zA-Z0-9]+='.+'\\])?)";
-    private final static String ATTRIBUTE_PATH = "(/?@[a-z:A-Z0-9]+)";
+    private final static String XML_NAME_START_CHARS=":A-Z_a-z\\u00C0\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02ff\\u0370-\\u037d"
+                                                  + "\\u037f-\\u1fff\\u200c\\u200d\\u2070-\\u218f\\u2c00-\\u2fef\\u3001-\\ud7ff"
+                                                  + "\\uf900-\\ufdcf\\ufdf0-\\ufffd"+String.valueOf(Character.toChars(0x10000))+"-"+String.valueOf(Character.toChars(0xEFFFF));     
+    private final static String XML_NAME_CHARS=XML_NAME_START_CHARS+"\\-\\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
+    private final static String XML_ELEMENT = "["+XML_NAME_START_CHARS+"]"+"["+XML_NAME_CHARS+"]*";
+    private final static String ELEMENT_PATH = "(/"+XML_ELEMENT+"(\\[@?"+XML_ELEMENT+"='.+'\\])?)";
+    private final static String ATTRIBUTE_PATH = "(/?@"+XML_ELEMENT+")";
     private final static String PARENT_PATH = "(/\\.\\.)";
     private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile(NONEMPTY + "(^\\.?(" + ELEMENT_PATH + "*" + PARENT_PATH + "*)*(" + ATTRIBUTE_PATH + "|(/\\*))?$)");
     private final Node node;
@@ -76,7 +81,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private final XBProjector projector;
 
     // Used to handle invocations on Java6 Mixins and Object methods.
-    private final Map<Class<?>, Object> defaultInvokers;//= new HashMap<Class<?>, Object>();
+    private final Map<Class<?>, Object> defaultInvokers;
 
     // Used to handle invocations on Java8 default methods.
     private transient Object defaultMethodInvoker;
