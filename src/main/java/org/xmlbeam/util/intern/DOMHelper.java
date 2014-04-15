@@ -217,7 +217,7 @@ public final class DOMHelper {
                 element = (Element) element.appendChild(createElementByTagNameAndSelector(document, nameAndSelector[0], nameAndSelector[1]));
                 continue;
             }
-            forceSelectorOnElement(document, nameAndSelector[1], child);
+   //         forceSelectorOnElement(document, nameAndSelector[1], child);
             element = child;
         }
         return element;
