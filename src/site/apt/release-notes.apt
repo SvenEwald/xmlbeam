@@ -1,5 +1,13 @@
 Current Release
 
+* 1.1.4 current release
+
+ * Bugfix: {{{https://github.com/SvenEwald/xmlbeam/issues/15} Cannot create element with dot in name}}
+ 
+ * Bugfix: {{{https://github.com/SvenEwald/xmlbeam/issues/14} Writing XPaths with predicates do not work if writing target was part of the selector.}}
+
+ * API-compatible with 1.1.x
+
 * 1.1.3 current release
 
  * Use Java method parameter names in dynamic projections with Java 8. {{{./refcards.html#Use_parameter_names_in_dynamic_projections}(see here)}}

@@ -42,6 +42,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-04-15
+
+ * New bugfix release 1.1.4. See the {{{./release-notes.html} release notes}}.
+
 ** 2014-04-14
 
  * New release 1.1.3 with hot new Java 8 feature: {{{./refcards.html#Use_parameter_names_in_dynamic_projections} Use java parameter names in XPath expressions!}}
