@@ -23,18 +23,17 @@ import org.xmlbeam.annotation.XBWrite;
 @SuppressWarnings("javadoc")
 public class TestElementCreationWithDotInName {
 
-    
     public interface Projection {
         @XBWrite("/root/{0}/content")
         Projection write(String elementName);
     }
-    
+
     @Test
     public void testDotInSetterName() {
         Projection projection = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectEmptyDocument(Projection.class);
         projection.write("abc.def");
-        System.out.println(projection);
+        //System.out.println(projection);
         //assertEquals("<root><abc.def><content/>")
     }
-    
+
 }
