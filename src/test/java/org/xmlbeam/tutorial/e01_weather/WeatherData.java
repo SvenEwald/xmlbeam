@@ -55,7 +55,7 @@ public interface WeatherData {
      * This would be our "sub projection". A structure grouping two attribute
      * values in one object.
      */
-    interface Location {
+    interface Coordinates {
         @XBRead("@lon")
         double getLongitude();
 
@@ -64,6 +64,6 @@ public interface WeatherData {
     }
 
     @XBRead("/weatherdata/weather")
-    Location getCoordinates();
+    Coordinates getCoordinates();
 }
 // END SNIPPET: WeatherDataInterface

@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
-import org.xmlbeam.tutorial.e01_weather.WeatherData.Location;
+import org.xmlbeam.tutorial.e01_weather.WeatherData.Coordinates;
 
 /**
  * This test demonstrates simple reading and printing of live weather data. Please see projection
@@ -76,7 +76,7 @@ private void printWeatherData(String location) throws IOException {
                                        + weatherData.getDegreeType());
     
     // Access our sub projection
-    Location coordinates = weatherData.getCoordinates();
+    Coordinates coordinates = weatherData.getCoordinates();
     System.out.println("The place is located at " + coordinates.getLatitude() + ","
                                                   + coordinates.getLongitude());
  }
