@@ -1,8 +1,8 @@
-Current Release
+Release Notes
 
 * 1.2.0 current release
 
- * Moving the parameter resolution for dynamic projections from java.text.MessageFormat to more XPath friendly implementation. This resolves the issue having to double the single quotes ('). Now you can (and have) to write them unquoted.
+ * Moving the parameter resolution for dynamic projections from java.text.MessageFormat to a more XPath friendly implementation. This resolves the issue having to double the single quotes ('). Now you can (and have) to write them unquoted.
  
  * Java-API-compatible, but change in XPath syntax: Please replace all '' with ' in your XPath expressions.   
 
