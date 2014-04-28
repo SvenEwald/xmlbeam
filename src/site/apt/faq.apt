@@ -91,6 +91,7 @@ FAQ / HowTo
 
 * A single quote "'" in the XPath results in an unexpected exception. Why?
 
+ The following applies to versions before 1.2.0, which solves this issue. 
  Mind that every XPath is processed java.text.MessageFormat.
  So if you want to use a single quote "'", you have to escape that with another single quote: "''"
  The projector does not decide if an expressions should be processed via MessageFormat or not.

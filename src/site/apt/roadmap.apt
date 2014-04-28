@@ -12,10 +12,14 @@ Roadmap
  
  * Replacing dynamic proxy by asm generated class
  
-* Version 1.1.4
+* Version 1.2.1
 
- * Replace current simple XPath-DOM-Writer with a full XPath capable parser
- 
+ * Replace current simple XPath-DOM-Writer with a full XPath capable parser (implemented in jcc branch)
+  
+* Version 1.2.0
+
+ * Remove the need to double quote single quotes
+  
 * Version 1.1.3
  
  * Profit from Java 8 parameter names for dynamic projections

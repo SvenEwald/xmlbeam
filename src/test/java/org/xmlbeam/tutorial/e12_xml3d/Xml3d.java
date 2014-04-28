@@ -23,22 +23,22 @@ import org.xmlbeam.annotation.XBWrite;
 @XBDocURL("resource://xml3d_template.html")
 public interface Xml3d {
 
-    @XBRead("/html/body/xml3d/mesh/int[@name=''index'']")
+    @XBRead("/html/body/xml3d/mesh/int[@name='index']")
     String getIndexes();
 
-    @XBWrite("/html/body/xml3d/mesh/int[@name=''index'']")
+    @XBWrite("/html/body/xml3d/mesh/int[@name='index']")
     Xml3d setIndexes(String indexes);
 
-    @XBRead("/html/body/xml3d/mesh/float3[@name=''position'']")
+    @XBRead("/html/body/xml3d/mesh/float3[@name='position']")
     String getPositions();
 
-    @XBWrite("/html/body/xml3d/mesh/float3[@name=''position'']")
+    @XBWrite("/html/body/xml3d/mesh/float3[@name='position']")
     Xml3d setPositions(String positions);
 
-    @XBRead("/html/body/xml3d/mesh/float3[@name=''normal'']")
+    @XBRead("/html/body/xml3d/mesh/float3[@name='normal']")
     String getNormals();
 
-    @XBWrite("/html/body/xml3d/mesh/float3[@name=''normal'']")
+    @XBWrite("/html/body/xml3d/mesh/float3[@name='normal']")
     Xml3d setNormals(String normals);
 }
 //END SNIPPET: Xml3d

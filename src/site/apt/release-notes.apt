@@ -1,6 +1,12 @@
 Current Release
 
-* 1.1.4 current release
+* 1.2.0 current release
+
+ * Moving the parameter resolution for dynamic projections from java.text.MessageFormat to more XPath friendly implementation. This resolves the issue having to double the single quotes ('). Now you can (and have) to write them unquoted.
+ 
+ * Java-API-compatible, but change in XPath syntax: Please replace all '' with ' in your XPath expressions.   
+
+* 1.1.4
 
  * Bugfix: {{{https://github.com/SvenEwald/xmlbeam/issues/15} Cannot create element with dot in name}}
  

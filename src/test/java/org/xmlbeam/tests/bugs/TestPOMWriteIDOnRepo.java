@@ -37,7 +37,7 @@ public class TestPOMWriteIDOnRepo {
         @XBWrite("/project/repositories/repository/url")
         POM setURL(String url);
         
-        @XBWrite("/project/repositories/repository[id=''{0}'']/id")
+        @XBWrite("/project/repositories/repository[id='{0}']/id")
         POM brokenSetter(String prevID, @XBValue String newID);
                 
     }

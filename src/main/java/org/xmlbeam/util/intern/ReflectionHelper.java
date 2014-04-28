@@ -197,7 +197,7 @@ public final class ReflectionHelper {
      * @return Empty list if no parameters present or names could not be determined. List of parameter names else.
      */
     public static List<String> getMethodParameterNames(final Method m) {
-        if (GETPARAMETERS==null) {
+        if ((GETPARAMETERS==null)||(m==null)) {
             return Collections.emptyList();
         }
         try {

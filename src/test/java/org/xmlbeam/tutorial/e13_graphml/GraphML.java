@@ -29,19 +29,19 @@ import org.xmlbeam.annotation.XBWrite;
 @XBDocURL("resource://GraphMLTemplate.xml")
 public interface GraphML {
 
-    @XBWrite("/g:graphml/g:graph/g:node[@id=''{0}'']")
+    @XBWrite("/g:graphml/g:graph/g:node[@id='{0}']")
     GraphML addNode(String id, @XBValue Node node);
 
-    @XBWrite("/g:graphml/g:graph/g:edge[@id=''{0}'']")
+    @XBWrite("/g:graphml/g:graph/g:edge[@id='{0}']")
     GraphML addEdge(String id, @XBValue Edge edge);
 
-    @XBRead("//g:edge[@target=''{0}'']/@source")
+    @XBRead("//g:edge[@target='{0}']/@source")
     String getParentOf(String node);
 
-    @XBRead(value="//g:edge[@source=''{0}'']/@target")
+    @XBRead(value="//g:edge[@source='{0}']/@target")
     List<String> getChildrenOf(String node);
 
-    @XBRead("//g:node[@id=''{0}'']")
+    @XBRead("//g:node[@id='{0}']")
     Node getNode(String id);
     
     @XBRead(value="//g:node")

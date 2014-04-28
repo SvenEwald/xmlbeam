@@ -24,11 +24,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -67,15 +67,16 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
     private final static String NONEMPTY = "(?!^$)";
-    private final static String XML_NAME_START_CHARS=":A-Z_a-z\\u00C0\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02ff\\u0370-\\u037d"
-                                                  + "\\u037f-\\u1fff\\u200c\\u200d\\u2070-\\u218f\\u2c00-\\u2fef\\u3001-\\ud7ff"
-                                                  + "\\uf900-\\ufdcf\\ufdf0-\\ufffd"+String.valueOf(Character.toChars(0x10000))+"-"+String.valueOf(Character.toChars(0xEFFFF));     
-    private final static String XML_NAME_CHARS=XML_NAME_START_CHARS+"\\-\\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
-    private final static String XML_ELEMENT = "["+XML_NAME_START_CHARS+"]"+"["+XML_NAME_CHARS+"]*";
-    private final static String ELEMENT_PATH = "(/"+XML_ELEMENT+"(\\[@?"+XML_ELEMENT+"='.+'\\])?)";
-    private final static String ATTRIBUTE_PATH = "(/?@"+XML_ELEMENT+")";
+    private final static String XML_NAME_START_CHARS = ":A-Z_a-z\\u00C0\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02ff\\u0370-\\u037d" + "\\u037f-\\u1fff\\u200c\\u200d\\u2070-\\u218f\\u2c00-\\u2fef\\u3001-\\ud7ff" + "\\uf900-\\ufdcf\\ufdf0-\\ufffd"
+            + String.valueOf(Character.toChars(0x10000)) + "-" + String.valueOf(Character.toChars(0xEFFFF));
+    private final static String XML_NAME_CHARS = XML_NAME_START_CHARS + "\\-\\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
+    private final static String XML_ELEMENT = "[" + XML_NAME_START_CHARS + "]" + "[" + XML_NAME_CHARS + "]*";
+    private final static String ELEMENT_PATH = "(/" + XML_ELEMENT + "(\\[@?" + XML_ELEMENT + "='.+'\\])?)";
+    private final static String ATTRIBUTE_PATH = "(/?@" + XML_ELEMENT + ")";
     private final static String PARENT_PATH = "(/\\.\\.)";
     private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile(NONEMPTY + "(^\\.?(" + ELEMENT_PATH + "*" + PARENT_PATH + "*)*(" + ATTRIBUTE_PATH + "|(/\\*))?$)");
+    private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{",Pattern.LITERAL);
+    private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}",Pattern.LITERAL);
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
@@ -232,19 +233,61 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
         return node;
     }
-
+    
     /**
      * @param uri
      * @param method
      * @param args
      * @return a string with all place holders filled by given parameters
      */
-    private String applyParams(String string, Method method, Object[] args) {
-        int c = 0;
-        for (String param : ReflectionHelper.getMethodParameterNames(method)) {
-            string = string.replace("{" + param + "}", "" + args[c++]);
+    private String applyParams(String string, final Method method, final Object[] args) {
+        if (args != null) {
+            int c = 0;
+            for (String param : ReflectionHelper.getMethodParameterNames(method)) {
+                if (args[c]==null) {
+                    continue;
+                }
+                string = replaceAllIfNotQuoted(string,"{"+param+"}",args[c++].toString());
+                //string = string.replaceAll("[^\\{]\\{" + Pattern.quote(param) + "\\}", "" + args[c++]);
+            }
+            for (c = 0; c < args.length; ++c) {
+                if (args[c]==null) {
+                    continue;
+                }
+                //string = string.replaceAll("[^\\{]\\{" + c + "\\}", "" + args[c]);
+                string = replaceAllIfNotQuoted(string,"{" + c + "}",args[c].toString());
+            }
         }
-        return MessageFormat.format(string, args);
+        string = DOUBLE_LBRACES.matcher(string).replaceAll("{");
+        string = DOUBLE_RBRACES.matcher(string).replaceAll("}");
+        return string;
+    }
+
+    /**
+     * Replace all occurrences of pattern in string with replacement, but only if 
+     * they are not quoted out.
+     * @param string
+     * @param pattern 
+     * @param object
+     * @return replaced string
+     */
+    private String replaceAllIfNotQuoted(String string, final String pattern, String replacement) {
+//        int p = string.indexOf(pattern);
+//        if (p<0) {
+//            return string;
+//        }        
+        replacement= Matcher.quoteReplacement(replacement);
+        Pattern compile = Pattern.compile(pattern,Pattern.LITERAL);
+        Matcher matcher = compile.matcher(string);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            if ((matcher.start()>1) && (Character.valueOf('{').equals(string.charAt(matcher.start()-1)))) {
+                continue;
+            }
+            matcher.appendReplacement(sb,replacement);           
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
     /**
@@ -303,6 +346,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return field.getType().isAssignableFrom(projInterface);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         {

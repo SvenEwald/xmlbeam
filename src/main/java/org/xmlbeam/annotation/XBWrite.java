@@ -21,9 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define a writeable projection function for elements of a projection. <strong> Mind that every
- * XPath is processed via {@link java.text.MessageFormat}. So if you want to use a single quote "'",
- * you have to escape that with another single quote: "''" </strong>
+ * Define a writeable projection function for elements of a projection.
  * 
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
