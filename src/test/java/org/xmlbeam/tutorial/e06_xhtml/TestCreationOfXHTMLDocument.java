@@ -18,14 +18,15 @@ package org.xmlbeam.tutorial.e06_xhtml;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
 //START SNIPPET:Tutorial06
 /**
- * Create and print some XHTML text. 
+ * Create and print some XHTML text.
  * (Not that it would be productive to create a website this way, just a demonstration.)
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  *
  */
@@ -38,7 +39,7 @@ public class TestCreationOfXHTMLDocument extends TutorialTestCase {
  (Not that it would not be productive to create a website this way, just a demonstration.)
 END SNIPPET: TutorialDescription */
 
-    private final XBProjector projector = new XBProjector();
+    private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
     @Test
     public void testCreateWellFormedXHTML() {
@@ -49,7 +50,7 @@ END SNIPPET: TutorialDescription */
         xhtml.setTitle("This Is My Fine Title");
         xhtml.setBody("Here some text...");
       //END SNIPPET:TestCreationOfXHTMLDocument
-                
+
         System.out.println(xhtml.toString());
     }
 }
