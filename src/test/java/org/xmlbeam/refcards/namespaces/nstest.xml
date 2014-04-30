@@ -1,0 +1,17 @@
+<root xmlns:h="http://www.w3.org/TR/html4/" xmlns="http://www.w3schools.com/furniture">
+
+<!--  First table element has a namespace with prefix mapping to "h". -->
+	<h:table>
+		<h:tr>
+			<h:td>Apples</h:td>
+			<h:td>Bananas</h:td>
+		</h:tr>
+	</h:table>
+	
+<!--  Second table element has no prefix, but still has the default namespace declared above. -->	
+	<table >
+		<name>African Coffee Table</name>
+		<width>80</width>
+		<length>120</length>
+	</table>
+</root>
