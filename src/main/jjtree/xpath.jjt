@@ -7,7 +7,7 @@ options {
         NODE_SCOPE_HOOK=false;
         NODE_USES_PARSER=true;
         FORCE_LA_CHECK=true;
-        NODE_PACKAGE="org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser";
+        NODE_PACKAGE="org.xmlbeam.util.intern.duplex.org.w3c.xqparser";
         NODE_PREFIX="";
     
         }
@@ -15,10 +15,10 @@ options {
         
         PARSER_BEGIN(XParser)
 
-        package org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser;
+        package org.xmlbeam.util.intern.duplex.org.w3c.xqparser;
 
-import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.Node;
-import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.Node;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.SimpleNode;
 
         import java.util.Stack;
 
@@ -57,9 +57,6 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
 
         TOKEN_MGR_DECLS : {
             public Stack stateStack = new Stack();
-            // private Vector persistentLexStates  = new Vector();
-            static final int PARENMARKER = 2000;
-            public int offset = 0;
 
             
         void CommonTokenAction(Token t) {}
@@ -91,45 +88,20 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
             {
                 if (stateStack.size() == 0)
                 {
-                    printLinePos();
+                    // E.g., a would-be query consisting of a single right curly brace.
+                    throw new TokenMgrError(
+                        "On line " + input_stream.getEndLine() + ","
+                        + " the expression contains an 'ending' construct"
+                        + " (e.g., a right-brace or end-tag)"
+                        + " for which the corresponding 'starting' construct does not appear.",
+                        TokenMgrError.LEXICAL_ERROR
+                    );
                 }
 
                 int nextState = ((Integer) stateStack.pop()).intValue();
                 
-                if(nextState == PARENMARKER)
-                    printLinePos();
                 SwitchTo(nextState);
             }
-
-            /**
-              * Push the given state onto the state stack.
-              * @param state Must be a valid state.
-              */
-            private boolean isState(int state)
-            {
-                for (int i = 0; i < stateStack.size(); i++) {
-                    if(((Integer) stateStack.elementAt(i)).intValue() == state)
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            /**
-              * Push a parenthesis state.  This pushes, in addition to the
-              * lexical state value, a special marker that lets
-              * resetParenStateOrSwitch(int state)
-              * know if it should pop and switch.  Used for the comma operator.
-              */
-            private void pushParenState(int commaState, int rparState)
-            {
-                stateStack.push(new Integer(rparState));
-                stateStack.push(new Integer(commaState));
-                stateStack.push(new Integer(PARENMARKER));
-                SwitchTo(commaState);
-            }
-
 
             /**
               * Print the current line position.
@@ -144,98 +116,15 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
         SimpleNode START() :
         {}
         {
-            XPath()<EOF>
+            ExprSingle()<EOF>
             { if(this.token_source.curLexState == XParserConstants.EXPR_COMMENT)
                 throw new ParseException("Unterminated comment.");
             return jjtThis ; }
         }
-    void XPath()  :
-        {}
-        {
-            Expr()
-        }
-
-    void ParamList()  :
-        {}
-        {
-            Param() ("," Param())*
-        }
-
-    void Param()  :
-        {}
-        {
-            "$" QName() [TypeDeclaration()]
-        }
-
-    void EnclosedExpr()  :
-        {}
-        {
-            <Lbrace>{processToken(jjtThis, token);} #Lbrace(true) Expr() <Rbrace>{processToken(jjtThis, token);} #Rbrace(true)
-        }
-
-    void Expr()  :
-        {}
-        {
-            ExprSingle() ("," ExprSingle())*
-        }
-
     void ExprSingle()  #void :
         {}
         {
-            (LOOKAHEAD(2) ForExpr()
-                | LOOKAHEAD(2) LetExpr()
-                | LOOKAHEAD(2) QuantifiedExpr()
-                | LOOKAHEAD(2) IfExpr()
-                | OrExpr())
-        }
-
-    void ForExpr()  :
-        {}
-        {
-            SimpleForClause() "return" ExprSingle()
-        }
-
-    void SimpleForClause()  #void :
-        {}
-        {
-            "for" SimpleForBinding() ("," SimpleForBinding())*
-        }
-
-    void SimpleForBinding()  :
-        {}
-        {
-            "$" VarName() "in" ExprSingle()
-        }
-
-    void LetExpr()  :
-        {}
-        {
-            SimpleLetClause() "return" ExprSingle()
-        }
-
-    void SimpleLetClause()  :
-        {}
-        {
-            "let" SimpleLetBinding() ("," SimpleLetBinding())*
-        }
-
-    void SimpleLetBinding()  :
-        {}
-        {
-            "$" VarName() ":=" ExprSingle()
-        }
-
-    void QuantifiedExpr()  :
-        {}
-        {
-            ("some"{jjtThis.processValue("some");}
-                | "every"{jjtThis.processValue("every");}) "$" VarName() "in" ExprSingle() ("," "$" VarName() "in" ExprSingle())* "satisfies" ExprSingle()
-        }
-
-    void IfExpr()  :
-        {}
-        {
-            "if" "(" Expr() ")" "then" ExprSingle() "else" ExprSingle()
+            OrExpr()
         }
 
     void OperatorExpr()  #void  : 
@@ -268,9 +157,9 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
         void AndExpr() #AndExpr(> 1) : 
             {}
             {
-                ComparisonExpr() ("and"{
+                EqualityExpr() ("and"{
                         binaryTokenStack.push(token);
-                    } ComparisonExpr()
+                    } EqualityExpr()
                 {
                     try
                     {
@@ -286,12 +175,15 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
              #AndExpr(2))*
             }
 
-        void ComparisonExpr() #ComparisonExpr(> 1) : 
+        void EqualityExpr() #EqualityExpr : 
             {}
             {
-                RangeExpr() ((ValueComp()
-                | GeneralComp()
-                | NodeComp()) RangeExpr()
+                RelationalExpr() (("="{
+                        binaryTokenStack.push(token);
+                    }
+                | "!="{
+                        binaryTokenStack.push(token);
+                    }) RelationalExpr()
                 {
                     try
                     {
@@ -304,15 +196,27 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
                         throw e;
                     }
                 }
-             #ComparisonExpr(2))?
+             #EqualityExpr(2))*
             }
 
-        void RangeExpr() #RangeExpr(> 1) : 
+        void RelationalExpr() #RelationalExpr : 
             {}
             {
-                AdditiveExpr() ("to"{
+                AdditiveExpr() ((<LeftAngleBracket>
+                        {/* Careful! */ token_source.SwitchTo(DEFAULT); token_source.stateStack.pop(); }
+                    
+                
+                {binaryTokenStack.push(token);}
+            
+                | ">"{
                         binaryTokenStack.push(token);
-                    } AdditiveExpr()
+                    }
+                | "<="{
+                        binaryTokenStack.push(token);
+                    }
+                | ">="{
+                        binaryTokenStack.push(token);
+                    }) AdditiveExpr()
                 {
                     try
                     {
@@ -325,7 +229,7 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
                         throw e;
                     }
                 }
-             #RangeExpr(2))?
+             #RelationalExpr(2))*
             }
 
         void AdditiveExpr() #AdditiveExpr(> 1) : 
@@ -357,18 +261,15 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
         void MultiplicativeExpr() #MultiplicativeExpr(> 1) : 
             {}
             {
-                UnionExpr() (("*"{
+                UnaryExpr() (("*"{
                         binaryTokenStack.push(token);
                     }
                 | "div"{
                         binaryTokenStack.push(token);
                     }
-                | "idiv"{
-                        binaryTokenStack.push(token);
-                    }
                 | "mod"{
                         binaryTokenStack.push(token);
-                    }) UnionExpr()
+                    }) UnaryExpr()
                 {
                     try
                     {
@@ -384,159 +285,43 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
              #MultiplicativeExpr(2))*
             }
 
-        void UnionExpr() #UnionExpr(> 1) : 
-            {}
-            {
-                IntersectExceptExpr() (("union"{
-                        binaryTokenStack.push(token);
-                    }
-                | "|"{
-                        binaryTokenStack.push(token);
-                    }) IntersectExceptExpr()
-                {
-                    try
-                    {
-                        processToken(jjtThis, (Token)binaryTokenStack.pop());
-                    }
-                    catch(java.util.EmptyStackException e)
-                    {
-                        token_source.printLinePos();
-                        e.printStackTrace();
-                        throw e;
-                    }
-                }
-             #UnionExpr(2))*
-            }
-
-        void IntersectExceptExpr() #IntersectExceptExpr(> 1) : 
-            {}
-            {
-                InstanceofExpr() (("intersect"{
-                        binaryTokenStack.push(token);
-                    }
-                | "except"{
-                        binaryTokenStack.push(token);
-                    }) InstanceofExpr()
-                {
-                    try
-                    {
-                        processToken(jjtThis, (Token)binaryTokenStack.pop());
-                    }
-                    catch(java.util.EmptyStackException e)
-                    {
-                        token_source.printLinePos();
-                        e.printStackTrace();
-                        throw e;
-                    }
-                }
-             #IntersectExceptExpr(2))*
-            }
-
-        void InstanceofExpr() #InstanceofExpr(> 1) : 
-            {}
-            {
-                TreatExpr() ( (
-    "instance" "of" SequenceType()))?
-            }
-
-        void TreatExpr() #TreatExpr(> 1) : 
-            {}
-            {
-                CastableExpr() ( (
-    "treat" "as" SequenceType()))?
-            }
-
-        void CastableExpr() #CastableExpr(> 1) : 
-            {}
-            {
-                CastExpr() ( (
-    "castable" "as" SingleType()))?
-            }
-
-        void CastExpr() #CastExpr(> 1) : 
-            {}
-            {
-                UnaryExpr() ( (
-    "cast" "as" SingleType()))?
-            }
-
         void UnaryExpr() #UnaryExpr(keepUnary) : 
             {boolean keepUnary=false;}
             {
-                ((<Minus>{keepUnary=true;processToken(jjtThis, token);} #Minus(true)
-                | <Plus>{keepUnary=true;processToken(jjtThis, token);} #Plus(true)))* ValueExpr()
+                (<Minus>{keepUnary=true;processToken(jjtThis, token);} #Minus(true))* UnionExpr1()
+            }
+
+        void UnionExpr1() #UnionExpr1 : 
+            {}
+            {
+                ValueExpr() ("|"{
+                        binaryTokenStack.push(token);
+                    } ValueExpr()
+                {
+                    try
+                    {
+                        processToken(jjtThis, (Token)binaryTokenStack.pop());
+                    }
+                    catch(java.util.EmptyStackException e)
+                    {
+                        token_source.printLinePos();
+                        e.printStackTrace();
+                        throw e;
+                    }
+                }
+             #UnionExpr1(2))*
             }
 
         void ValueExpr() #void : 
             {}
             {
-                PathExpr()
+                (LOOKAHEAD(2)  (
+    FilterExpr() [(<Slash>{processToken(jjtThis, token);} #Slash(true)
+                | <SlashSlash>{processToken(jjtThis, token);} #SlashSlash(true)) RelativePathExpr()])
+                | PathExpr())
             }
 
-        void GeneralComp()  #void :
-        {}
-        {
-            ("="{
-                        binaryTokenStack.push(token);
-                    }
-                | "!="{
-                        binaryTokenStack.push(token);
-                    }
-                | <LessThanOpOrTagO>
-                        {/* Careful! */ token_source.SwitchTo(DEFAULT); token_source.stateStack.pop(); }
-                    
-                
-                {binaryTokenStack.push(token);}
-            
-                | "<="{
-                        binaryTokenStack.push(token);
-                    }
-                | ">"{
-                        binaryTokenStack.push(token);
-                    }
-                | ">="{
-                        binaryTokenStack.push(token);
-                    })
-        }
-
-    void ValueComp()  #void :
-        {}
-        {
-            ("eq"{
-                        binaryTokenStack.push(token);
-                    }
-                | "ne"{
-                        binaryTokenStack.push(token);
-                    }
-                | "lt"{
-                        binaryTokenStack.push(token);
-                    }
-                | "le"{
-                        binaryTokenStack.push(token);
-                    }
-                | "gt"{
-                        binaryTokenStack.push(token);
-                    }
-                | "ge"{
-                        binaryTokenStack.push(token);
-                    })
-        }
-
-    void NodeComp()  #void :
-        {}
-        {
-            ("is"{
-                        binaryTokenStack.push(token);
-                    }
-                | "<<"{
-                        binaryTokenStack.push(token);
-                    }
-                | ">>"{
-                        binaryTokenStack.push(token);
-                    })
-        }
-
-    void PathExpr()  #PathExpr(>1) :
+        void PathExpr()  :
         {}
         {
             ( (
@@ -549,18 +334,19 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
     void RelativePathExpr()  #void :
         {}
         {
-            StepExpr() ((<Slash>{processToken(((SimpleNode)jjtree.peekNode()), token);}
+            StepExpr() ((<Slash>{processToken(jjtThis, token);} #Slash(true)
                 | <SlashSlash>{processToken(jjtThis, token);} #SlashSlash(true)) StepExpr())*
         }
 
-    void StepExpr()  #StepExpr(>1 || isStep) :
-        {boolean savedIsStep = isStep; isStep=false;}
+    void StepExpr()  #void :
+        {}
         {
-            (LOOKAHEAD(3) FilterExpr(){isStep = savedIsStep;}
-                | {isStep=true;}AxisStep(){isStep = savedIsStep;})
+            (AxisStep()
+                | ContextItemExpr()
+                | AbbrevReverseStep())
         }
 
-    void AxisStep()  #void :
+    void AxisStep()  :
         {}
         {
             (LOOKAHEAD(2) ReverseStep()
@@ -605,9 +391,8 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
     void ReverseStep()  #void :
         {}
         {
-            ( (
+             (
     ReverseAxis() NodeTest())
-                | AbbrevReverseStep())
         }
 
     void ReverseAxis()  :
@@ -649,15 +434,13 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
         {}
         {
             ("*"{jjtThis.processValue("*");}
-                | <NCNameColonStar>{processToken(jjtThis, token);} #NCNameColonStar(true)
-                | <StarColonNCName>{processToken(jjtThis, token);} #StarColonNCName(true))
+                | <NCNameColonStar>{processToken(jjtThis, token);} #NCNameColonStar(true))
         }
 
-    void FilterExpr()  #void :
+    void FilterExpr()  :
         {}
         {
-            PrimaryExpr() ((Predicate()
-                | DynamicFunctionInvocation()))*
+            PrimaryExpr() PredicateList()
         }
 
     void PredicateList()  #PredicateList(> 0) :
@@ -666,10 +449,10 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
             (Predicate())*
         }
 
-    void Predicate()  #Predicate(> 0) :
+    void Predicate()  :
         {}
         {
-            "[" Expr() "]"
+            "[" ExprSingle() "]"
         }
 
     void PrimaryExpr()  #void :
@@ -678,9 +461,7 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
             (Literal()
                 | VarRef()
                 | ParenthesizedExpr()
-                | {isStep=true;}ContextItemExpr()
-                | LOOKAHEAD(2) FunctionCall()
-                | FunctionItemExpr())
+                | LOOKAHEAD(2) FunctionCall())
         }
 
     void Literal()  #void :
@@ -694,8 +475,7 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
         {}
         {
             (<IntegerLiteral>{processToken(jjtThis, token);} #IntegerLiteral(true)
-                | <DecimalLiteral>{processToken(jjtThis, token);} #DecimalLiteral(true)
-                | <DoubleLiteral>{processToken(jjtThis, token);} #DoubleLiteral(true))
+                | <DecimalLiteral>{processToken(jjtThis, token);} #DecimalLiteral(true))
         }
 
     void VarRef()  #void :
@@ -713,7 +493,7 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
     void ParenthesizedExpr()  :
         {}
         {
-            "(" [Expr()] ")"
+            "(" ExprSingle() ")"
         }
 
     void ContextItemExpr()  :
@@ -725,92 +505,16 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
     void FunctionCall()  :
         {}
         {
-            FunctionQName() "(" [ExprSingle() ("," ExprSingle())*] ")"
-        }
-
-    void FunctionItemExpr()  :
-        {}
-        {
-            (LOOKAHEAD(2) LiteralFunctionItem()
-                | LOOKAHEAD(2) InlineFunction())
-        }
-
-    void LiteralFunctionItem()  :
-        {}
-        {
-            QName() "#" <IntegerLiteral>{processToken(jjtThis, token);} #IntegerLiteral(true)
-        }
-
-    void InlineFunction()  :
-        {}
-        {
-            "function" "(" [ParamList()] ")" ["as" SequenceType()] EnclosedExpr()
-        }
-
-    void DynamicFunctionInvocation()  :
-        {}
-        {
-            "(" [ExprSingle() ("," ExprSingle())*] ")"
-        }
-
-    void SingleType()  :
-        {}
-        {
-            AtomicType() ["?"{jjtThis.processValue("?");}]
-        }
-
-    void TypeDeclaration()  :
-        {}
-        {
-            "as" SequenceType()
-        }
-
-    void SequenceType()  :
-        {}
-        {
-            (LOOKAHEAD(2)  (
-    "empty-sequence"{jjtThis.processValue("empty-sequence");} "(" ")")
-                |  (
-    ItemType() [LOOKAHEAD(1) OccurrenceIndicator()]))
-        }
-
-    void OccurrenceIndicator()  :
-        {}
-        {
-            ("?"{jjtThis.processValue("?");}
-                | "*"{jjtThis.processValue("*");}
-                | <Plus>{processToken(((SimpleNode)jjtree.peekNode()), token);})
-        }
-
-    void ItemType()  :
-        {}
-        {
-            (LOOKAHEAD(2) KindTest()
-                | LOOKAHEAD(2)  (
-    "item"{jjtThis.processValue("item");} "(" ")")
-                | LOOKAHEAD(2) FunctionTest()
-                | AtomicType()
-                | ParenthesizedItemType())
-        }
-
-    void AtomicType()  :
-        {}
-        {
-            QName()
+            FunctionQName()  (
+    "(" [ExprSingle() ("," ExprSingle())*] ")")
         }
 
     void KindTest()  #void :
         {}
         {
-            (DocumentTest()
-                | ElementTest()
-                | AttributeTest()
-                | SchemaElementTest()
-                | SchemaAttributeTest()
-                | PITest()
+            (PITest()
                 | CommentTest()
                 | TextTest()
-                | NamespaceNodeTest()
                 | AnyKindTest())
         }
 
@@ -818,13 +522,6 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
         {}
         {
             "node" "(" ")"
-        }
-
-    void DocumentTest()  :
-        {}
-        {
-            "document-node" "(" [(ElementTest()
-                | SchemaElementTest())] ")"
         }
 
     void TextTest()  :
@@ -839,110 +536,10 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
             "comment" "(" ")"
         }
 
-    void NamespaceNodeTest()  :
-        {}
-        {
-            "namespace-node" "(" ")"
-        }
-
     void PITest()  :
         {}
         {
-            "processing-instruction" "(" [(NCName()
-                | <StringLiteral>{processToken(jjtThis, token);} #StringLiteral(true))] ")"
-        }
-
-    void AttributeTest()  :
-        {}
-        {
-            "attribute" "(" [AttribNameOrWildcard() ["," TypeName()]] ")"
-        }
-
-    void AttribNameOrWildcard()  :
-        {}
-        {
-            (AttributeName()
-                | "*"{jjtThis.processValue("*");})
-        }
-
-    void SchemaAttributeTest()  :
-        {}
-        {
-            "schema-attribute" "(" AttributeDeclaration() ")"
-        }
-
-    void AttributeDeclaration()  :
-        {}
-        {
-            AttributeName()
-        }
-
-    void ElementTest()  :
-        {}
-        {
-            "element" "(" [ElementNameOrWildcard() ["," TypeName() ["?"{jjtThis.processValue("?");}]]] ")"
-        }
-
-    void ElementNameOrWildcard()  :
-        {}
-        {
-            (ElementName()
-                | "*"{jjtThis.processValue("*");})
-        }
-
-    void SchemaElementTest()  :
-        {}
-        {
-            "schema-element" "(" ElementDeclaration() ")"
-        }
-
-    void ElementDeclaration()  :
-        {}
-        {
-            ElementName()
-        }
-
-    void AttributeName()  :
-        {}
-        {
-            QName()
-        }
-
-    void ElementName()  :
-        {}
-        {
-            QName()
-        }
-
-    void TypeName()  :
-        {}
-        {
-            QName()
-        }
-
-    void FunctionTest()  :
-        {}
-        {
-            (LOOKAHEAD(4) AnyFunctionTest()
-                | LOOKAHEAD(4) TypedFunctionTest())
-        }
-
-    void AnyFunctionTest()  :
-        {}
-        {
-            "function" "(" "*" ")"
-        }
-
-    void TypedFunctionTest()  :
-        {}
-        {
-            "function" "(" [SequenceType() ("," SequenceType())*] ")" "as" SequenceType()
-        }
-
-    void ParenthesizedItemType()  :
-        {}
-        {
-            "(" ItemType() ")"
+            "processing-instruction" "(" [<StringLiteral>{processToken(jjtThis, token);} #StringLiteral(true)] ")"
         }
 
     void NCName()  :
@@ -955,19 +552,9 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
         {}
         {
             (FunctionQName()
-                | "attribute"{jjtThis.processValue("attribute");}
                 | "comment"{jjtThis.processValue("comment");}
-                | "document-node"{jjtThis.processValue("document-node");}
-                | "element"{jjtThis.processValue("element");}
-                | "empty-sequence"{jjtThis.processValue("empty-sequence");}
-                | "function"{jjtThis.processValue("function");}
-                | "if"{jjtThis.processValue("if");}
-                | "item"{jjtThis.processValue("item");}
-                | "namespace-node"{jjtThis.processValue("namespace-node");}
                 | "node"{jjtThis.processValue("node");}
                 | "processing-instruction"{jjtThis.processValue("processing-instruction");}
-                | "schema-attribute"{jjtThis.processValue("schema-attribute");}
-                | "schema-element"{jjtThis.processValue("schema-element");}
                 | "text"{jjtThis.processValue("text");})
         }
 
@@ -978,49 +565,68 @@ import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
                 | "ancestor"{jjtThis.processValue("ancestor");}
                 | "ancestor-or-self"{jjtThis.processValue("ancestor-or-self");}
                 | "and"{jjtThis.processValue("and");}
-                | "as"{jjtThis.processValue("as");}
-                | "cast"{jjtThis.processValue("cast");}
-                | "castable"{jjtThis.processValue("castable");}
+                | "attribute"{jjtThis.processValue("attribute");}
                 | "child"{jjtThis.processValue("child");}
                 | "descendant"{jjtThis.processValue("descendant");}
                 | "descendant-or-self"{jjtThis.processValue("descendant-or-self");}
                 | "div"{jjtThis.processValue("div");}
-                | "else"{jjtThis.processValue("else");}
-                | "eq"{jjtThis.processValue("eq");}
-                | "every"{jjtThis.processValue("every");}
-                | "except"{jjtThis.processValue("except");}
                 | "following"{jjtThis.processValue("following");}
                 | "following-sibling"{jjtThis.processValue("following-sibling");}
-                | "for"{jjtThis.processValue("for");}
-                | "ge"{jjtThis.processValue("ge");}
-                | "gt"{jjtThis.processValue("gt");}
-                | "idiv"{jjtThis.processValue("idiv");}
-                | "in"{jjtThis.processValue("in");}
-                | "instance"{jjtThis.processValue("instance");}
-                | "intersect"{jjtThis.processValue("intersect");}
-                | "is"{jjtThis.processValue("is");}
-                | "le"{jjtThis.processValue("le");}
-                | "let"{jjtThis.processValue("let");}
-                | "lt"{jjtThis.processValue("lt");}
                 | "mod"{jjtThis.processValue("mod");}
                 | "namespace"{jjtThis.processValue("namespace");}
-                | "ne"{jjtThis.processValue("ne");}
-                | "of"{jjtThis.processValue("of");}
                 | "or"{jjtThis.processValue("or");}
                 | "parent"{jjtThis.processValue("parent");}
                 | "preceding"{jjtThis.processValue("preceding");}
                 | "preceding-sibling"{jjtThis.processValue("preceding-sibling");}
-                | "return"{jjtThis.processValue("return");}
-                | "satisfies"{jjtThis.processValue("satisfies");}
-                | "self"{jjtThis.processValue("self");}
-                | "some"{jjtThis.processValue("some");}
-                | "then"{jjtThis.processValue("then");}
-                | "to"{jjtThis.processValue("to");}
-                | "treat"{jjtThis.processValue("treat");}
-                | "union"{jjtThis.processValue("union");})
+                | "self"{jjtThis.processValue("self");})
         }
 
     
+<DEFAULT>
+TOKEN :
+{
+ < NumericLiteralError : ( (
+    "." <Digits>)
+                |  (
+    <Digits> ("." (["0" - "9"])*)?)) (["e", "E"] (["+", "-"])? <Digits>)? ["a" - "z", "A" - "Z"] >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < Slash : "/" >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < SlashSlash : "//" >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < LeftAngleBracket : "<" > { pushState(); } : DEFAULT
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < Plus : "+" >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < Minus : "-" >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < NCNameColonStar : <NCNameTok> ":" "*" >
+}
+
 <DEFAULT>
 TOKEN :
 {
@@ -1039,50 +645,36 @@ TOKEN :
 <DEFAULT>
 TOKEN :
 {
- < DoubleLiteral : ( (
-    "." <Digits>)
-                |  (
-    <Digits> ("." (["0" - "9"])*)?)) ["e", "E"] (["+", "-"])? <Digits> >
-}
-
-<DEFAULT>
-TOKEN :
-{
  < StringLiteral : ( (
-    "\"" ((<EscapeQuot>
-                | ~["\""]))* "\"")
+    "\"" (~["\""])* "\"")
                 |  (
-    "'" ((<EscapeApos>
-                | ~["'"]))* "'")) >
-}
-<DEFAULT, OPERAND, OPERATOR, SINGLETYPE, ITEMTYPE, KINDTEST, CLOSEKINDTEST, OCCURRENCEINDICATOR, VARNAME>
-        SKIP:
-        {
-            <DUMMYLABEL:<skip_>>
-        }
-
-        TOKEN :
-        {
-            < #skip_ : (<WhitespaceChar>)+  >
-        }
-
-    
-<DEFAULT>
-TOKEN :
-{
- < Minus : "-" >
+    "'" (~["'"])* "'")) >
 }
 
 <DEFAULT>
 TOKEN :
 {
- < Plus : "+" >
+ < QNameToken : (<NCNameTok> ":")? <LocalPart> >
 }
 
-<DEFAULT>
 TOKEN :
 {
- < External : "external" >
+ < #NCNameTok : <Nmstart> (<Nmchar>)* >
+}
+
+TOKEN :
+{
+ < #Char : ["\t", "\r", "\n", "\u0020" - "\uFFFD"] >
+}
+
+TOKEN :
+{
+ < #Digits : (["0" - "9"])+  >
+}
+
+TOKEN :
+{
+ < #WhitespaceChar : ["\t", "\r", "\n", " "] >
 }
 
 TOKEN :
@@ -1105,113 +697,6 @@ TOKEN :
                 | "."
                 | "-"
                 | "_") >
-}
-
-TOKEN :
-{
- < #EscapeQuot : "\"\"" >
-}
-
-TOKEN :
-{
- < #EscapeApos : "''" >
-}
-
-<DEFAULT>
-TOKEN :
-{
- < Lbrace : "{" > { pushState(); } : DEFAULT
-}
-
-<DEFAULT>
-TOKEN :
-{
- < Rbrace : "}" > { popState(); }
-}
-
-<DEFAULT>
-TOKEN :
-{
- < LessThanOpOrTagO : "<" > { pushState(DEFAULT); } : DEFAULT
-}
-
-SPECIAL_TOKEN :
-{
- < #Comment : <CommentStart> ((<CommentContents>))* <CommentEnd> >
-}
-
-<DEFAULT, EXPR_COMMENT>
-SPECIAL_TOKEN :
-{
- < CommentStart : "(:" > { pushState(); } : EXPR_COMMENT
-}
-
-<EXPR_COMMENT>
-SPECIAL_TOKEN :
-{
- < CommentContent : <Char> >
-}
-
-<EXPR_COMMENT>
-SPECIAL_TOKEN :
-{
- < CommentEnd : ":)" > { popState(); }
-}
-
-<DEFAULT>
-TOKEN :
-{
- < Slash : "/" >
-}
-
-<DEFAULT>
-TOKEN :
-{
- < SlashSlash : "//" >
-}
-
-<DEFAULT>
-TOKEN :
-{
- < QNameToken : (<NCNameTok> ":")? <LocalPart> >
-}
-
-TOKEN :
-{
- < #NCNameTok : <Nmstart> (<Nmchar>)* >
-}
-
-<DEFAULT>
-TOKEN :
-{
- < NCNameColonStar : <NCNameTok> ":" "*" >
-}
-
-<DEFAULT>
-TOKEN :
-{
- < StarColonNCName : "*" ":" <NCNameTok> >
-}
-
-<DEFAULT>
-TOKEN :
-{
- < Char : ["\t", "\r", "\n", "\u0020" - "\uFFFD"] >
-}
-
-TOKEN :
-{
- < #Digits : (["0" - "9"])+  >
-}
-
-SPECIAL_TOKEN :
-{
- < #CommentContents : (<CommentContent>)+  >
-}
-
-TOKEN :
-{
- < #WhitespaceChar : ["\t", "\r", "\n", " "] >
 }
 
 TOKEN :
@@ -1245,11 +730,26 @@ TOKEN :
  < #Extender : ["\u00b7", "\u02d0", "\u02d1", "\u0387", "\u0640", "\u0e46", "\u0ec6", "\u3005", "\u3031" - "\u3035", "\u309d" - "\u309e", "\u30fc" - "\u30fe"] >
 }
 
-<DEFAULT>
-TOKEN :
+<DEFAULT, EXPR_COMMENT>
+SKIP :
 {
- < NotNumber : ( (
-    "." <Digits>)
-                |  (
-    <Digits> ("." (["0" - "9"])*)?)) (["e", "E"] (["+", "-"])? <Digits>)? ["a" - "z", "A" - "Z"] (["0" - "9", "a" - "z", "A" - "Z"])* >
+ < CommentStart : "(:" > { pushState(); } : EXPR_COMMENT
+}
+
+<EXPR_COMMENT>
+SKIP :
+{
+ < CommentEnd : ":)" > { popState(); }
+}
+
+<EXPR_COMMENT>
+SKIP :
+{
+ < CommentContent : <Char> >
+}
+
+<DEFAULT>
+SKIP :
+{
+ < ImplicitlyAllowedWhitespace : (<WhitespaceChar>)+  >
 }

@@ -13,14 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.xpath.preprocessor;
+package org.xmlbeam.tests.xpath.duplex;
 
 import java.io.StringReader;
 
 import org.junit.Test;
-import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.ParseException;
-import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.SimpleNode;
-import org.xmlbeam.util.intern.prepocessor.org.w3c.xqparser.XParser;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.ParseException;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.SimpleNode;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParser;
 
 /**
  * @author sven
