@@ -15,12 +15,6 @@ apply.
  */
 package org.xmlbeam.util.intern.duplex.org.w3c.xqparser;
 
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.Node;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.Token;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParser;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParserTreeConstants;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParserVisitor;
-
 // ONLY EDIT THIS FILE IN THE GRAMMAR ROOT DIRECTORY!
 // THE ONE IN THE ${spec}-src DIRECTORY IS A COPY!!!
 public class SimpleNode implements Node {
@@ -110,12 +104,12 @@ public class SimpleNode implements Node {
 
     /** Accept the visitor. * */
     @Override
-    public Object jjtAccept(final XParserVisitor visitor, final Object data) {
+    public CommandList jjtAccept(final XParserVisitor visitor, final CommandList data) {
         return visitor.visit(this, data);
     }
 
     /** Accept the visitor. * */
-    public Object childrenAccept(final XParserVisitor visitor, final Object data) {
+    public CommandList childrenAccept(final XParserVisitor visitor, final CommandList data) {
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
                 children[i].jjtAccept(visitor, data);
@@ -198,4 +192,7 @@ public class SimpleNode implements Node {
         _userValue = userValue;
     }
 
+    public int getID() {
+        return id;
+    }
 }

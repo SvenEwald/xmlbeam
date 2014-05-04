@@ -3,7 +3,9 @@ options {
         
         STATIC = false;
         MULTI=false;
-        VISITOR=true ;     // invokes the JJTree Visitor support
+        VISITOR=true ;     
+        VISITOR_DATA_TYPE="CommandList";
+        VISITOR_RETURN_TYPE="CommandList";
         NODE_SCOPE_HOOK=false;
         NODE_USES_PARSER=true;
         FORCE_LA_CHECK=true;

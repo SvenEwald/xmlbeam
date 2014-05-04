@@ -13,29 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.xpath.duplex;
+package org.xmlbeam.util.intern.duplex;
 
-import java.io.StringReader;
-
-import org.junit.Test;
-import org.xmlbeam.util.intern.duplex.StepBuilderVisitor;
 import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.CommandList;
 import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.SimpleNode;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParser;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParserVisitor;
 
 /**
  * @author sven
  */
-public class TestXPathParsing {
-    @Test
-    public void testXPathParsing() throws Exception {
-        //String xpath = "let $incr :=       function($n) {$n+1}  \n return $incr(2)";
-        String xpath = "/hoo/foo/loo";
-        XParser parser = new XParser(new StringReader(xpath));
-        SimpleNode node = parser.START();
-        node.dump("");
+public class FindByTypeVisitor implements XParserVisitor {
 
-        CommandList list = node.jjtAccept(new StepBuilderVisitor(), new CommandList());
-        System.out.println(list);
+    private final int id;
+    private SimpleNode node;
+
+    @Override
+    public CommandList visit(final SimpleNode node, final CommandList data) {
+        if (node.getID() == this.id) {
+            this.node = node;
+            return null;
+        }
+        return node.childrenAccept(this, data);
     }
+
+    public FindByTypeVisitor(final int id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the node
+     */
+    public SimpleNode getNode() {
+        return node;
+    }
+
 }
