@@ -15,13 +15,12 @@
  */
 package org.xmlbeam;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
  */
@@ -37,7 +36,7 @@ public class TestPreprocessor {
         m.setAccessible(true);
     }
 
-    private String applyParams(String string, final Method method, final Object[] args) throws Exception {
+    private String applyParams(final String string, final Method method, final Object[] args) throws Exception {
         return (String) m.invoke(handler, string, method, args);
     }
 
@@ -58,8 +57,8 @@ public class TestPreprocessor {
         assertEquals("/foo/bar", applyParams("/foo/{0}", null, new Object[] { "bar" }));
         assertEquals("/foo/{0}", applyParams("/foo/{{0}}", null, new Object[] { "bar" }));
         assertEquals("/foo/{0}/tail", applyParams("/foo/{{0}}/tail", null, new Object[] { "bar" }));
-        assertEquals("/foo/bar", applyParams("/{0}/{1}", null, new Object[] { "foo","bar" }));
-        assertEquals("/foo/{0}/tail", applyParams("/foo/{{0}}/{1}", null, new Object[] { "bar","tail" }));
+        assertEquals("/foo/bar", applyParams("/{0}/{1}", null, new Object[] { "foo", "bar" }));
+        assertEquals("/foo/{0}/tail", applyParams("/foo/{{0}}/{1}", null, new Object[] { "bar", "tail" }));
         assertEquals("/bar/barbar", applyParams("/{0}/{0}{0}", null, new Object[] { "bar" }));
     }
 

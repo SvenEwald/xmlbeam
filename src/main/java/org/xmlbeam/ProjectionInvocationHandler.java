@@ -47,6 +47,7 @@ import org.xmlbeam.XBProjector.InternalProjection;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBUpdate;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
@@ -75,8 +76,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private final static String ATTRIBUTE_PATH = "(/?@" + XML_ELEMENT + ")";
     private final static String PARENT_PATH = "(/\\.\\.)";
     private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile(NONEMPTY + "(^\\.?(" + ELEMENT_PATH + "*" + PARENT_PATH + "*)*(" + ATTRIBUTE_PATH + "|(/\\*))?$)");
-    private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{",Pattern.LITERAL);
-    private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}",Pattern.LITERAL);
+    private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
+    private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}", Pattern.LITERAL);
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
@@ -233,7 +234,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
         return node;
     }
-    
+
     /**
      * @param uri
      * @param method
@@ -244,18 +245,18 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (args != null) {
             int c = 0;
             for (String param : ReflectionHelper.getMethodParameterNames(method)) {
-                if (args[c]==null) {
+                if (args[c] == null) {
                     continue;
                 }
-                string = replaceAllIfNotQuoted(string,"{"+param+"}",args[c++].toString());
+                string = replaceAllIfNotQuoted(string, "{" + param + "}", args[c++].toString());
                 //string = string.replaceAll("[^\\{]\\{" + Pattern.quote(param) + "\\}", "" + args[c++]);
             }
             for (c = 0; c < args.length; ++c) {
-                if (args[c]==null) {
+                if (args[c] == null) {
                     continue;
                 }
                 //string = string.replaceAll("[^\\{]\\{" + c + "\\}", "" + args[c]);
-                string = replaceAllIfNotQuoted(string,"{" + c + "}",args[c].toString());
+                string = replaceAllIfNotQuoted(string, "{" + c + "}", args[c].toString());
             }
         }
         string = DOUBLE_LBRACES.matcher(string).replaceAll("{");
@@ -264,27 +265,28 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
-     * Replace all occurrences of pattern in string with replacement, but only if 
-     * they are not quoted out.
+     * Replace all occurrences of pattern in string with replacement, but only if they are not
+     * quoted out.
+     *
      * @param string
-     * @param pattern 
+     * @param pattern
      * @param object
      * @return replaced string
      */
-    private String replaceAllIfNotQuoted(String string, final String pattern, String replacement) {
+    private String replaceAllIfNotQuoted(final String string, final String pattern, String replacement) {
 //        int p = string.indexOf(pattern);
 //        if (p<0) {
 //            return string;
-//        }        
-        replacement= Matcher.quoteReplacement(replacement);
-        Pattern compile = Pattern.compile(pattern,Pattern.LITERAL);
+//        }
+        replacement = Matcher.quoteReplacement(replacement);
+        Pattern compile = Pattern.compile(pattern, Pattern.LITERAL);
         Matcher matcher = compile.matcher(string);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
-            if ((matcher.start()>1) && (Character.valueOf('{').equals(string.charAt(matcher.start()-1)))) {
+            if ((matcher.start() > 1) && (Character.valueOf('{').equals(string.charAt(matcher.start() - 1)))) {
                 continue;
             }
-            matcher.appendReplacement(sb,replacement);           
+            matcher.appendReplacement(sb, replacement);
         }
         matcher.appendTail(sb);
         return sb.toString();
@@ -354,22 +356,33 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         {
             String resolvedXpath = null;
             try {
-                final XBRead readAnnotation = method.getAnnotation(XBRead.class);
-                if (readAnnotation != null) {
-                    resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), method, args);
-                    return invokeGetter(proxy, method, resolvedXpath, args);
+                {
+                    final XBRead readAnnotation = method.getAnnotation(XBRead.class);
+                    if (readAnnotation != null) {
+                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), method, args);
+                        return invokeGetter(proxy, method, resolvedXpath, args);
+                    }
                 }
-
-                final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
-                if (writeAnnotation != null) {
-                    resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), method, args);
-                    return invokeSetter(proxy, method, resolvedXpath, args);
+                {
+                    final XBUpdate updateAnnotation = method.getAnnotation(XBUpdate.class);
+                    if (updateAnnotation != null) {
+                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(updateAnnotation.value(), method, args), method, args);
+                        return invokeUpdater(proxy, method, resolvedXpath, args);
+                    }
                 }
-
-                final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
-                if (delAnnotation != null) {
-                    resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), method, args);
-                    return invokeDeleter(proxy, method, resolvedXpath, args);
+                {
+                    final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
+                    if (writeAnnotation != null) {
+                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), method, args);
+                        return invokeSetter(proxy, method, resolvedXpath, args);
+                    }
+                }
+                {
+                    final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
+                    if (delAnnotation != null) {
+                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), method, args);
+                        return invokeDeleter(proxy, method, resolvedXpath, args);
+                    }
                 }
             } catch (XPathExpressionException e) {
                 throw new XBPathException(e, method, resolvedXpath);
@@ -441,10 +454,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final Document document = DOMHelper.getOwnerDocumentFor(node);
         final XPath xPath = projector.config().createXPath(document);
 // Automatic propagation of parameters as XPath variables
-// disabled so far...        
+// disabled so far...
 //        try {
 //        if (ReflectionHelper.mayProvideParameterNames()) {
-//            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));            
+//            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
 //        }
         final XPathExpression expression = xPath.compile(path);
         final Class<?> returnType = method.getReturnType();
@@ -481,6 +494,49 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //        } finally {
 //            xPath.reset();
 //        }
+    }
+
+    private Object invokeUpdater(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
+        if (!ReflectionHelper.hasParameters(method)) {
+            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
+        }
+        if (method.getAnnotation(XBDocURL.class) != null) {
+            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
+        }
+        final Node node = getNodeForMethod(method, args);
+        final Document document = DOMHelper.getOwnerDocumentFor(node);
+        final XPath xPath = projector.config().createXPath(document);
+        final XPathExpression expression = xPath.compile(path);
+        final Class<?> returnType = method.getReturnType();
+
+        if (projector.config().getTypeConverter().isConvertable(returnType)) {
+            String data = (String) expression.evaluate(node, XPathConstants.STRING);
+            try {
+                return projector.config().getTypeConverter().convertTo(returnType, data);
+            } catch (NumberFormatException e) {
+                throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
+            }
+        }
+        if (Node.class.equals(returnType)) {
+            return expression.evaluate(node, XPathConstants.NODE);
+        }
+
+        if (List.class.equals(returnType)) {
+            return evaluateAsList(expression, node, method);
+        }
+        if (returnType.isArray()) {
+            List<?> list = evaluateAsList(expression, node, method);
+            return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
+        }
+        if (returnType.isInterface()) {
+            Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
+            if (newNode == null) {
+                return null;
+            }
+            InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
+            return subprojection;
+        }
+        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
