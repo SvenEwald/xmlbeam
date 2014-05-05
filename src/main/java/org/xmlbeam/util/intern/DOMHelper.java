@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,8 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.io.IOException;
-import java.io.InputStream;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -41,17 +41,17 @@ import org.xmlbeam.util.IOHelper;
 /**
  * A set of tiny helper methods internally used in the projection framework. This methods are
  * <b>not</b> part of the public framework API and might change in minor version updates.
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public final class DOMHelper {
 
     /**
-     * 
+     *
      */
     private static final String[] RESOURCE_PROTO_NAMES = new String[] { "resource://", "res://" };
     private static final Comparator<? super Node> ATTRIBUTE_NODE_COMPARATOR = new Comparator<Node>() {
-        private int compareMaybeNull(Comparable<Object> a, Object b) {
+        private int compareMaybeNull(final Comparable<Object> a, final Object b) {
             if (a == b) {
                 return 0;
             }
@@ -65,7 +65,7 @@ public final class DOMHelper {
         }
 
         @Override
-        public int compare(Node o1, Node o2) {
+        public int compare(final Node o1, final Node o2) {
             Comparable<Object>[] c1 = getNodeAttributes(o1);
             Comparable<Object>[] c2 = getNodeAttributes(o2);
             assert c1.length == c2.length;
@@ -82,11 +82,11 @@ public final class DOMHelper {
     /**
      * Remove all child elements with given node name. If nodeSelector is "*", then remove all
      * children.
-     * 
+     *
      * @param element
      * @param nodeSelector
      */
-    public static void removeAllChildrenBySelector(Node element, String nodeSelector) {
+    public static void removeAllChildrenBySelector(final Node element, final String nodeSelector) {
         assert nodeSelector != null;
         NodeList nodeList = element.getChildNodes();
         List<Node> toBeRemoved = new LinkedList<Node>();
@@ -119,7 +119,7 @@ public final class DOMHelper {
      * @throws IOException
      */
     @SuppressWarnings("unchecked")
-    public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
+    public static Document getDocumentFromURL(final DocumentBuilder documentBuilder, final String url, final Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
         try {
             for (String resProto : RESOURCE_PROTO_NAMES) {
                 if (url.startsWith(resProto)) {
@@ -144,12 +144,12 @@ public final class DOMHelper {
 
     /**
      * Parse namespace prefixes defined in the documents root element.
-     * 
+     *
      * @param document
      *            source document.
      * @return map with prefix-&gt;uri relationships.
      */
-    public static Map<String, String> getNamespaceMapping(Document document) {
+    public static Map<String, String> getNamespaceMapping(final Document document) {
         Map<String, String> map = new HashMap<String, String>();
         Element root = document.getDocumentElement();
         if (root == null) {
@@ -174,8 +174,8 @@ public final class DOMHelper {
     /**
      * Treat the given path as relative path from a base element to an element and return this
      * element. If any element on this path does not exist, create it.
-     * @param document 
      * 
+     * @param document
      * @param base
      *            the relative path will start here
      * @param pathToElement
@@ -222,13 +222,13 @@ public final class DOMHelper {
                 element = (Element) element.appendChild(createElementByTagNameAndSelector(document, nameAndSelector[0], nameAndSelector[1]));
                 continue;
             }
-   //         forceSelectorOnElement(document, nameAndSelector[1], child);
+            //         forceSelectorOnElement(document, nameAndSelector[1], child);
             element = child;
         }
         return element;
     }
 
-    private static String[] splitToNameAndSelector(String nameAndSelector) {
+    private static String[] splitToNameAndSelector(final String nameAndSelector) {
         return new String[] {//
         nameAndSelector.replaceAll("\\[.*", ""),//
                 nameAndSelector.contains("[") ? nameAndSelector.replaceAll(".*\\[", "").replaceAll("\\]$", "") : ""//
@@ -275,7 +275,7 @@ public final class DOMHelper {
      * @param expectedElementName
      * @return
      */
-    private static Element findElementByTagNameAndSelector(Element element, String name, String selector) {
+    private static Element findElementByTagNameAndSelector(final Element element, final String name, final String selector) {
         NodeList nodeList = element.getElementsByTagName(name);
         for (int i = 0; i < nodeList.getLength(); ++i) {
             if (selectorMatches(selector, (Element) nodeList.item(i))) {
@@ -290,7 +290,7 @@ public final class DOMHelper {
      * @param item
      * @return
      */
-    private static boolean selectorMatches(String selector, Element item) {
+    private static boolean selectorMatches(final String selector, final Element item) {
         if (item == null) {
             return false;
         }
@@ -335,7 +335,7 @@ public final class DOMHelper {
     /**
      * Treat the given path as absolute path to an element and return this element. If any element
      * on this path does not exist, create it.
-     * 
+     *
      * @param document
      *            document
      * @param pathToElement
@@ -364,11 +364,11 @@ public final class DOMHelper {
     /**
      * Replace the current root element. If element is null, the current root element will be
      * removed.
-     * 
+     *
      * @param document
      * @param element
      */
-    public static void setDocumentElement(Document document, Element element) {
+    public static void setDocumentElement(final Document document, final Element element) {
         Element documentElement = document.getDocumentElement();
         if (documentElement != null) {
             document.removeChild(documentElement);
@@ -411,12 +411,12 @@ public final class DOMHelper {
      * <li>The <code>entities</code> <code>NamedNodeMaps</code> are equal.</li>
      * <li>The <code>notations</code> <code>NamedNodeMaps</code> are equal.</li>
      * </ul>
-     * 
-     * @param a 
+     *
+     * @param a
      * @param b
      * @return true if and only if the nodes are equal in the manner explained above
      */
-    public static boolean nodesAreEqual(Node a, Node b) {
+    public static boolean nodesAreEqual(final Node a, final Node b) {
         if (a == b) {
             return true;
         }
@@ -438,12 +438,12 @@ public final class DOMHelper {
     /**
      * NodelLists are equal if and only if their size is equal and the containing nodes at the same
      * indexes are equal.
-     * 
+     *
      * @param a
      * @param b
      * @return
      */
-    private static boolean nodeListsAreEqual(NodeList a, NodeList b) {
+    private static boolean nodeListsAreEqual(final NodeList a, final NodeList b) {
         if (a == b) {
             return true;
         }
@@ -464,12 +464,12 @@ public final class DOMHelper {
     /**
      * NamedNodeMaps (e.g. the attributes of a node) are equal if for each containing node an equal
      * node exists in the other map.
-     * 
+     *
      * @param a
      * @param b
      * @return
      */
-    private static boolean namedNodeMapsAreEqual(NamedNodeMap a, NamedNodeMap b) {
+    private static boolean namedNodeMapsAreEqual(final NamedNodeMap a, final NamedNodeMap b) {
         if (a == b) {
             return true;
         }
@@ -499,29 +499,30 @@ public final class DOMHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static Comparable<Object>[] getNodeAttributes(Node node) {
+    private static Comparable<Object>[] getNodeAttributes(final Node node) {
         return new Comparable[] { Short.valueOf(node.getNodeType()), node.getNodeName(), node.getLocalName(), node.getNamespaceURI(), node.getPrefix(), node.getNodeValue() };
     }
 
     /**
      * hashcode() implementation that is compatible with equals().
+     * 
      * @param node
      * @return hash code for node
      */
-    public static int nodeHashCode(Node node) {
+    public static int nodeHashCode(final Node node) {
         assert node != null;
         int hash = 1 + node.getNodeType();
-        hash = hash * 17 + Arrays.hashCode(getNodeAttributes(node));
+        hash = (hash * 17) + Arrays.hashCode(getNodeAttributes(node));
         if (node.hasAttributes()) {
             NamedNodeMap nodeMap = node.getAttributes();
             for (int i = 0; i < nodeMap.getLength(); ++i) {
-                hash = 31 * hash + nodeHashCode(nodeMap.item(i));
+                hash = (31 * hash) + nodeHashCode(nodeMap.item(i));
             }
         }
         if (node.hasChildNodes()) {
             NodeList childNodes = node.getChildNodes();
             for (int i = 0; i < childNodes.getLength(); ++i) {
-                hash = hash * 47 + nodeHashCode(childNodes.item(i));
+                hash = (hash * 47) + nodeHashCode(childNodes.item(i));
             }
         }
         return hash;
@@ -552,7 +553,7 @@ public final class DOMHelper {
      * @param attributeName
      * @param value
      */
-    public static void setOrRemoveAttribute(Element element, String attributeName, String value) {
+    public static void setOrRemoveAttribute(final Element element, final String attributeName, final String value) {
         if (value == null) {
             element.removeAttribute(attributeName);
             return;
@@ -563,9 +564,9 @@ public final class DOMHelper {
     /**
      * @param element
      * @param newName
-     * @return a new Element instance with desired name and content. 
+     * @return a new Element instance with desired name and content.
      */
-    public static Element renameElement(Element element, String newName) {
+    public static Element renameElement(final Element element, final String newName) {
         Document document = element.getOwnerDocument();
         // Element newElement = document.createElement(newName);
         final Element newElement = createElement(document, newName);
@@ -583,11 +584,11 @@ public final class DOMHelper {
 
     /**
      * @param ownerDocument
-     * @param element
+     * @param node
      */
-    public static void ensureOwnership(Document ownerDocument, Element element) {
-        if (ownerDocument != element.getOwnerDocument()) {
-            ownerDocument.adoptNode(element);
+    public static void ensureOwnership(final Document ownerDocument, final Node node) {
+        if (ownerDocument != node.getOwnerDocument()) {
+            ownerDocument.adoptNode(node);
         }
     }
 
@@ -595,7 +596,7 @@ public final class DOMHelper {
      * @param documentOrElement
      * @return document that owns the given node
      */
-    public static Document getOwnerDocumentFor(Node documentOrElement) {
+    public static Document getOwnerDocumentFor(final Node documentOrElement) {
         if (Node.DOCUMENT_NODE == documentOrElement.getNodeType()) {
             return (Document) documentOrElement;
         }
@@ -620,7 +621,7 @@ public final class DOMHelper {
      * @param elementName
      * @return
      */
-    private static String getPrefixOfQName(String elementName) {
+    private static String getPrefixOfQName(final String elementName) {
         if (elementName.contains(":")) {
             return elementName.replaceAll(":.*", "");
         }

@@ -54,7 +54,6 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.MethodParamVariableResolver;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
@@ -112,10 +111,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (o == null) {
                 continue;
             }
-            if (!(o instanceof InternalProjection)) {
+            if (!isStructureChangingValue(o)) {
                 final Element newElement = document.createElement(elementName);
                 newElement.setTextContent(o.toString());
                 parentElement.appendChild(newElement);
+                continue;
+            }
+            if (o instanceof Node) {
+                Node newNode = ((Node) o).cloneNode(true);
+                DOMHelper.ensureOwnership(parentElement.getOwnerDocument(), newNode);
+                parentElement.appendChild(newNode);
                 continue;
             }
             final InternalProjection p = (InternalProjection) o;
@@ -133,6 +138,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             parentElement.appendChild(clone);
         }
         return collection.size();
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    private boolean isStructureChangingValue(final Object o) {
+        return (o instanceof InternalProjection) || (o instanceof Node);
     }
 
     private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode, final String elementSelector) {
@@ -300,13 +313,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param method
      * @return
      */
-    private Object getProxyReturnValueForMethod(final Object proxy, final Method method, Integer alternative) {
+    private Object getProxyReturnValueForMethod(final Object proxy, final Method method, final Integer alternative) {
         if (!ReflectionHelper.hasReturnType(method)) {
             return null;
         }
         if (method.getReturnType().equals(method.getDeclaringClass())) {
             return proxy;
-        }        
+        }
         if ((alternative != null) && (method.getReturnType().isAssignableFrom(Integer.class) || method.getReturnType().isAssignableFrom(int.class))) {
             return alternative;
         }
@@ -522,23 +535,23 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("Method " + method + " was invoked as updater but del");
         }
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-        final int count = nodes.getLength(); 
+        final int count = nodes.getLength();
         for (int i = 0; i < count; ++i) {
             final Node n = nodes.item(i);
-            if (n==null) {
+            if (n == null) {
                 continue;
             }
             if (Node.ATTRIBUTE_NODE == n.getNodeType()) {
-                Element e = ((Attr)n).getOwnerElement();
-                if (e==null) {
+                Element e = ((Attr) n).getOwnerElement();
+                if (e == null) {
                     continue;
                 }
-                DOMHelper.setOrRemoveAttribute(e, n.getNodeName(), valueToSet == null ? null : valueToSet.toString());                
+                DOMHelper.setOrRemoveAttribute(e, n.getNodeName(), valueToSet == null ? null : valueToSet.toString());
                 continue;
             }
-            n.setTextContent(valueToSet ==null ? null : valueToSet.toString());
+            n.setTextContent(valueToSet == null ? null : valueToSet.toString());
         }
-               
+
         return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
     }
 
@@ -566,9 +579,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
             }
             int count = document.getDocumentElement() == null ? 0 : 1;
-            if (valueToSet == null) {                
+            if (valueToSet == null) {
                 DOMHelper.setDocumentElement(document, null);
-                return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(count));
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
             }
             if (!(valueToSet instanceof InternalProjection)) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
@@ -577,7 +590,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             Element element = projection.getDOMBaseElement();
             assert element != null;
             DOMHelper.setDocumentElement(document, element);
-            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(count));
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
 
         if (isMultiValue) {
@@ -593,7 +606,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            }
             Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
             int count = applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
-            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(count));
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
 
         if (valueToSet instanceof InternalProjection) {
@@ -601,7 +614,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             String elementSelector = pathToElement.replaceAll(".*/", "");
             Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
             applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode, elementSelector);
-            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(1));
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
         }
 
         Element elementToChange;
@@ -611,18 +624,28 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             assert node.getNodeType() == Node.ELEMENT_NODE;
             elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
         }
+        if (valueToSet instanceof Node) {
+            Node newNode = ((Node) valueToSet).cloneNode(true);
+            String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
+            String elementSelector = pathToElement.replaceAll(".*/", "");
+            Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
+            DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
+            DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newNode);
+            elementToChange.appendChild(newNode);
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+        }
 
         if (path.replaceAll("\\[@", "[attribute::").contains("@")) {
             String attributeName = path.replaceAll(".*@", "");
             DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
-            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(1));
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
         }
         if (valueToSet == null) {
             DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
         } else {
             elementToChange.setTextContent(valueToSet.toString());
         }
-        return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(1));
+        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
     }
 
     /**
