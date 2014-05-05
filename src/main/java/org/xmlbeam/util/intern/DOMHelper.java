@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -47,6 +46,10 @@ import org.xmlbeam.util.IOHelper;
  */
 public final class DOMHelper {
 
+    /**
+     * 
+     */
+    private static final String[] RESOURCE_PROTO_NAMES = new String[] { "resource://", "res://" };
     private static final Comparator<? super Node> ATTRIBUTE_NODE_COMPARATOR = new Comparator<Node>() {
         private int compareMaybeNull(Comparable<Object> a, Object b) {
             if (a == b) {
@@ -118,11 +121,13 @@ public final class DOMHelper {
     @SuppressWarnings("unchecked")
     public static Document getDocumentFromURL(DocumentBuilder documentBuilder, final String url, Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
         try {
-            if (url.startsWith("resource://")) {
-                InputStream is = resourceAwareClass.getResourceAsStream(url.substring("resource://".length()));
-                InputSource source = new InputSource(is);
-                // source.setEncoding("MacRoman");
-                return documentBuilder.parse(source);
+            for (String resProto : RESOURCE_PROTO_NAMES) {
+                if (url.startsWith(resProto)) {
+                    InputStream is = resourceAwareClass.getResourceAsStream(url.substring(resProto.length()));
+                    InputSource source = new InputSource(is);
+                    // source.setEncoding("MacRoman");
+                    return documentBuilder.parse(source);
+                }
             }
             if (url.startsWith("http:") || url.startsWith("https:")) {
                 return documentBuilder.parse(IOHelper.httpGet(url, requestProperties), url);
@@ -294,8 +299,8 @@ public final class DOMHelper {
         }
         if (!selector.contains("=")) {
             if (selector.matches("^@.+")) {
-                return item.hasAttribute(selector.substring(1));                
-            }            
+                return item.hasAttribute(selector.substring(1));
+            }
             return selector.equals(item.getNodeName());
         }
         String[] selectorValues = splitSelector(selector);
