@@ -213,17 +213,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (method.getReturnType().isArray()) {
             return method.getReturnType().getComponentType();
         }
-        final Class<?> targetType = determineTargetTypeForList(method);
-        return targetType;
-    }
-
-    /**
-     * Extract the generic type of the List which currently is our return type.
-     *
-     * @param method
-     * @return component type of List to be created.
-     */
-    private Class<?> determineTargetTypeForList(final Method method) {
         assert List.class.equals(method.getReturnType());
         final Type type = method.getGenericReturnType();
         if (!(type instanceof ParameterizedType) || (((ParameterizedType) type).getActualTypeArguments() == null) || (((ParameterizedType) type).getActualTypeArguments().length < 1)) {
@@ -308,15 +297,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param method
      * @return
      */
-    private Object getProxyReturnValueForMethod(final Object proxy, final Method method, final Integer alternative) {
+    private Object getProxyReturnValueForMethod(final Object proxy, final Method method, final Integer numberOfChanges) {
         if (!ReflectionHelper.hasReturnType(method)) {
             return null;
         }
         if (method.getReturnType().equals(method.getDeclaringClass())) {
             return proxy;
         }
-        if ((alternative != null) && (method.getReturnType().isAssignableFrom(Integer.class) || method.getReturnType().isAssignableFrom(int.class))) {
-            return alternative;
+        if ((numberOfChanges != null) && (method.getReturnType().isAssignableFrom(Integer.class) || method.getReturnType().isAssignableFrom(int.class))) {
+            return numberOfChanges;
         }
         throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
     }
