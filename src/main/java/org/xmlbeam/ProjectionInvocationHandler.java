@@ -213,12 +213,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (method.getReturnType().isArray()) {
             return method.getReturnType().getComponentType();
         }
-        assert method.getAnnotation(XBRead.class) != null;
-
         final Class<?> targetType = determineTargetTypeForList(method);
-        if (XBRead.class.equals(targetType)) {
-            throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify the list content type in the " + XBRead.class.getSimpleName() + " annotaion. I can not determine it from the method signature.");
-        }
         return targetType;
     }
 

@@ -53,6 +53,7 @@ import org.w3c.dom.Node;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.annotation.XBUpdate;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
@@ -64,6 +65,7 @@ import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
 import org.xmlbeam.io.XBUrlIO;
+import org.xmlbeam.tests.TestUpdatetInvoker.Update;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
@@ -117,7 +119,7 @@ import org.xmlbeam.util.intern.ReflectionHelper;
  * validators, make a projection comparable or even share common business logic between multiple
  * projections.
  * </p>
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @SuppressWarnings("serial")
@@ -139,7 +141,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * @param documentOrElement
          * @param projectionInterface
          */
-        private DefaultDOMAccessInvoker(Node documentOrElement, Class<?> projectionInterface) {
+        private DefaultDOMAccessInvoker(final Node documentOrElement, final Class<?> projectionInterface) {
             this.documentOrElement = documentOrElement;
             this.projectionInterface = projectionInterface;
         }
@@ -167,8 +169,9 @@ public class XBProjector implements Serializable, ProjectionFactory {
             assert Node.ELEMENT_NODE == documentOrElement.getNodeType();
             return (Element) documentOrElement;
         }
+
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (!(o instanceof DOMAccess)) {
                 return false;
             }
@@ -184,7 +187,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
         @Override
         public int hashCode() {
-            return 31 * projectionInterface.hashCode() + 27 * DOMHelper.nodeHashCode(documentOrElement);
+            return (31 * projectionInterface.hashCode()) + (27 * DOMHelper.nodeHashCode(documentOrElement));
         }
 
         @Override
@@ -214,7 +217,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
     }
 
     private final class DefaultObjectInvoker extends DefaultDOMAccessInvoker {
-        private DefaultObjectInvoker(Class<?> projectionInterface, Node documentOrElement) {
+        private DefaultObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
             super(documentOrElement, projectionInterface);
         }
 
@@ -226,7 +229,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
     }
 
     private final class XMLRenderingObjectInvoker extends DefaultDOMAccessInvoker {
-        private XMLRenderingObjectInvoker(Class<?> projectionInterface, Node documentOrElement) {
+        private XMLRenderingObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
             super(documentOrElement, projectionInterface);
         }
 
@@ -235,7 +238,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             return super.asString();
         }
     }
-    
+
     /**
      * A variation of the builder pattern. All methods to configure the projector are hidden in this
      * builder class.
@@ -245,11 +248,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
         /**
          * Access the {@link XMLFactoriesConfig} as the given subtype to conveniently access
          * additional methods.
-         * 
+         *
          * @param clazz
          * @return casted XMLFactoriesConfig
          */
-        public <T extends XMLFactoriesConfig> T as(Class<T> clazz) {
+        public <T extends XMLFactoriesConfig> T as(final Class<T> clazz) {
             return clazz.cast(xMLFactoriesConfig);
         }
 
@@ -260,13 +263,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
         public TypeConverter getTypeConverter() {
             return XBProjector.this.typeConverter;
         }
-                
+
         /**
          * Cast the type converter to the current type.
+         *
          * @param clazz
          * @return Type converter casted down to clazz.
          */
-        public <T extends TypeConverter> T getTypeConverterAs(Class<T> clazz) {
+        public <T extends TypeConverter> T getTypeConverterAs(final Class<T> clazz) {
             return clazz.cast(getTypeConverter());
         }
 
@@ -274,7 +278,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public ConfigBuilder setTypeConverter(TypeConverter converter) {
+        public ConfigBuilder setTypeConverter(final TypeConverter converter) {
             XBProjector.this.typeConverter = converter;
             return this;
         }
@@ -283,7 +287,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public ConfigBuilder setExternalizer(Externalizer e10r) {
+        public ConfigBuilder setExternalizer(final Externalizer e10r) {
             XBProjector.this.externalizer = e10r == null ? NOOP_EXTERNALIZER : e10r;
             return this;
         }
@@ -295,12 +299,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
         public Externalizer getExternalizer() {
             return XBProjector.this.externalizer;
         }
-        
+
         /**
-         * @param clazz 
+         * @param clazz
          * @return Externalizer cast down to the type clazz
          */
-        public <T extends Externalizer> T getExternalizerAs(Class<? extends T> clazz) {
+        public <T extends Externalizer> T getExternalizerAs(final Class<? extends T> clazz) {
             return clazz.cast(getExternalizer());
         }
 
@@ -333,7 +337,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public Transformer createTransformer(Document... document) {
+        public Transformer createTransformer(final Document... document) {
             return XBProjector.this.xMLFactoriesConfig.createTransformer(document);
         }
 
@@ -349,7 +353,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public XPath createXPath(Document... document) {
+        public XPath createXPath(final Document... document) {
             return XBProjector.this.xMLFactoriesConfig.createXPath(document);
         }
     }
@@ -363,7 +367,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public <S, M extends S, P extends S> XBProjector addProjectionMixin(Class<P> projectionInterface, M mixinImplementation) {
+        public <S, M extends S, P extends S> XBProjector addProjectionMixin(final Class<P> projectionInterface, final M mixinImplementation) {
             ensureIsValidProjectionInterface(projectionInterface);
             Map<Class<?>, Object> map = mixins.containsKey(projectionInterface) ? mixins.get(projectionInterface) : new HashMap<Class<?>, Object>();
             for (Class<?> type : ReflectionHelper.findAllCommonSuperInterfaces(projectionInterface, mixinImplementation.getClass())) {
@@ -379,7 +383,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          */
         @Override
         @SuppressWarnings("unchecked")
-        public <S, M extends S, P extends S> M getProjectionMixin(Class<P> projectionInterface, Class<M> mixinInterface) {
+        public <S, M extends S, P extends S> M getProjectionMixin(final Class<P> projectionInterface, final Class<M> mixinInterface) {
             if (!mixins.containsKey(projectionInterface)) {
                 return null;
             }
@@ -391,7 +395,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          */
         @Override
         @SuppressWarnings("unchecked")
-        public <S, M extends S, P extends S> M removeProjectionMixin(Class<P> projectionInterface, Class<M> mixinInterface) {
+        public <S, M extends S, P extends S> M removeProjectionMixin(final Class<P> projectionInterface, final Class<M> mixinInterface) {
             if (!mixins.containsKey(projectionInterface)) {
                 return null;
             }
@@ -408,7 +412,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public XBFileIO file(File file) {
+        public XBFileIO file(final File file) {
             return new XBFileIO(XBProjector.this, file);
         }
 
@@ -416,7 +420,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public XBFileIO file(String fileName) {
+        public XBFileIO file(final String fileName) {
             return new XBFileIO(XBProjector.this, fileName);
         }
 
@@ -424,7 +428,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public XBUrlIO url(String url) {
+        public XBUrlIO url(final String url) {
             return new XBUrlIO(XBProjector.this, url);
         }
 
@@ -432,7 +436,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public XBStreamInput stream(InputStream is) {
+        public XBStreamInput stream(final InputStream is) {
             return new XBStreamInput(XBProjector.this, is);
         }
 
@@ -440,7 +444,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public XBStreamOutput stream(OutputStream os) {
+        public XBStreamOutput stream(final OutputStream os) {
             return new XBStreamOutput(XBProjector.this, os);
         }
 
@@ -448,7 +452,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... optionalParams) throws IOException {
+        public <T> T fromURLAnnotation(final Class<T> projectionInterface, final Object... optionalParams) throws IOException {
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
@@ -487,7 +491,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public String toURLAnnotationViaPOST(final Object projection, Object... optionalParams) throws IOException, URISyntaxException {
+        public String toURLAnnotationViaPOST(final Object projection, final Object... optionalParams) throws IOException, URISyntaxException {
             Class<?> projectionInterface = checkProjectionInstance(projection).getProjectionInterface();
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
@@ -503,7 +507,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * {@inheritDoc}
      */
     @Override
-    public <T> T projectEmptyDocument(Class<T> projectionInterface) {
+    public <T> T projectEmptyDocument(final Class<T> projectionInterface) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
         return projectDOMNode(document, projectionInterface);
     }
@@ -512,13 +516,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * {@inheritDoc}
      */
     @Override
-    public <T> T projectEmptyElement(final String name, Class<T> projectionInterface) {
+    public <T> T projectEmptyElement(final String name, final Class<T> projectionInterface) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
         Element element = document.createElement(name);
         return projectDOMNode(element, projectionInterface);
     }
 
-    
 //    public <T> T projectProjection(final T projection,String xpath) {
 //        if (!( projection instanceof InternalProjection)) {
 //            throw new IllegalArgumentException("Given object is not a projection created by a projector.");
@@ -526,7 +529,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 //        DOMAccess domAccess = (DOMAccess) projection;
 //        xMLFactoriesConfig.createXPath(domAccess.getDOMOwnerDocument())
 //    }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -553,7 +556,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final Document document = DOMHelper.getOwnerDocumentFor(documentOrElement);
             InvocationHandler synchronizedInvocationHandler = new InvocationHandler() {
                 @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
                     synchronized (document) {
                         return projectionInvocationHandler.invoke(proxy, method, args);
                     }
@@ -596,20 +599,21 @@ public class XBProjector implements Serializable, ProjectionFactory {
 // }
 
     /**
-     * Global projector configuration options. 
+     * Global projector configuration options.
      */
     public enum Flags {
-        
+
         /**
-         * Enables thread safety by removing concurrent DOM access.
-         * Useful if the underlying DOM implementation is not thread safe. 
+         * Enables thread safety by removing concurrent DOM access. Useful if the underlying DOM
+         * implementation is not thread safe.
          */
-        SYNCHRONIZE_ON_DOCUMENTS, 
+        SYNCHRONIZE_ON_DOCUMENTS,
         /**
-         * Let the projections toString() method render the projection target as XML.
-         * Be careful if your documents get large. toString() might be used frequently by the IDE your debugging in. 
+         * Let the projections toString() method render the projection target as XML. Be careful if
+         * your documents get large. toString() might be used frequently by the IDE your debugging
+         * in.
          */
-        TO_STRING_RENDERS_XML, 
+        TO_STRING_RENDERS_XML,
         /**
          * Option to strip empty nodes from the result.
          */
@@ -618,14 +622,15 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * Constructor. Use me to create a projector with defaults.
-     * @param optionalFlags 
+     *
+     * @param optionalFlags
      */
-    public XBProjector(Flags... optionalFlags) {
+    public XBProjector(final Flags... optionalFlags) {
         this(new DefaultXMLFactoriesConfig(), optionalFlags);
     }
 
-    private static <T extends Enum<T>> Set<T> unfold(T[] array) {
-        if (array == null || array.length == 0) {
+    private static <T extends Enum<T>> Set<T> unfold(final T[] array) {
+        if ((array == null) || (array.length == 0)) {
             return Collections.emptySet();
         }
         EnumSet<T> enumSet = EnumSet.of(array[0]);
@@ -637,9 +642,9 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * @param xMLFactoriesConfig
-     * @param optionalFlags 
+     * @param optionalFlags
      */
-    public XBProjector(XMLFactoriesConfig xMLFactoriesConfig, Flags... optionalFlags) {
+    public XBProjector(final XMLFactoriesConfig xMLFactoriesConfig, final Flags... optionalFlags) {
         this.xMLFactoriesConfig = xMLFactoriesConfig;
         // isSynchronizeOnDocuments = false;
         this.flags = unfold(optionalFlags);
@@ -647,7 +652,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * Shortcut for creating a {@link ConfigBuilder} object to change the projectors configuration.
-     * 
+     *
      * @return a new ConfigBuilder for this projector.
      */
     public ConfigBuilder config() {
@@ -656,7 +661,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * Shortcut for creating a {@link MixinBuilder} object add or remove mixins to projections.
-     * 
+     *
      * @return a new MixinBuilder for this projector.
      */
     public MixinBuilder mixins() {
@@ -665,11 +670,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * Ensures that the given object is a projection created by a projector.
-     * 
+     *
      * @param projection
      * @return
      */
-    private InternalProjection checkProjectionInstance(Object projection) {
+    private InternalProjection checkProjectionInstance(final Object projection) {
         if (!(projection instanceof InternalProjection)) {
             throw new IllegalArgumentException("Given object " + projection + " is not a projection.");
         }
@@ -680,52 +685,56 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @param projectionInterface
      */
     private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
-        if  ((projectionInterface == null) || 
-            (!projectionInterface.isInterface()) ||
-            ((projectionInterface.getModifiers() & Modifier.PUBLIC) != Modifier.PUBLIC)) {
+        if ((projectionInterface == null) || (!projectionInterface.isInterface()) || ((projectionInterface.getModifiers() & Modifier.PUBLIC) != Modifier.PUBLIC)) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
         }
         if (projectionInterface.isAnnotation()) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is an annotation interface. Remove the @ and try again.");
         }
         for (Method method : projectionInterface.getMethods()) {
-            boolean isRead=(method.getAnnotation(XBRead.class)!=null);
-            boolean isWrite=(method.getAnnotation(XBWrite.class)!=null);
-            boolean isDelete=(method.getAnnotation(XBDelete.class)!=null);
-            if (isRead ? isWrite || isDelete : isWrite && isDelete) {
-                throw new IllegalArgumentException("Method "+method+" has to many annotations. Decide for one of @"+XBRead.class.getSimpleName()+", @"+XBWrite.class.getSimpleName()+", or @"+XBDelete.class.getSimpleName());
+            boolean isRead = (method.getAnnotation(XBRead.class) != null);
+            boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
+            boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
+            boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
+            if (isRead ? isUpdate || isWrite || isDelete : (isUpdate ? isWrite || isDelete : isWrite && isDelete)) {
+                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName());
             }
             if (isRead) {
                 if (!ReflectionHelper.hasReturnType(method)) {
-                    throw new IllegalArgumentException("Method "+method+" has @"+XBRead.class.getSimpleName()+" annotation, but has no return type,");
+                    throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but has no return type,");
                 }
             }
             if (isWrite) {
                 if (!ReflectionHelper.hasParameters(method)) {
-                    throw new IllegalArgumentException("Method "+method+" has @"+XBWrite.class.getSimpleName()+" annotaion, but has no paramerter");
-                }                
+                    throw new IllegalArgumentException("Method " + method + " has @" + XBWrite.class.getSimpleName() + " annotaion, but has no paramerter");
+                }
             }
-            int count=0;
-            for (Annotation[] paramAnnotations:method.getParameterAnnotations()){
-                for (Annotation a:paramAnnotations) {
+            if (isUpdate) {
+                if (!ReflectionHelper.hasParameters(method)) {
+                    throw new IllegalArgumentException("Method " + method + " has @" + Update.class.getSimpleName() + " annotaion, but has no paramerter");
+                }
+            }
+            int count = 0;
+            for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {
+                for (Annotation a : paramAnnotations) {
                     if (XBValue.class.equals(a.annotationType())) {
-                        if (!isWrite) {
-                            throw new IllegalArgumentException("Method "+method+" is not a writing projection method, but has an @"+XBValue.class.getSimpleName()+" annotaion.");
+                        if (!(isWrite || isUpdate)) {
+                            throw new IllegalArgumentException("Method " + method + " is not a writing projection method, but has an @" + XBValue.class.getSimpleName() + " annotaion.");
                         }
-                        if (count>0) {
-                            throw new IllegalArgumentException("Method "+method+" has multiple @"+XBValue.class.getSimpleName()+" annotaions.");
+                        if (count > 0) {
+                            throw new IllegalArgumentException("Method " + method + " has multiple @" + XBValue.class.getSimpleName() + " annotaions.");
                         }
-                        ++count;                            
+                        ++count;
                     }
                 }
             }
         }
-       
+
     }
 
     /**
      * Access to the input/output features of this projector.
-     * 
+     *
      * @return A new IOBuilder providing methods to read or write projections.
      */
     @Override
@@ -735,10 +744,10 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * @param projection
-     * @return an XML string of the projection target. 
+     * @return an XML string of the projection target.
      */
     @Override
-    public String asString(Object projection) {
+    public String asString(final Object projection) {
         if (!(projection instanceof InternalProjection)) {
             throw new IllegalArgumentException("Argument is not a projection.");
         }
