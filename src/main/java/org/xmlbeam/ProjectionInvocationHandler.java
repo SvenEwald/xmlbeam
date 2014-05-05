@@ -100,13 +100,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param parentElement
      * @param elementSelector
      */
-    private void applyCollectionSetOnElement(final Collection<?> collection, final Element parentElement, final String elementSelector) {
+    private int applyCollectionSetOnElement(final Collection<?> collection, final Element parentElement, final String elementSelector) {
         final Document document = parentElement.getOwnerDocument();
         DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
         assert !elementSelector.contains("/") : "Selector should be the trail of the path.";
         final String elementName = elementSelector.replaceAll("\\[.*", "");
         if (collection == null) {
-            return;
+            return 0;
         }
         for (Object o : collection) {
             if (o == null) {
@@ -132,6 +132,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             DOMHelper.ensureOwnership(document, clone);
             parentElement.appendChild(clone);
         }
+        return collection.size();
     }
 
     private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode, final String elementSelector) {
@@ -299,12 +300,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param method
      * @return
      */
-    private Object getProxyReturnValueForMethod(final Object proxy, final Method method) {
+    private Object getProxyReturnValueForMethod(final Object proxy, final Method method, Integer alternative) {
         if (!ReflectionHelper.hasReturnType(method)) {
             return null;
         }
         if (method.getReturnType().equals(method.getDeclaringClass())) {
             return proxy;
+        }        
+        if ((alternative != null) && (method.getReturnType().isAssignableFrom(Integer.class) || method.getReturnType().isAssignableFrom(int.class))) {
+            return alternative;
         }
         throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
     }
@@ -424,29 +428,32 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private Object invokeDeleter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
         final Document document = DOMHelper.getOwnerDocumentFor(node);
         final XPath xPath = projector.config().createXPath(document);
-        try {
-            if (ReflectionHelper.mayProvideParameterNames()) {
-                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, xPath.getXPathVariableResolver()));
-            }
+//        try {
+//            if (ReflectionHelper.mayProvideParameterNames()) {
+//                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, xPath.getXPathVariableResolver()));
+//           }
 
-            final XPathExpression expression = xPath.compile(path);
-            NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                if (Node.ATTRIBUTE_NODE == nodes.item(i).getNodeType()) {
-                    Attr attr = (Attr) nodes.item(i);
-                    attr.getOwnerElement().removeAttributeNode(attr);
-                    continue;
-                }
-                Node parentNode = nodes.item(i).getParentNode();
-                if (parentNode == null) {
-                    continue;
-                }
-                parentNode.removeChild(nodes.item(i));
+        final XPathExpression expression = xPath.compile(path);
+        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+        int count = 0;
+        for (int i = 0; i < nodes.getLength(); ++i) {
+            if (Node.ATTRIBUTE_NODE == nodes.item(i).getNodeType()) {
+                Attr attr = (Attr) nodes.item(i);
+                attr.getOwnerElement().removeAttributeNode(attr);
+                ++count;
+                continue;
             }
-            return getProxyReturnValueForMethod(proxy, method);
-        } finally {
-            xPath.reset();
+            Node parentNode = nodes.item(i).getParentNode();
+            if (parentNode == null) {
+                continue;
+            }
+            parentNode.removeChild(nodes.item(i));
+            ++count;
         }
+        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
+//        } finally {
+//            xPath.reset();
+//        }
     }
 
     private Object invokeGetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
@@ -498,45 +505,41 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private Object invokeUpdater(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
         if (!ReflectionHelper.hasParameters(method)) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
+            throw new IllegalArgumentException("Method " + method + " was invoked as updater but has no parameter. Please add a parameter so this method could actually change the DOM.");
         }
         if (method.getAnnotation(XBDocURL.class) != null) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
+            throw new IllegalArgumentException("Method " + method + " was invoked as updater but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining updaters on external projections is not valid because there is no DOM attached.");
         }
         final Node node = getNodeForMethod(method, args);
         final Document document = DOMHelper.getOwnerDocumentFor(node);
         final XPath xPath = projector.config().createXPath(document);
         final XPathExpression expression = xPath.compile(path);
-        final Class<?> returnType = method.getReturnType();
-
-        if (projector.config().getTypeConverter().isConvertable(returnType)) {
-            String data = (String) expression.evaluate(node, XPathConstants.STRING);
-            try {
-                return projector.config().getTypeConverter().convertTo(returnType, data);
-            } catch (NumberFormatException e) {
-                throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
+        final int findIndexOfValue = findIndexOfValue(method);
+        final Object valueToSet = args[findIndexOfValue];
+        final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
+        final boolean isMultiValue = isMultiValue(typeToSet);
+        if (isMultiValue) {
+            throw new IllegalArgumentException("Method " + method + " was invoked as updater but del");
+        }
+        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+        final int count = nodes.getLength(); 
+        for (int i = 0; i < count; ++i) {
+            final Node n = nodes.item(i);
+            if (n==null) {
+                continue;
             }
-        }
-        if (Node.class.equals(returnType)) {
-            return expression.evaluate(node, XPathConstants.NODE);
-        }
-
-        if (List.class.equals(returnType)) {
-            return evaluateAsList(expression, node, method);
-        }
-        if (returnType.isArray()) {
-            List<?> list = evaluateAsList(expression, node, method);
-            return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
-        }
-        if (returnType.isInterface()) {
-            Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-            if (newNode == null) {
-                return null;
+            if (Node.ATTRIBUTE_NODE == n.getNodeType()) {
+                Element e = ((Attr)n).getOwnerElement();
+                if (e==null) {
+                    continue;
+                }
+                DOMHelper.setOrRemoveAttribute(e, n.getNodeName(), valueToSet == null ? null : valueToSet.toString());                
+                continue;
             }
-            InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
-            return subprojection;
+            n.setTextContent(valueToSet ==null ? null : valueToSet.toString());
         }
-        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
+               
+        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
@@ -562,9 +565,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (isMultiValue) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
             }
-            if (valueToSet == null) {
+            int count = document.getDocumentElement() == null ? 0 : 1;
+            if (valueToSet == null) {                
                 DOMHelper.setDocumentElement(document, null);
-                return getProxyReturnValueForMethod(proxy, method);
+                return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(count));
             }
             if (!(valueToSet instanceof InternalProjection)) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
@@ -573,7 +577,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             Element element = projection.getDOMBaseElement();
             assert element != null;
             DOMHelper.setDocumentElement(document, element);
-            return getProxyReturnValueForMethod(proxy, method);
+            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(count));
         }
 
         if (isMultiValue) {
@@ -588,8 +592,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //                return getProxyReturnValueForMethod(proxy, method);
 //            }
             Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-            applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
-            return getProxyReturnValueForMethod(proxy, method);
+            int count = applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
+            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(count));
         }
 
         if (valueToSet instanceof InternalProjection) {
@@ -597,7 +601,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             String elementSelector = pathToElement.replaceAll(".*/", "");
             Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
             applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode, elementSelector);
-            return getProxyReturnValueForMethod(proxy, method);
+            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(1));
         }
 
         Element elementToChange;
@@ -611,14 +615,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (path.replaceAll("\\[@", "[attribute::").contains("@")) {
             String attributeName = path.replaceAll(".*@", "");
             DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
-            return getProxyReturnValueForMethod(proxy, method);
+            return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(1));
         }
         if (valueToSet == null) {
             DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
         } else {
             elementToChange.setTextContent(valueToSet.toString());
         }
-        return getProxyReturnValueForMethod(proxy, method);
+        return getProxyReturnValueForMethod(proxy, method,Integer.valueOf(1));
     }
 
     /**
