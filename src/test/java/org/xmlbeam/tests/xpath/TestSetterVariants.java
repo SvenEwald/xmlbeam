@@ -89,6 +89,12 @@ public class TestSetterVariants {
         emptyProjection.setMultipleSubProjectionArray(subs);
         assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
     }
+    
+    @Test
+    public void testSetNullMultipleSubProjectionArray() {
+        emptyProjection.setMultipleSubProjectionArray(null);
+        assertEquals("<a><b/></a>", projector.asString(emptyProjection));
+    }
 
     @Test
     public void testSetMultipleSubProjectionCollection() {
@@ -96,6 +102,12 @@ public class TestSetterVariants {
         emptyProjection.setMultipleSubProjectionCollection(subs);
         assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
     }
+    
+    @Test
+    public void testSetNullMultipleSubProjectionCollection() {
+        emptyProjection.setMultipleSubProjectionCollection(null);
+        assertEquals("<a><b/></a>", projector.asString(emptyProjection));
+    }    
 
     @Test
     public void testSetMultipleSubProjectionWildcardCollection() {

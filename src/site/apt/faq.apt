@@ -19,9 +19,10 @@ FAQ / HowTo
 
 * What's the syntax for writable XPath expressions?
 
- XPath expressions used in setters are limited to absolute paths to nonambiguous selectors. 
- Functions are not allowed. 
- The reason for this is to make a setter executable regardless of the current document structure, having a reproduceable result. 
+ XPath expressions used in setters (methods with @XBWrite) are limited to absolute paths of non-ambiguous selectors. 
+ Functions are not allowed.
+ The reason for this is to make a setter executable regardless of the current document structure, having a reproducible result.
+ If you just need to change values in your DOM tree, use the @XBUpdate annotation on your method. This will allow full XPath syntax. 
  
 ** Changing attributes
 
@@ -50,7 +51,9 @@ FAQ / HowTo
     You will inherit getter methods for the document and the current node. 
   
   * Cast your projection directly to DOMAccess. 
-    The projector makes sure that every projection instance implements this interface.  
+    The projector makes sure that every projection instance implements this interface.
+    
+  * Just declare org.w3c.dom.Node as a return type or a parameter on a projection method.  
     
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}    
    

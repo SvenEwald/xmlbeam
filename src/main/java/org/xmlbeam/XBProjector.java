@@ -65,7 +65,6 @@ import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
 import org.xmlbeam.io.XBUrlIO;
-import org.xmlbeam.tests.TestUpdatetInvoker.Update;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
@@ -711,7 +710,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             }
             if (isUpdate) {
                 if (!ReflectionHelper.hasParameters(method)) {
-                    throw new IllegalArgumentException("Method " + method + " has @" + Update.class.getSimpleName() + " annotaion, but has no paramerter");
+                    throw new IllegalArgumentException("Method " + method + " has @" + XBUpdate.class.getSimpleName() + " annotaion, but has no paramerter");
                 }
             }
             int count = 0;

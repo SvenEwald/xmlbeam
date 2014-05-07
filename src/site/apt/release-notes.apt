@@ -1,6 +1,20 @@
 Release Notes
 
-* 1.2.0 current release
+* 1.2.1 current release
+
+ * New "update" mode for writing to the DOM tree. 
+   If no structure change is needed, use the annotation @XBUpdate providing full XPath capabilities.   
+   
+ * Now int or Integer is allowed as return code for writing projection methods.
+   Setters, deleters and updaters are going to return the number of changes made to the DOM tree.
+   
+ * URL protocol 'resouce://' now has a new abbreviation 'res://' to be compatible with org.apache.commons.vfs.
+ 
+ * Minor bugfix with DOM-API integration. Just use org.w3c.dom.Node as return type or parameter anywhere.  
+ 
+ * API-compatible with 1.2.x  
+
+* 1.2.0
 
  * Moving the parameter resolution for dynamic projections from java.text.MessageFormat to a more XPath friendly implementation. This resolves the issue having to double the single quotes ('). Now you can (and have) to write them unquoted.
  

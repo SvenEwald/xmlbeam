@@ -42,6 +42,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-05-07
+
+ * New release 1.2.1 with new full XPath gaining update mode. See the {{{./release-notes.html} release notes}}.
+
 ** 2014-04-28
 
  * New release 1.2.0 to ease handling of single quotes in XPaths. See the {{{./release-notes.html} release notes}}.

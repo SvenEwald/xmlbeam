@@ -12,9 +12,13 @@ Roadmap
  
  * Replacing dynamic proxy by asm generated class
  
-* Version 1.2.1
+* Version 1.2.2
 
  * Replace current simple XPath-DOM-Writer with a full XPath capable parser (implemented in jcc branch)
+ 
+* Version 1.2.1
+
+ * New update mode for writing projection methods
   
 * Version 1.2.0
 

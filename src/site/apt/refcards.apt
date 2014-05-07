@@ -129,6 +129,11 @@ API Reference
  Marking a method with @XBWrite declares it as a setter. The annotation takes a XPath expression as parameter.
  Notice that only a subset of the XPath syntax is valid for setters. The expression result must be a Node or NodeSet.
  (Otherwise there would be no place to store the value, right?)
+ 
+** @XBUpdate
+
+ This annotation declares a projection method to update single values on one or more nodes (elements or attributes).
+ In contrast to @XBWrite, here the XPath syntax is not limited.
 
 *** @XBValue
 
