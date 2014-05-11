@@ -15,11 +15,11 @@
  */
 package org.xmlbeam.util.intern.duplex.org.w3c.xqparser;
 
-/**
- * @author sven
- */
-public interface DOMCommand {
-    static DOMCommand MOVE_CURSOR_TO_DOCUMENT = new DOMCommand() {
 
-    };
+/**
+ * @author se
+ *
+ */
+public interface Transformer<T> {      
+    T transform(SimpleNode node);
 }

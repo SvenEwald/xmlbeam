@@ -13,25 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplex;
+package org.xmlbeam.util.intern.duplex.commands;
 
-import org.xmlbeam.XBException;
+import org.w3c.dom.Node;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author sven
  */
-public class XBPathParsingException extends XBException {
+public interface DOMCommand {
+    static DOMCommand MOVE_CURSOR_TO_DOCUMENT = new DOMCommand() {
 
-    private static final long serialVersionUID = -4923686442969043087L;
+        @Override
+        public Node execute(Node currentNode) { 
+            return DOMHelper.getOwnerDocumentFor(currentNode);
+        }
 
-    /**
-     * @param string
-     * @param beginLine
-     * @param beginColumn
-     * @param endColumn
-     */
-    public XBPathParsingException(final String string, final int beginLine, final int beginColumn, final int endColumn,final int endLine) {
-        super(string + " in line " + beginLine + " col " + beginColumn + " to " + endColumn, null);
-    }
-
+    };
+    
+    
+    Node execute(Node currentNode);
+    
 }

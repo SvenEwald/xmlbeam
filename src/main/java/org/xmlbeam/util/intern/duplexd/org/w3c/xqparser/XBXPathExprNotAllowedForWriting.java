@@ -13,25 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplex;
+package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
-import org.xmlbeam.XBException;
+import org.xmlbeam.util.intern.duplex.XBPathParsingException;
 
 /**
- * @author sven
+ *
  */
-public class XBPathParsingException extends XBException {
+public class XBXPathExprNotAllowedForWriting extends XBPathParsingException {
+    
+    private static final long serialVersionUID = 8944815612805655746L;
 
-    private static final long serialVersionUID = -4923686442969043087L;
-
-    /**
-     * @param string
-     * @param beginLine
-     * @param beginColumn
-     * @param endColumn
-     */
-    public XBPathParsingException(final String string, final int beginLine, final int beginColumn, final int endColumn,final int endLine) {
-        super(string + " in line " + beginLine + " col " + beginColumn + " to " + endColumn, null);
-    }
-
+    public XBXPathExprNotAllowedForWriting(SimpleNode node,String reason) {
+        super (reason+": Node "+node.toString()+" is not supported for writing expressions",node.beginLine,node.beginColumn,node.endColumn,node.endLine);
+        //node.parser.token_source.input_stream.inputStream.reset().
+        }
 }

@@ -15,12 +15,16 @@
  */
 package org.xmlbeam.util.intern.duplex;
 
+import org.xmlbeam.util.intern.duplex.commands.DOMCommand;
+import org.xmlbeam.util.intern.duplex.commands.EnsureChildExists;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.ByIds;
 import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.CommandList;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.DOMCommand;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.TransformingVisitor;
 import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.SimpleNode;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParserTreeConstants;
+import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.ValueOfChildWithID;
 import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParserVisitor;
 
+import static org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParserTreeConstants.*;
 /**
  * @author sven
  */
@@ -29,22 +33,22 @@ public class StepBuilderVisitor implements XParserVisitor {
     @Override
     public CommandList visit(final SimpleNode node, final CommandList cmdlist) {
         switch (node.getID()) {
-        case XParserTreeConstants.JJTSTART:
+        case JJTSTART:
             return node.childrenAccept(this, cmdlist);
-        case XParserTreeConstants.JJTXPATH:
+        case JJTXPATH:
             return node.childrenAccept(this, cmdlist);
-        case XParserTreeConstants.JJTEXPR:
+        case JJTEXPR:
             return node.childrenAccept(this, cmdlist);
-        case XParserTreeConstants.JJTPATHEXPR:
+        case JJTPATHEXPR:
             return node.childrenAccept(this, cmdlist);
-        case XParserTreeConstants.JJTSLASHSLASH:
-            throw new XBPathParsingException("Step // not useable for write opreations yet. ", node.beginLine, node.beginColumn, node.endColumn);
-        case XParserTreeConstants.JJTSLASH:
+        case JJTSLASHSLASH:
+            throw new XBPathParsingException("Step // not useable for write opreations yet. ", node.beginLine, node.beginColumn, node.endColumn,node.endLine);
+        case JJTSLASH:
             return cmdlist.add(DOMCommand.MOVE_CURSOR_TO_DOCUMENT);
-        case XParserTreeConstants.JJTSTEPEXPR:
+        case JJTSTEPEXPR:
             return visitStepExpr(node, cmdlist);
         default:
-            throw new XBPathParsingException("Node '" + node.toString() + "' not yet implemented.", node.beginLine, node.beginColumn, node.endColumn);
+            throw new XBPathParsingException("Node '" + node.toString() + "' not yet implemented.", node.beginLine, node.beginColumn, node.endColumn,node.endLine);
         }
     }
 
@@ -54,11 +58,25 @@ public class StepBuilderVisitor implements XParserVisitor {
      * @return
      */
     private CommandList visitStepExpr(final SimpleNode node, final CommandList data) {
-        FindByTypeVisitor byTypeVisitor = new FindByTypeVisitor(XParserTreeConstants.JJTNAMETEST);
-        node.childrenAccept(byTypeVisitor, null);
-        if (byTypeVisitor.getNode() == null) {
-            throw new XBPathParsingException("Step node '" + node + "' has no nodetest.", node.beginLine, node.beginColumn, node.endColumn);
+
+        TransformingVisitor<SimpleNode> findAxis = new TransformingVisitor<SimpleNode>(new ByIds(JJTFORWARDAXIS, JJTREVERSEAXIS));
+        node.childrenAccept(findAxis, null);
+       // final SimpleNode axisNode = findAxis.hasHit() ? findAxis.getFirstHit() : new SimpleNode(JJTFORWARDAXIS);                               
+        if (findAxis.hasHit() && (findAxis.getFirstHit().getID()!=JJTFORWARDAXIS)) {
+            throw new XBPathParsingException("Currently only forward axis is supported.", node.beginLine, node.beginColumn, node.endColumn,node.endLine);
         }
+        TransformingVisitor<SimpleNode> findNameTest = new TransformingVisitor<SimpleNode>(new ByIds(JJTNAMETEST));
+        node.childrenAccept(findNameTest, null);
+        if (!findNameTest.hasHit()) {
+            throw new XBPathParsingException("Step node '" + node + "' has no nodetest.", node.beginLine, node.beginColumn, node.endColumn,node.endLine);
+        }        
+        final SimpleNode nodeTest = findNameTest.getFirstHit();       
+        //nodeTest.findChildrenById(JJTQNAME);
+        final String name = nodeTest.findByVisitor(new ValueOfChildWithID(JJTQNAME));
+        
+        
+        
+        data.add(new EnsureChildExists(name));
         return data;
     }
 }

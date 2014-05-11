@@ -19,7 +19,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.xmlbeam.util.intern.duplex.commands.DOMCommand;
+
 /**
+ * Adapter to a List<DOMCommad>. Needed because visitor object must lie in the same
+ * package as the jtree nodes. 
  * @author sven
  */
 public class CommandList implements Iterable<DOMCommand> {

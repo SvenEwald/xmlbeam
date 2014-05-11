@@ -13,16 +13,22 @@ and software licensing rules
 (http://www.w3.org/Consortium/Legal/copyright-software-19980720)
 apply.
  */
-package org.xmlbeam.util.intern.duplex.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import java.util.List;
+
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Token;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
 
 // ONLY EDIT THIS FILE IN THE GRAMMAR ROOT DIRECTORY!
 // THE ONE IN THE ${spec}-src DIRECTORY IS A COPY!!!
 public class SimpleNode implements Node {
     protected Node parent;
 
-    protected Node[] children;
+    protected SimpleNode[] children;
 
     protected int id;
 
@@ -61,7 +67,7 @@ public class SimpleNode implements Node {
         parent = n;
     }
 
-    public void jjtSetChildren(final Node[] n) {
+    public void jjtSetChildren(final SimpleNode[] n) {
         children = n;
     }
 
@@ -85,13 +91,13 @@ public class SimpleNode implements Node {
             return;
         }
         if (children == null) {
-            children = new Node[i + 1];
+            children = new SimpleNode[i + 1];
         } else if (i >= children.length) {
-            Node c[] = new Node[i + 1];
+            SimpleNode c[] = new SimpleNode[i + 1];
             System.arraycopy(children, 0, c, 0, children.length);
             children = c;
         }
-        children[i] = n;
+        children[i] = (SimpleNode) n;
     }
 
     @Override
@@ -106,18 +112,19 @@ public class SimpleNode implements Node {
 
     /** Accept the visitor. * */
     @Override
-    public CommandList jjtAccept(final XParserVisitor visitor, final CommandList data) {
+    public Object jjtAccept(final XParserVisitor visitor, final Object data) {
         return visitor.visit(this, data);
     }
 
     /** Accept the visitor. * */
-    public CommandList childrenAccept(final XParserVisitor visitor, final CommandList data) {
+    public Object childrenAccept(final XParserVisitor visitor, final Object data) {
+        Object result= data;
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
-                children[i].jjtAccept(visitor, data);
+                result = children[i].jjtAccept(visitor, result);
             }
         }
-        return data;
+        return result;
     }
 
     /*
@@ -198,15 +205,38 @@ public class SimpleNode implements Node {
         return id;
     }
     
+    public Object childrenFilteredAccept(final XParserVisitor visitor,final int filterID,final Object data) {
+        Object result= data;
+        if (children != null) {
+            for (int i = 0; i < children.length; ++i) {
+                if (children[i].getID()==filterID)
+                    result = children[i].jjtAccept(visitor, result);
+            }
+        }
+        return result;
+    } 
+    
+    
+    public SimpleNode getFirstChildWithId(final int id) {
+        if (children != null) {
+            for (int i = 0; i < children.length; ++i) {
+                if (children[i].getID()==id)
+                   return children[i];
+            }
+        }
+        return null;
+    }
+    
+    
 //    public List<SimpleNode> findChildrenById(final int... ids) {
 //        FindByPredicateVisitor<SimpleNode> v = new FindByPredicateVisitor<SimpleNode>(new ByIdsPredicate(ids));
 //        childrenAccept(v, null);
 //        return v.getHits();
 //    }
 //    
-    public <T> T findByVisitor(final Transformer<T> predicate) {
-        TransformingVisitor<T> v = new TransformingVisitor<T>(predicate);
-        childrenAccept(v, null);
-        return v.getFirstHit();
-    }
+//    public <T> T findByVisitor(final Transformer<T> predicate) {
+//        TransformingVisitor<T> v = new TransformingVisitor<T>(predicate);
+//        childrenAccept(v, null);
+//        return v.getFirstHit();
+//    }
 }

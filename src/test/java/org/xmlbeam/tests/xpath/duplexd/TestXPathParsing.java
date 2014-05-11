@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.xpath.duplex;
+package org.xmlbeam.tests.xpath.duplexd;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -26,24 +26,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
-import org.xmlbeam.util.intern.duplex.StepBuilderVisitor;
-import org.xmlbeam.util.intern.duplex.commands.DOMCommand;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.CommandList;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.SimpleNode;
-import org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParser;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.BuildDocumentVisitor;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
 
 /**
  * @author sven
  */
 public class TestXPathParsing {
-    
+
     private Document document;
-    
+
     @Before
     public void prepare() {
         document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
     }
-    
+
     @Test
     public void testXPathParsing() throws Exception {
         //String xpath = "let $incr :=       function($n) {$n+1}  \n return $incr(2)";
@@ -52,23 +50,17 @@ public class TestXPathParsing {
         SimpleNode node = parser.START();
         node.dump("");
 
-        CommandList list = node.jjtAccept(new StepBuilderVisitor(), new CommandList());
-        
-        org.w3c.dom.Node domNode=document;
-        for (DOMCommand cmd : list) {
-            domNode = cmd.execute(domNode);
-        }
-                
+        node.jjtAccept(new BuildDocumentVisitor(), document);
+
         print();
     }
-    
-    
+
     public void print() {
         final StringWriter writer = new StringWriter();
         try {
             new DefaultXMLFactoriesConfig().createTransformer().transform(new DOMSource(document), new StreamResult(writer));
         } catch (TransformerException e) {
-            throw new RuntimeException(e);            
+            throw new RuntimeException(e);
         }
         final String output = writer.getBuffer().toString();
         System.out.println(output);

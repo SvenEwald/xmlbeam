@@ -13,25 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplex;
+package org.xmlbeam.util.intern.duplex.org.w3c.xqparser;
 
-import org.xmlbeam.XBException;
 
 /**
- * @author sven
+ * @author se
+ *
  */
-public class XBPathParsingException extends XBException {
+public class ValueOfChildWithID  implements Transformer<String>{
 
-    private static final long serialVersionUID = -4923686442969043087L;
-
-    /**
-     * @param string
-     * @param beginLine
-     * @param beginColumn
-     * @param endColumn
-     */
-    public XBPathParsingException(final String string, final int beginLine, final int beginColumn, final int endColumn,final int endLine) {
-        super(string + " in line " + beginLine + " col " + beginColumn + " to " + endColumn, null);
+    final ByIds byIds;
+    
+    @Override
+    public String transform(SimpleNode node) {
+        SimpleNode results = byIds.transform(node);        
+        return node != null? results.getValue() : null;
     }
 
+    public ValueOfChildWithID(int... ids) {
+        this.byIds= new ByIds(ids);
+    }
+    
 }
