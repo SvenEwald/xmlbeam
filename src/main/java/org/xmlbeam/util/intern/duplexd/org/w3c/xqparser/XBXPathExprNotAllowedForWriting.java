@@ -15,17 +15,15 @@
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
-import org.xmlbeam.util.intern.duplex.XBPathParsingException;
-
 /**
  *
  */
 public class XBXPathExprNotAllowedForWriting extends XBPathParsingException {
-    
+
     private static final long serialVersionUID = 8944815612805655746L;
 
-    public XBXPathExprNotAllowedForWriting(SimpleNode node,String reason) {
-        super (reason+": Node "+node.toString()+" is not supported for writing expressions",node.beginLine,node.beginColumn,node.endColumn,node.endLine);
+    public XBXPathExprNotAllowedForWriting(final SimpleNode node, final String reason) {
+        super(reason + ": Node " + node.toString() + " is not supported for writing expressions", node.beginLine, node.beginColumn, node.endColumn, node.endLine);
         //node.parser.token_source.input_stream.inputStream.reset().
-        }
+    }
 }

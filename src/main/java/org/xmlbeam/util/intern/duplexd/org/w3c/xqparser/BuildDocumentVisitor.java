@@ -15,7 +15,21 @@
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
-import static org.xmlbeam.util.intern.duplex.org.w3c.xqparser.XParserTreeConstants.*;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVFORWARDSTEP;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCOMPARISONEXPR;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTEXPR;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNAMETEST;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNODETEST;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPATHEXPR;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPREDICATE;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPREDICATELIST;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTQNAME;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSLASH;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSLASHSLASH;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTART;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTEPEXPR;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTRINGLITERAL;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -23,7 +37,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplex.XBPathParsingException;
 
 /**
  */
@@ -33,29 +46,31 @@ public class BuildDocumentVisitor implements XParserVisitor {
 
         String name;
         boolean isAttribute;
-        
+
         @Override
-        public Object visit(SimpleNode node, Object data) {
+        public Object visit(final SimpleNode node, final Object data) {
             switch (node.getID()) {
             case JJTABBREVFORWARDSTEP:
                 this.isAttribute = "@".equals(node.getValue());
                 return node.childrenAccept(this, data);
-            case JJTNODETEST : 
+            case JJTNODETEST:
                 return node.childrenAccept(this, data);
-            case JJTNAMETEST :
+            case JJTNAMETEST:
                 return node.childrenAccept(this, data);
             case JJTQNAME:
-                this.name=node.getValue();
+                this.name = node.getValue();
                 return data;
-            default:            
-                throw new XBXPathExprNotAllowedForWriting(node,"Not expeced here.");
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
         }
-        
+
     }
+
     private static class ApplyPredicatesVisitor implements XParserVisitor {
 
-        public Object visit(SimpleNode node, Object data ) {
+        @Override
+        public Object visit(final SimpleNode node, final Object data) {
             switch (node.getID()) {
             case JJTPREDICATELIST:
                 return node.childrenAccept(this, data);
@@ -69,26 +84,27 @@ public class BuildDocumentVisitor implements XParserVisitor {
                 }
                 Object first = node.jjtGetChild(0).jjtAccept(this, data);
                 if (!(first instanceof Node)) {
-                    throw new XBXPathExprNotAllowedForWriting(node, "A nonwritable predicate"); 
+                    throw new XBXPathExprNotAllowedForWriting(node, "A nonwritable predicate");
                 }
                 Object second = node.jjtGetChild(1).jjtAccept(this, data);
-                ((Node)first).setTextContent(second.toString());
+                ((Node) first).setTextContent(second.toString());
                 return data;
             case JJTSTEPEXPR:
                 return node.jjtAccept(new BuildDocumentVisitor(), data);
             case JJTSTRINGLITERAL:
                 return node.getValue();
-            default:            
-                throw new XBXPathExprNotAllowedForWriting(node,"Not expetced here.");
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expetced here.");
             }
         }
-        
+
     }
-    
+
     private static class EvaluatePredicateListVisitor implements XParserVisitor {
-        private boolean isMatch=true;
+        private boolean isMatch = true;
+
         @Override
-        public Object visit(SimpleNode node, Object data ) {
+        public Object visit(final SimpleNode node, final Object data) {
             switch (node.getID()) {
             case JJTPREDICATELIST:
                 return node.childrenAccept(this, data);
@@ -99,12 +115,12 @@ public class BuildDocumentVisitor implements XParserVisitor {
             case JJTCOMPARISONEXPR:
                 Object first = node.jjtGetChild(0).jjtAccept(this, data);
                 Object second = node.jjtGetChild(1).jjtAccept(this, data);
-                if (!compare(node,first,second)) {
-                    isMatch=false;
+                if (!compare(node, first, second)) {
+                    isMatch = false;
                 }
                 return data;
-            default:            
-                throw new XBXPathExprNotAllowedForWriting(node,"Not expeced here.");
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
         }
 
@@ -114,12 +130,12 @@ public class BuildDocumentVisitor implements XParserVisitor {
          * @param second
          * @return
          */
-        private boolean compare(SimpleNode value, Object first, Object second) {
+        private boolean compare(final SimpleNode value, final Object first, final Object second) {
             switch (value.getValue().charAt(0)) {
-            case '=' : 
+            case '=':
                 return toString(first).equals(toString(second));
-                default:
-                    throw new XBXPathExprNotAllowedForWriting(value, "Operator "+value.getValue()+" not implemented");
+            default:
+                throw new XBXPathExprNotAllowedForWriting(value, "Operator " + value.getValue() + " not implemented");
             }
         }
 
@@ -127,24 +143,22 @@ public class BuildDocumentVisitor implements XParserVisitor {
          * @param first
          * @return
          */
-        private String toString(Object o) {
+        private String toString(final Object o) {
             if (o instanceof Node) {
-                return ((Node)o).getTextContent();
+                return ((Node) o).getTextContent();
             }
-            return o==null ? "<null>" : o.toString();
+            return o == null ? "<null>" : o.toString();
         }
 
         public boolean matches() {
             return isMatch;
         }
     }
-    
-  //  private final FindNameTestVisitor NAME_TEST = new FindNameTestVisitor();
-    
-    
+
+    //  private final FindNameTestVisitor NAME_TEST = new FindNameTestVisitor();
 
     @Override
-    public Object visit(SimpleNode node, Object data) {
+    public Object visit(final SimpleNode node, final Object data) {
         switch (node.getID()) {
         case JJTSTART:
             return node.childrenAccept(this, data);
@@ -155,33 +169,32 @@ public class BuildDocumentVisitor implements XParserVisitor {
         case JJTPATHEXPR:
             return node.childrenAccept(this, data);
         case JJTSLASHSLASH:
-            throw new XBXPathExprNotAllowedForWriting(node,"Ambiguous locator");
+            throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous locator");
         case JJTSLASH:
             return DOMHelper.getOwnerDocumentFor((Node) data);
-        case JJTSTEPEXPR:            
-            FindNameTestVisitor nameTest=new FindNameTestVisitor();
+        case JJTSTEPEXPR:
+            FindNameTestVisitor nameTest = new FindNameTestVisitor();
             node.jjtGetChild(0).jjtAccept(nameTest, data);
             String childName = nameTest.name;
-            boolean isAttribute = nameTest.isAttribute;            
+            boolean isAttribute = nameTest.isAttribute;
             if (isAttribute) {
                 assert ((Node) data).getNodeType() == Node.ELEMENT_NODE;
-                Attr attributeNode = ((org.w3c.dom.Element)data).getAttributeNode(childName);
-                if (attributeNode!=null) {
+                Attr attributeNode = ((org.w3c.dom.Element) data).getAttributeNode(childName);
+                if (attributeNode != null) {
                     return attributeNode;
                 }
                 Attr newAttribute = DOMHelper.getOwnerDocumentFor((Node) data).createAttribute(childName);
-                return ((org.w3c.dom.Element)data).appendChild(newAttribute);
+                return ((org.w3c.dom.Element) data).appendChild(newAttribute);
             }
-            Node nextNode = findFirstMatchingChildElement((Node) data,childName,node.getFirstChildWithId(JJTPREDICATELIST));            
-            if (nextNode==null) {
-                return createChildElement((Node) data,childName,node.getFirstChildWithId(JJTPREDICATELIST));
-            }            
-            return nextNode; 
-        default:            
-            throw new XBXPathExprNotAllowedForWriting(node,"Not implemented");
+            Node nextNode = findFirstMatchingChildElement((Node) data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+            if (nextNode == null) {
+                return createChildElement((Node) data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+            }
+            return nextNode;
+        default:
+            throw new XBXPathExprNotAllowedForWriting(node, "Not implemented");
         }
     }
-
 
     /**
      * @param data
@@ -189,7 +202,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
      * @param firstChildWithId
      * @return
      */
-    private Element createChildElement(Node data, String childName, SimpleNode predicateList) {
+    private Element createChildElement(final Node data, final String childName, final SimpleNode predicateList) {
         Document document = DOMHelper.getOwnerDocumentFor(data);
         Element newElement = document.createElement(childName);
         data.appendChild(newElement);
@@ -198,17 +211,16 @@ public class BuildDocumentVisitor implements XParserVisitor {
         return newElement;
     }
 
-
     /**
      * @param data
      * @param childName
      * @param firstChildWithId
      * @return
      */
-    private Element findFirstMatchingChildElement(Node data, String childName, SimpleNode predicateList) {
+    private Element findFirstMatchingChildElement(final Node data, final String childName, final SimpleNode predicateList) {
         if (data instanceof Document) {
-            final Element root= ((Document)data).getDocumentElement();
-            if (root==null) {
+            final Element root = ((Document) data).getDocumentElement();
+            if (root == null) {
                 return null;
             }
             if (!root.getNodeName().equals(childName)) {
@@ -221,8 +233,8 @@ public class BuildDocumentVisitor implements XParserVisitor {
             }
             return null;
         }
-        NodeList nodeList =((Element) data).getElementsByTagName(childName);
-        for (int i=0; i< nodeList.getLength();++i) {
+        NodeList nodeList = ((Element) data).getElementsByTagName(childName);
+        for (int i = 0; i < nodeList.getLength(); ++i) {
             Element e = (Element) nodeList.item(i);
             EvaluatePredicateListVisitor predicateVisitor = new EvaluatePredicateListVisitor();
             predicateList.childrenAccept(predicateVisitor, e);
