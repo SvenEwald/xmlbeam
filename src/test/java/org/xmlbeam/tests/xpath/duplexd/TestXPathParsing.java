@@ -15,8 +15,13 @@
  */
 package org.xmlbeam.tests.xpath.duplexd;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
@@ -24,35 +29,140 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.BuildDocumentVisitor;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
 
 /**
  * @author sven
  */
+@RunWith(Parameterized.class)
 public class TestXPathParsing {
 
-    private Document document;
+    @XBDocURL("resource://tests.xml")
+    public interface Projection extends DOMAccess {
+        @XBRead("/tests/test")
+        List<Projection> getTests();
 
-    @Before
-    public void prepare() {
-        document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
+        @XBRead("./before/child::*")
+        Projection getBefore();
+
+        @XBRead("./after/child::*")
+        Projection getAfter();
+
+        @XBRead("./@id")
+        String getTestId();
+
+        @XBRead("./xpath")
+        String getXPath();
+
+    };
+
+    private Document document;
+    private final String testId;
+    private final Projection before;
+    private final String xpath;
+    private final Projection after;
+
+    private final static int RUN_ONLY = -1;
+
+//    @Before
+//    public void prepare() {
+//        document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
+//    }
+
+    public TestXPathParsing(String id, Projection before, String xpath, Projection after) {
+        this.testId = id;
+        this.before = before;
+        this.xpath = xpath;
+        this.after = after;
     }
 
     @Test
     public void testXPathParsing() throws Exception {
         //String xpath = "let $incr :=       function($n) {$n+1}  \n return $incr(2)";
-        String xpath = "/hoo[@id='wutz']/foo/loo";
+//        if ((before!=null) && (before.getDOMNode()!=null)) {
+//            Node node = before.getDOMNode().cloneNode(true);
+//            document.adoptNode(node);
+//            document.appendChild(node);
+//        }
+        document = before.getDOMOwnerDocument();
+        // String xpath = "/hoo[@id='wutz']/foo/loo";
+        createByXParser(xpath);
+        Projection result = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectDOMNode(document, Projection.class);
+        after.getDOMNode().normalize();
+        DOMHelper.trim(after.getDOMNode());
+//        DOMHelper.trim(after.getDOMNode());
+        result.getDOMNode().normalize();
+        DOMHelper.trim(result.getDOMNode());
+        //   after.getDOMOwnerDocument().normalizeDocument();
+        //result.getDOMOwnerDocument().normalizeDocument();
+        DOMHelper.nodesAreEqual(after.getDOMNode(), result.getDOMNode());
+        assertEquals(after, result);
+    }
+
+    @Parameters
+    public static Collection<Object[]> tests() throws Exception {
+        List<Object[]> params = new LinkedList<Object[]>();
+        Projection testDefinition = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(Projection.class);
+        int count = 0;
+        for (Projection test : testDefinition.getTests()) {
+            final Object[] param = new Object[4];
+            param[0] = "["+count+"] "+test.getTestId();
+            param[1] = subProjectionToDocument(test.getBefore());
+            param[2] = test.getXPath().trim();
+            param[3] = subProjectionToDocument(test.getAfter());
+            if ((count++ == RUN_ONLY)||(RUN_ONLY < 0)) {
+                params.add(param);
+            }
+        }
+        return params;
+    }
+
+    /**
+     * @param test
+     * @return
+     */
+    private static Projection subProjectionToDocument(Projection test) {
+        Document document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
+
+        if (test != null) {
+            Node node = test.getDOMNode().cloneNode(true);
+            document.adoptNode(node);
+            document.appendChild(node);
+        }
+
+        return new XBProjector(Flags.TO_STRING_RENDERS_XML).projectDOMNode(document, Projection.class);
+    }
+
+    /**
+     * @param xpath
+     * @throws ParseException
+     */
+    private void createByXParser(String xpath) throws ParseException {
         XParser parser = new XParser(new StringReader(xpath));
         SimpleNode node = parser.START();
+        System.out.println("-----------------------------------------");
+        System.out.println(testId);
+        System.out.println(xpath);
         node.dump("");
 
         node.jjtAccept(new BuildDocumentVisitor(), document);
 
-        print();
+        //print();
     }
 
     public void print() {

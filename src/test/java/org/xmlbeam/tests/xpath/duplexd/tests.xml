@@ -1,0 +1,169 @@
+<tests>
+	<!-- Single predicate tests -->
+	<test id="Create structure with attribute predicate in root">
+		<before />
+		<xpath>
+			/hoo[@id='wutz']/foo/loo
+		</xpath>
+		<after>
+			<hoo id="wutz">
+				<foo>
+					<loo />
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<test id="Create structure with value predicate in root">
+		<before />
+		<xpath>
+			/hoo[id='wutz']/foo/loo
+		</xpath>
+		<after>
+			<hoo>
+				<id>wutz</id>
+				<foo>
+					<loo />
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<test id="Create structure with value predicate in deeper element">
+		<before />
+		<xpath>
+			/hoo/foo/loo[id='wutz']
+		</xpath>
+		<after>
+			<hoo>
+				<foo>
+					<loo>
+						<id>wutz</id>
+					</loo>
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<test id="Create structure with existing attribute predicate in root">
+		<before>
+			<hoo id="wutz">
+				<foo>
+				</foo>
+			</hoo>
+		</before>
+		<xpath>
+			/hoo[@id='wutz']/foo/loo
+		</xpath>
+		<after>
+			<hoo id="wutz">
+				<foo>
+					<loo />
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<test id="Create structure with existing predicate in deeper structure">
+		<before>
+			<hoo>
+				<foo>
+					<id>wutz</id>
+				</foo>
+			</hoo>
+		</before>
+		<xpath>
+			/hoo/foo[id='wutz']/loo
+		</xpath>
+		<after>
+			<hoo>
+				<foo>
+					<id>wutz</id>
+					<loo />
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<test id="Create structure with existing element not matching predicate">
+		<before>
+			<hoo>
+				<foo>without id</foo>
+				<foo>
+					<id>wutz</id>
+				</foo>
+			</hoo>
+		</before>
+		<xpath>
+			/hoo/foo[id='wutz']/loo
+		</xpath>
+		<after>
+			<hoo>
+				<foo>without id</foo>
+				<foo>
+					<id>wutz</id>
+					<loo />
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<!-- Multiple predicate tests -->
+	<test id="Create structure with multiple predicates in root">
+		<before />
+		<xpath>
+			/hoo[@id='wutz'][@bar="another"][sub=1234]/foo/loo
+		</xpath>
+		<after>
+			<hoo id="wutz" bar="another">
+				<sub>1234</sub>
+				<foo>
+					<loo />
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<test
+		id="Create structure with existing element partly matching multiple predicates">
+		<before>
+			<hoo>
+				<foo>without id</foo>
+				<foo>
+					<id>wutz</id>
+				</foo>
+			</hoo>
+		</before>
+		<xpath>
+			/hoo/foo[id='wutz'][bar=123]/loo
+		</xpath>
+		<after>
+			<hoo>
+				<foo>without id</foo>
+				<foo>
+					<id>wutz</id>
+				</foo>
+				<foo>
+					<id>wutz</id>
+					<bar>123</bar>
+					<loo />
+				</foo>
+			</hoo>
+		</after>
+	</test>
+	<!-- Test with number predicate-->
+	<test
+		id="Create structure with existing element selected by number predicate">
+		<before>
+			<hoo>
+				<foo>first</foo>
+				<foo>second</foo>
+				<foo>third</foo>
+			</hoo>
+		</before>
+		<xpath>
+			/hoo/foo[2]/loo
+		</xpath>
+		<after>
+			<hoo>
+				<foo>first</foo>
+				<foo>second<loo/></foo>
+				<foo>third</foo>
+			</hoo>
+		</after>
+	</test>	
+	<!-- Test with backward axis -->
+</tests>

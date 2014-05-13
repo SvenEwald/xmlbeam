@@ -15,13 +15,12 @@ apply.
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Token;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
+import org.w3c.dom.NodeList;
+import org.xmlbeam.util.intern.DOMHelper;
 
 // ONLY EDIT THIS FILE IN THE GRAMMAR ROOT DIRECTORY!
 // THE ONE IN THE ${spec}-src DIRECTORY IS A COPY!!!
@@ -118,13 +117,58 @@ public class SimpleNode implements Node {
 
     /** Accept the visitor. * */
     public Object childrenAccept(final XParserVisitor visitor, final Object data) {
-        Object result= data;
+        Object result = data;
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
-                result = children[i].jjtAccept(visitor, result);
+                Object newResult = (children[i].jjtAccept(visitor, result));
+                if (Boolean.FALSE.equals(newResult)) { // Boolean end early exit
+                    return Boolean.FALSE;
+                }
+                if (Boolean.TRUE.equals(newResult)) { // No early exit yet
+                    if (i+1==children.length) {
+                        return Boolean.TRUE;
+                    }
+                    continue;
+                }
+                result=newResult; // proceed step expression
             }
         }
-        return result;
+        return result;        
+    }
+
+    /**
+     * @param results
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private Object unwrap(Object results) {
+        if (results instanceof NodeList) {
+            return unwrap((NodeList)results); 
+        }
+        if (!(results instanceof List)) {
+            return results;
+        }
+        if (((List<?>)results).isEmpty()) {            
+            return null;
+        }
+        for (ListIterator<Object> i=((List)results).listIterator(); i.hasNext(); ){
+            Object o = i.next();
+            if (o instanceof List){
+            i.set(unwrap((List<Object>) o));
+            continue;
+            }
+            if (o instanceof NodeList) {
+                i.set(unwrap((NodeList)o));
+            }
+        }
+        return ((List)results).size() == 1 ? ((List)results).get(0) : results;
+    }
+
+    private Object unwrap(NodeList o) {
+            if (o.getLength()==1) {
+                return o.item(0);
+            }                    
+        return DOMHelper.asList(o);
     }
 
     /*

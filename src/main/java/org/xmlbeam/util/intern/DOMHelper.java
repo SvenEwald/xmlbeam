@@ -15,16 +15,17 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.io.IOException;
-import java.io.InputStream;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -34,6 +35,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlbeam.util.IOHelper;
@@ -615,5 +617,88 @@ public final class DOMHelper {
             return elementName.replaceAll(":.*", "");
         }
         return "";
+    }
+
+    /**
+     * @param domNode
+     */
+    public static void trim(Node domNode) {
+        assert domNode != null;
+        assert (Node.TEXT_NODE != domNode.getNodeType());
+//        if (Node.TEXT_NODE == domNode.getNodeType()) {
+//            String content = domNode.getNodeValue();
+//            if ((content == null) || (content.trim().isEmpty())) {
+//                return;
+//            }
+//            domNode.setNodeValue(content.trim());
+//            assert domNode.getChildNodes().getLength()==0;
+//            return;
+//        }
+        List<Text> removeMe = new LinkedList<Text>();
+        NodeList childNodes = domNode.getChildNodes();
+        for (Node child : nodeListToIterator(childNodes)) {
+            if (Node.TEXT_NODE == child.getNodeType()) {
+                if ((child.getNodeValue() == null) || child.getNodeValue().trim().isEmpty()) {
+                    removeMe.add((Text) child);
+                }
+                continue;
+            }
+            trim(child);
+        }
+        for (Text node : removeMe) {
+            Node parent = node.getParentNode();
+            if (parent != null) {
+                parent.removeChild(node);
+            }
+        }
+    }
+
+    /**
+     * @param childNodes
+     * @return
+     */
+    private static Iterable<Node> nodeListToIterator(final NodeList nodeList) {
+        return new Iterable<Node>() {
+
+            @Override
+            public Iterator<Node> iterator() {
+                return new Iterator<Node>() {
+
+                    private int pos = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return nodeList.getLength() > pos;
+                    }
+
+                    @Override
+                    public Node next() {
+                        return nodeList.item(pos++);
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new IllegalStateException();
+                    }
+
+                };
+            }
+
+        };
+    }
+
+    /**
+     * @param o
+     * @return
+     */
+    public static Object asList(NodeList o) {
+        if (o == null) {
+            return null;
+        }
+        List<Node> list = new LinkedList<Node>();
+        for (Node n:nodeListToIterator(o)) {
+            list.add(n);
+        }
+        return list;
     }
 }
