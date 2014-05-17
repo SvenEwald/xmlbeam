@@ -153,7 +153,27 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javacc-maven-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>xpath</id>
+            <goals>
+              <goal>jjtree-javacc</goal>
+            </goals>
+            <configuration>
+<!--             
+            <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+ -->            
+            <javadocFriendlyComments>true</javadocFriendlyComments>
+              <lookAhead>2</lookAhead>
+              <isStatic>false</isStatic>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
