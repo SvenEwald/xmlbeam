@@ -585,10 +585,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
 //            final String elementSelector = pathToElement.replaceAll(".*/", "");
 //            final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
-            Node parentElement = WritingXPath.compile(path).evaluate(settingNode);
-
+            List<Node> targetElements = WritingXPath.compile(path).evaluateOrCreate(settingNode);
+            if (!DOMHelper.haveSameParent(targetElements)) {
+                throw new IllegalArgumentException("XPath resolves to elements with different parent elements. I cannot decide where to apply the changes.");
+            }
             Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-            int count = applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
+            int count = replaceExistingElementsWithCollection(targetElements,collection2Set);
+            //int count = applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
 

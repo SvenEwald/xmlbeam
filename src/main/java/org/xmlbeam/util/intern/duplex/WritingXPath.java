@@ -16,8 +16,11 @@
 package org.xmlbeam.util.intern.duplex;
 
 import java.io.StringReader;
+import java.util.Collection;
+import java.util.List;
 
 import org.w3c.dom.Node;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ApplyValuesVisitor;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.BuildDocumentVisitor;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
@@ -38,9 +41,10 @@ public class WritingXPath {
             this.xpathSyntaxTreeStart = node;
         }
 
-        public Node evaluate(final Node target) {
-            return (Node) xpathSyntaxTreeStart.jjtAccept(new BuildDocumentVisitor(), target);
+        public Object evaluateOrCreate(final Node target,final Collection<?> values) {
+            return  xpathSyntaxTreeStart.jjtAccept(new ApplyValuesVisitor(values), target);
         }
+        
     }
 
     /**
@@ -51,7 +55,6 @@ public class WritingXPath {
     public static WritingXPathEvaluator compile(final String xpath) throws ParseException {
         XParser parser = new XParser(new StringReader(xpath));
         SimpleNode node = parser.START();
-
         return new WritingXPathEvaluator(node);
     }
 }

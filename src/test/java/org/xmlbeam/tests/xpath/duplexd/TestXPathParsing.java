@@ -160,9 +160,9 @@ public class TestXPathParsing {
         System.out.println(xpath);
         node.dump("");
 
-        node.jjtAccept(new BuildDocumentVisitor(), document);
+        List<Node> jjtAccept = (List<Node>) node.jjtAccept(new BuildDocumentVisitor(), document);
 
-        //print();
+        //print();                
     }
 
     public void print() {

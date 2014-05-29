@@ -34,6 +34,10 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTRINGLITERAL;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -233,8 +237,6 @@ public class BuildDocumentVisitor implements XParserVisitor {
         }
     }
 
-    //  private final FindNameTestVisitor NAME_TEST = new FindNameTestVisitor();
-
     @Override
     public Object visit(final SimpleNode node, final Object data) {
         assert data instanceof Node;
@@ -246,7 +248,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
         case JJTEXPR:
             return node.childrenAccept(this, data);
         case JJTPATHEXPR:
-            return node.childrenAccept(this, data);
+            return asListofNodes(node.childrenAccept(this, data));
         case JJTSLASHSLASH:
             throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous locator");
         case JJTSLASH:
@@ -275,6 +277,21 @@ public class BuildDocumentVisitor implements XParserVisitor {
         default:
             throw new XBXPathExprNotAllowedForWriting(node, "Not implemented");
         }
+    }
+
+    /**
+     * @param childrenAccept
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private List<Node> asListofNodes(Object childrenAccept) {
+        if (childrenAccept == null) {
+            return Collections.emptyList();
+        }
+        if (childrenAccept instanceof Node) {
+            return Collections.singletonList((Node)childrenAccept);
+        }
+        return (List<Node>) childrenAccept;
     }
 
     /**
