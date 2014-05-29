@@ -55,7 +55,6 @@ import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
-import org.xmlbeam.util.intern.duplex.WritingXPath;
 
 /**
  * This class implements the "magic" behind projection methods. Each projection is linked with a
@@ -579,14 +578,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         if (isMultiValue) {
-//            if (path.contains("@")) {
-//                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+            if (path.contains("@")) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+            }
+            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
+            final String elementSelector = pathToElement.replaceAll(".*/", "");
+            final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
+            //   DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
+//            if (valueToSet == null) {
+//                return getProxyReturnValueForMethod(proxy, method);
 //            }
-//            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
-//            final String elementSelector = pathToElement.replaceAll(".*/", "");
-//            final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
-            Node parentElement = WritingXPath.compile(path).evaluate(settingNode);
-
             Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
             int count = applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
