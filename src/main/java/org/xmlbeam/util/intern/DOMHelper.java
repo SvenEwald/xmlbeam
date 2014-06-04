@@ -712,4 +712,14 @@ public final class DOMHelper {
         }
         return list;
     }
+
+    /**
+     * @param previous
+     * @param newNode
+     */
+    public static void replaceElement(final Element previous, final Element newNode) {
+        assert previous.getParentNode() != null;
+        Element parent = (Element) previous.getParentNode();
+        parent.replaceChild(newNode, previous);
+    }
 }

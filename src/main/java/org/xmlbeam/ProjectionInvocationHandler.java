@@ -148,8 +148,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return (o instanceof InternalProjection) || (o instanceof Node);
     }
 
-    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode, final String elementSelector) {
-        final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
+    private void applySingleSetElementOnElement(final Element element, final Node parentNode, final String elementSelector) {
+        //final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
+        final Element newElement = (Element) element.cloneNode(true);
         DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
         DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newElement);
         parentNode.appendChild(newElement);
@@ -476,6 +477,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (Node.class.equals(returnType)) {
             return expression.evaluate(node, XPathConstants.NODE);
         }
+        if (Element.class.equals(returnType)) {
+            return expression.evaluate(node, XPathConstants.NODE);
+        }
 
         if (List.class.equals(returnType)) {
             return evaluateAsList(expression, node, method);
@@ -533,6 +537,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 DOMHelper.setOrRemoveAttribute(e, n.getNodeName(), valueToSet == null ? null : valueToSet.toString());
                 continue;
             }
+            if (valueToSet instanceof Element) {
+                if (!(n instanceof Element)) {
+                    throw new IllegalArgumentException("XPath for element update need to select elements only");
+                }
+                DOMHelper.replaceElement((Element) n, (Element) ((Element) valueToSet).cloneNode(true));
+                continue;
+            }
             n.setTextContent(valueToSet == null ? null : valueToSet.toString());
         }
 
@@ -567,6 +578,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 DOMHelper.setDocumentElement(document, null);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
             }
+            if (valueToSet instanceof Element) {
+                Element clone = (Element) ((Element) valueToSet).cloneNode(true);
+                document.adoptNode(clone);
+                if (document.getDocumentElement() == null) {
+                    document.appendChild(clone);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
+                document.replaceChild(document.getDocumentElement(), clone);
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+            }
             if (!(valueToSet instanceof InternalProjection)) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
             }
@@ -592,12 +613,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             int count = applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
-
-        if (valueToSet instanceof InternalProjection) {
+        if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
             String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
             String elementSelector = pathToElement.replaceAll(".*/", "");
             Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-            applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode, elementSelector);
+            applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
         }
 
