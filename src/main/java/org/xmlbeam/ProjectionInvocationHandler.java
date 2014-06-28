@@ -108,6 +108,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return 0;
         }
         for (Object o : collection) {
+            try {
+                o = ReflectionHelper.unwrap(o);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
             if (o == null) {
                 continue;
             }
@@ -355,6 +360,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      */
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+        unwrapArgs(args);
         {
             String resolvedXpath = null;
             try {
@@ -417,6 +423,25 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
         }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
+    }
+
+    /**
+     * If parameter is instance of Callable or Supplier then resolve its value.
+     *
+     * @param args
+     */
+    private void unwrapArgs(final Object[] args) {
+        if (args == null) {
+            return;
+        }
+        try {
+            for (int i = 0; i < args.length; ++i) {
+                args[i] = ReflectionHelper.unwrap(args[i]);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+
     }
 
     /**
@@ -518,7 +543,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
         final boolean isMultiValue = isMultiValue(typeToSet);
         if (isMultiValue) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as updater but del");
+            throw new IllegalArgumentException("Method " + method + " was invoked as updater but with multiple values. Update is possible for single values only. Consider using @XBWrite.");
         }
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         final int count = nodes.getLength();

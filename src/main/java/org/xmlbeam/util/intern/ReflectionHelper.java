@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
 /**
@@ -38,8 +39,8 @@ import java.util.regex.Pattern;
  */
 public final class ReflectionHelper {
 
-    private final static Method ISDEFAULT =findMethodByName(Method.class,"isDefault"); 
-    private final static Method GETPARAMETERS = findMethodByName(Method.class,"getParameters");
+    private final static Method ISDEFAULT = findMethodByName(Method.class, "isDefault");
+    private final static Method GETPARAMETERS = findMethodByName(Method.class, "getParameters");
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
 
@@ -54,24 +55,24 @@ public final class ReflectionHelper {
         seta.retainAll(setb);
         return seta;
     }
-   
+
     /**
      * Non exception throwing shortcut to find the first method with a given name.
+     *
      * @param clazz
      * @param name
      * @return method with name "name" or null if it does not exist.
      */
     public static Method findMethodByName(final Class<?> clazz, final String name) {
-        for (final Method m: clazz.getMethods()) {
+        for (final Method m : clazz.getMethods()) {
             if (name.equals(m.getName())) {
                 return m;
             }
         }
         return null;
     }
-    
+
     /**
-     * 
      * @param a
      * @return a set of all super interfaces of a
      */
@@ -87,7 +88,8 @@ public final class ReflectionHelper {
     };
 
     /**
-     * Defensive implemented method to determine if method has a return type. 
+     * Defensive implemented method to determine if method has a return type.
+     *
      * @param method
      * @return true if and only if it is not a void method.
      */
@@ -146,10 +148,11 @@ public final class ReflectionHelper {
 
     /**
      * Same as Arrays.asList(...), but does automatically conversion of primitive arrays.
+     *
      * @param array
      * @return List of objects representing the given array contents
      */
-    public static List<Object> array2ObjectList(final Object array) {       
+    public static List<Object> array2ObjectList(final Object array) {
         final int length = Array.getLength(array);
         final List<Object> list = new ArrayList<Object>(length);
         for (int i = 0; i < length; ++i) {
@@ -190,27 +193,29 @@ public final class ReflectionHelper {
     }
 
     /**
-     * Try to determine the names of the method parameters.
-     * Does not work on pre Java 8 jdk and given method owner has to be compiled with "-parameters" option.
-     * NOTICE: The correct function depends on the JVM implementation.
+     * Try to determine the names of the method parameters. Does not work on pre Java 8 jdk and
+     * given method owner has to be compiled with "-parameters" option. NOTICE: The correct function
+     * depends on the JVM implementation.
+     *
      * @param m
-     * @return Empty list if no parameters present or names could not be determined. List of parameter names else.
+     * @return Empty list if no parameters present or names could not be determined. List of
+     *         parameter names else.
      */
     public static List<String> getMethodParameterNames(final Method m) {
-        if ((GETPARAMETERS==null)||(m==null)) {
+        if ((GETPARAMETERS == null) || (m == null)) {
             return Collections.emptyList();
         }
         try {
             Object[] params = (Object[]) GETPARAMETERS.invoke(m);
-            if (params.length==0) {
+            if (params.length == 0) {
                 return Collections.emptyList();
             }
-            Method getName = findMethodByName(params[0].getClass(),"getName");
-            if (getName==null) {
+            Method getName = findMethodByName(params[0].getClass(), "getName");
+            if (getName == null) {
                 return Collections.emptyList();
             }
             List<String> paramNames = new LinkedList<String>();
-            for (Object o:params) {
+            for (Object o : params) {
                 paramNames.add((String) getName.invoke(o));
             }
             return paramNames;
@@ -220,20 +225,20 @@ public final class ReflectionHelper {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
-    
+
     /**
      * Search for a suitable constructor which is invokable by the given parameter types. Similar to
      * {@code Class.getConstructor(...)}, but does not require parameter equality and does not throw
      * exceptions.
-     * 
+     *
      * @param type
      * @param params
      * @return constructor or null if no matching constructor was found.
      */
     @SuppressWarnings("unchecked")
-    public static <T> Constructor<T> getCallableConstructorForParams(final Class<T> type, Class<?>... params) {
+    public static <T> Constructor<T> getCallableConstructorForParams(final Class<T> type, final Class<?>... params) {
         for (Constructor<T> c : (Constructor<T>[]) type.getConstructors()) {
             final Class<?>[] parameterTypes = c.getParameterTypes();
             if (!Arrays.equals(parameterTypes, params)) {
@@ -246,12 +251,12 @@ public final class ReflectionHelper {
 
     /**
      * Search for a static factory method returning the target type.
-     * 
+     *
      * @param type
      * @param params
      * @return factory method or null if it is not found.
      */
-    public static Method getCallableFactoryForParams(final Class<?> type, Class<?>... params) {
+    public static Method getCallableFactoryForParams(final Class<?> type, final Class<?>... params) {
         for (Method m : type.getMethods()) {
             if ((m.getModifiers() & PUBLIC_STATIC_MODIFIER) != PUBLIC_STATIC_MODIFIER) {
                 continue;
@@ -273,7 +278,31 @@ public final class ReflectionHelper {
     /**
      * @return true if and only if the current runtime may provide parameter names
      */
-    public static boolean mayProvideParameterNames() {    
-        return GETPARAMETERS!=null;
+    public static boolean mayProvideParameterNames() {
+        return GETPARAMETERS != null;
+    }
+
+    /**
+     * Unwrap a given object until we assume it is a value. Supports Callable and Supplier so far.
+     *
+     * @param object
+     * @return object if it's a value. Unwrapped object if its a Callable or a Supplier
+     * @throws Exception
+     *             may be thrown by given objects method
+     */
+    public static Object unwrap(final Object object) throws Exception {
+        if (object == null) {
+            return null;
+        }
+
+        if (object instanceof Callable) {
+            return unwrap(((Callable<?>) object).call());
+        }
+
+        if ("java.util.function.Supplier".equals(object.getClass().getName())) {
+            return unwrap(findMethodByName(object.getClass(), "get").invoke(object, (Object[]) null));
+        }
+
+        return object;
     }
 }
