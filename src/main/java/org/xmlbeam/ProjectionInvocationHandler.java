@@ -474,13 +474,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
             }
         }
-        if (Node.class.equals(returnType)) {
+        if (Node.class.isAssignableFrom(returnType)) {
+            // Try to evaluate as node
+            // if evaluated type does not match return type, ClassCastException will follow
             return expression.evaluate(node, XPathConstants.NODE);
         }
-        if (Element.class.equals(returnType)) {
-            return expression.evaluate(node, XPathConstants.NODE);
-        }
-
         if (List.class.equals(returnType)) {
             return evaluateAsList(expression, node, method);
         }
