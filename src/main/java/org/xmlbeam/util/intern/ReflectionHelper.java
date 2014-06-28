@@ -17,9 +17,12 @@ package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -285,24 +288,45 @@ public final class ReflectionHelper {
     /**
      * Unwrap a given object until we assume it is a value. Supports Callable and Supplier so far.
      *
+     * @param type
      * @param object
      * @return object if it's a value. Unwrapped object if its a Callable or a Supplier
      * @throws Exception
      *             may be thrown by given objects method
      */
-    public static Object unwrap(final Object object) throws Exception {
+    public static Object unwrap(final Class<?> type, final Object object) throws Exception {
         if (object == null) {
             return null;
         }
-
-        if (object instanceof Callable) {
-            return unwrap(((Callable<?>) object).call());
+        if (type == null) {
+            return object;
+        }
+        if (Callable.class.equals(type)) {
+            assert (object instanceof Callable);
+            return ((Callable<?>) object).call();
         }
 
-        if ("java.util.function.Supplier".equals(object.getClass().getName())) {
-            return unwrap(findMethodByName(object.getClass(), "get").invoke(object, (Object[]) null));
+        if ("java.util.function.Supplier".equals(type.getName())) {
+            return findMethodByName(type, "get").invoke(object, (Object[]) null);
         }
 
         return object;
+    }
+
+    /**
+     * @param type
+     * @return type as class, if possible.
+     */
+    public static Class<?> asClass(final Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        }
+        if (type instanceof ParameterizedType) {
+            return asClass(((ParameterizedType) type).getRawType());
+        }
+        if (type instanceof GenericArrayType) {
+            return Array.newInstance(asClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
+        }
+        throw new IllegalArgumentException("Unimplemented conversion for type " + type);
     }
 }

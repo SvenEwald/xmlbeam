@@ -95,11 +95,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
+     * @param typeToSet
      * @param collection
      * @param parentElement
      * @param elementSelector
      */
-    private int applyCollectionSetOnElement(final Collection<?> collection, final Element parentElement, final String elementSelector) {
+    private int applyCollectionSetOnElement(final Type typeToSet, final Collection<?> collection, final Element parentElement, final String elementSelector) {
         final Document document = parentElement.getOwnerDocument();
         DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
         assert !elementSelector.contains("/") : "Selector should be the trail of the path.";
@@ -107,9 +108,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (collection == null) {
             return 0;
         }
+        Class<?> componentClass = Object.class;
+        if (typeToSet instanceof ParameterizedType) {
+            Type componentType = ((ParameterizedType) typeToSet).getActualTypeArguments()[0];
+            componentClass = ReflectionHelper.asClass(componentType);
+        }
+
         for (Object o : collection) {
             try {
-                o = ReflectionHelper.unwrap(o);
+                o = ReflectionHelper.unwrap(componentClass, o);
             } catch (Exception e) {
                 throw new IllegalArgumentException(e);
             }
@@ -225,7 +232,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify a generic type for the List. Otherwise I do not know which type I should fill the List with.");
         }
         assert ((ParameterizedType) type).getActualTypeArguments().length == 1 : "";
-        return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
+        Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
+        if (!(componentType instanceof Class)) {
+            throw new IllegalArgumentException("I don't know how to instantiate the generic type for the return type of method " + method);
+        }
+        return (Class<?>) componentType;
     }
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
@@ -360,7 +371,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      */
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        unwrapArgs(args);
+        unwrapArgs(method.getParameterTypes(), args);
         {
             String resolvedXpath = null;
             try {
@@ -429,14 +440,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * If parameter is instance of Callable or Supplier then resolve its value.
      *
      * @param args
+     * @param args2
      */
-    private void unwrapArgs(final Object[] args) {
+    private void unwrapArgs(final Class<?>[] types, final Object[] args) {
         if (args == null) {
             return;
         }
         try {
             for (int i = 0; i < args.length; ++i) {
-                args[i] = ReflectionHelper.unwrap(args[i]);
+                args[i] = ReflectionHelper.unwrap(types[i], args[i]);
             }
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
@@ -589,8 +601,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         assert document != null;
         final int findIndexOfValue = findIndexOfValue(method);
         final Object valueToSet = args[findIndexOfValue];
-        final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
-        final boolean isMultiValue = isMultiValue(typeToSet);
+        final Type typeToSet = method.getGenericParameterTypes()[findIndexOfValue];
+        final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
 
         if ("/*".equals(pathToElement)) { // Setting a new root element.
             if (isMultiValue) {
@@ -633,7 +645,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //                return getProxyReturnValueForMethod(proxy, method);
 //            }
             Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-            int count = applyCollectionSetOnElement(collection2Set, parentElement, elementSelector);
+            int count = applyCollectionSetOnElement(typeToSet, collection2Set, parentElement, elementSelector);
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
         if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
