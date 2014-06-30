@@ -111,7 +111,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         Class<?> componentClass = Object.class;
         if (typeToSet instanceof ParameterizedType) {
             Type componentType = ((ParameterizedType) typeToSet).getActualTypeArguments()[0];
-            componentClass = ReflectionHelper.asClass(componentType);
+            componentClass = ReflectionHelper.upperBoundAsClass(componentType);
         }
 
         for (Object o : collection) {

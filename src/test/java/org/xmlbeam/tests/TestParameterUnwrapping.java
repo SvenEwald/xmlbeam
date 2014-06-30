@@ -39,7 +39,7 @@ public class TestParameterUnwrapping {
         String getSomeValue(Callable<String> param);
 
         @XBWrite("/foo/bar")
-        Projection setSomeValues(Collection<Callable<String>> param);
+        Projection setSomeValues(Collection<? extends Callable<String>> param);
 
         @XBRead("/foo/bar")
         String[] checkValues();
