@@ -16,6 +16,7 @@
 package org.xmlbeam.tests.xpath.duplexd;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -26,8 +27,10 @@ import java.util.List;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -84,7 +87,7 @@ public class TestXPathParsing {
 //        document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
 //    }
 
-    public TestXPathParsing(String id, Projection before, String xpath, Projection after) {
+    public TestXPathParsing(final String id, final Projection before, final String xpath, final Projection after) {
         this.testId = id;
         this.before = before;
         this.xpath = xpath;
@@ -121,11 +124,11 @@ public class TestXPathParsing {
         int count = 0;
         for (Projection test : testDefinition.getTests()) {
             final Object[] param = new Object[4];
-            param[0] = "["+count+"] "+test.getTestId();
+            param[0] = "[" + count + "] " + test.getTestId();
             param[1] = subProjectionToDocument(test.getBefore());
             param[2] = test.getXPath().trim();
             param[3] = subProjectionToDocument(test.getAfter());
-            if ((count++ == RUN_ONLY)||(RUN_ONLY < 0)) {
+            if ((count++ == RUN_ONLY) || (RUN_ONLY < 0)) {
                 params.add(param);
             }
         }
@@ -136,7 +139,7 @@ public class TestXPathParsing {
      * @param test
      * @return
      */
-    private static Projection subProjectionToDocument(Projection test) {
+    private static Projection subProjectionToDocument(final Projection test) {
         Document document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
 
         if (test != null) {
@@ -151,8 +154,9 @@ public class TestXPathParsing {
     /**
      * @param xpath
      * @throws ParseException
+     * @throws Exception
      */
-    private void createByXParser(String xpath) throws ParseException {
+    private void createByXParser(final String xpath) throws ParseException, Exception {
         XParser parser = new XParser(new StringReader(xpath));
         SimpleNode node = parser.START();
         System.out.println("-----------------------------------------");
@@ -161,8 +165,12 @@ public class TestXPathParsing {
         node.dump("");
 
         List<Node> jjtAccept = (List<Node>) node.jjtAccept(new BuildDocumentVisitor(), document);
+        assert jjtAccept.size() == 1;
 
-        //print();                
+        XPathExpression expression = XPathFactory.newInstance().newXPath().compile(xpath);
+        Object object = expression.evaluate(document, XPathConstants.NODE);
+        assertSame(object, jjtAccept.get(0));
+        //print();
     }
 
     public void print() {
