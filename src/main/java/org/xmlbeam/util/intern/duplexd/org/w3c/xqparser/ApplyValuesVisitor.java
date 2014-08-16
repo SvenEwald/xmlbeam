@@ -17,6 +17,7 @@ package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTEXPR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPATHEXPR;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSLASHSLASH;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTART;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
@@ -24,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.w3c.dom.Node;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
 
 /**
  *
@@ -38,8 +38,7 @@ public class ApplyValuesVisitor implements XParserVisitor {
     }
 
     @Override
-    public Object visit(SimpleNode node, Object data) {
-        assert data instanceof Node;
+    public Object visit(final SimpleNode node, final Node data) {
         switch (node.getID()) {
         case JJTSTART:
             return node.childrenAccept(this, data);
@@ -48,12 +47,14 @@ public class ApplyValuesVisitor implements XParserVisitor {
         case JJTEXPR:
             return node.childrenAccept(this, data);
         case JJTPATHEXPR:
+            //  if (node.jjtGetChild(0).)
             List<Node> changedNodes = (List<Node>) node.childrenAccept(this, data);
             return Integer.valueOf(changedNodes.size());
-            
+        case JJTSLASHSLASH:
+            throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous locator");
+
         default:
             throw new XBXPathExprNotAllowedForWriting(node, "Not implemented");
         }
     }
-
 }

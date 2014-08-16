@@ -4,7 +4,7 @@ options {
         STATIC = false;
         MULTI=false;
         VISITOR=true ;     
-        VISITOR_DATA_TYPE="Object";
+        VISITOR_DATA_TYPE="org.w3c.dom.Node";
         VISITOR_RETURN_TYPE="Object";
         NODE_SCOPE_HOOK=false;
         NODE_USES_PARSER=true;

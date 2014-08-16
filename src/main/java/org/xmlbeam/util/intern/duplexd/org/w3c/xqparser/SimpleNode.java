@@ -110,13 +110,13 @@ public class SimpleNode implements Node {
 
     /** Accept the visitor. * */
     @Override
-    public Object jjtAccept(final XParserVisitor visitor, final Object data) {
+    public Object jjtAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
         return visitor.visit(this, data);
     }
 
     /** Accept the visitor. * */
-    public Object childrenAccept(final XParserVisitor visitor, final Object data) {
-        Object result = data;
+    public Object childrenAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
+        org.w3c.dom.Node result = data;
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
                 Object newResult = (children[i].jjtAccept(visitor, result));
@@ -129,18 +129,18 @@ public class SimpleNode implements Node {
                     }
                     continue;
                 }
-                result = newResult; // proceed step expression
+                result = (org.w3c.dom.Node) newResult; // proceed step expression
             }
         }
         return result;
     }
 
-    public Object firstChildAccept(final XParserVisitor visitor, final Object data) {
+    public Object firstChildAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
         assert children.length > 0 : "No child found for node " + this;
         return children[0].jjtAccept(visitor, data);
     }
 
-    public Object secondChildAccept(final XParserVisitor visitor, final Object data) {
+    public Object secondChildAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
         assert children.length > 1 : "No second child found for node " + this;
         return children[1].jjtAccept(visitor, data);
     }
@@ -258,12 +258,12 @@ public class SimpleNode implements Node {
         return id;
     }
 
-    public Object childrenFilteredAccept(final XParserVisitor visitor, final int filterID, final Object data) {
-        Object result = data;
+    public Object childrenFilteredAccept(final XParserVisitor visitor, final int filterID, final org.w3c.dom.Node data) {
+        org.w3c.dom.Node result = data;
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
                 if (children[i].getID() == filterID) {
-                    result = children[i].jjtAccept(visitor, result);
+                    result = (org.w3c.dom.Node) children[i].jjtAccept(visitor, result);
                 }
             }
         }

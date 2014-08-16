@@ -51,8 +51,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
     private static class LiteralVisitor implements XParserVisitor {
 
         @Override
-        public Object visit(final SimpleNode node, final Object data) {
-            assert data instanceof Node : "data was suposed to be a Node, but is " + data;
+        public Object visit(final SimpleNode node, final Node data) {
             switch (node.getID()) {
             case JJTSTRINGLITERAL:
                 return node.getValue().replaceAll("'(.*)'", "$1").replaceAll("\"(.*)\"", "$1");
@@ -82,8 +81,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
         }
 
         @Override
-        public Object visit(final SimpleNode node, final Object data) {
-            assert data instanceof Node : "data was suposed to be a Node, but is " + data;
+        public Object visit(final SimpleNode node, final Node data) {
             switch (node.getID()) {
             case JJTSTEPEXPR:
                 Object result = node.childrenAccept(this, data);
@@ -114,8 +112,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
         boolean isAttribute;
 
         @Override
-        public Object visit(final SimpleNode node, final Object data) {
-            assert data instanceof Node : "data was suposed to be a Node, but is " + data;
+        public Object visit(final SimpleNode node, final Node data) {
             switch (node.getID()) {
             case JJTABBREVFORWARDSTEP:
                 this.isAttribute = "@".equals(node.getValue());
@@ -137,8 +134,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
     private static class ApplyPredicatesVisitor implements XParserVisitor {
 
         @Override
-        public Object visit(final SimpleNode node, final Object data) {
-            assert data instanceof Node : "data was suposed to be a Node, but is " + data;
+        public Object visit(final SimpleNode node, final Node data) {
             switch (node.getID()) {
             case JJTPREDICATELIST:
                 return node.childrenAccept(this, data);
@@ -180,8 +176,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
     private static class EvaluatePredicateListVisitor implements XParserVisitor {
 
         @Override
-        public Object visit(final SimpleNode node, final Object data) {
-            assert data instanceof Node : "data was suposed to be a Node, but is " + data;
+        public Object visit(final SimpleNode node, final Node data) {
             switch (node.getID()) {
             case JJTPREDICATELIST:
                 return node.childrenAccept(this, data);
@@ -237,8 +232,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
     }
 
     @Override
-    public Object visit(final SimpleNode node, final Object data) {
-        assert data instanceof Node;
+    public Object visit(final SimpleNode node, final Node data) {
         switch (node.getID()) {
         case JJTSTART:
             return node.childrenAccept(this, data);
@@ -251,26 +245,26 @@ public class BuildDocumentVisitor implements XParserVisitor {
         case JJTSLASHSLASH:
             throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous locator");
         case JJTSLASH:
-            return DOMHelper.getOwnerDocumentFor((Node) data);
+            return DOMHelper.getOwnerDocumentFor(data);
         case JJTSTEPEXPR:
             FindNameTestVisitor nameTest = new FindNameTestVisitor();
             node.firstChildAccept(nameTest, data);
             String childName = nameTest.name;
             boolean isAttribute = nameTest.isAttribute;
             if (isAttribute) {
-                assert ((Node) data).getNodeType() == Node.ELEMENT_NODE;
+                assert data.getNodeType() == Node.ELEMENT_NODE;
                 Attr attributeNode = ((org.w3c.dom.Element) data).getAttributeNode(childName);
                 if (attributeNode != null) {
                     return attributeNode;
                 }
-                Attr newAttribute = DOMHelper.getOwnerDocumentFor((Node) data).createAttributeNS(null, childName);
+                Attr newAttribute = DOMHelper.getOwnerDocumentFor(data).createAttributeNS(null, childName);
                 return newAttribute;
                 // return ((org.w3c.dom.Element) data).appendChild(newAttribute);
             }
-            Node nextNode = findFirstMatchingChildElement((Node) data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+            Node nextNode = findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
             if (nextNode == null) {
 
-                return createChildElement((Node) data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+                return createChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
             }
             return nextNode;
         default:
