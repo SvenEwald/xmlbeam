@@ -15,7 +15,6 @@ apply.
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -125,15 +124,25 @@ public class SimpleNode implements Node {
                     return Boolean.FALSE;
                 }
                 if (Boolean.TRUE.equals(newResult)) { // No early exit yet
-                    if (i+1==children.length) {
+                    if ((i + 1) == children.length) {
                         return Boolean.TRUE;
                     }
                     continue;
                 }
-                result=newResult; // proceed step expression
+                result = newResult; // proceed step expression
             }
         }
-        return result;        
+        return result;
+    }
+
+    public Object firstChildAccept(final XParserVisitor visitor, final Object data) {
+        assert children.length > 0 : "No child found for node " + this;
+        return children[0].jjtAccept(visitor, data);
+    }
+
+    public Object secondChildAccept(final XParserVisitor visitor, final Object data) {
+        assert children.length > 1 : "No second child found for node " + this;
+        return children[1].jjtAccept(visitor, data);
     }
 
     /**
@@ -141,33 +150,33 @@ public class SimpleNode implements Node {
      * @return
      */
     @SuppressWarnings("unchecked")
-    private Object unwrap(Object results) {
+    private Object unwrap(final Object results) {
         if (results instanceof NodeList) {
-            return unwrap((NodeList)results); 
+            return unwrap((NodeList) results);
         }
         if (!(results instanceof List)) {
             return results;
         }
-        if (((List<?>)results).isEmpty()) {            
+        if (((List<?>) results).isEmpty()) {
             return null;
         }
-        for (ListIterator<Object> i=((List)results).listIterator(); i.hasNext(); ){
+        for (ListIterator<Object> i = ((List) results).listIterator(); i.hasNext();) {
             Object o = i.next();
-            if (o instanceof List){
-            i.set(unwrap((List<Object>) o));
-            continue;
+            if (o instanceof List) {
+                i.set(unwrap(o));
+                continue;
             }
             if (o instanceof NodeList) {
-                i.set(unwrap((NodeList)o));
+                i.set(unwrap((NodeList) o));
             }
         }
-        return ((List)results).size() == 1 ? ((List)results).get(0) : results;
+        return ((List) results).size() == 1 ? ((List) results).get(0) : results;
     }
 
-    private Object unwrap(NodeList o) {
-            if (o.getLength()==1) {
-                return o.item(0);
-            }                    
+    private Object unwrap(final NodeList o) {
+        if (o.getLength() == 1) {
+            return o.item(0);
+        }
         return DOMHelper.asList(o);
     }
 
@@ -201,7 +210,7 @@ public class SimpleNode implements Node {
         ps.println();
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
-                SimpleNode n = (SimpleNode) children[i];
+                SimpleNode n = children[i];
                 if (n != null) {
                     n.dump(prefix + "   ", ps);
                 }
@@ -248,36 +257,36 @@ public class SimpleNode implements Node {
     public int getID() {
         return id;
     }
-    
-    public Object childrenFilteredAccept(final XParserVisitor visitor,final int filterID,final Object data) {
-        Object result= data;
+
+    public Object childrenFilteredAccept(final XParserVisitor visitor, final int filterID, final Object data) {
+        Object result = data;
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
-                if (children[i].getID()==filterID)
+                if (children[i].getID() == filterID) {
                     result = children[i].jjtAccept(visitor, result);
+                }
             }
         }
         return result;
-    } 
-    
-    
+    }
+
     public SimpleNode getFirstChildWithId(final int id) {
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
-                if (children[i].getID()==id)
-                   return children[i];
+                if (children[i].getID() == id) {
+                    return children[i];
+                }
             }
         }
         return null;
     }
-    
-    
+
 //    public List<SimpleNode> findChildrenById(final int... ids) {
 //        FindByPredicateVisitor<SimpleNode> v = new FindByPredicateVisitor<SimpleNode>(new ByIdsPredicate(ids));
 //        childrenAccept(v, null);
 //        return v.getHits();
 //    }
-//    
+//
 //    public <T> T findByVisitor(final Transformer<T> predicate) {
 //        TransformingVisitor<T> v = new TransformingVisitor<T>(predicate);
 //        childrenAccept(v, null);

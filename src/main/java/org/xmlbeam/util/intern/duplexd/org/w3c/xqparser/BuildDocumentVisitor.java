@@ -34,7 +34,6 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTRINGLITERAL;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -151,11 +150,11 @@ public class BuildDocumentVisitor implements XParserVisitor {
                 if (!"=".equals(node.getValue())) {
 //                    throw new XBXPathExprNotAllowedForWriting(node, "Operator "+node.getValue()+" not implemented");
                 }
-                Object first = node.jjtGetChild(0).jjtAccept(this, data);
+                Object first = node.firstChildAccept(this, data);
                 if (!(first instanceof Node)) {
                     throw new XBXPathExprNotAllowedForWriting(node, "A nonwritable predicate");
                 }
-                Object second = node.jjtGetChild(1).jjtAccept(this, data);
+                Object second = node.secondChildAccept(this, data);
                 if (first instanceof Attr) {
                     assert data instanceof Element;
                     ((Element) data).setAttributeNS(null, ((Attr) first).getNodeName(), second.toString());
@@ -191,12 +190,12 @@ public class BuildDocumentVisitor implements XParserVisitor {
             case JJTEXPR:
                 return node.childrenAccept(this, data);
             case JJTCOMPARISONEXPR:
-                NodeList list = (NodeList) node.jjtGetChild(0).jjtAccept(this, data);
+                NodeList list = (NodeList) node.firstChildAccept(this, data);
                 if (list.getLength() == 0) {
                     return false;
                 }
                 Node first = unwrapNodeList(list);
-                Object second = node.jjtGetChild(1).jjtAccept(this, data);
+                Object second = node.secondChildAccept(this, data);
                 return Boolean.valueOf(compare(node, first, second));
             case JJTSTEPEXPR:
                 return node.jjtAccept(EvaluateStepExprVisitor.create(false), data);
@@ -255,7 +254,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
             return DOMHelper.getOwnerDocumentFor((Node) data);
         case JJTSTEPEXPR:
             FindNameTestVisitor nameTest = new FindNameTestVisitor();
-            node.jjtGetChild(0).jjtAccept(nameTest, data);
+            node.firstChildAccept(nameTest, data);
             String childName = nameTest.name;
             boolean isAttribute = nameTest.isAttribute;
             if (isAttribute) {
@@ -284,12 +283,12 @@ public class BuildDocumentVisitor implements XParserVisitor {
      * @return
      */
     @SuppressWarnings("unchecked")
-    private List<Node> asListofNodes(Object childrenAccept) {
+    private List<Node> asListofNodes(final Object childrenAccept) {
         if (childrenAccept == null) {
             return Collections.emptyList();
         }
         if (childrenAccept instanceof Node) {
-            return Collections.singletonList((Node)childrenAccept);
+            return Collections.singletonList((Node) childrenAccept);
         }
         return (List<Node>) childrenAccept;
     }

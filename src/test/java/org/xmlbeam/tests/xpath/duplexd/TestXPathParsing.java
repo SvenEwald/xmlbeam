@@ -167,10 +167,12 @@ public class TestXPathParsing {
         List<Node> jjtAccept = (List<Node>) node.jjtAccept(new BuildDocumentVisitor(), document);
         assert jjtAccept.size() == 1;
 
+        // Evaluate expression a second time
         XPathExpression expression = XPathFactory.newInstance().newXPath().compile(xpath);
         Object object = expression.evaluate(document, XPathConstants.NODE);
+
+        // second result must select our just created node
         assertSame(object, jjtAccept.get(0));
-        //print();
     }
 
     public void print() {
