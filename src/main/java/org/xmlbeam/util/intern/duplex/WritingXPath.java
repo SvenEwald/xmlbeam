@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.w3c.dom.Node;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ApplyValuesVisitor;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ApplySingleValueVisitor;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.BuildDocumentVisitor;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
@@ -42,7 +42,7 @@ public class WritingXPath {
         }
 
         public Object evaluateOrCreate(final Node target,final Collection<?> values) {
-            return  xpathSyntaxTreeStart.jjtAccept(new ApplyValuesVisitor(values), target);
+            return  xpathSyntaxTreeStart.jjtAccept(new ApplySingleValueVisitor(values), target);
         }
         
     }

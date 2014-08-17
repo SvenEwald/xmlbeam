@@ -15,6 +15,7 @@ apply.
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -112,6 +113,22 @@ public class SimpleNode implements Node {
     @Override
     public Object jjtAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
         return visitor.visit(this, data);
+    }
+
+    public org.w3c.dom.Node allChildrenAccept(final INodeEvaluationVisitor visitor, final org.w3c.dom.Node target) {
+        org.w3c.dom.Node result = target;
+        for (SimpleNode child : children) {
+            result = (org.w3c.dom.Node) child.jjtAccept(visitor, result);
+        }
+        return result;
+    }
+
+    public org.w3c.dom.Node allButNotLastChildrenAccept(final INodeEvaluationVisitor visitor, final org.w3c.dom.Node target) {
+        org.w3c.dom.Node result = target;
+        for (int i = 0; i < (children.length - 1); ++i) {
+            result = (org.w3c.dom.Node) children[i].jjtAccept(visitor, result);
+        }
+        return result;
     }
 
     /** Accept the visitor. * */
@@ -279,6 +296,10 @@ public class SimpleNode implements Node {
             }
         }
         return null;
+    }
+
+    public List<SimpleNode> getChildren() {
+        return Arrays.asList(children);
     }
 
 //    public List<SimpleNode> findChildrenById(final int... ids) {
