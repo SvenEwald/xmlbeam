@@ -1,6 +1,6 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
-public interface INodeEvaluationVisitor extends XParserVisitor {
+public interface INodeEvaluationVisitor<R> extends XParserVisitor {
     @Override
-    public org.w3c.dom.Node visit(SimpleNode node, org.w3c.dom.Node data);
+    public R visit(SimpleNode node, org.w3c.dom.Node data);
 }

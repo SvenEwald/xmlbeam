@@ -68,7 +68,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
 
     }
 
-    public static class EvaluateStepExprVisitor implements XParserVisitor {
+    public static class EvaluateStepExprVisitor implements INodeEvaluationVisitor<List<Node>> {
 
         final boolean onAttribute;
 
@@ -81,7 +81,7 @@ public class BuildDocumentVisitor implements XParserVisitor {
         }
 
         @Override
-        public Object visit(final SimpleNode node, final Node data) {
+        public List<Node> visit(final SimpleNode node, final Node data) {
             switch (node.getID()) {
             case JJTSTEPEXPR:
                 Object result = node.childrenAccept(this, data);
