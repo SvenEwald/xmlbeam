@@ -502,7 +502,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
 //        }
         final XPathExpression expression = xPath.compile(path);
-        final Class<?> returnType = method.getReturnType();
+        final Class<?> returnType = ReflectionHelper.unwrapOptional(method.getReturnType());
         if (projector.config().getTypeConverter().isConvertable(returnType)) {
             String data = (String) expression.evaluate(node, XPathConstants.STRING);
             try {

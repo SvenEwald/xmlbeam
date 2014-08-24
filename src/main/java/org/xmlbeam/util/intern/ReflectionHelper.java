@@ -44,9 +44,18 @@ import java.util.regex.Pattern;
 public final class ReflectionHelper {
 
     private final static Method ISDEFAULT = findMethodByName(Method.class, "isDefault");
+    private final static Class<?> OPTIONAL_CLASS = findOptionalClass();
     private final static Method GETPARAMETERS = findMethodByName(Method.class, "getParameters");
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
+
+    private static Class<?> findOptionalClass() {
+        try {
+            return Class.forName("java.util.Optional", false, ReflectionHelper.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 
     /**
      * @param a
@@ -311,6 +320,9 @@ public final class ReflectionHelper {
             return findMethodByName(type, "get").invoke(object, (Object[]) null);
         }
 
+        if ("java.util.Optional".equals(type.getName())) {
+            return findMethodByName(type, "get").invoke(object, (Object[]) null);
+        }
         return object;
     }
 
@@ -329,11 +341,38 @@ public final class ReflectionHelper {
             return Array.newInstance(upperBoundAsClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
         }
         if (type instanceof WildcardType) {
-            Type[] bounds = ((WildcardType)type).getUpperBounds();
-            if (bounds.length==0) {return Object.class;};
+            Type[] bounds = ((WildcardType) type).getUpperBounds();
+            if (bounds.length == 0) {
+                return Object.class;
+            };
             return upperBoundAsClass(bounds[0]);
         }
-        
+
         throw new IllegalArgumentException("Unimplemented conversion for type " + type);
+    }
+
+    /**
+     * @param type
+     * @return generic parameter type if is optional, else type
+     */
+    public static Class<?> unwrapOptional(final Type type) {
+        if (!isOptional(type)) {
+            return (Class<?>) type;
+        }
+        assert type instanceof ParameterizedType;
+        assert ((ParameterizedType) type).getActualTypeArguments().length == 1;
+        return null;//(Class<?>) ((ParameterizedType) type)..getActualTypeArguments()[0];
+    }
+
+    public static boolean isOptional(final Type type) {
+        if (OPTIONAL_CLASS == null) {
+            return false;
+
+        }
+        if (type instanceof ParameterizedType) {
+            return false;
+        }
+
+        return false;// return OPTIONAL_CLASS..equals(((ParameterizedType) type).getRawType());
     }
 }
