@@ -375,4 +375,16 @@ public final class ReflectionHelper {
 
         return false;// return OPTIONAL_CLASS..equals(((ParameterizedType) type).getRawType());
     }
+    
+    public static boolean isRawType(final Type type) {
+        if (type instanceof ParameterizedType) {
+            return ((ParameterizedType)type).getActualTypeArguments().length==0;
+        }
+//         if (type instanceof Class) {
+//             return true;
+//         }
+         
+        return true;
+        
+    }
 }
