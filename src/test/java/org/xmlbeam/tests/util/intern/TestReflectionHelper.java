@@ -37,6 +37,7 @@ public class TestReflectionHelper {
         return v;
     }
     
+    @SuppressWarnings("rawtypes")
     @Ignore
     public List methodWithRawReturn(){return null;}
 
@@ -72,7 +73,17 @@ public class TestReflectionHelper {
     public void testRawTypeDetection() throws Exception {
         Method raw = TestReflectionHelper.class.getMethod("methodWithRawReturn",(Class[])null);        
         assertTrue(ReflectionHelper.isRawType(raw.getGenericReturnType()));
+    }
+    
+    @Test
+    public void testRawTypeDetectionForParameterizedTypes() throws Exception {       
         Method nonraw = TestReflectionHelper.class.getMethod("methodWithNonRawReturn",(Class[])null);        
+        assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));        
+    }
+    
+    @Test
+    public void testNonGegenricTypeIsNoRawType() throws Exception  {
+        Method nonraw = TestReflectionHelper.class.getMethod("withReturnTypeAndParameter",new Class[] {String.class});
         assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));
     }
 }

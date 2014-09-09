@@ -502,11 +502,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
 //        }
         final XPathExpression expression = xPath.compile(path);
-        final Class<?> returnType = ReflectionHelper.unwrapOptional(method.getReturnType());
-        if (projector.config().getTypeConverter().isConvertable(returnType)) {
+        final boolean wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
+        final Class<?> returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
+        if (projector.config().getTypeConverter().isConvertable(returnType)) {            
             String data = (String) expression.evaluate(node, XPathConstants.STRING);
             try {
-                return projector.config().getTypeConverter().convertTo(returnType, data);
+                final Object result =projector.config().getTypeConverter().convertTo(returnType, data); 
+                return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             } catch (NumberFormatException e) {
                 throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
             }
@@ -514,10 +516,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (Node.class.isAssignableFrom(returnType)) {
             // Try to evaluate as node
             // if evaluated type does not match return type, ClassCastException will follow
-            return expression.evaluate(node, XPathConstants.NODE);
+            final Object result =expression.evaluate(node, XPathConstants.NODE); 
+            return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
         }
         if (List.class.equals(returnType)) {
-            return evaluateAsList(expression, node, method);
+            final Object result = evaluateAsList(expression, node, method);
+            return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
         }
         if (returnType.isArray()) {
             List<?> list = evaluateAsList(expression, node, method);
@@ -526,10 +530,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (returnType.isInterface()) {
             Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
             if (newNode == null) {
-                return null;
+                return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
             }
             InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
-            return subprojection;
+            return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
         }
         throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
 // Automatic propagation of parameters as XPath variables

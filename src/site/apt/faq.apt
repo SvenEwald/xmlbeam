@@ -6,6 +6,7 @@ FAQ / HowTo
 * How to determine if an element or attribute exists? 
 
  It's not possible to distinguish between empty values and non existing values.
+ The cause is a limitation by XPath 1.0. 
  Getting a string value from non existing elements or attributes returns an empty string.
  You will never get a null value from projections returning a string.
  It is even a common practice to omit empty elements in documents.

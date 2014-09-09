@@ -1,6 +1,28 @@
 Release Notes
 
-* 1.2.1 current release
+ XMLBeam uses a modification of semantic versioning (major.minor.patch). 
+ The Major version number is incremented on a major API- or technology change.
+ Dropping support for Java 6 will be such a change.
+ The minor number is increased when a change is not API compatible, but the change is easy for you to cope with.
+ The removal of the targetComponentType annotation was such a change. All you need was to remove it from your code.
+ The patch level is increased on every backwards-compatible release even it is a new feature.
+ The introduction of the update annotation is an example for this.
+
+* 1.3.0 current release
+
+ * Changed default value of Boolean, Float, Double, Interger, Long and Character to null.
+   Now you get a null value on selecting non existing values of these types.
+   Unfortunately this still does not work for String.
+   
+ * Support for java.util.Optional as return type.
+ 
+ * Additional projection method checks. 
+   You may not use raw List or Optional types.
+   You may not use Optional as a parameter type.
+   
+ * API-compatible with 1.2.x, but still a minor version increase because of library behavior change. 
+
+* 1.2.1
 
  * New "update" mode for writing to the DOM tree. 
    If no structure change is needed, use the annotation @XBUpdate providing full XPath capabilities.   
@@ -8,7 +30,7 @@ Release Notes
  * Now int or Integer is allowed as return code for writing projection methods.
    Setters, deleters and updaters are going to return the number of changes made to the DOM tree.
    
- * URL protocol 'resouce://' now has a new abbreviation 'res://' to be compatible with org.apache.commons.vfs.
+ * URL protocol 'resource://' now has a new abbreviation 'res://' to be compatible with org.apache.commons.vfs.
  
  * Minor bugfix with DOM-API integration. Just use org.w3c.dom.Node as return type or parameter anywhere.  
  

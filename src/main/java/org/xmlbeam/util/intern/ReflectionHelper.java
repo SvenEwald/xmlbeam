@@ -45,6 +45,7 @@ public final class ReflectionHelper {
 
     private final static Method ISDEFAULT = findMethodByName(Method.class, "isDefault");
     private final static Class<?> OPTIONAL_CLASS = findOptionalClass();
+    private final static Method OFNULLABLE =  (OPTIONAL_CLASS == null) ? null : findMethodByName(OPTIONAL_CLASS, "ofNullable");
     private final static Method GETPARAMETERS = findMethodByName(Method.class, "getParameters");
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
@@ -319,10 +320,7 @@ public final class ReflectionHelper {
         if ("java.util.function.Supplier".equals(type.getName())) {
             return findMethodByName(type, "get").invoke(object, (Object[]) null);
         }
-
-        if ("java.util.Optional".equals(type.getName())) {
-            return findMethodByName(type, "get").invoke(object, (Object[]) null);
-        }
+        
         return object;
     }
 
@@ -355,36 +353,67 @@ public final class ReflectionHelper {
      * @param type
      * @return generic parameter type if is optional, else type
      */
-    public static Class<?> unwrapOptional(final Type type) {
-        if (!isOptional(type)) {
-            return (Class<?>) type;
-        }
+    public static Class<?> getParameterType(final Type type) {
+//        if (!isOptional(type)) {
+//            return (Class<?>) type;
+//        }
         assert type instanceof ParameterizedType;
         assert ((ParameterizedType) type).getActualTypeArguments().length == 1;
-        return null;//(Class<?>) ((ParameterizedType) type)..getActualTypeArguments()[0];
+        return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
     }
 
+    /**
+     * Checks if given type is java.util.Optional with a generic type parameter.
+     * @param type
+     * @return true if and only if type is a parameterized Optional
+     */
     public static boolean isOptional(final Type type) {
         if (OPTIONAL_CLASS == null) {
             return false;
-
         }
-        if (type instanceof ParameterizedType) {
+        
+        if (! (type instanceof ParameterizedType)) {
+            // Either this is no Optional, or it's a raw optional which is useless for us anyway...
             return false;
         }
 
-        return false;// return OPTIONAL_CLASS..equals(((ParameterizedType) type).getRawType());
+        return OPTIONAL_CLASS.equals(((ParameterizedType)type).getRawType());
     }
     
-    public static boolean isRawType(final Type type) {
-        if (type instanceof ParameterizedType) {
-            return ((ParameterizedType)type).getActualTypeArguments().length==0;
+    /**
+     * Checks if a given type is a raw type.
+     * @param type
+     * @return true if and only if the type may be parameterized but has no parameter type.
+     */
+    public static boolean isRawType(final Type type) {        
+        if (type instanceof Class) {
+            final Class<?> clazz = (Class<?>)type;
+            return (clazz.getTypeParameters().length>0);
         }
-//         if (type instanceof Class) {
-//             return true;
-//         }
-         
-        return true;
-        
+        if (type instanceof ParameterizedType) {
+            final ParameterizedType ptype = (ParameterizedType) type;
+            return (ptype.getActualTypeArguments() .length==0);
+        }
+        return false;
+    }
+
+    /**
+     * Create an instance of java.util.Optional for given value.
+     * @param value
+     * @return a new instance of Optional
+     */
+    public static Object createOptional(Object value) {
+        if (OPTIONAL_CLASS==null || OFNULLABLE==null) {
+            throw new IllegalStateException("Unreachable Code executed. You just found a bug. Please report!");
+        }
+        try {
+            return OFNULLABLE.invoke(null, value);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

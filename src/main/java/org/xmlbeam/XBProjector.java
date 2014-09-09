@@ -30,6 +30,7 @@ import java.lang.reflect.Proxy;
 import java.net.URISyntaxException;
 import java.text.Format;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -691,16 +692,19 @@ public class XBProjector implements Serializable, ProjectionFactory {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is an annotation interface. Remove the @ and try again.");
         }
         for (Method method : projectionInterface.getMethods()) {
-            boolean isRead = (method.getAnnotation(XBRead.class) != null);
-            boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
-            boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
-            boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
+            final boolean isRead = (method.getAnnotation(XBRead.class) != null);
+            final boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
+            final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
+            final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
             if (isRead ? isUpdate || isWrite || isDelete : (isUpdate ? isWrite || isDelete : isWrite && isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName());
             }
             if (isRead) {
                 if (!ReflectionHelper.hasReturnType(method)) {
-                    throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but has no return type,");
+                    throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but has no return type.");
+                }
+                if (ReflectionHelper.isRawType(method.getGenericReturnType())) {
+                    throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but has a raw return type.");
                 }
             }
             if (isWrite) {
@@ -712,6 +716,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 if (!ReflectionHelper.hasParameters(method)) {
                     throw new IllegalArgumentException("Method " + method + " has @" + XBUpdate.class.getSimpleName() + " annotaion, but has no paramerter");
                 }
+            }
+            for (Class<?> clazz : method.getParameterTypes()) {
+                if (ReflectionHelper.isOptional(clazz)) {
+                    throw new IllegalArgumentException("Method " + method + " has java.util.Optional as a parameter type. You simply never should not do this.");
+                }               
             }
             int count = 0;
             for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {

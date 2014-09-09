@@ -40,6 +40,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-09-10
+
+ * New release 1.3.0 with enhancements on Java 8 support and changes in type conversion defaults. See the {{{./release-notes.html} release notes}}.
+
 ** 2014-05-17
 
  * New release 1.2.1 with new full XPath gaining update mode. See the {{{./release-notes.html} release notes}}.

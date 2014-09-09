@@ -33,14 +33,14 @@ public class TestDefaultTypeConverter {
     @Test
     public void ensureConversionDefauls() {
         Object[] defaults = new Object[] { //
-        Boolean.class, Boolean.FALSE, Boolean.TYPE, Boolean.FALSE,//
-                Byte.class, Byte.valueOf((byte) 0), Byte.TYPE, Byte.valueOf((byte) 0),//
-                Short.class, Short.valueOf((short) 0), Short.TYPE, Short.valueOf((short) 0),//
-                Integer.class, Integer.valueOf(0), Integer.TYPE, Integer.valueOf(0),//
-                Float.class, Float.valueOf(0), Float.TYPE, Float.valueOf(0),//
-                Double.class, Double.valueOf(0), Double.TYPE, Double.valueOf(0),//
-                Long.class, Long.valueOf(0), Long.TYPE, Long.valueOf(0), //
-                Character.class, Character.valueOf(' '), Character.TYPE, Character.valueOf(' ') //
+        Boolean.class, null, Boolean.TYPE, Boolean.FALSE,//
+                Byte.class, null, Byte.TYPE, Byte.valueOf((byte) 0),//
+                Short.class, null, Short.TYPE, Short.valueOf((short) 0),//
+                Integer.class, null, Integer.TYPE, Integer.valueOf(0),//
+                Float.class, null, Float.TYPE, Float.valueOf(0),//
+                Double.class, null, Double.TYPE, Double.valueOf(0),//
+                Long.class, null, Long.TYPE, Long.valueOf(0), //
+                Character.class, null, Character.TYPE, Character.valueOf(' ') //
         };
 
         for (int i = 0; i < defaults.length; i += 2) {
@@ -48,14 +48,13 @@ public class TestDefaultTypeConverter {
             Object value = defaults[i + 1];
             assertTrue(converter.isConvertable(type));
             assertEquals(value, converter.convertTo(type, ""));
-            assertEquals(value, converter.convertTo(type, value.toString()));
+            assertEquals(value, converter.convertTo(type, value == null ? null : value.toString()));
         }
     }
 
     @Test
     public void ensureBoolean() {
         for (Class<?> c : new Class<?>[] { Boolean.class, Boolean.TYPE }) {
-            assertEquals(Boolean.FALSE, converter.convertTo(c, ""));
             assertEquals(Boolean.TRUE, converter.convertTo(c, "true"));
             assertEquals(Boolean.FALSE, converter.convertTo(c, "false"));
             assertEquals(Boolean.FALSE, converter.convertTo(c, "asdfasdf"));
