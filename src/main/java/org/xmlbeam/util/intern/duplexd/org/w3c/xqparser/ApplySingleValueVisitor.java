@@ -23,7 +23,6 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
 import org.w3c.dom.Node;
-import org.xmlbeam.XBProjector.InternalProjection;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**

@@ -302,6 +302,30 @@ public class SimpleNode implements Node {
         return Arrays.asList(children);
     }
 
+    public <T> T firstChildAccept(final INodeEvaluationVisitor<T> visitor, final org.w3c.dom.Node data) {
+        if (children.length < 1) {
+            throw new IllegalArgumentException("Node " + this + " is supposed to have children");
+        }
+        return visitor.visit(children[0], data);
+    }
+
+    public <T> T lastChildAccept(final INodeEvaluationVisitor<T> visitor, final org.w3c.dom.Node data) {
+        if (children.length < 1) {
+            throw new IllegalArgumentException("Node " + this + " is supposed to have children");
+        }
+        return visitor.visit(children[children.length - 1], data);
+    }
+
+    /**
+     * @param visitorClosure
+     */
+    public void eachChild(final org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
+        for (SimpleNode child : children) {
+            visitorClosure.apply(child, data);
+        }
+
+    }
+
 //    public List<SimpleNode> findChildrenById(final int... ids) {
 //        FindByPredicateVisitor<SimpleNode> v = new FindByPredicateVisitor<SimpleNode>(new ByIdsPredicate(ids));
 //        childrenAccept(v, null);

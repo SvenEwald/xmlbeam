@@ -17,9 +17,13 @@ package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
 /**
@@ -38,10 +43,20 @@ import java.util.regex.Pattern;
  */
 public final class ReflectionHelper {
 
-    private final static Method ISDEFAULT =findMethodByName(Method.class,"isDefault"); 
-    private final static Method GETPARAMETERS = findMethodByName(Method.class,"getParameters");
+    private final static Method ISDEFAULT = findMethodByName(Method.class, "isDefault");
+    private final static Class<?> OPTIONAL_CLASS = findOptionalClass();
+    private final static Method OFNULLABLE =  (OPTIONAL_CLASS == null) ? null : findMethodByName(OPTIONAL_CLASS, "ofNullable");
+    private final static Method GETPARAMETERS = findMethodByName(Method.class, "getParameters");
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
+
+    private static Class<?> findOptionalClass() {
+        try {
+            return Class.forName("java.util.Optional", false, ReflectionHelper.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 
     /**
      * @param a
@@ -54,24 +69,24 @@ public final class ReflectionHelper {
         seta.retainAll(setb);
         return seta;
     }
-   
+
     /**
      * Non exception throwing shortcut to find the first method with a given name.
+     *
      * @param clazz
      * @param name
      * @return method with name "name" or null if it does not exist.
      */
     public static Method findMethodByName(final Class<?> clazz, final String name) {
-        for (final Method m: clazz.getMethods()) {
+        for (final Method m : clazz.getMethods()) {
             if (name.equals(m.getName())) {
                 return m;
             }
         }
         return null;
     }
-    
+
     /**
-     * 
      * @param a
      * @return a set of all super interfaces of a
      */
@@ -87,7 +102,8 @@ public final class ReflectionHelper {
     };
 
     /**
-     * Defensive implemented method to determine if method has a return type. 
+     * Defensive implemented method to determine if method has a return type.
+     *
      * @param method
      * @return true if and only if it is not a void method.
      */
@@ -146,10 +162,11 @@ public final class ReflectionHelper {
 
     /**
      * Same as Arrays.asList(...), but does automatically conversion of primitive arrays.
+     *
      * @param array
      * @return List of objects representing the given array contents
      */
-    public static List<Object> array2ObjectList(final Object array) {       
+    public static List<Object> array2ObjectList(final Object array) {
         final int length = Array.getLength(array);
         final List<Object> list = new ArrayList<Object>(length);
         for (int i = 0; i < length; ++i) {
@@ -190,27 +207,29 @@ public final class ReflectionHelper {
     }
 
     /**
-     * Try to determine the names of the method parameters.
-     * Does not work on pre Java 8 jdk and given method owner has to be compiled with "-parameters" option.
-     * NOTICE: The correct function depends on the JVM implementation.
+     * Try to determine the names of the method parameters. Does not work on pre Java 8 jdk and
+     * given method owner has to be compiled with "-parameters" option. NOTICE: The correct function
+     * depends on the JVM implementation.
+     *
      * @param m
-     * @return Empty list if no parameters present or names could not be determined. List of parameter names else.
+     * @return Empty list if no parameters present or names could not be determined. List of
+     *         parameter names else.
      */
     public static List<String> getMethodParameterNames(final Method m) {
-        if ((GETPARAMETERS==null)||(m==null)) {
+        if ((GETPARAMETERS == null) || (m == null)) {
             return Collections.emptyList();
         }
         try {
             Object[] params = (Object[]) GETPARAMETERS.invoke(m);
-            if (params.length==0) {
+            if (params.length == 0) {
                 return Collections.emptyList();
             }
-            Method getName = findMethodByName(params[0].getClass(),"getName");
-            if (getName==null) {
+            Method getName = findMethodByName(params[0].getClass(), "getName");
+            if (getName == null) {
                 return Collections.emptyList();
             }
             List<String> paramNames = new LinkedList<String>();
-            for (Object o:params) {
+            for (Object o : params) {
                 paramNames.add((String) getName.invoke(o));
             }
             return paramNames;
@@ -220,20 +239,20 @@ public final class ReflectionHelper {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
-    
+
     /**
      * Search for a suitable constructor which is invokable by the given parameter types. Similar to
      * {@code Class.getConstructor(...)}, but does not require parameter equality and does not throw
      * exceptions.
-     * 
+     *
      * @param type
      * @param params
      * @return constructor or null if no matching constructor was found.
      */
     @SuppressWarnings("unchecked")
-    public static <T> Constructor<T> getCallableConstructorForParams(final Class<T> type, Class<?>... params) {
+    public static <T> Constructor<T> getCallableConstructorForParams(final Class<T> type, final Class<?>... params) {
         for (Constructor<T> c : (Constructor<T>[]) type.getConstructors()) {
             final Class<?>[] parameterTypes = c.getParameterTypes();
             if (!Arrays.equals(parameterTypes, params)) {
@@ -246,12 +265,12 @@ public final class ReflectionHelper {
 
     /**
      * Search for a static factory method returning the target type.
-     * 
+     *
      * @param type
      * @param params
      * @return factory method or null if it is not found.
      */
-    public static Method getCallableFactoryForParams(final Class<?> type, Class<?>... params) {
+    public static Method getCallableFactoryForParams(final Class<?> type, final Class<?>... params) {
         for (Method m : type.getMethods()) {
             if ((m.getModifiers() & PUBLIC_STATIC_MODIFIER) != PUBLIC_STATIC_MODIFIER) {
                 continue;
@@ -273,7 +292,128 @@ public final class ReflectionHelper {
     /**
      * @return true if and only if the current runtime may provide parameter names
      */
-    public static boolean mayProvideParameterNames() {    
-        return GETPARAMETERS!=null;
+    public static boolean mayProvideParameterNames() {
+        return GETPARAMETERS != null;
+    }
+
+    /**
+     * Unwrap a given object until we assume it is a value. Supports Callable and Supplier so far.
+     *
+     * @param type
+     * @param object
+     * @return object if it's a value. Unwrapped object if its a Callable or a Supplier
+     * @throws Exception
+     *             may be thrown by given objects method
+     */
+    public static Object unwrap(final Class<?> type, final Object object) throws Exception {
+        if (object == null) {
+            return null;
+        }
+        if (type == null) {
+            return object;
+        }
+        if (Callable.class.equals(type)) {
+            assert (object instanceof Callable);
+            return ((Callable<?>) object).call();
+        }
+
+        if ("java.util.function.Supplier".equals(type.getName())) {
+            return findMethodByName(type, "get").invoke(object, (Object[]) null);
+        }
+        
+        return object;
+    }
+
+    /**
+     * @param type
+     * @return type as class, if possible.
+     */
+    public static Class<?> upperBoundAsClass(final Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        }
+        if (type instanceof ParameterizedType) {
+            return upperBoundAsClass(((ParameterizedType) type).getRawType());
+        }
+        if (type instanceof GenericArrayType) {
+            return Array.newInstance(upperBoundAsClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
+        }
+        if (type instanceof WildcardType) {
+            Type[] bounds = ((WildcardType) type).getUpperBounds();
+            if (bounds.length == 0) {
+                return Object.class;
+            };
+            return upperBoundAsClass(bounds[0]);
+        }
+
+        throw new IllegalArgumentException("Unimplemented conversion for type " + type);
+    }
+
+    /**
+     * @param type
+     * @return generic parameter type if is optional, else type
+     */
+    public static Class<?> getParameterType(final Type type) {
+//        if (!isOptional(type)) {
+//            return (Class<?>) type;
+//        }
+        assert type instanceof ParameterizedType;
+        assert ((ParameterizedType) type).getActualTypeArguments().length == 1;
+        return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
+    }
+
+    /**
+     * Checks if given type is java.util.Optional with a generic type parameter.
+     * @param type
+     * @return true if and only if type is a parameterized Optional
+     */
+    public static boolean isOptional(final Type type) {
+        if (OPTIONAL_CLASS == null) {
+            return false;
+        }
+        
+        if (! (type instanceof ParameterizedType)) {
+            // Either this is no Optional, or it's a raw optional which is useless for us anyway...
+            return false;
+        }
+
+        return OPTIONAL_CLASS.equals(((ParameterizedType)type).getRawType());
+    }
+    
+    /**
+     * Checks if a given type is a raw type.
+     * @param type
+     * @return true if and only if the type may be parameterized but has no parameter type.
+     */
+    public static boolean isRawType(final Type type) {        
+        if (type instanceof Class) {
+            final Class<?> clazz = (Class<?>)type;
+            return (clazz.getTypeParameters().length>0);
+        }
+        if (type instanceof ParameterizedType) {
+            final ParameterizedType ptype = (ParameterizedType) type;
+            return (ptype.getActualTypeArguments() .length==0);
+        }
+        return false;
+    }
+
+    /**
+     * Create an instance of java.util.Optional for given value.
+     * @param value
+     * @return a new instance of Optional
+     */
+    public static Object createOptional(Object value) {
+        if (OPTIONAL_CLASS==null || OFNULLABLE==null) {
+            throw new IllegalStateException("Unreachable Code executed. You just found a bug. Please report!");
+        }
+        try {
+            return OFNULLABLE.invoke(null, value);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -35,6 +36,15 @@ public class TestReflectionHelper {
     public Void strageSignature(Void v) {
         return v;
     }
+    
+    @SuppressWarnings("rawtypes")
+    @Ignore
+    public List methodWithRawReturn(){return null;}
+
+    @Ignore
+    public List<String> methodWithNonRawReturn(){return null;}
+
+    
 
     @Test
     public void testNoReturnTypeNoParam() throws Exception {
@@ -59,4 +69,21 @@ public class TestReflectionHelper {
         assertFalse(ReflectionHelper.hasReturnType(s));
     }
 
+    @Test
+    public void testRawTypeDetection() throws Exception {
+        Method raw = TestReflectionHelper.class.getMethod("methodWithRawReturn",(Class[])null);        
+        assertTrue(ReflectionHelper.isRawType(raw.getGenericReturnType()));
+    }
+    
+    @Test
+    public void testRawTypeDetectionForParameterizedTypes() throws Exception {       
+        Method nonraw = TestReflectionHelper.class.getMethod("methodWithNonRawReturn",(Class[])null);        
+        assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));        
+    }
+    
+    @Test
+    public void testNonGegenricTypeIsNoRawType() throws Exception  {
+        Method nonraw = TestReflectionHelper.class.getMethod("withReturnTypeAndParameter",new Class[] {String.class});
+        assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));
+    }
 }

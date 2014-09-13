@@ -22,17 +22,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 
-import org.mockito.internal.util.collections.IdentitySet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -720,17 +717,27 @@ public final class DOMHelper {
      * @param nodes
      * @return true if and only if all nodes have the same parent
      */
-    public static boolean haveSameParent(List<Node> nodes) {
-        if ((nodes==null) ||(nodes.isEmpty())) {
+    public static boolean haveSameParent(final List<Node> nodes) {
+        if ((nodes == null) || (nodes.isEmpty())) {
             return true;
         }
         Iterator<Node> i = nodes.iterator();
         Node firstParent = i.next().getParentNode();
         while (i.hasNext()) {
-            if (firstParent!=i.next().getParentNode()) {
+            if (firstParent != i.next().getParentNode()) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * @param previous
+     * @param newNode
+     */
+    public static void replaceElement(final Element previous, final Element newNode) {
+        assert previous.getParentNode() != null;
+        Element parent = (Element) previous.getParentNode();
+        parent.replaceChild(newNode, previous);
     }
 }

@@ -96,11 +96,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
+     * @param typeToSet
      * @param collection
      * @param parentElement
      * @param elementSelector
      */
-    private int applyCollectionSetOnElement(final Collection<?> collection, final Element parentElement, final String elementSelector) {
+    private int applyCollectionSetOnElement(final Type typeToSet, final Collection<?> collection, final Element parentElement, final String elementSelector) {
         final Document document = parentElement.getOwnerDocument();
         DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
         assert !elementSelector.contains("/") : "Selector should be the trail of the path.";
@@ -108,7 +109,18 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (collection == null) {
             return 0;
         }
+        Class<?> componentClass = Object.class;
+        if (typeToSet instanceof ParameterizedType) {
+            Type componentType = ((ParameterizedType) typeToSet).getActualTypeArguments()[0];
+            componentClass = ReflectionHelper.upperBoundAsClass(componentType);
+        }
+
         for (Object o : collection) {
+            try {
+                o = ReflectionHelper.unwrap(componentClass, o);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
             if (o == null) {
                 continue;
             }
@@ -149,8 +161,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return (o instanceof InternalProjection) || (o instanceof Node);
     }
 
-    private void applySingleSetProjectionOnElement(final InternalProjection projection, final Node parentNode, final String elementSelector) {
-        final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
+    private void applySingleSetElementOnElement(final Element element, final Node parentNode, final String elementSelector) {
+        //final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
+        final Element newElement = (Element) element.cloneNode(true);
         DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
         DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newElement);
         parentNode.appendChild(newElement);
@@ -220,7 +233,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify a generic type for the List. Otherwise I do not know which type I should fill the List with.");
         }
         assert ((ParameterizedType) type).getActualTypeArguments().length == 1 : "";
-        return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
+        Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
+        if (!(componentType instanceof Class)) {
+            throw new IllegalArgumentException("I don't know how to instantiate the generic type for the return type of method " + method);
+        }
+        return (Class<?>) componentType;
     }
 
     private Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
@@ -355,6 +372,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      */
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+        unwrapArgs(method.getParameterTypes(), args);
         {
             String resolvedXpath = null;
             try {
@@ -420,6 +438,26 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
+     * If parameter is instance of Callable or Supplier then resolve its value.
+     *
+     * @param args
+     * @param args2
+     */
+    private void unwrapArgs(final Class<?>[] types, final Object[] args) {
+        if (args == null) {
+            return;
+        }
+        try {
+            for (int i = 0; i < args.length; ++i) {
+                args[i] = ReflectionHelper.unwrap(types[i], args[i]);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+
+    }
+
+    /**
      * @param proxy
      * @param format
      */
@@ -465,21 +503,26 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
 //        }
         final XPathExpression expression = xPath.compile(path);
-        final Class<?> returnType = method.getReturnType();
+        final boolean wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
+        final Class<?> returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
         if (projector.config().getTypeConverter().isConvertable(returnType)) {
             String data = (String) expression.evaluate(node, XPathConstants.STRING);
             try {
-                return projector.config().getTypeConverter().convertTo(returnType, data);
+                final Object result = projector.config().getTypeConverter().convertTo(returnType, data);
+                return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             } catch (NumberFormatException e) {
                 throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
             }
         }
-        if (Node.class.equals(returnType)) {
-            return expression.evaluate(node, XPathConstants.NODE);
+        if (Node.class.isAssignableFrom(returnType)) {
+            // Try to evaluate as node
+            // if evaluated type does not match return type, ClassCastException will follow
+            final Object result = expression.evaluate(node, XPathConstants.NODE);
+            return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
         }
-
         if (List.class.equals(returnType)) {
-            return evaluateAsList(expression, node, method);
+            final Object result = evaluateAsList(expression, node, method);
+            return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
         }
         if (returnType.isArray()) {
             List<?> list = evaluateAsList(expression, node, method);
@@ -488,10 +531,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (returnType.isInterface()) {
             Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
             if (newNode == null) {
-                return null;
+                return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
             }
             InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
-            return subprojection;
+            return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
         }
         throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
 // Automatic propagation of parameters as XPath variables
@@ -517,7 +560,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
         final boolean isMultiValue = isMultiValue(typeToSet);
         if (isMultiValue) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as updater but del");
+            throw new IllegalArgumentException("Method " + method + " was invoked as updater but with multiple values. Update is possible for single values only. Consider using @XBWrite.");
         }
         NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         final int count = nodes.getLength();
@@ -532,6 +575,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     continue;
                 }
                 DOMHelper.setOrRemoveAttribute(e, n.getNodeName(), valueToSet == null ? null : valueToSet.toString());
+                continue;
+            }
+            if (valueToSet instanceof Element) {
+                if (!(n instanceof Element)) {
+                    throw new IllegalArgumentException("XPath for element update need to select elements only");
+                }
+                DOMHelper.replaceElement((Element) n, (Element) ((Element) valueToSet).cloneNode(true));
                 continue;
             }
             n.setTextContent(valueToSet == null ? null : valueToSet.toString());
@@ -556,8 +606,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         assert document != null;
         final int findIndexOfValue = findIndexOfValue(method);
         final Object valueToSet = args[findIndexOfValue];
-        final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
-        final boolean isMultiValue = isMultiValue(typeToSet);
+        final Type typeToSet = method.getGenericParameterTypes()[findIndexOfValue];
+        final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
 
         if ("/*".equals(pathToElement)) { // Setting a new root element.
             if (isMultiValue) {
@@ -567,6 +617,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (valueToSet == null) {
                 DOMHelper.setDocumentElement(document, null);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
+            }
+            if (valueToSet instanceof Element) {
+                Element clone = (Element) ((Element) valueToSet).cloneNode(true);
+                document.adoptNode(clone);
+                if (document.getDocumentElement() == null) {
+                    document.appendChild(clone);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
+                document.replaceChild(document.getDocumentElement(), clone);
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
             if (!(valueToSet instanceof InternalProjection)) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
@@ -579,8 +639,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         if (isMultiValue) {
-//            if (path.contains("@")) {
-//                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+            if (path.contains("@")) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+            }
+            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
+            final String elementSelector = pathToElement.replaceAll(".*/", "");
+            final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
+            //   DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
+//            if (valueToSet == null) {
+//                return getProxyReturnValueForMethod(proxy, method);
 //            }
 //            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
 //            final String elementSelector = pathToElement.replaceAll(".*/", "");
@@ -597,12 +664,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
              */
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(collection2Set.size()));
         }
-
-        if (valueToSet instanceof InternalProjection) {
+        if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
             String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
             String elementSelector = pathToElement.replaceAll(".*/", "");
             Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-            applySingleSetProjectionOnElement((InternalProjection) valueToSet, parentNode, elementSelector);
+            applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
         }
 

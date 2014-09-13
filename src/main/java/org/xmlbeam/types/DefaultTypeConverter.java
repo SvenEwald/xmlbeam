@@ -47,57 +47,91 @@ public class DefaultTypeConverter implements TypeConverter {
     private final Map<Class<?>, Conversion<?>> CONVERSIONS = new HashMap<Class<?>, Conversion<?>>();
 
     public DefaultTypeConverter() {
-        CONVERSIONS.put(Boolean.class, new Conversion<Boolean>(false) {
+        CONVERSIONS.put(Boolean.class, new Conversion<Boolean>(null) {
             @Override
             public Boolean convert(final String data) {
                 return Boolean.valueOf(data);
             }
         });
-        CONVERSIONS.put(Boolean.TYPE, CONVERSIONS.get(Boolean.class));
-        CONVERSIONS.put(Byte.class, new Conversion<Byte>((byte) 0) {
+        CONVERSIONS.put(Boolean.TYPE, new Conversion<Boolean>(false) {
+            @Override
+            public Boolean convert(final String data) {
+                return Boolean.valueOf(data);
+            }
+        });
+        CONVERSIONS.put(Byte.class, new Conversion<Byte>(null) {
             @Override
             public Byte convert(final String data) {
                 return Byte.valueOf(data);
             }
         });
-        CONVERSIONS.put(Byte.TYPE, CONVERSIONS.get(Byte.class));
-        CONVERSIONS.put(Float.class, new Conversion<Float>(0F) {
+        CONVERSIONS.put(Byte.TYPE, new Conversion<Byte>((byte) 0) {
+            @Override
+            public Byte convert(final String data) {
+                return Byte.valueOf(data);
+            }
+        });
+        CONVERSIONS.put(Float.class, new Conversion<Float>(null) {
             @Override
             public Float convert(final String data) {
                 return Float.valueOf(data);
             }
         });
-        CONVERSIONS.put(Float.TYPE, CONVERSIONS.get(Float.class));
-        CONVERSIONS.put(Double.class, new Conversion<Double>(0D) {
+        CONVERSIONS.put(Float.TYPE, new Conversion<Float>(0F) {
+            @Override
+            public Float convert(final String data) {
+                return Float.valueOf(data);
+            }
+        });
+        CONVERSIONS.put(Double.class, new Conversion<Double>(null) {
             @Override
             public Double convert(final String data) {
                 return Double.valueOf(data);
             }
         });
-        CONVERSIONS.put(Double.TYPE, CONVERSIONS.get(Double.class));
-        CONVERSIONS.put(Short.class, new Conversion<Short>((short) 0) {
+        CONVERSIONS.put(Double.TYPE, new Conversion<Double>(0D) {
+            @Override
+            public Double convert(final String data) {
+                return Double.valueOf(data);
+            }
+        });        
+        CONVERSIONS.put(Short.class, new Conversion<Short>(null) {
             @Override
             public Short convert(final String data) {
                 return Short.valueOf(data);
             }
         });
-        CONVERSIONS.put(Short.TYPE, CONVERSIONS.get(Short.class));
-        CONVERSIONS.put(Integer.class, new Conversion<Integer>(0) {
+        CONVERSIONS.put(Short.TYPE, new Conversion<Short>((short) 0) {
+            @Override
+            public Short convert(final String data) {
+                return Short.valueOf(data);
+            }
+        });
+        CONVERSIONS.put(Integer.class, new Conversion<Integer>(null) {
             @Override
             public Integer convert(final String data) {
                 return Integer.valueOf(data);
             }
         });
-        CONVERSIONS.put(Integer.TYPE, CONVERSIONS.get(Integer.class));
-        CONVERSIONS.put(Long.class, new Conversion<Long>(0L) {
+        CONVERSIONS.put(Integer.TYPE, new Conversion<Integer>(0) {
+            @Override
+            public Integer convert(final String data) {
+                return Integer.valueOf(data);
+            }
+        });
+        CONVERSIONS.put(Long.class, new Conversion<Long>(null) {
             @Override
             public Long convert(final String data) {
                 return Long.valueOf(data);
             }
         });
-        CONVERSIONS.put(Long.TYPE, CONVERSIONS.get(Long.class));
-
-        CONVERSIONS.put(Character.class, new Conversion<Character>(' ') {
+        CONVERSIONS.put(Long.TYPE, new Conversion<Long>(0L) {
+            @Override
+            public Long convert(final String data) {
+                return Long.valueOf(data);
+            }
+        });
+        CONVERSIONS.put(Character.class, new Conversion<Character>(null) {
             @Override
             public Character convert(String data) {      
                 if (data.length()==1) {
@@ -107,7 +141,16 @@ public class DefaultTypeConverter implements TypeConverter {
                 return trimmed.isEmpty() ? getDefaultValue("") : trimmed.charAt(0);
             }
         });
-        CONVERSIONS.put(Character.TYPE, CONVERSIONS.get(Character.class));
+        CONVERSIONS.put(Character.TYPE, new Conversion<Character>(' ') {
+            @Override
+            public Character convert(String data) {      
+                if (data.length()==1) {
+                    return data.charAt(0);
+                }
+                String trimmed=data.trim();
+                return trimmed.isEmpty() ? getDefaultValue("") : trimmed.charAt(0);
+            }
+        });
 
         CONVERSIONS.put(String.class, new Conversion<String>("") {
             @Override
@@ -115,12 +158,6 @@ public class DefaultTypeConverter implements TypeConverter {
                 return data;
             }
         });
-// CONVERSIONS.put(Node.class, new Conversion<Node>(null){
-//
-// @Override
-// public Node convert(String data) {
-// return null;
-// }});
     }
 
     /**
