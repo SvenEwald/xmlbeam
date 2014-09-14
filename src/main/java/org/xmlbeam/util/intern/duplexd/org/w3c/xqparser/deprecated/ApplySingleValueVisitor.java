@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.deprecated;
 
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTEXPR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPATHEXPR;
@@ -24,6 +24,9 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 
 import org.w3c.dom.Node;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.INodeEvaluationVisitor;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBXPathExprNotAllowedForWriting;
 
 /**
  *

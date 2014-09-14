@@ -167,7 +167,10 @@ public class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<E
             ;
             return "attribute".equals(node.getValue()) ? ATTRIBUTE : ELEMENT;
         case JJTREVERSEAXIS:
+        case JJTABBREVREVERSESTEP:
             return ELEMENT;
+        case JJTCONTEXTITEMEXPR:
+            return NODE;
         case JJTPARAMLIST:
         case JJTPARAM:
         case JJTENCLOSEDEXPR:
@@ -192,7 +195,6 @@ public class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<E
         case JJTPLUS:
         case JJTSLASH:
         case JJTSLASHSLASH:
-        case JJTABBREVREVERSESTEP:
         case JJTNODETEST:
         case JJTNAMETEST:
         case JJTWILDCARD:
@@ -202,7 +204,6 @@ public class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<E
         case JJTPREDICATE:
         case JJTVARNAME:
         case JJTPARENTHESIZEDEXPR:
-        case JJTCONTEXTITEMEXPR:
         case JJTFUNCTIONITEMEXPR:
         case JJTLITERALFUNCTIONITEM:
         case JJTINLINEFUNCTION:

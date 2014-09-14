@@ -76,6 +76,10 @@ public class TestExpressionTypeDetection {
                 "child::*/child::price", ELEMENT,//
                 "child::node()", ELEMENT,//
                 "//BBB[position() mod 2 = 0 ]", ELEMENT,//
+                "self::node()", NODE,//
+                ".", NODE,//
+                "..", ELEMENT,//
+                "/child::network/descendant-or-self::cname", ELEMENT,//
         };
         final List<Object[]> paramList = new LinkedList<Object[]>();
         for (int i = 0; i < params.length; i += 2) {

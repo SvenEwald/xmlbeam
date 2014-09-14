@@ -19,5 +19,21 @@ package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
  * @author sven
  */
 public enum ExpressionType {
-    NODE, ELEMENT, ATTRIBUTE, VALUE
+    NODE(false), ELEMENT(false), ATTRIBUTE(false), VALUE(true);
+
+    private ExpressionType(final boolean mustEvaluateAsString) {
+        this.mustEvaluateAsString = mustEvaluateAsString;
+    }
+
+    private final boolean mustEvaluateAsString;
+
+    /**
+     * Some expressions can not be evaluated as node or node lists. (e.g. functions) These must be
+     * evaluated as Strings.
+     *
+     * @return true for values
+     */
+    public boolean isMustEvalAsString() {
+        return mustEvaluateAsString;
+    };
 }
