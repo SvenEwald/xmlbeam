@@ -55,7 +55,7 @@ import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
-import org.xmlbeam.util.intern.duplex.WritingXPath;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.deprecated.WritingXPath;
 
 /**
  * This class implements the "magic" behind projection methods. Each projection is linked with a
