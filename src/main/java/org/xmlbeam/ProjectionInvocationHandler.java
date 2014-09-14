@@ -55,7 +55,6 @@ import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.deprecated.WritingXPath;
 
 /**
  * This class implements the "magic" behind projection methods. Each projection is linked with a
@@ -649,20 +648,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            if (valueToSet == null) {
 //                return getProxyReturnValueForMethod(proxy, method);
 //            }
-//            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
-//            final String elementSelector = pathToElement.replaceAll(".*/", "");
-//            final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
             Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-
-            List<Node> targetElements = (List<Node>) WritingXPath.compile(path).evaluateOrCreate(settingNode, collection2Set);
-            /*
-             * if (!DOMHelper.haveSameParent(targetElements)) { throw new IllegalArgumentException(
-             * "XPath resolves to elements with different parent elements. I cannot decide where to apply the changes."
-             * ); } int count = replaceExistingElementsWithCollection(targetElements,
-             * collection2Set); //int count = applyCollectionSetOnElement(collection2Set,
-             * parentElement, elementSelector);
-             */
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(collection2Set.size()));
+            int count = applyCollectionSetOnElement(typeToSet, collection2Set, parentElement, elementSelector);
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
         if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
             String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
