@@ -72,25 +72,30 @@ public class TestXPathParsing {
         @XBRead("./xpath")
         String getXPath();
 
+        @XBRead("./xpath/@value")
+        String getXPathValue();
+
     };
 
     private Document document;
     private final String testId;
     private final Projection before;
     private final String xpath;
+    private final String value;
     private final Projection after;
 
-    private final static int RUN_ONLY = -1;
+    private final static int RUN_ONLY = 1;
 
 //    @Before
 //    public void prepare() {
 //        document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
 //    }
 
-    public TestXPathParsing(final String id, final Projection before, final String xpath, final Projection after) {
+    public TestXPathParsing(final String id, final Projection before, final String xpath, final String value, final Projection after) {
         this.testId = id;
         this.before = before;
         this.xpath = xpath;
+        this.value = value;
         this.after = after;
     }
 
@@ -104,7 +109,7 @@ public class TestXPathParsing {
 //        }
         document = before.getDOMOwnerDocument();
         // String xpath = "/hoo[@id='wutz']/foo/loo";
-        createByXParser(xpath);
+        createByXParser(xpath, value);
         Projection result = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectDOMNode(document, Projection.class);
         after.getDOMNode().normalize();
         DOMHelper.trim(after.getDOMNode());
@@ -123,12 +128,13 @@ public class TestXPathParsing {
         Projection testDefinition = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(Projection.class);
         int count = 0;
         for (Projection test : testDefinition.getTests()) {
-            final Object[] param = new Object[4];
+            final Object[] param = new Object[5];
             param[0] = "[" + count + "] " + test.getTestId();
             param[1] = subProjectionToDocument(test.getBefore());
             param[2] = test.getXPath().trim();
-            param[3] = subProjectionToDocument(test.getAfter());
-            if ((count++ == RUN_ONLY) || (RUN_ONLY < 0)) {
+            param[3] = test.getXPathValue().trim();
+            param[4] = subProjectionToDocument(test.getAfter());
+            if ((++count == RUN_ONLY) || (RUN_ONLY < 0)) {
                 params.add(param);
             }
         }
@@ -156,7 +162,7 @@ public class TestXPathParsing {
      * @throws ParseException
      * @throws Exception
      */
-    private void createByXParser(final String xpath) throws ParseException, Exception {
+    private void createByXParser(final String xpath, final String value) throws ParseException, Exception {
         XParser parser = new XParser(new StringReader(xpath));
         SimpleNode node = parser.START();
         System.out.println("-----------------------------------------");
@@ -164,15 +170,16 @@ public class TestXPathParsing {
         System.out.println(xpath);
         node.dump("");
 
-        List<Node> jjtAccept = (List<Node>) node.jjtAccept(new BuildDocumentVisitor(), document);
-        assert jjtAccept.size() == 1;
-
+        Node newNode = node.firstChildAccept(new BuildDocumentVisitor(), document);
+        if (!value.isEmpty()) {
+            newNode.setNodeValue(value);
+        }
         // Evaluate expression a second time
         XPathExpression expression = XPathFactory.newInstance().newXPath().compile(xpath);
         Object object = expression.evaluate(document, XPathConstants.NODE);
 
         // second result must select our just created node
-        assertSame(object, jjtAccept.get(0));
+        assertSame(object, newNode);
     }
 
     public void print() {

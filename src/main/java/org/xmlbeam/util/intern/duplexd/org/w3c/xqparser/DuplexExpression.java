@@ -46,6 +46,10 @@ public class DuplexExpression implements XPathExpression {
         }
     }
 
+    public org.w3c.dom.Node ensureExistence(final org.w3c.dom.Node contextNode) {
+        return node.firstChildAccept(new BuildDocumentVisitor(), contextNode);
+    }
+
     /*
      * (non-Javadoc)
      * 

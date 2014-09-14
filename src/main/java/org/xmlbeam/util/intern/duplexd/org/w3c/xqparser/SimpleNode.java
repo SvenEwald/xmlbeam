@@ -323,7 +323,6 @@ public class SimpleNode implements Node {
         for (SimpleNode child : children) {
             visitorClosure.apply(child, data);
         }
-
     }
 
 //    public List<SimpleNode> findChildrenById(final int... ids) {
