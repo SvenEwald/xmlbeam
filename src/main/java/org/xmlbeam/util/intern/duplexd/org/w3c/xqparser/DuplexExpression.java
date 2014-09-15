@@ -47,12 +47,12 @@ public class DuplexExpression implements XPathExpression {
     }
 
     public org.w3c.dom.Node ensureExistence(final org.w3c.dom.Node contextNode) {
-        return node.firstChildAccept(new BuildDocumentVisitor(), contextNode);
+        return node.firstChildAccept(new BuildDocumentVisitor(), contextNode).get(0);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.xml.xpath.XPathExpression#evaluate(java.lang.Object)
      */
     @Override
@@ -63,7 +63,7 @@ public class DuplexExpression implements XPathExpression {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.xml.xpath.XPathExpression#evaluate(org.xml.sax.InputSource)
      */
     @Override
@@ -74,7 +74,7 @@ public class DuplexExpression implements XPathExpression {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.xml.xpath.XPathExpression#evaluate(java.lang.Object, javax.xml.namespace.QName)
      */
     @Override
@@ -85,7 +85,7 @@ public class DuplexExpression implements XPathExpression {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.xml.xpath.XPathExpression#evaluate(org.xml.sax.InputSource,
      * javax.xml.namespace.QName)
      */

@@ -115,12 +115,12 @@ public class SimpleNode implements Node {
         return visitor.visit(this, data);
     }
 
-    public org.w3c.dom.Node allChildrenAccept(final INodeEvaluationVisitor visitor, final org.w3c.dom.Node target) {
+    public List<org.w3c.dom.Node> allChildrenAccept(final INodeEvaluationVisitor visitor, final org.w3c.dom.Node target) {
         org.w3c.dom.Node result = target;
         for (SimpleNode child : children) {
-            result = (org.w3c.dom.Node) child.jjtAccept(visitor, result);
+            result = ((List<org.w3c.dom.Node>) child.jjtAccept(visitor, result)).get(0);
         }
-        return result;
+        return DOMHelper.asList(result);
     }
 
     public org.w3c.dom.Node allButNotLastChildrenAccept(final INodeEvaluationVisitor visitor, final org.w3c.dom.Node target) {

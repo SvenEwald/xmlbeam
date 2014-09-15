@@ -170,7 +170,7 @@ public class TestXPathParsing {
         System.out.println(xpath);
         node.dump("");
 
-        Node newNode = node.firstChildAccept(new BuildDocumentVisitor(), document);
+        Node newNode = node.firstChildAccept(new BuildDocumentVisitor(), document).get(0);
         if (!value.isEmpty()) {
             newNode.setNodeValue(value);
         }

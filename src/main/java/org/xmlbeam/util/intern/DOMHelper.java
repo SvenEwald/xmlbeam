@@ -703,14 +703,22 @@ public final class DOMHelper {
      * @return Convert a Nodelist into List<Node>
      */
     public static List<Node> asList(final NodeList o) {
-        if (o == null) {
-            return null;
+        if ((o == null) || (o.getLength() == 0)) {
+            return Collections.emptyList();
         }
         List<Node> list = new LinkedList<Node>();
         for (Node n : nodeListToIterator(o)) {
             list.add(n);
         }
         return list;
+    }
+
+    /**
+     * @param n
+     * @return an immutable singleton list of n.
+     */
+    public static List<Node> asList(final Node n) {
+        return Collections.singletonList(n);
     }
 
     /**
@@ -739,5 +747,20 @@ public final class DOMHelper {
         assert previous.getParentNode() != null;
         Element parent = (Element) previous.getParentNode();
         parent.replaceChild(newNode, previous);
+    }
+
+    /**
+     * @param data
+     * @param name
+     * @return list of children with tag name
+     */
+    public static List<Node> getChildsByName(final Node data, final String name) {
+        if (data.getNodeType() == Node.ELEMENT_NODE) {
+            return asList(((Element) data).getElementsByTagName(name));
+        }
+        if (data.getNodeType() == Node.DOCUMENT_NODE) {
+            return asList(((Document) data).getElementsByTagName(name));
+        }
+        throw new IllegalArgumentException("Only Elements and Documents have child nodes");
     }
 }

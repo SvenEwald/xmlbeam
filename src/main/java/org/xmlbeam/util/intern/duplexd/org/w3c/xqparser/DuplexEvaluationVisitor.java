@@ -104,21 +104,24 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTWILDCARD;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
+import java.util.List;
+
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xmlbeam.XBException;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author sven
  */
-public class DuplexEvaluationVisitor implements INodeEvaluationVisitor<org.w3c.dom.Node> {
+public class DuplexEvaluationVisitor implements INodeEvaluationVisitor<List<org.w3c.dom.Node>> {
 
     private final static INodeEvaluationVisitor<String> getStringValueVisitor = new ExtractValueVisitor();
 
     @Override
-    public org.w3c.dom.Node visit(final SimpleNode node, final org.w3c.dom.Node data) {
+    public List<org.w3c.dom.Node> visit(final SimpleNode node, final org.w3c.dom.Node data) {
 
         switch (node.getID()) {
         case JJTSTART:
@@ -129,20 +132,20 @@ public class DuplexEvaluationVisitor implements INodeEvaluationVisitor<org.w3c.d
         case JJTPATHEXPR:
             return node.allChildrenAccept(this, data);
         case JJTSLASH:
-            return DOMHelper.getOwnerDocumentFor(data);
+            return DOMHelper.asList(DOMHelper.getOwnerDocumentFor(data));
         case JJTSLASHSLASH:
             throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous target path. You can not use '//' for writing.");
         case JJTSTEPEXPR:
-            return node.allChildrenAccept(this, data);
+            List<? extends org.w3c.dom.Node> possibleNodes = node.firstChildAccept(this, data);
+            return null;
         case JJTABBREVFORWARDSTEP:
             String name = node.firstChildAccept(getStringValueVisitor, data);
             if ("@".equals(node.getValue())) {
-                if (!(data instanceof Element)) {
-                    throw new XBException("Can not evaluate xpath", new XPathExpressionException("Can not select attibutes on a non element node."));
-                }
-                return ((Element) data).getAttributeNode(name);
+                assertNodeType(data, org.w3c.dom.Node.ELEMENT_NODE);
+                return DOMHelper.asList(((Element) data).getAttributeNode(name));
             }
-return ((Element)data).getElementsByTagName(name)
+
+            return DOMHelper.getChildsByName(data, name);
         case JJTFUNCTIONQNAME:
         case JJTUNIONEXPR:
             throw new XBXPathExprNotAllowedForWriting(node, "You need to specify a singel XPath expression.");
@@ -227,6 +230,17 @@ return ((Element)data).getElementsByTagName(name)
             break;
         }
         throw new IllegalStateException("Unknown Node " + node);
+
+    }
+
+    /**
+     * @param data
+     * @param type
+     */
+    private void assertNodeType(final Node data, final short type) {
+        if (data.getNodeType() != type) {
+            throw new XBException("Can not evaluate xpath", new XPathExpressionException("Expected node type " + type + " but got " + data.getNodeType()));
+        }
 
     }
 }

@@ -104,18 +104,20 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTWILDCARD;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
+import java.util.List;
+
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author sven
  */
-public class BuildDocumentVisitor implements INodeEvaluationVisitor<org.w3c.dom.Node> {
+public class BuildDocumentVisitor implements INodeEvaluationVisitor<List<org.w3c.dom.Node>> {
 
     private final static DuplexEvaluationVisitor evalVisitor = new DuplexEvaluationVisitor();
     private final static INodeEvaluationVisitor<String> getStringValueVisitor = new ExtractValueVisitor();
 
     @Override
-    public org.w3c.dom.Node visit(final SimpleNode node, final org.w3c.dom.Node data) {
+    public List<org.w3c.dom.Node> visit(final SimpleNode node, final org.w3c.dom.Node data) {
 
         switch (node.getID()) {
         case JJTSTART:
@@ -126,12 +128,15 @@ public class BuildDocumentVisitor implements INodeEvaluationVisitor<org.w3c.dom.
         case JJTPATHEXPR:
             return node.allChildrenAccept(this, data);
         case JJTSLASH:
-            return DOMHelper.getOwnerDocumentFor(data);
+            return DOMHelper.asList(DOMHelper.getOwnerDocumentFor(data));
         case JJTSLASHSLASH:
             throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous target path. You can not use '//' for writing.");
         case JJTSTEPEXPR:
-            org.w3c.dom.Node existingNode = node.allChildrenAccept(evalVisitor, data);
-            return existingNode != null ? existingNode : node.allChildrenAccept(this, data);
+            List<org.w3c.dom.Node> existingNodes = node.allChildrenAccept(evalVisitor, data);
+            if (existingNodes.isEmpty()) {
+                existingNodes = node.allChildrenAccept(this, data);
+            }
+            return existingNodes;
         case JJTABBREVFORWARDSTEP:
             String name = node.firstChildAccept(getStringValueVisitor, data);
             if ("@".equals(node.getValue())) {
