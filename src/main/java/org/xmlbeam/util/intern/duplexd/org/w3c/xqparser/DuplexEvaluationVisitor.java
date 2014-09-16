@@ -116,7 +116,7 @@ import org.xmlbeam.util.intern.DOMHelper;
 /**
  * @author sven
  */
-public class DuplexEvaluationVisitor implements INodeEvaluationVisitor<List<org.w3c.dom.Node>> {
+class DuplexEvaluationVisitor implements INodeEvaluationVisitor<List<org.w3c.dom.Node>> {
 
     private final static INodeEvaluationVisitor<String> getStringValueVisitor = new ExtractValueVisitor();
 

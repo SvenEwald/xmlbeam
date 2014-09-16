@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.xpath.duplexd.expressiontypes;
+package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import static org.junit.Assert.assertEquals;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType.ATTRIBUTE;

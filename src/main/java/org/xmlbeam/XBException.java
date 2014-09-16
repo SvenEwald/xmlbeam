@@ -33,5 +33,13 @@ public class XBException extends RuntimeException {
     public XBException(String msg, Throwable e) {
         super(msg,e);
     }
+    
+    /**
+     * Exception constructor.
+     * @param msg
+     */
+    public XBException(final String msg) {
+        super(msg);
+    }
 
 }

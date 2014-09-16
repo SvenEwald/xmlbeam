@@ -55,6 +55,10 @@ import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.DuplexExpression;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.DuplexXPathParser;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBPathParsingException;
 
 /**
  * This class implements the "magic" behind projection methods. Each projection is linked with a
@@ -612,83 +616,92 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (isMultiValue) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
             }
-            int count = document.getDocumentElement() == null ? 0 : 1;
-            if (valueToSet == null) {
-                DOMHelper.setDocumentElement(document, null);
+            return handeRootElementReplacement(proxy, method, document, valueToSet);
+        }
+        try {
+            final DuplexExpression duplexExpression = new DuplexXPathParser().compile(pathToElement);
+            if (duplexExpression.getExpressionType().equals(ExpressionType.VALUE)) {
+                throw new XBPathException("Unwriteable xpath selector used ", method, pathToElement);
+            }
+            if (isMultiValue) {
+                if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
+                    //if (path.contains("@")) {
+                    throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+                }
+                final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
+                final String elementSelector = pathToElement.replaceAll(".*/", "");
+                final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
+                Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
+                int count = applyCollectionSetOnElement(typeToSet, collection2Set, parentElement, elementSelector);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
             }
-            if (valueToSet instanceof Element) {
-                Element clone = (Element) ((Element) valueToSet).cloneNode(true);
-                document.adoptNode(clone);
-                if (document.getDocumentElement() == null) {
-                    document.appendChild(clone);
-                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-                }
-                document.replaceChild(document.getDocumentElement(), clone);
+
+            if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
+                String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
+                String elementSelector = pathToElement.replaceAll(".*/", "");
+                Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
+                applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
-            if (!(valueToSet instanceof InternalProjection)) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
+
+            Element elementToChange;
+            if (node.getNodeType() == Node.DOCUMENT_NODE) {
+                elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+            } else {
+                assert node.getNodeType() == Node.ELEMENT_NODE;
+                elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
             }
-            InternalProjection projection = (InternalProjection) valueToSet;
-            Element element = projection.getDOMBaseElement();
-            assert element != null;
-            DOMHelper.setDocumentElement(document, element);
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-        }
-
-        if (isMultiValue) {
-            if (path.contains("@")) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+            if (valueToSet instanceof Node) {
+                Node newNode = ((Node) valueToSet).cloneNode(true);
+                String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
+                String elementSelector = pathToElement.replaceAll(".*/", "");
+                Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
+                DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
+                DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newNode);
+                elementToChange.appendChild(newNode);
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
-            final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
-            final String elementSelector = pathToElement.replaceAll(".*/", "");
-            final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
-            //   DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
-//            if (valueToSet == null) {
-//                return getProxyReturnValueForMethod(proxy, method);
-//            }
-            Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-            int count = applyCollectionSetOnElement(typeToSet, collection2Set, parentElement, elementSelector);
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-        }
-        if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
-            String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
-            String elementSelector = pathToElement.replaceAll(".*/", "");
-            Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-            applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-        }
 
-        Element elementToChange;
-        if (node.getNodeType() == Node.DOCUMENT_NODE) {
-            elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
-        } else {
-            assert node.getNodeType() == Node.ELEMENT_NODE;
-            elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
-        }
-        if (valueToSet instanceof Node) {
-            Node newNode = ((Node) valueToSet).cloneNode(true);
-            String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
-            String elementSelector = pathToElement.replaceAll(".*/", "");
-            Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-            DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
-            DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newNode);
-            elementToChange.appendChild(newNode);
+            if (path.replaceAll("\\[@", "[attribute::").contains("@")) {
+                String attributeName = path.replaceAll(".*@", "");
+                DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+            }
+            if (valueToSet == null) {
+                DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
+            } else {
+                elementToChange.setTextContent(valueToSet.toString());
+            }
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+        } catch (XBPathParsingException e) {
+            throw new XBPathException(e, method, pathToElement);
         }
+    }
 
-        if (path.replaceAll("\\[@", "[attribute::").contains("@")) {
-            String attributeName = path.replaceAll(".*@", "");
-            DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-        }
+    private Object handeRootElementReplacement(final Object proxy, final Method method, final Document document, final Object valueToSet) {
+        int count = document.getDocumentElement() == null ? 0 : 1;
         if (valueToSet == null) {
-            DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
-        } else {
-            elementToChange.setTextContent(valueToSet.toString());
+            DOMHelper.setDocumentElement(document, null);
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
-        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+        if (valueToSet instanceof Element) {
+            Element clone = (Element) ((Element) valueToSet).cloneNode(true);
+            document.adoptNode(clone);
+            if (document.getDocumentElement() == null) {
+                document.appendChild(clone);
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+            }
+            document.replaceChild(document.getDocumentElement(), clone);
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+        }
+        if (!(valueToSet instanceof InternalProjection)) {
+            throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
+        }
+        InternalProjection projection = (InternalProjection) valueToSet;
+        Element element = projection.getDOMBaseElement();
+        assert element != null;
+        DOMHelper.setDocumentElement(document, element);
+        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
     }
 
     /**

@@ -21,12 +21,15 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tests.GenericXPathProjection;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBPathParsingException;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBXPathExprNotAllowedForWriting;
 @SuppressWarnings("javadoc")
 public class TestSetterXPathSyntax {
 
@@ -55,7 +58,7 @@ public class TestSetterXPathSyntax {
         projection.setterXPathString("/", "");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = XBException.class)
     public void emptyrootElementAttributeAccessNotAllowed() {
         projection.setterXPathString("/@attribute", "value");
     }

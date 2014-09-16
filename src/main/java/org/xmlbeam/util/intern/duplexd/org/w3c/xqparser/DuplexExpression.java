@@ -15,16 +15,19 @@
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
+import java.util.List;
+
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.InputSource;
+import org.xmlbeam.XBException;
 
 /**
  * @author sven
  */
-public class DuplexExpression implements XPathExpression {
+public class DuplexExpression {
 
     private final SimpleNode node;
     private final String xpath;
@@ -47,52 +50,7 @@ public class DuplexExpression implements XPathExpression {
     }
 
     public org.w3c.dom.Node ensureExistence(final org.w3c.dom.Node contextNode) {
-        return node.firstChildAccept(new BuildDocumentVisitor(), contextNode).get(0);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.xml.xpath.XPathExpression#evaluate(java.lang.Object)
-     */
-    @Override
-    public String evaluate(final Object arg0) throws XPathExpressionException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.xml.xpath.XPathExpression#evaluate(org.xml.sax.InputSource)
-     */
-    @Override
-    public String evaluate(final InputSource arg0) throws XPathExpressionException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.xml.xpath.XPathExpression#evaluate(java.lang.Object, javax.xml.namespace.QName)
-     */
-    @Override
-    public Object evaluate(final Object arg0, final QName arg1) throws XPathExpressionException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.xml.xpath.XPathExpression#evaluate(org.xml.sax.InputSource,
-     * javax.xml.namespace.QName)
-     */
-    @Override
-    public Object evaluate(final InputSource arg0, final QName arg1) throws XPathExpressionException {
-        // TODO Auto-generated method stub
-        return null;
+        return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(), contextNode)).get(0);
     }
 
 }

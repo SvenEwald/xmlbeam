@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -762,5 +763,19 @@ public final class DOMHelper {
             return asList(((Document) data).getElementsByTagName(name));
         }
         throw new IllegalArgumentException("Only Elements and Documents have child nodes");
+    }
+
+    /**
+     * Set a text value to a node whether it is an element or an attribute.
+     * @param newNode
+     * @param value
+     */
+    public static void setStringValue(Node newNode, String value) {
+        assert newNode.getNodeType() != Node.DOCUMENT_NODE;
+        if (newNode.getNodeType() == Node.ATTRIBUTE_NODE) {                
+            ((Attr)newNode).getOwnerElement().setAttribute(newNode.getNodeName(), value);
+            return;
+        } 
+        newNode.setTextContent(value);        
     }
 }

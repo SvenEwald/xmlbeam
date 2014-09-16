@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.xpath.duplexd;
+package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
@@ -44,7 +45,6 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.BuildDocumentVisitor;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
@@ -84,7 +84,7 @@ public class TestXPathParsing {
     private final String value;
     private final Projection after;
 
-    private final static int RUN_ONLY = 1;
+    private final static int RUN_ONLY = -1;
 
 //    @Before
 //    public void prepare() {
@@ -134,9 +134,10 @@ public class TestXPathParsing {
             param[2] = test.getXPath().trim();
             param[3] = test.getXPathValue().trim();
             param[4] = subProjectionToDocument(test.getAfter());
-            if ((++count == RUN_ONLY) || (RUN_ONLY < 0)) {
+            if ((count == RUN_ONLY) || (RUN_ONLY < 0)) {
                 params.add(param);
             }
+            ++count;
         }
         return params;
     }
@@ -163,16 +164,19 @@ public class TestXPathParsing {
      * @throws Exception
      */
     private void createByXParser(final String xpath, final String value) throws ParseException, Exception {
-        XParser parser = new XParser(new StringReader(xpath));
-        SimpleNode node = parser.START();
-        System.out.println("-----------------------------------------");
-        System.out.println(testId);
-        System.out.println(xpath);
-        node.dump("");
-
-        Node newNode = node.firstChildAccept(new BuildDocumentVisitor(), document).get(0);
+        {// Just debug helping output
+            XParser parser = new XParser(new StringReader(xpath));
+            SimpleNode node = parser.START();
+            System.out.println("-----------------------------------------");
+            System.out.println(testId);
+            System.out.println(xpath);
+            node.dump("");
+        }
+        final DuplexExpression duplex = new DuplexXPathParser().compile(xpath);
+        Node newNode = duplex.ensureExistence(document);
+        //Node newNode = ((List<Node>) node.firstChildAccept(new BuildDocumentVisitor(), document)).get(0);
         if (!value.isEmpty()) {
-            newNode.setNodeValue(value);
+            DOMHelper.setStringValue(newNode, value);
         }
         // Evaluate expression a second time
         XPathExpression expression = XPathFactory.newInstance().newXPath().compile(xpath);

@@ -1,10 +1,10 @@
 <tests>
-<!-- Simple attribute creation -->
+	<!-- Simple attribute creation -->
 	<test id="Create attribute in root element">
 		<before />
 		<xpath value="someValue">
 			/foo/@bar
-		</xpath>	
+		</xpath>
 		<after>
 			<foo bar="someValue">
 			</foo>
@@ -160,9 +160,9 @@
 		id="Create structure with existing element selected by number predicate">
 		<before>
 			<hoo>
-				<foo>first</foo>
-				<foo>second</foo>
-				<foo>third</foo>
+				<foo id="first" />
+				<foo id="second" />
+				<foo id="third" />
 			</hoo>
 		</before>
 		<xpath>
@@ -170,14 +170,36 @@
 		</xpath>
 		<after>
 			<hoo>
-				<foo>first</foo>
-				<foo>
-					second
+				<foo id="first" />
+				<foo id="second">
 					<loo />
 				</foo>
-				<foo>third</foo>
+				<foo id="third" />
 			</hoo>
 		</after>
 	</test>
+	<!-- Test with number predicate and value-->
+	<test
+		id="Create structure with existing element selected by number predicate">
+		<before>
+			<hoo>
+				<foo id="first" />
+				<foo id="second" />
+				<foo id="third" />
+			</hoo>
+		</before>
+		<xpath value="someValue">
+			/hoo/foo[2]/loo
+		</xpath>
+		<after>
+			<hoo>
+				<foo id="first" />
+				<foo id="second">
+					<loo>someValue</loo>
+				</foo>
+				<foo id="third" />
+			</hoo>
+		</after>
+	</test>	
 	<!-- Test with backward axis -->
 </tests>

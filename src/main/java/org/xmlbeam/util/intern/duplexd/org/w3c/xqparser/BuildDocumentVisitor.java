@@ -16,217 +16,378 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVFORWARDSTEP;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVREVERSESTEP;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTADDITIVEEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTANDEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTANYFUNCTIONTEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTANYKINDTEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTATOMICTYPE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTATTRIBNAMEORWILDCARD;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTATTRIBUTEDECLARATION;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTATTRIBUTENAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTATTRIBUTETEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCASTABLEEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCASTEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCOMMENTTEST;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCOMPARISONEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCONTEXTITEMEXPR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDECIMALLITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDOCUMENTTEST;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDOUBLELITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDYNAMICFUNCTIONINVOCATION;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTELEMENTDECLARATION;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTELEMENTNAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTELEMENTNAMEORWILDCARD;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTELEMENTTEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTENCLOSEDEXPR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTFOREXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTFORWARDAXIS;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTFUNCTIONCALL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTFUNCTIONITEMEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTFUNCTIONQNAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTFUNCTIONTEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTIFEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTINLINEFUNCTION;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTINSTANCEOFEXPR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTINTEGERLITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTINTERSECTEXCEPTEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTITEMTYPE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTLBRACE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTLETEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTLITERALFUNCTIONITEM;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTMINUS;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTMULTIPLICATIVEEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNAMESPACENODETEST;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNAMETEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNCNAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNCNAMECOLONSTAR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNODETEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTOCCURRENCEINDICATOR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTOREXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPARAM;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPARAMLIST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPARENTHESIZEDEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPARENTHESIZEDITEMTYPE;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPATHEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPITEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPLUS;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPREDICATE;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPREDICATELIST;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTQNAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTQUANTIFIEDEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTRANGEEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTRBRACE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTREVERSEAXIS;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSCHEMAATTRIBUTETEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSCHEMAELEMENTTEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSEQUENCETYPE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSIMPLEFORBINDING;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSIMPLELETBINDING;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSIMPLELETCLAUSE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSINGLETYPE;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSLASH;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSLASHSLASH;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTARCOLONNCNAME;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTART;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTEPEXPR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTRINGLITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTTEXTTEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTTREATEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTTYPEDECLARATION;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTTYPEDFUNCTIONTEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTTYPENAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTUNARYEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTUNIONEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTVARNAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTVOID;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTWILDCARD;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
- * @author sven
  */
-public class BuildDocumentVisitor implements INodeEvaluationVisitor<List<org.w3c.dom.Node>> {
+class BuildDocumentVisitor implements XParserVisitor {
 
-    private final static DuplexEvaluationVisitor evalVisitor = new DuplexEvaluationVisitor();
-    private final static INodeEvaluationVisitor<String> getStringValueVisitor = new ExtractValueVisitor();
+    private static class LiteralVisitor implements XParserVisitor {
 
-    @Override
-    public List<org.w3c.dom.Node> visit(final SimpleNode node, final org.w3c.dom.Node data) {
-
-        switch (node.getID()) {
-        case JJTSTART:
-        case JJTXPATH:
-        case JJTEXPR:
-        case JJTFUNCTIONCALL:
-            return node.firstChildAccept(this, data);
-        case JJTPATHEXPR:
-            return node.allChildrenAccept(this, data);
-        case JJTSLASH:
-            return DOMHelper.asList(DOMHelper.getOwnerDocumentFor(data));
-        case JJTSLASHSLASH:
-            throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous target path. You can not use '//' for writing.");
-        case JJTSTEPEXPR:
-            List<org.w3c.dom.Node> existingNodes = node.allChildrenAccept(evalVisitor, data);
-            if (existingNodes.isEmpty()) {
-                existingNodes = node.allChildrenAccept(this, data);
+        @Override
+        public Object visit(final SimpleNode node, final Node data) {
+            switch (node.getID()) {
+            case JJTSTRINGLITERAL:
+                return node.getValue().replaceAll("'(.*)'", "$1").replaceAll("\"(.*)\"", "$1");
+            case JJTINTEGERLITERAL:
+                return Integer.valueOf(node.getValue());
+            case JJTDECIMALLITERAL:
+                return Float.valueOf(node.getValue());
+            case JJTDOUBLELITERAL:
+                return Double.valueOf(node.getValue());
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expetced here.");
             }
-            return existingNodes;
-        case JJTABBREVFORWARDSTEP:
-            String name = node.firstChildAccept(getStringValueVisitor, data);
-            if ("@".equals(node.getValue())) {
-                //((org.w3c.dom.Element)data).s
-            }
-//            data.getOwnerDocument().cre
-        case JJTFUNCTIONQNAME:
-        case JJTUNIONEXPR:
-            throw new XBXPathExprNotAllowedForWriting(node, "You need to specify a singel XPath expression.");
-        case JJTSTRINGLITERAL:
-        case JJTINTEGERLITERAL:
-        case JJTDECIMALLITERAL:
-        case JJTDOUBLELITERAL:
-        case JJTADDITIVEEXPR:
-        case JJTMULTIPLICATIVEEXPR:
-        case JJTCOMPARISONEXPR:
-        case JJTOREXPR:
-        case JJTANDEXPR:
-        case JJTFORWARDAXIS:
-        case JJTREVERSEAXIS:
-        case JJTABBREVREVERSESTEP:
-        case JJTCONTEXTITEMEXPR:
-        case JJTPARAMLIST:
-        case JJTPARAM:
-        case JJTENCLOSEDEXPR:
-        case JJTLBRACE:
-        case JJTRBRACE:
-        case JJTVOID:
-        case JJTFOREXPR:
-        case JJTSIMPLEFORBINDING:
-        case JJTLETEXPR:
-        case JJTSIMPLELETCLAUSE:
-        case JJTSIMPLELETBINDING:
-        case JJTQUANTIFIEDEXPR:
-        case JJTIFEXPR:
-        case JJTRANGEEXPR:
-        case JJTINTERSECTEXCEPTEXPR:
-        case JJTINSTANCEOFEXPR:
-        case JJTTREATEXPR:
-        case JJTCASTABLEEXPR:
-        case JJTCASTEXPR:
-        case JJTUNARYEXPR:
-        case JJTMINUS:
-        case JJTPLUS:
-        case JJTNODETEST:
-        case JJTNAMETEST:
-        case JJTWILDCARD:
-        case JJTNCNAMECOLONSTAR:
-        case JJTSTARCOLONNCNAME:
-        case JJTPREDICATELIST:
-        case JJTPREDICATE:
-        case JJTVARNAME:
-        case JJTPARENTHESIZEDEXPR:
-        case JJTFUNCTIONITEMEXPR:
-        case JJTLITERALFUNCTIONITEM:
-        case JJTINLINEFUNCTION:
-        case JJTDYNAMICFUNCTIONINVOCATION:
-        case JJTSINGLETYPE:
-        case JJTTYPEDECLARATION:
-        case JJTSEQUENCETYPE:
-        case JJTOCCURRENCEINDICATOR:
-        case JJTITEMTYPE:
-        case JJTATOMICTYPE:
-        case JJTANYKINDTEST:
-        case JJTDOCUMENTTEST:
-        case JJTTEXTTEST:
-        case JJTCOMMENTTEST:
-        case JJTNAMESPACENODETEST:
-        case JJTPITEST:
-        case JJTATTRIBUTETEST:
-        case JJTATTRIBNAMEORWILDCARD:
-        case JJTSCHEMAATTRIBUTETEST:
-        case JJTATTRIBUTEDECLARATION:
-        case JJTELEMENTTEST:
-        case JJTELEMENTNAMEORWILDCARD:
-        case JJTSCHEMAELEMENTTEST:
-        case JJTELEMENTDECLARATION:
-        case JJTATTRIBUTENAME:
-        case JJTELEMENTNAME:
-        case JJTTYPENAME:
-        case JJTFUNCTIONTEST:
-        case JJTANYFUNCTIONTEST:
-        case JJTTYPEDFUNCTIONTEST:
-        case JJTPARENTHESIZEDITEMTYPE:
-        case JJTNCNAME:
-        case JJTQNAME:
-        default:
-            break;
         }
-        throw new IllegalStateException("Unknown Node " + node);
 
     }
+
+    public static class EvaluateStepExprVisitor implements INodeEvaluationVisitor<List<Node>> {
+
+        final boolean onAttribute;
+
+        public static EvaluateStepExprVisitor create(final boolean onAttribute) {
+            return new EvaluateStepExprVisitor(onAttribute);
+        }
+
+        private EvaluateStepExprVisitor(final boolean onAttribute) {
+            this.onAttribute = onAttribute;
+        }
+
+        @Override
+        public List<Node> visit(final SimpleNode node, final Node data) {
+            switch (node.getID()) {
+            case JJTSTEPEXPR:
+                Object result = node.childrenAccept(this, data);
+                return (List<Node>) result;
+            case JJTABBREVFORWARDSTEP:
+                return (List<Node>) node.childrenAccept(create("@".equals(node.getValue())), data);
+            case JJTNODETEST:
+                return (List<Node>) node.childrenAccept(this, data);
+            case JJTNAMETEST:
+                return (List<Node>) node.childrenAccept(this, data);
+            case JJTQNAME:
+                String name = node.getValue();
+                if (onAttribute) {
+                    assert data instanceof Element;
+                    return DOMHelper.asList(asElement(data).getAttributeNodeNS(null, name));
+                }
+                return DOMHelper.asList(asElement(data).getElementsByTagNameNS(null, name));
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
+            }
+        }
+
+    }
+
+    private static class FindNameTestVisitor implements XParserVisitor {
+
+        String name;
+        boolean isAttribute;
+
+        @Override
+        public Object visit(final SimpleNode node, final Node data) {
+            switch (node.getID()) {
+            case JJTABBREVFORWARDSTEP:
+                this.isAttribute = "@".equals(node.getValue());
+                return node.childrenAccept(this, data);
+            case JJTNODETEST:
+                return node.childrenAccept(this, data);
+            case JJTNAMETEST:
+                return node.childrenAccept(this, data);
+            case JJTQNAME:
+                this.name = node.getValue();
+                return data;
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
+            }
+        }
+
+    }
+
+    private static class ApplyPredicatesVisitor implements XParserVisitor {
+
+        @Override
+        public Object visit(final SimpleNode node, final Node data) {
+            switch (node.getID()) {
+            case JJTPREDICATELIST:
+                return node.childrenAccept(this, data);
+            case JJTPREDICATE:
+                return node.childrenAccept(this, data);
+            case JJTEXPR:
+                return node.childrenAccept(this, data);
+            case JJTCOMPARISONEXPR:
+                if (!"=".equals(node.getValue())) {
+//                    throw new XBXPathExprNotAllowedForWriting(node, "Operator "+node.getValue()+" not implemented");
+                }
+                Object first = node.firstChildAccept(this, data);
+                if (!(first instanceof Node)) {
+                    throw new XBXPathExprNotAllowedForWriting(node, "A nonwritable predicate");
+                }
+                Object second = node.secondChildAccept(this, data);
+                if (first instanceof Attr) {
+                    assert data instanceof Element;
+                    ((Element) data).setAttributeNS(null, ((Attr) first).getNodeName(), second.toString());
+//                    ((Element) data).setAttribute(((Attr) first).getNodeName(), second.toString());
+                    return data;
+                }
+                ((Node) first).setTextContent(second.toString());
+                return data;
+            case JJTSTEPEXPR:
+                return node.jjtAccept(new BuildDocumentVisitor(), data);
+            case JJTSTRINGLITERAL:
+            case JJTINTEGERLITERAL:
+            case JJTDECIMALLITERAL:
+            case JJTDOUBLELITERAL:
+                return node.jjtAccept(new LiteralVisitor(), data);
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expetced here.");
+            }
+        }
+
+    }
+
+    private static class EvaluatePredicateListVisitor implements XParserVisitor {
+
+        @Override
+        public Object visit(final SimpleNode node, final Node data) {
+            switch (node.getID()) {
+            case JJTPREDICATELIST:
+                return node.childrenAccept(this, data);
+            case JJTPREDICATE:
+                return node.childrenAccept(this, data);
+            case JJTEXPR:
+                return node.childrenAccept(this, data);
+            case JJTCOMPARISONEXPR:
+                Object first = node.firstChildAccept(this, data);
+                Object second = node.secondChildAccept(this, data);
+                return Boolean.valueOf(compare(node, unList(first), unList(second)));
+            case JJTSTEPEXPR:
+                return node.jjtAccept(EvaluateStepExprVisitor.create(false), data);
+            case JJTSTRINGLITERAL:
+            case JJTINTEGERLITERAL:
+            case JJTDECIMALLITERAL:
+            case JJTDOUBLELITERAL:
+                return node.jjtAccept(new LiteralVisitor(), data);
+            default:
+                throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
+            }
+        }
+
+        /**
+         * @param first
+         * @return
+         */
+        private Object unList(Object o) {
+            if (!(o instanceof List)) {
+                return o;
+            }
+            List<?> list = (List<?>)o;
+            if (list.isEmpty()) {
+                return null;
+            }
+            return  list.get(0);
+        }
+        /**
+         * @param value
+         * @param first
+         * @param second
+         * @return
+         */
+        private boolean compare(final SimpleNode value, Object first, Object second) {            
+            switch (value.getValue().charAt(0)) {
+            case '=':
+                return toString(first).equals(toString(second));
+            default:
+                throw new XBXPathExprNotAllowedForWriting(value, "Operator " + value.getValue() + " not implemented");
+            }
+        }
+
+        /**
+         * @param first
+         * @return
+         */
+        private String toString(final Object o) {
+            if (o instanceof Node) {
+                return ((Node) o).getTextContent();
+            }
+            return o == null ? "<null>" : o.toString();
+        }
+    }
+
+    @Override
+    public Object visit(final SimpleNode node, final Node data) {
+        switch (node.getID()) {
+        case JJTSTART:
+            return node.childrenAccept(this, data);
+        case JJTXPATH:
+            return node.childrenAccept(this, data);
+        case JJTEXPR:
+            return node.childrenAccept(this, data);
+        case JJTPATHEXPR:
+            return asListofNodes(node.childrenAccept(this, data));
+        case JJTSLASHSLASH:
+            throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous locator");
+        case JJTSLASH:
+            return DOMHelper.getOwnerDocumentFor(data);
+        case JJTSTEPEXPR:
+            FindNameTestVisitor nameTest = new FindNameTestVisitor();
+            node.firstChildAccept(nameTest, data);
+            String childName = nameTest.name;
+            boolean isAttribute = nameTest.isAttribute;
+            if (isAttribute) {
+                assert data.getNodeType() == Node.ELEMENT_NODE;
+                Attr attributeNode = ((org.w3c.dom.Element) data).getAttributeNode(childName);
+                if (attributeNode != null) {
+                    return attributeNode;
+                }
+                Attr newAttribute = DOMHelper.getOwnerDocumentFor(data).createAttributeNS(null, childName);
+                ((Element) data).setAttributeNode(newAttribute);
+                return newAttribute;
+                // return ((org.w3c.dom.Element) data).appendChild(newAttribute);
+            }
+            Node nextNode = findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+            if (nextNode == null) {
+
+                return createChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+            }
+            return nextNode;
+        default:
+            throw new XBXPathExprNotAllowedForWriting(node, "Not implemented");
+        }
+    }
+
+    /**
+     * @param childrenAccept
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private List<Node> asListofNodes(final Object childrenAccept) {
+        if (childrenAccept == null) {
+            return Collections.emptyList();
+        }
+        if (childrenAccept instanceof Node) {
+            return Collections.singletonList((Node) childrenAccept);
+        }
+        return (List<Node>) childrenAccept;
+    }
+
+    /**
+     * @param first
+     * @return first node of nodelist if its not empty. null instead.
+     */
+    public static Node unwrapNodeList(final NodeList first) {
+        if (first == null) {
+            return null;
+        }
+        if (first.getLength() == 0) {
+            return null;
+        }
+        assert first.getLength() == 1;
+        return first.item(0);
+    }
+
+    /**
+     * @param data
+     * @return
+     */
+    private static Element asElement(final Object data) {
+        assert data instanceof Element;
+        return (Element) data;
+    }
+
+    /**
+     * @param data
+     * @param childName
+     * @param firstChildWithId
+     * @return
+     */
+    private Element createChildElement(final Node data, final String childName, final SimpleNode predicateList) {
+        Document document = DOMHelper.getOwnerDocumentFor(data);
+        Element newElement = document.createElementNS(null, childName);
+        if (data instanceof Document) {
+            if (null != ((Document) data).getDocumentElement()) {
+                ((Document) data).removeChild(((Document) data).getDocumentElement());
+            }
+        }
+        data.appendChild(newElement);
+
+        if (predicateList != null) {
+            ApplyPredicatesVisitor applyPredicatesVisitor = new ApplyPredicatesVisitor();
+            predicateList.jjtAccept(applyPredicatesVisitor, newElement);
+        }
+        return newElement;
+    }
+
+    /**
+     * @param data
+     * @param childName
+     * @param firstChildWithId
+     * @return
+     */
+    private Element findFirstMatchingChildElement(final Node data, final String childName, final SimpleNode predicateList) {
+        if (data instanceof Document) {
+            final Element root = ((Document) data).getDocumentElement();
+            if (root == null) {
+                return null;
+            }
+            if (!root.getNodeName().equals(childName)) {
+                return null;
+            }
+            if (predicateList == null) {
+                return root;
+            }
+            Object accept = predicateList.childrenAccept(new EvaluatePredicateListVisitor(), root);
+            if (Boolean.TRUE.equals(accept)) {
+                return root;
+            }
+            if (accept instanceof Integer) {
+                throw new XBXPathExprNotAllowedForWriting(predicateList, "No position predicate on document element allowed");
+            }
+            return null;
+        }
+        final NodeList nodeList = ((Element) data).getElementsByTagName(childName);
+        for (int i = 0; i < nodeList.getLength(); ++i) {
+            Element e = (Element) nodeList.item(i);
+            if (predicateList == null) {
+                // If no predicate is set, no restriction applies, return first.
+                return e;
+            }
+            Object accept = predicateList.childrenAccept(new EvaluatePredicateListVisitor(), e);
+            if (Boolean.TRUE.equals(accept)) {
+                return e;
+            }
+            if (Integer.valueOf(i + 1).equals(accept)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
 }

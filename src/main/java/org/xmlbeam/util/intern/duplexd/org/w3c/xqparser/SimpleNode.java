@@ -22,9 +22,7 @@ import java.util.ListIterator;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
 
-// ONLY EDIT THIS FILE IN THE GRAMMAR ROOT DIRECTORY!
-// THE ONE IN THE ${spec}-src DIRECTORY IS A COPY!!!
-public class SimpleNode implements Node {
+class SimpleNode implements Node {
     protected Node parent;
 
     protected SimpleNode[] children;
@@ -145,11 +143,17 @@ public class SimpleNode implements Node {
                         return Boolean.TRUE;
                     }
                     continue;
+                }                
+                if (newResult instanceof List) {
+                    newResult = ((List) newResult).isEmpty() ? null : ((List) newResult).get(0);
+                }
+                if (newResult instanceof Number) {
+                    return newResult;
                 }
                 result = (org.w3c.dom.Node) newResult; // proceed step expression
             }
         }
-        return result;
+        return DOMHelper.asList(result);
     }
 
     public Object firstChildAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {

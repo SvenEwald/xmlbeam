@@ -115,7 +115,7 @@ import org.w3c.dom.Node;
 /**
  * @author sven
  */
-public class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<ExpressionType> {
+class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<ExpressionType> {
 
     @Override
     public ExpressionType visit(final SimpleNode node, final Node data) {
