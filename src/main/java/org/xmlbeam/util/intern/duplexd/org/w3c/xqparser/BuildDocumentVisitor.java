@@ -353,7 +353,6 @@ class BuildDocumentVisitor implements XParserVisitor {
     private Element createChildElement(final Node data, final String childName, final SimpleNode predicateList) {
         assert childName != null;
         assert data != null;
-        assert predicateList != null;
         Document document = DOMHelper.getOwnerDocumentFor(data);
         Element newElement = document.createElementNS(null, childName);
         if (data instanceof Document) {
