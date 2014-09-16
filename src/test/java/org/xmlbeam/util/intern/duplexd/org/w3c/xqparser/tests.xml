@@ -178,7 +178,7 @@
 			</hoo>
 		</after>
 	</test>
-	<!-- Test with number predicate and value-->
+	<!-- Test with number predicate and value -->
 	<test
 		id="Create structure with existing element selected by number predicate">
 		<before>
@@ -200,6 +200,46 @@
 				<foo id="third" />
 			</hoo>
 		</after>
-	</test>	
-	<!-- Test with backward axis -->
+	</test>
+	<test id="Create structure with existing element and relative path">
+		<before>
+			<foo>
+				<bar />
+			</foo>
+		</before>
+		<xpath value="someValue">
+			./node
+		</xpath>
+		<contextNodePath>
+			/foo/bar
+		</contextNodePath>
+		<after>
+			<foo>
+				<bar>
+					<node>someValue</node>
+				</bar>
+			</foo>
+		</after>
+	</test>
+	<test
+		id="Create structure with existing element, relative path and reverse axis">
+		<before>
+			<foo>
+				<bar />
+			</foo>
+		</before>
+		<xpath value="someValue">
+			../node
+		</xpath>
+		<contextNodePath>
+			/foo/bar
+		</contextNodePath>
+		<after>
+			<foo>
+				<bar />
+				<node>someValue</node>
+			</foo>
+		</after>
+	</test>
+
 </tests>

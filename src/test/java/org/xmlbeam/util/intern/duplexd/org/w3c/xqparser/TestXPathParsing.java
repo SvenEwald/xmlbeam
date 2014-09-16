@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
@@ -45,9 +44,6 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
 
 /**
  * @author sven
@@ -72,6 +68,9 @@ public class TestXPathParsing {
         @XBRead("./xpath")
         String getXPath();
 
+        @XBRead("./contextNodePath")
+        String getContextNodePath();
+
         @XBRead("./xpath/@value")
         String getXPathValue();
 
@@ -83,6 +82,7 @@ public class TestXPathParsing {
     private final String xpath;
     private final String value;
     private final Projection after;
+    private final String contextPath;
 
     private final static int RUN_ONLY = -1;
 
@@ -91,12 +91,13 @@ public class TestXPathParsing {
 //        document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
 //    }
 
-    public TestXPathParsing(final String id, final Projection before, final String xpath, final String value, final Projection after) {
+    public TestXPathParsing(final String id, final Projection before, final String xpath, final String value, final String contextPath, final Projection after) {
         this.testId = id;
         this.before = before;
         this.xpath = xpath;
         this.value = value;
         this.after = after;
+        this.contextPath = contextPath;
     }
 
     @Test
@@ -128,12 +129,14 @@ public class TestXPathParsing {
         Projection testDefinition = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(Projection.class);
         int count = 0;
         for (Projection test : testDefinition.getTests()) {
-            final Object[] param = new Object[5];
-            param[0] = "[" + count + "] " + test.getTestId();
-            param[1] = subProjectionToDocument(test.getBefore());
-            param[2] = test.getXPath().trim();
-            param[3] = test.getXPathValue().trim();
-            param[4] = subProjectionToDocument(test.getAfter());
+            final Object[] param = new Object[] { //
+            "[" + count + "] " + test.getTestId(),//
+                    subProjectionToDocument(test.getBefore()),//
+                    test.getXPath().trim(),//
+                    test.getXPathValue().trim(),//
+                    test.getContextNodePath().trim(),//
+                    subProjectionToDocument(test.getAfter()),//
+            };
             if ((count == RUN_ONLY) || (RUN_ONLY < 0)) {
                 params.add(param);
             }
@@ -172,15 +175,22 @@ public class TestXPathParsing {
             System.out.println(xpath);
             node.dump("");
         }
+
+        Node contextNode = document;
+        if (!contextPath.isEmpty()) {
+            XPathExpression expression = XPathFactory.newInstance().newXPath().compile(contextPath);
+            contextNode = (Node) expression.evaluate(document, XPathConstants.NODE);
+        }
+
         final DuplexExpression duplex = new DuplexXPathParser().compile(xpath);
-        Node newNode = duplex.ensureExistence(document);
+        Node newNode = duplex.ensureExistence(contextNode);
         //Node newNode = ((List<Node>) node.firstChildAccept(new BuildDocumentVisitor(), document)).get(0);
         if (!value.isEmpty()) {
             DOMHelper.setStringValue(newNode, value);
         }
         // Evaluate expression a second time
         XPathExpression expression = XPathFactory.newInstance().newXPath().compile(xpath);
-        Object object = expression.evaluate(document, XPathConstants.NODE);
+        Object object = expression.evaluate(contextNode, XPathConstants.NODE);
 
         // second result must select our just created node
         assertSame(object, newNode);

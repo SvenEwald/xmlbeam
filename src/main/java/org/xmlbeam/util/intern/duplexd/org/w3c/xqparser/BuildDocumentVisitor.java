@@ -16,7 +16,9 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVFORWARDSTEP;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVREVERSESTEP;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCOMPARISONEXPR;
+import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCONTEXTITEMEXPR;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDECIMALLITERAL;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDOUBLELITERAL;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTEXPR;
@@ -110,6 +112,7 @@ class BuildDocumentVisitor implements XParserVisitor {
 
         String name;
         boolean isAttribute;
+        boolean resolved = false;;
 
         @Override
         public Object visit(final SimpleNode node, final Node data) {
@@ -117,6 +120,9 @@ class BuildDocumentVisitor implements XParserVisitor {
             case JJTABBREVFORWARDSTEP:
                 this.isAttribute = "@".equals(node.getValue());
                 return node.childrenAccept(this, data);
+            case JJTABBREVREVERSESTEP:
+                this.resolved = true;
+                return data.getParentNode();
             case JJTNODETEST:
                 return node.childrenAccept(this, data);
             case JJTNAMETEST:
@@ -124,9 +130,21 @@ class BuildDocumentVisitor implements XParserVisitor {
             case JJTQNAME:
                 this.name = node.getValue();
                 return data;
+            case JJTCONTEXTITEMEXPR:
+                if (".".equals(node.getValue())) {
+                    this.resolved = true;
+                    return data;
+                }
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
+        }
+
+        /**
+         * @return true if nextNode is determined by this expression
+         */
+        public boolean isAlreadyResolved() {
+            return resolved;
         }
 
     }
@@ -204,23 +222,24 @@ class BuildDocumentVisitor implements XParserVisitor {
          * @param first
          * @return
          */
-        private Object unList(Object o) {
+        private Object unList(final Object o) {
             if (!(o instanceof List)) {
                 return o;
             }
-            List<?> list = (List<?>)o;
+            List<?> list = (List<?>) o;
             if (list.isEmpty()) {
                 return null;
             }
-            return  list.get(0);
+            return list.get(0);
         }
+
         /**
          * @param value
          * @param first
          * @param second
          * @return
          */
-        private boolean compare(final SimpleNode value, Object first, Object second) {            
+        private boolean compare(final SimpleNode value, final Object first, final Object second) {
             switch (value.getValue().charAt(0)) {
             case '=':
                 return toString(first).equals(toString(second));
@@ -258,7 +277,10 @@ class BuildDocumentVisitor implements XParserVisitor {
             return DOMHelper.getOwnerDocumentFor(data);
         case JJTSTEPEXPR:
             FindNameTestVisitor nameTest = new FindNameTestVisitor();
-            node.firstChildAccept(nameTest, data);
+            Object result = node.firstChildAccept(nameTest, data);
+            if (nameTest.isAlreadyResolved()) {
+                return result;
+            }
             String childName = nameTest.name;
             boolean isAttribute = nameTest.isAttribute;
             if (isAttribute) {
@@ -329,6 +351,9 @@ class BuildDocumentVisitor implements XParserVisitor {
      * @return
      */
     private Element createChildElement(final Node data, final String childName, final SimpleNode predicateList) {
+        assert childName != null;
+        assert data != null;
+        assert predicateList != null;
         Document document = DOMHelper.getOwnerDocumentFor(data);
         Element newElement = document.createElementNS(null, childName);
         if (data instanceof Document) {
