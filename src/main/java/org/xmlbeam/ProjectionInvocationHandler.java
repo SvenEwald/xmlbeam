@@ -612,6 +612,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final Type typeToSet = method.getGenericParameterTypes()[findIndexOfValue];
         final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
 
+        // ROOT element update
         if ("/*".equals(pathToElement)) { // Setting a new root element.
             if (isMultiValue) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
@@ -619,10 +620,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return handeRootElementReplacement(proxy, method, document, valueToSet);
         }
         try {
-            final DuplexExpression duplexExpression = new DuplexXPathParser().compile(pathToElement);
+            final DuplexExpression duplexExpression = new DuplexXPathParser().compile(path);
             if (duplexExpression.getExpressionType().equals(ExpressionType.VALUE)) {
-                throw new XBPathException("Unwriteable xpath selector used ", method, pathToElement);
+                throw new XBPathException("Unwriteable xpath selector used ", method, path);
             }
+            // MULTIVALUE
             if (isMultiValue) {
                 if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
                     //if (path.contains("@")) {
@@ -636,7 +638,19 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
             }
 
+            // ATTRIBUTES
+            if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
+                Attr attribute = (Attr) duplexExpression.ensureExistence(settingNode);
+                if (valueToSet == null) {
+                    attribute.getOwnerElement().removeAttributeNode(attribute);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
+                DOMHelper.setStringValue(attribute, valueToSet.toString());
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+            }
+
             if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
+                //duplexExpression.ensureExistence(settingNode);
                 String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
                 String elementSelector = pathToElement.replaceAll(".*/", "");
                 Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
@@ -646,7 +660,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             Element elementToChange;
             if (node.getNodeType() == Node.DOCUMENT_NODE) {
-                elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+                //elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+                elementToChange = (Element) duplexExpression.ensureExistence(document);
             } else {
                 assert node.getNodeType() == Node.ELEMENT_NODE;
                 elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);

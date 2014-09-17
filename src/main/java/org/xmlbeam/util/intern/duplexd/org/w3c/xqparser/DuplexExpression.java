@@ -17,13 +17,6 @@ package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import java.util.List;
 
-import javax.xml.namespace.QName;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.xml.sax.InputSource;
-import org.xmlbeam.XBException;
-
 /**
  * @author sven
  */
@@ -41,7 +34,7 @@ public class DuplexExpression {
     }
 
     public ExpressionType getExpressionType() {
-        try {
+        try { //TODO: cache expression type ?
             final ExpressionType expressionType = node.firstChildAccept(new ExpressionTypeEvaluationVisitor(), null);
             return expressionType;
         } catch (IllegalArgumentException e) {

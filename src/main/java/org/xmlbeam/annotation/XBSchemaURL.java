@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declare a schema URL to a projection interface. Not used during runtime, but useful for 3rf party
+ * Declare a schema URL to a projection interface. Not used during runtime, but useful for 3rd party
  * tools to validate projection interfaces.
  *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>

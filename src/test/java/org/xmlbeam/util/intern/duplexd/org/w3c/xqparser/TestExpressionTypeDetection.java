@@ -31,11 +31,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionTypeEvaluationVisitor;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
 
 /**
  * @author sven
@@ -80,6 +75,7 @@ public class TestExpressionTypeDetection {
                 ".", NODE,//
                 "..", ELEMENT,//
                 "/child::network/descendant-or-self::cname", ELEMENT,//
+                "./@x", ATTRIBUTE,//
         };
         final List<Object[]> paramList = new LinkedList<Object[]>();
         for (int i = 0; i < params.length; i += 2) {

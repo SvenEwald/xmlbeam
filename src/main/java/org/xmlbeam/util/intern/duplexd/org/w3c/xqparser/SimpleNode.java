@@ -23,22 +23,23 @@ import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
 
 class SimpleNode implements Node {
-    protected Node parent;
+    private Node parent;
 
-    protected SimpleNode[] children;
+    private SimpleNode[] children;
 
-    protected int id;
+    final int id;
 
-    protected XParser parser;
+    private final XParser parser;
 
     public int beginLine, beginColumn, endLine, endColumn;
 
     public SimpleNode(final int i) {
         id = i;
+        parser = null;
     }
 
     public SimpleNode(final XParser p, final int i) {
-        this(i);
+        id = i;
         parser = p;
     }
 
@@ -143,7 +144,7 @@ class SimpleNode implements Node {
                         return Boolean.TRUE;
                     }
                     continue;
-                }                
+                }
                 if (newResult instanceof List) {
                     newResult = ((List) newResult).isEmpty() ? null : ((List) newResult).get(0);
                 }
