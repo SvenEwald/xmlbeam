@@ -30,7 +30,6 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -767,15 +766,22 @@ public final class DOMHelper {
 
     /**
      * Set a text value to a node whether it is an element or an attribute.
+     *
      * @param newNode
      * @param value
      */
-    public static void setStringValue(Node newNode, String value) {
+    public static void setStringValue(final Node newNode, final String value) {
         assert newNode.getNodeType() != Node.DOCUMENT_NODE;
-        if (newNode.getNodeType() == Node.ATTRIBUTE_NODE) {                
-            ((Attr)newNode).getOwnerElement().setAttribute(newNode.getNodeName(), value);
-            return;
-        } 
-        newNode.setTextContent(value);        
+//        if (newNode.getNodeType() == Node.ATTRIBUTE_NODE) {
+//            if ("xmlns".equals(newNode.getNodeName())) {
+//                ((Attr) newNode).getOwnerElement().setAttribute("xmlns", value);
+//                return;
+//            }
+//        }
+//            ((Attr) newNode).getOwnerElement().
+//             ((Attr) newNode).getOwnerElement().setAttributeNS(newNode.getNamespaceURI(), newNode.getNodeName(), value);
+//            return;
+//        }
+        newNode.setTextContent(value);
     }
 }

@@ -292,12 +292,13 @@ class BuildDocumentVisitor implements XParserVisitor {
                 }
                 assert data.getNodeType() == Node.ELEMENT_NODE;
                 //TODO: Fix namespace setting on root node
-                Attr attributeNode = childName.equals("xmlns") ? ((org.w3c.dom.Element) data).getAttributeNode((childName)) : ((org.w3c.dom.Element) data).getAttributeNodeNS(prefix(childName), local(childName));
+                Attr attributeNode = ((org.w3c.dom.Element) data).getAttributeNodeNS(namespaceURL(childName), local(childName));
                 if (attributeNode != null) {
                     return attributeNode;
                 }
-                Attr newAttribute = DOMHelper.getOwnerDocumentFor(data).createAttributeNS(prefix(childName), local(childName));
-                ((Element) data).setAttributeNode(newAttribute);
+                Attr newAttribute = "xmlns".equals(childName) ? DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") : DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName), local(childName));
+                newAttribute.setTextContent("huhu");
+                ((Element) data).setAttributeNodeNS(newAttribute);
                 return newAttribute;
                 // return ((org.w3c.dom.Element) data).appendChild(newAttribute);
             }
@@ -361,7 +362,7 @@ class BuildDocumentVisitor implements XParserVisitor {
         assert childName != null;
         assert data != null;
         Document document = DOMHelper.getOwnerDocumentFor(data);
-        final Element newElement = document.createElementNS(prefix(childName), local(childName));
+        final Element newElement = document.createElementNS(namespaceURL(childName), local(childName));
         if (data instanceof Document) {
             if (null != ((Document) data).getDocumentElement()) {
                 ((Document) data).removeChild(((Document) data).getDocumentElement());
@@ -381,28 +382,33 @@ class BuildDocumentVisitor implements XParserVisitor {
      * @return
      */
     private String local(final String childName) {
-        int i = childName.indexOf(":");
-        if (i < 0) {
-            return childName;
-        }
-        return childName.substring(i + 1, childName.length());
+//        int i = childName.indexOf(":");
+//        if (i < 0) {
+//            return childName;
+//        }
+//        return childName.substring(i + 1, childName.length());
+        return childName;
     }
 
     /**
      * @param childName
      * @return
      */
-    private String prefix(final String childName) {
-        if (childName.equals("xmlns")) {
+    private String namespaceURL(final String childName) {
+        if (childName.equals("xmlns") || childName.startsWith("xmlns:")) {
             return "http://www.w3.org/2000/xmlns/";
         }
-        int i = childName.indexOf(":");
-        if (i < 0) {
-            return null;
+        if (childName.startsWith("xml:")) {
+            return "http://www.w3.org/XML/1998/namespace";
         }
-        String prefix = childName.substring(0, i);
-
-        return prefix;
+        return null;
+//        int i = childName.indexOf(":");
+//        if (i < 0) {
+//            return null;
+//        }
+//        String prefix = childName.substring(0, i);
+//
+//        return prefix;
     }
 
     /**

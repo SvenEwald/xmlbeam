@@ -22,6 +22,11 @@ import java.util.List;
  */
 public class DuplexExpression {
 
+    @Override
+    public String toString() {
+        return "DuplexExpression [xpath=" + xpath + "]";
+    }
+
     private final SimpleNode node;
     private final String xpath;
 
