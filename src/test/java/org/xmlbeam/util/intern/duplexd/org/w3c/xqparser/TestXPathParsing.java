@@ -27,15 +27,17 @@ import java.util.List;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
@@ -113,14 +115,13 @@ public class TestXPathParsing {
         createByXParser(xpath, value);
         Projection result = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectDOMNode(document, Projection.class);
         after.getDOMNode().normalize();
-        DOMHelper.trim(after.getDOMNode());
-//        DOMHelper.trim(after.getDOMNode());
         result.getDOMNode().normalize();
+        DOMHelper.trim(after.getDOMNode());
         DOMHelper.trim(result.getDOMNode());
-        //   after.getDOMOwnerDocument().normalizeDocument();
-        //result.getDOMOwnerDocument().normalizeDocument();
+        after.getDOMOwnerDocument().normalizeDocument();
+        result.getDOMOwnerDocument().normalizeDocument();
         DOMHelper.nodesAreEqual(after.getDOMNode(), result.getDOMNode());
-        assertEquals(after, result);
+        assertEquals(after.toString(), result.toString());
     }
 
     @Parameters
@@ -150,6 +151,7 @@ public class TestXPathParsing {
      * @return
      */
     private static Projection subProjectionToDocument(final Projection test) {
+        new DefaultXMLFactoriesConfig().createDocumentBuilder().isNamespaceAware();
         Document document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
 
         if (test != null) {
@@ -176,24 +178,33 @@ public class TestXPathParsing {
             node.dump("");
         }
 
-        Node contextNode = document;
-        if (!contextPath.isEmpty()) {
-            XPathExpression expression = XPathFactory.newInstance().newXPath().compile(contextPath);
-            contextNode = (Node) expression.evaluate(document, XPathConstants.NODE);
-        }
+        final Node contextNode = contextPath.isEmpty() ? document :evalViaXPath(contextPath, document);
 
         final DuplexExpression duplex = new DuplexXPathParser().compile(xpath);
-        Node newNode = duplex.ensureExistence(contextNode);
-        //Node newNode = ((List<Node>) node.firstChildAccept(new BuildDocumentVisitor(), document)).get(0);
+        final Node newNode = duplex.ensureExistence(contextNode);
+
         if (!value.isEmpty()) {
             DOMHelper.setStringValue(newNode, value);
         }
+
         // Evaluate expression a second time
-        XPathExpression expression = XPathFactory.newInstance().newXPath().compile(xpath);
-        Object object = expression.evaluate(contextNode, XPathConstants.NODE);
+        final Node paranoiaNode = evalViaXPath(xpath, contextNode);
 
         // second result must select our just created node
-        assertSame(object, newNode);
+     //   System.out.println(System.identityHashCode(paranoiaNode)+" "+System.identityHashCode(newNode));
+        assertSame(paranoiaNode, newNode);
+    }
+
+    private Node evalViaXPath(final String xpath, Node contextNode) throws XPathExpressionException {
+        if (xpath.endsWith("/@xmlns")) {
+            String pathToElement = xpath.substring(0, xpath.length() - "/@xmlns".length());
+            Element e = (Element) evalViaXPath(pathToElement, contextNode);
+            return e.getAttributeNode("xmlns");
+        }
+        XPath xPath2 = new DefaultXMLFactoriesConfig().createXPath(document);
+        XPathExpression expression = xPath2.compile(xpath);
+        Object object = expression.evaluate(contextNode, XPathConstants.NODE);
+        return (Node) object;
     }
 
     public void print() {

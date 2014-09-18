@@ -16,6 +16,10 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import java.util.List;
+import java.util.Map;
+
+import org.w3c.dom.Document;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author sven
@@ -48,7 +52,11 @@ public class DuplexExpression {
     }
 
     public org.w3c.dom.Node ensureExistence(final org.w3c.dom.Node contextNode) {
-        return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(), contextNode)).get(0);
+        final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
+        final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping), contextNode)).get(0);
     }
+    
+    
 
 }

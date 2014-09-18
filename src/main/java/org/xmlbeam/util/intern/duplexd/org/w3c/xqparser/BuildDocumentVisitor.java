@@ -38,6 +38,7 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -152,7 +153,7 @@ class BuildDocumentVisitor implements XParserVisitor {
 
     }
 
-    private static class ApplyPredicatesVisitor implements XParserVisitor {
+    private class ApplyPredicatesVisitor implements XParserVisitor {
 
         @Override
         public Object visit(final SimpleNode node, final Node data) {
@@ -181,7 +182,7 @@ class BuildDocumentVisitor implements XParserVisitor {
                 ((Node) first).setTextContent(second.toString());
                 return data;
             case JJTSTEPEXPR:
-                return node.jjtAccept(new BuildDocumentVisitor(), data);
+                return node.jjtAccept(BuildDocumentVisitor.this, data);
             case JJTSTRINGLITERAL:
             case JJTINTEGERLITERAL:
             case JJTDECIMALLITERAL:
@@ -263,6 +264,16 @@ class BuildDocumentVisitor implements XParserVisitor {
         }
     }
 
+    private final Map<String, String> namespaceMapping;
+
+    /**
+     * @param namespaceMapping
+     */
+    public BuildDocumentVisitor(Map<String, String> namespaceMapping) {
+        assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
+        this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
+    }
+
     @Override
     public Object visit(final SimpleNode node, final Node data) {
         switch (node.getID()) {
@@ -296,9 +307,13 @@ class BuildDocumentVisitor implements XParserVisitor {
                 if (attributeNode != null) {
                     return attributeNode;
                 }
-                Attr newAttribute = "xmlns".equals(childName) ? DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") : DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName), local(childName));
-                newAttribute.setTextContent("huhu");
-                ((Element) data).setAttributeNodeNS(newAttribute);
+                Attr newAttribute =  "xmlns".equals(childName) ? DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") : DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName), local(childName));
+             //   newAttribute.setTextContent("huhu");
+                if ("xmlns".equals(childName)) {
+                    ((Element) data).setAttributeNode(newAttribute);
+                } else {
+                    ((Element) data).setAttributeNodeNS(newAttribute);
+                }
                 return newAttribute;
                 // return ((org.w3c.dom.Element) data).appendChild(newAttribute);
             }
@@ -362,7 +377,7 @@ class BuildDocumentVisitor implements XParserVisitor {
         assert childName != null;
         assert data != null;
         Document document = DOMHelper.getOwnerDocumentFor(data);
-        final Element newElement = document.createElementNS(namespaceURL(childName), local(childName));
+        final Element newElement = (childName.contains(":")) ? document.createElementNS(namespaceURL(childName), local(childName)) : document.createElement(childName);
         if (data instanceof Document) {
             if (null != ((Document) data).getDocumentElement()) {
                 ((Document) data).removeChild(((Document) data).getDocumentElement());
@@ -395,13 +410,25 @@ class BuildDocumentVisitor implements XParserVisitor {
      * @return
      */
     private String namespaceURL(final String childName) {
-        if (childName.equals("xmlns") || childName.startsWith("xmlns:")) {
-            return "http://www.w3.org/2000/xmlns/";
+        if ("xmlns".equals(childName)) {
+            return namespaceMapping.get(childName);
         }
-        if (childName.startsWith("xml:")) {
-            return "http://www.w3.org/XML/1998/namespace";
-        }
-        return null;
+        
+      int i = childName.indexOf(":");
+      if (i < 0) {
+          return null;
+      }
+      String prefix = childName.substring(0, i);
+      return namespaceMapping.get(prefix);
+        
+//        if (childName.equals("xmlns") || childName.startsWith("xmlns:")) {
+//            return "http://www.w3.org/2000/xmlns/";
+//        }
+//        if (childName.startsWith("xml:")) {
+//            return "http://www.w3.org/XML/1998/namespace";
+//        }
+//        return null;
+
 //        int i = childName.indexOf(":");
 //        if (i < 0) {
 //            return null;

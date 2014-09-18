@@ -153,10 +153,19 @@ public final class DOMHelper {
      */
     public static Map<String, String> getNamespaceMapping(final Document document) {
         Map<String, String> map = new HashMap<String, String>();
+        map.put("xmlns", "http://www.w3.org/2000/xmlns/");
+        map.put("xml","http://www.w3.org/XML/1998/namespace");
+//      if (childName.equals("xmlns") || childName.startsWith("xmlns:")) {
+//      return "http://www.w3.org/2000/xmlns/";
+//  }
+//  if (childName.startsWith("xml:")) {
+//      return "http://www.w3.org/XML/1998/namespace";
+//  }
+
         Element root = document.getDocumentElement();
         if (root == null) {
             // No document, no namespaces.
-            return Collections.emptyMap();
+            return map;
         }
         NamedNodeMap attributes = root.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
