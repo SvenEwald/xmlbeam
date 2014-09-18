@@ -20,7 +20,7 @@
 			<foo xmlns="someValue">
 			</foo>
 		</after>
-	</test>	
+	</test>
 	<!-- Single predicate tests -->
 	<test id="Create structure with attribute predicate in root">
 		<before />
@@ -250,6 +250,32 @@
 				<bar />
 				<node>someValue</node>
 			</foo>
+		</after>
+	</test>
+	<test
+		id="Write on element being part of a selector" skipSameValidation="true">
+		<before>
+			<project>
+				<repositories>
+					<repository>
+						<id>spring-libs-snapshot</id>
+						<url>http://repo.spring.io/libs</url>
+					</repository>
+				</repositories>
+			</project>
+		</before>
+		<xpath value="spring-libs-release">
+		/project/repositories/repository[id='spring-libs-snapshot']/id
+		</xpath>
+		<after>
+			<project>
+				<repositories>
+					<repository>
+						<id>spring-libs-release</id>
+						<url>http://repo.spring.io/libs</url>
+					</repository>
+				</repositories>
+			</project>
 		</after>
 	</test>
 

@@ -16,6 +16,7 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 import java.io.StringReader;
@@ -76,6 +77,9 @@ public class TestXPathParsing {
         @XBRead("./xpath/@value")
         String getXPathValue();
 
+        @XBRead("./@skipSameValidation")
+        boolean shouldSkipSameValidation();
+
     };
 
     private Document document;
@@ -85,6 +89,7 @@ public class TestXPathParsing {
     private final String value;
     private final Projection after;
     private final String contextPath;
+    private final boolean skipSameValidation;
 
     private final static int RUN_ONLY = -1;
 
@@ -93,13 +98,14 @@ public class TestXPathParsing {
 //        document = new DefaultXMLFactoriesConfig().createDocumentBuilder().newDocument();
 //    }
 
-    public TestXPathParsing(final String id, final Projection before, final String xpath, final String value, final String contextPath, final Projection after) {
+    public TestXPathParsing(final String id, final Projection before, final String xpath, final String value, final String contextPath, final Projection after, final boolean skipSameValidation) {
         this.testId = id;
         this.before = before;
         this.xpath = xpath;
         this.value = value;
         this.after = after;
         this.contextPath = contextPath;
+        this.skipSameValidation = skipSameValidation;
     }
 
     @Test
@@ -137,6 +143,7 @@ public class TestXPathParsing {
                     test.getXPathValue().trim(),//
                     test.getContextNodePath().trim(),//
                     subProjectionToDocument(test.getAfter()),//
+                    test.shouldSkipSameValidation(),//
             };
             if ((count == RUN_ONLY) || (RUN_ONLY < 0)) {
                 params.add(param);
@@ -178,24 +185,29 @@ public class TestXPathParsing {
             node.dump("");
         }
 
-        final Node contextNode = contextPath.isEmpty() ? document :evalViaXPath(contextPath, document);
+        final Node contextNode = contextPath.isEmpty() ? document : evalViaXPath(contextPath, document);
 
         final DuplexExpression duplex = new DuplexXPathParser().compile(xpath);
         final Node newNode = duplex.ensureExistence(contextNode);
+
+        assertNotNull(newNode);
 
         if (!value.isEmpty()) {
             DOMHelper.setStringValue(newNode, value);
         }
 
-        // Evaluate expression a second time
-        final Node paranoiaNode = evalViaXPath(xpath, contextNode);
+        if (!skipSameValidation) {
+            // Evaluate expression a second time
+            final Node paranoiaNode = evalViaXPath(xpath, contextNode);
+            evalViaXPath("/project/repositories/repository[id='spring-libs-snapshot']/id", contextNode);
 
-        // second result must select our just created node
-     //   System.out.println(System.identityHashCode(paranoiaNode)+" "+System.identityHashCode(newNode));
-        assertSame(paranoiaNode, newNode);
+            // second result must select our just created node
+            //   System.out.println(System.identityHashCode(paranoiaNode)+" "+System.identityHashCode(newNode));
+            assertSame(paranoiaNode, newNode);
+        }
     }
 
-    private Node evalViaXPath(final String xpath, Node contextNode) throws XPathExpressionException {
+    private Node evalViaXPath(final String xpath, final Node contextNode) throws XPathExpressionException {
         if (xpath.endsWith("/@xmlns")) {
             String pathToElement = xpath.substring(0, xpath.length() - "/@xmlns".length());
             Element e = (Element) evalViaXPath(pathToElement, contextNode);

@@ -269,7 +269,7 @@ class BuildDocumentVisitor implements XParserVisitor {
     /**
      * @param namespaceMapping
      */
-    public BuildDocumentVisitor(Map<String, String> namespaceMapping) {
+    public BuildDocumentVisitor(final Map<String, String> namespaceMapping) {
         assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
         this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
     }
@@ -307,8 +307,8 @@ class BuildDocumentVisitor implements XParserVisitor {
                 if (attributeNode != null) {
                     return attributeNode;
                 }
-                Attr newAttribute =  "xmlns".equals(childName) ? DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") : DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName), local(childName));
-             //   newAttribute.setTextContent("huhu");
+                Attr newAttribute = "xmlns".equals(childName) ? DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") : DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName), local(childName));
+                //   newAttribute.setTextContent("huhu");
                 if ("xmlns".equals(childName)) {
                     ((Element) data).setAttributeNode(newAttribute);
                 } else {
@@ -413,14 +413,14 @@ class BuildDocumentVisitor implements XParserVisitor {
         if ("xmlns".equals(childName)) {
             return namespaceMapping.get(childName);
         }
-        
-      int i = childName.indexOf(":");
-      if (i < 0) {
-          return null;
-      }
-      String prefix = childName.substring(0, i);
-      return namespaceMapping.get(prefix);
-        
+
+        int i = childName.indexOf(":");
+        if (i < 0) {
+            return null;
+        }
+        String prefix = childName.substring(0, i);
+        return namespaceMapping.get(prefix);
+
 //        if (childName.equals("xmlns") || childName.startsWith("xmlns:")) {
 //            return "http://www.w3.org/2000/xmlns/";
 //        }

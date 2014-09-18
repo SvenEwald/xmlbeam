@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tests.XMLBeamTestSuite.InnerStructure;
 import org.xmlbeam.tests.XMLBeamTestSuite.Setting;
+
 @SuppressWarnings("javadoc")
 public class TestXMLProjector {
 
@@ -236,9 +237,10 @@ public class TestXMLProjector {
 
     @Test
     public void getXMLDocument() throws Exception {
-        suite.setDescription("This is my description");
         final Document document = suite.getDOMOwnerDocument();
         assertEquals("gluerootnode", document.getDocumentElement().getNodeName());
+        suite.setDescription("This is my description");
+        assertEquals("description", document.getDocumentElement().getNodeName());
     }
 
     @Test

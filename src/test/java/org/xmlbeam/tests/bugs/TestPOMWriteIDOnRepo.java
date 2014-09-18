@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.tests.bugs;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -30,29 +30,28 @@ import org.xmlbeam.annotation.XBWrite;
 public class TestPOMWriteIDOnRepo {
 
     public interface POM {
-        
+
         @XBWrite("/project/repositories/repository/id")
         POM setID(String id);
-        
+
         @XBWrite("/project/repositories/repository/url")
         POM setURL(String url);
-        
+
         @XBWrite("/project/repositories/repository[id='{0}']/id")
         POM brokenSetter(String prevID, @XBValue String newID);
-                
+
     }
-        
-    
+
     @Test
     public void testWriteRepo() {
-        POM pom = createPOM("spring-libs-snapshot","http://repo.spring.io/libs");
+        POM pom = createPOM("spring-libs-snapshot", "http://repo.spring.io/libs");
 //        System.out.println(pom);
         pom.brokenSetter("spring-libs-snapshot", "spring-libs-release");
 //        System.out.println(pom);
-        assertEquals(createPOM("spring-libs-release","http://repo.spring.io/libs"),pom);
+        assertEquals(createPOM("spring-libs-release", "http://repo.spring.io/libs"), pom);
     }
 
-    private POM createPOM(String id, String url) {
+    private POM createPOM(final String id, final String url) {
         POM pom = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectEmptyDocument(POM.class);
         return pom.setID(id).setURL(url);
     }
