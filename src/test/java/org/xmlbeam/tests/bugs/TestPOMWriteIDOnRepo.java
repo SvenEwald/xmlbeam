@@ -22,6 +22,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
+import org.xmlbeam.dom.DOMAccess;
 
 /**
  *
@@ -29,7 +30,7 @@ import org.xmlbeam.annotation.XBWrite;
 @SuppressWarnings("javadoc")
 public class TestPOMWriteIDOnRepo {
 
-    public interface POM {
+    public interface POM extends DOMAccess {
 
         @XBWrite("/project/repositories/repository/id")
         POM setID(String id);
@@ -48,7 +49,9 @@ public class TestPOMWriteIDOnRepo {
 //        System.out.println(pom);
         pom.brokenSetter("spring-libs-snapshot", "spring-libs-release");
 //        System.out.println(pom);
-        assertEquals(createPOM("spring-libs-release", "http://repo.spring.io/libs"), pom);
+        POM pom2 = createPOM("spring-libs-release", "http://repo.spring.io/libs");
+//        DOMDiagnoseHelper.diff(pom.getDOMBaseElement(), pom2.getDOMBaseElement());
+        assertEquals(pom2, pom);
     }
 
     private POM createPOM(final String id, final String url) {

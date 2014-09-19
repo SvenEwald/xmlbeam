@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -154,7 +155,7 @@ public final class DOMHelper {
     public static Map<String, String> getNamespaceMapping(final Document document) {
         Map<String, String> map = new HashMap<String, String>();
         map.put("xmlns", "http://www.w3.org/2000/xmlns/");
-        map.put("xml","http://www.w3.org/XML/1998/namespace");
+        map.put("xml", "http://www.w3.org/XML/1998/namespace");
 //      if (childName.equals("xmlns") || childName.startsWith("xmlns:")) {
 //      return "http://www.w3.org/2000/xmlns/";
 //  }
@@ -792,5 +793,46 @@ public final class DOMHelper {
 //            return;
 //        }
         newNode.setTextContent(value);
+    }
+
+    /**
+     * @param element
+     * @param name
+     * @param nsMapping
+     * @return attribute with name or null
+     */
+    public static Attr getAttributeNodeByName(final Element element, final String name, final Map<String, String> nsMapping) {
+        return (needNS(name)) ? element.getAttributeNodeNS(nsMapping.get(prefix(name)), name) : element.getAttributeNode(name);
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    private static Object prefix(final String name) {
+        int i = name.indexOf(":");
+        if (i < 0) {
+            return null;
+        }
+        String prefix = name.substring(0, i);
+        return prefix;
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    private static boolean needNS(final String name) {
+        return name.contains(":") || "xmlns".equals(name);
+    }
+
+    /**
+     * @param element
+     * @param name
+     * @param nsMapping
+     * @return list of children with name 'name'
+     */
+    public static List<Node> getChildElementsByName(final Element element, final String name, final Map<String, String> nsMapping) {
+        return asList(needNS(name) ? element.getElementsByTagNameNS(nsMapping.get(prefix(name)), name) : element.getElementsByTagName(name));
     }
 }

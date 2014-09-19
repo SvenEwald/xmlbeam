@@ -71,13 +71,9 @@ class BuildDocumentVisitor implements XParserVisitor {
 
     }
 
-    public static class EvaluateStepExprVisitor implements INodeEvaluationVisitor<List<Node>> {
+    public class EvaluateStepExprVisitor implements INodeEvaluationVisitor<List<Node>> {
 
         final boolean onAttribute;
-
-        public static EvaluateStepExprVisitor create(final boolean onAttribute) {
-            return new EvaluateStepExprVisitor(onAttribute);
-        }
 
         private EvaluateStepExprVisitor(final boolean onAttribute) {
             this.onAttribute = onAttribute;
@@ -90,7 +86,7 @@ class BuildDocumentVisitor implements XParserVisitor {
                 Object result = node.childrenAccept(this, data);
                 return (List<Node>) result;
             case JJTABBREVFORWARDSTEP:
-                return (List<Node>) node.childrenAccept(create("@".equals(node.getValue())), data);
+                return (List<Node>) node.childrenAccept(new EvaluateStepExprVisitor("@".equals(node.getValue())), data);
             case JJTNODETEST:
                 return (List<Node>) node.childrenAccept(this, data);
             case JJTNAMETEST:
@@ -99,14 +95,13 @@ class BuildDocumentVisitor implements XParserVisitor {
                 String name = node.getValue();
                 if (onAttribute) {
                     assert data instanceof Element;
-                    return DOMHelper.asList(asElement(data).getAttributeNodeNS(null, name));
+                    return DOMHelper.asList(DOMHelper.getAttributeNodeByName(asElement(data), name, BuildDocumentVisitor.this.namespaceMapping));
                 }
-                return DOMHelper.asList(asElement(data).getElementsByTagNameNS(null, name));
+                return DOMHelper.getChildElementsByName(asElement(data), name, BuildDocumentVisitor.this.namespaceMapping);
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
         }
-
     }
 
     private static class FindNameTestVisitor implements XParserVisitor {
@@ -195,7 +190,7 @@ class BuildDocumentVisitor implements XParserVisitor {
 
     }
 
-    private static class EvaluatePredicateListVisitor implements XParserVisitor {
+    private class EvaluatePredicateListVisitor implements XParserVisitor {
 
         @Override
         public Object visit(final SimpleNode node, final Node data) {
@@ -211,7 +206,7 @@ class BuildDocumentVisitor implements XParserVisitor {
                 Object second = node.secondChildAccept(this, data);
                 return Boolean.valueOf(compare(node, unList(first), unList(second)));
             case JJTSTEPEXPR:
-                return node.jjtAccept(EvaluateStepExprVisitor.create(false), data);
+                return node.jjtAccept(new EvaluateStepExprVisitor(false), data);
             case JJTSTRINGLITERAL:
             case JJTINTEGERLITERAL:
             case JJTDECIMALLITERAL:
