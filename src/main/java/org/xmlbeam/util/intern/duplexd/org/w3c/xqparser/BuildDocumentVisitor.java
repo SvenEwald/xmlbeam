@@ -95,9 +95,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                 String name = node.getValue();
                 if (onAttribute) {
                     assert data instanceof Element;
-                    return DOMHelper.asList(DOMHelper.getAttributeNodeByName(asElement(data), name, BuildDocumentVisitor.this.namespaceMapping));
+                    return DOMHelper.asList(getAttributeNodeByName(asElement(data), name));
                 }
-                return DOMHelper.getChildElementsByName(asElement(data), name, BuildDocumentVisitor.this.namespaceMapping);
+                return getChildElementsByName(asElement(data), name);
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
@@ -478,4 +478,42 @@ class BuildDocumentVisitor implements XParserVisitor {
         return null;
     }
 
+    /**
+     * @param element
+     * @param name
+     * @return attribute with name or null
+     */
+    public Attr getAttributeNodeByName(final Element element, final String name) {
+        return (needNS(name)) ? element.getAttributeNodeNS(namespaceURL(name), name) : element.getAttributeNode(name);
+    }
+
+//    /**
+//     * @param name
+//     * @return
+//     */
+//    private Object prefix(final String name) {
+//        int i = name.indexOf(":");
+//        if (i < 0) {
+//            return null;
+//        }
+//        String prefix = name.substring(0, i);
+//        return prefix;
+//    }
+
+    /**
+     * @param name
+     * @return
+     */
+    private boolean needNS(final String name) {
+        return name.contains(":") || "xmlns".equals(name);
+    }
+
+    /**
+     * @param element
+     * @param name
+     * @return list of children with name 'name'
+     */
+    public List<Node> getChildElementsByName(final Element element, final String name) {
+        return DOMHelper.asList(needNS(name) ? element.getElementsByTagNameNS(namespaceURL(name), name) : element.getElementsByTagName(name));
+    }
 }
