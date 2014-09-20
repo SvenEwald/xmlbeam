@@ -604,8 +604,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
         }
         final String pathToElement = path.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
-        final Node settingNode = getNodeForMethod(method, args);
-        final Document document = DOMHelper.getOwnerDocumentFor(settingNode);
+        //final Node settingNode = getNodeForMethod(method, args);
+        final Document document = DOMHelper.getOwnerDocumentFor(node);
         assert document != null;
         final int findIndexOfValue = findIndexOfValue(method);
         final Object valueToSet = args[findIndexOfValue];
@@ -640,7 +640,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             // ATTRIBUTES
             if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
-                Attr attribute = (Attr) duplexExpression.ensureExistence(settingNode);
+                Attr attribute = (Attr) duplexExpression.ensureExistence(node);
                 if (valueToSet == null) {
                     attribute.getOwnerElement().removeAttributeNode(attribute);
                     return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
@@ -660,13 +660,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
 
             Element elementToChange;
-            if (node.getNodeType() == Node.DOCUMENT_NODE) {
-                //elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
-                elementToChange = (Element) duplexExpression.ensureExistence(document);
-            } else {
-                assert node.getNodeType() == Node.ELEMENT_NODE;
-                elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
-            }
+//            if (node.getNodeType() == Node.DOCUMENT_NODE) {
+            //elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
+            elementToChange = (Element) duplexExpression.ensureExistence(node);
+//             } else {
+//            assert node.getNodeType() == Node.ELEMENT_NODE;
+//            elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
+//            }
             if (valueToSet instanceof Node) {
                 Node newNode = ((Node) valueToSet).cloneNode(true);
                 String pathToParent = pathToElement.replaceAll("/[^/]*$", "");

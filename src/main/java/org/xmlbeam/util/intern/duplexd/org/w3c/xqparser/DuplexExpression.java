@@ -54,7 +54,7 @@ public class DuplexExpression {
     public org.w3c.dom.Node ensureExistence(final org.w3c.dom.Node contextNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
-        node.dump("");
+        //node.dump("");
         return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping), contextNode)).get(0);
     }
 

@@ -504,7 +504,7 @@ class BuildDocumentVisitor implements XParserVisitor {
             return childName.equals(e.getNodeName());
         }
         String url = namespaceURI(childName);
-        if ((url != null) && (url.equals(e.getNamespaceURI()))) {
+        if ((url != null) && (!url.equals(e.getNamespaceURI()))) {
             return false;
         }
 
