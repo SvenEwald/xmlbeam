@@ -659,14 +659,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
 
-            Element elementToChange;
-//            if (node.getNodeType() == Node.DOCUMENT_NODE) {
-            //elementToChange = DOMHelper.ensureElementExists(document, pathToElement);
-            elementToChange = (Element) duplexExpression.ensureExistence(node);
-//             } else {
-//            assert node.getNodeType() == Node.ELEMENT_NODE;
-//            elementToChange = DOMHelper.ensureElementExists(document, (Element) node, pathToElement);
-//            }
+            final Element elementToChange = (Element) duplexExpression.ensureExistence(node);
             if (valueToSet instanceof Node) {
                 Node newNode = ((Node) valueToSet).cloneNode(true);
                 String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
