@@ -677,7 +677,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
             if (valueToSet == null) {
-                DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
+                //  DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
+                DOMHelper.removeAllChildren(elementToChange);
             } else {
                 elementToChange.setTextContent(valueToSet.toString());
             }

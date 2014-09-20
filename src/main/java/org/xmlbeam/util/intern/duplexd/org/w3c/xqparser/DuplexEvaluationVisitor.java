@@ -145,7 +145,7 @@ class DuplexEvaluationVisitor implements INodeEvaluationVisitor<List<org.w3c.dom
                 return DOMHelper.asList(((Element) data).getAttributeNode(name));
             }
 
-            return DOMHelper.getChildsByName(data, name);
+            return DOMHelper.getChildrendByName(data, name);
         case JJTFUNCTIONQNAME:
         case JJTUNIONEXPR:
             throw new XBXPathExprNotAllowedForWriting(node, "You need to specify a singel XPath expression.");

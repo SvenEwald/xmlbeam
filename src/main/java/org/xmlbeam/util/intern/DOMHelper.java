@@ -88,6 +88,7 @@ public final class DOMHelper {
      * @param element
      * @param nodeSelector
      */
+    @Deprecated
     public static void removeAllChildrenBySelector(final Node element, final String nodeSelector) {
         assert nodeSelector != null;
         NodeList nodeList = element.getChildNodes();
@@ -193,6 +194,7 @@ public final class DOMHelper {
      *            relative path to element.
      * @return element with absolute path.
      */
+    @Deprecated
     public static Element ensureElementExists(final Document document, final Element base, final String pathToElement) {
         assert base != null;
         assert pathToElement != null;
@@ -239,6 +241,7 @@ public final class DOMHelper {
         return element;
     }
 
+    @Deprecated
     private static String[] splitToNameAndSelector(final String nameAndSelector) {
         return new String[] {//
         nameAndSelector.replaceAll("\\[.*", ""),//
@@ -252,6 +255,7 @@ public final class DOMHelper {
      * @param selector
      * @return
      */
+    @Deprecated
     private static Element createElementByTagNameAndSelector(final Document document, final String name, final String selector) {
         // Element element = document.createElement(name);
         final Element element = createElement(document, name);
@@ -259,6 +263,7 @@ public final class DOMHelper {
         return element;
     }
 
+    @Deprecated
     private static Element forceSelectorOnElement(final Document document, final String selector, final Element element) {
         if (selector.isEmpty()) {
             return element;
@@ -286,6 +291,7 @@ public final class DOMHelper {
      * @param expectedElementName
      * @return
      */
+    @Deprecated
     private static Element findElementByTagNameAndSelector(final Element element, final String name, final String selector) {
         NodeList nodeList = element.getElementsByTagName(name);
         for (int i = 0; i < nodeList.getLength(); ++i) {
@@ -301,6 +307,7 @@ public final class DOMHelper {
      * @param item
      * @return
      */
+    @Deprecated
     private static boolean selectorMatches(final String selector, final Element item) {
         if (item == null) {
             return false;
@@ -331,6 +338,7 @@ public final class DOMHelper {
      * @param selector
      * @return
      */
+    @Deprecated
     private static String[] splitSelector(String selector) {
         if (!selector.matches("@?[^=]+=[^=]+")) {
             return new String[] { selector, "" };
@@ -353,6 +361,7 @@ public final class DOMHelper {
      *            absolute path to element.
      * @return element with absolute path.
      */
+    @Deprecated
     public static Element ensureElementExists(final Document document, final String pathToElement) {
         assert document != null;
         String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
@@ -614,6 +623,7 @@ public final class DOMHelper {
         return documentOrElement.getOwnerDocument();
     }
 
+    @Deprecated
     private static Element createElement(final Document document, final String elementName) {
         final String prefix = getPrefixOfQName(elementName);// .replaceAll("(:.*)|([^:])*", "");
         final String namespaceURI = prefix.isEmpty() ? null : document.lookupNamespaceURI(prefix);
@@ -763,7 +773,7 @@ public final class DOMHelper {
      * @param name
      * @return list of children with tag name
      */
-    public static List<Node> getChildsByName(final Node data, final String name) {
+    public static List<Node> getChildrendByName(final Node data, final String name) {
         if (data.getNodeType() == Node.ELEMENT_NODE) {
             return asList(((Element) data).getElementsByTagName(name));
         }
@@ -794,4 +804,14 @@ public final class DOMHelper {
         newNode.setTextContent(value);
     }
 
+    /**
+     * Simply removes all child nodes.
+     *
+     * @param element
+     */
+    public static void removeAllChildren(final Element element) {
+        for (Node n = element.getFirstChild(); n != null; n = element.getFirstChild()) {
+            element.removeChild(n);
+        }
+    }
 }
