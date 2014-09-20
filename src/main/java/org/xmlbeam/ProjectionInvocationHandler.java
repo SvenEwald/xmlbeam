@@ -604,7 +604,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
         }
         final String pathToElement = path.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
-        //final Node settingNode = getNodeForMethod(method, args);
         final Document document = DOMHelper.getOwnerDocumentFor(node);
         assert document != null;
         final int findIndexOfValue = findIndexOfValue(method);
@@ -677,7 +676,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
             if (valueToSet == null) {
-                //  DOMHelper.removeAllChildrenBySelector(elementToChange, "*");
+                //TODO: This should depend on the parameter type?
+                // If param type == String, no structural change might be expected.
                 DOMHelper.removeAllChildren(elementToChange);
             } else {
                 elementToChange.setTextContent(valueToSet.toString());
