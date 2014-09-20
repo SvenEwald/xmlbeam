@@ -37,6 +37,7 @@ import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConsta
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +98,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                     assert data instanceof Element;
                     return DOMHelper.asList(getAttributeNodeByName(asElement(data), name));
                 }
-                return getChildElementsByName(asElement(data), name);
+                List<Node> list = new LinkedList<Node>();
+                findChildElementsByName(asElement(data), name, list);
+                return list;
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
@@ -161,20 +164,20 @@ class BuildDocumentVisitor implements XParserVisitor {
                 return node.childrenAccept(this, data);
             case JJTCOMPARISONEXPR:
                 if (!"=".equals(node.getValue())) {
-//                    throw new XBXPathExprNotAllowedForWriting(node, "Operator "+node.getValue()+" not implemented");
+                    throw new XBXPathExprNotAllowedForWriting(node, "Operator " + node.getValue() + " leads to non writable predicates.");
                 }
                 Object first = node.firstChildAccept(this, data);
                 if (!(first instanceof Node)) {
-                    throw new XBXPathExprNotAllowedForWriting(node, "A nonwritable predicate");
+                    throw new XBXPathExprNotAllowedForWriting(node, "A non writable predicate");
                 }
                 Object second = node.secondChildAccept(this, data);
-                if (first instanceof Attr) {
-                    assert data instanceof Element;
-                    ((Element) data).setAttributeNS(null, ((Attr) first).getNodeName(), second.toString());
-//                    ((Element) data).setAttribute(((Attr) first).getNodeName(), second.toString());
-                    return data;
-                }
-                ((Node) first).setTextContent(second.toString());
+                DOMHelper.setStringValue((Node) first, second.toString());
+                /*
+                 * if (first instanceof Attr) { assert data instanceof Element; ((Element)
+                 * data).setAttributeNS(null, ((Attr) first).getNodeName(), second.toString()); //
+                 * ((Element) data).setAttribute(((Attr) first).getNodeName(), second.toString());
+                 * return data; } ((Node) first).setTextContent(second.toString());
+                 */
                 return data;
             case JJTSTEPEXPR:
                 return node.jjtAccept(BuildDocumentVisitor.this, data);
@@ -297,22 +300,25 @@ class BuildDocumentVisitor implements XParserVisitor {
                     throw new XBXPathExprNotAllowedForWriting(node, "You can not set or get attributes on the document. You need a root element.");
                 }
                 assert data.getNodeType() == Node.ELEMENT_NODE;
-                //TODO: Fix namespace setting on root node
-                Attr attributeNode = ((org.w3c.dom.Element) data).getAttributeNodeNS(namespaceURL(childName), local(childName));
+                Attr attributeNode = ((org.w3c.dom.Element) data).getAttributeNodeNS(namespaceURI(childName), childName);
                 if (attributeNode != null) {
                     return attributeNode;
                 }
-                Attr newAttribute = "xmlns".equals(childName) ? DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") : DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName), local(childName));
-                //   newAttribute.setTextContent("huhu");
-                if ("xmlns".equals(childName)) {
-                    ((Element) data).setAttributeNode(newAttribute);
-                } else {
-                    ((Element) data).setAttributeNodeNS(newAttribute);
-                }
+                Attr newAttribute = createAttribute((Element) data, childName);
+
+                /*
+                 * Attr newAttribute = "xmlns".equals(childName) ?
+                 * DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") :
+                 * DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName),
+                 * childName); // newAttribute.setTextContent("huhu"); if
+                 * ("xmlns".equals(childName)) { ((Element) data).setAttributeNode(newAttribute); }
+                 * else { ((Element) data).setAttributeNodeNS(newAttribute); }
+                 */
                 return newAttribute;
                 // return ((org.w3c.dom.Element) data).appendChild(newAttribute);
             }
-            Node nextNode = findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+
+            Node nextNode = findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST), node);
             if (nextNode == null) {
 
                 return createChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
@@ -321,6 +327,23 @@ class BuildDocumentVisitor implements XParserVisitor {
         default:
             throw new XBXPathExprNotAllowedForWriting(node, "Not implemented");
         }
+    }
+
+    /**
+     * @param data
+     * @param name
+     * @return
+     */
+    private Attr createAttribute(final Element data, final String name) {
+        final Document doc = data.getOwnerDocument();
+        if (needNS(name)) {
+            final Attr attr = doc.createAttributeNS(namespaceURI(name), name);
+            data.setAttributeNodeNS(attr);
+            return attr;
+        }
+        final Attr attr = doc.createAttribute(name);
+        data.setAttributeNode(attr);
+        return attr;
     }
 
     /**
@@ -372,7 +395,7 @@ class BuildDocumentVisitor implements XParserVisitor {
         assert childName != null;
         assert data != null;
         Document document = DOMHelper.getOwnerDocumentFor(data);
-        final Element newElement = (childName.contains(":")) ? document.createElementNS(namespaceURL(childName), local(childName)) : document.createElement(childName);
+        final Element newElement = (childName.contains(":")) ? document.createElementNS(namespaceURI(childName), childName) : document.createElement(childName);
         if (data instanceof Document) {
             if (null != ((Document) data).getDocumentElement()) {
                 ((Document) data).removeChild(((Document) data).getDocumentElement());
@@ -391,20 +414,7 @@ class BuildDocumentVisitor implements XParserVisitor {
      * @param childName
      * @return
      */
-    private String local(final String childName) {
-//        int i = childName.indexOf(":");
-//        if (i < 0) {
-//            return childName;
-//        }
-//        return childName.substring(i + 1, childName.length());
-        return childName;
-    }
-
-    /**
-     * @param childName
-     * @return
-     */
-    private String namespaceURL(final String childName) {
+    private String namespaceURI(final String childName) {
         if ("xmlns".equals(childName)) {
             return namespaceMapping.get(childName);
         }
@@ -415,22 +425,6 @@ class BuildDocumentVisitor implements XParserVisitor {
         }
         String prefix = childName.substring(0, i);
         return namespaceMapping.get(prefix);
-
-//        if (childName.equals("xmlns") || childName.startsWith("xmlns:")) {
-//            return "http://www.w3.org/2000/xmlns/";
-//        }
-//        if (childName.startsWith("xml:")) {
-//            return "http://www.w3.org/XML/1998/namespace";
-//        }
-//        return null;
-
-//        int i = childName.indexOf(":");
-//        if (i < 0) {
-//            return null;
-//        }
-//        String prefix = childName.substring(0, i);
-//
-//        return prefix;
     }
 
     /**
@@ -439,8 +433,8 @@ class BuildDocumentVisitor implements XParserVisitor {
      * @param firstChildWithId
      * @return
      */
-    private Element findFirstMatchingChildElement(final Node data, final String childName, final SimpleNode predicateList) {
-        if (data instanceof Document) {
+    private Element findFirstMatchingChildElement(final Node data, final String childName, final SimpleNode predicateList, final SimpleNode stepNode) {
+        if (data instanceof Document) { // Child must be the root element
             final Element root = ((Document) data).getDocumentElement();
             if (root == null) {
                 return null;
@@ -460,22 +454,61 @@ class BuildDocumentVisitor implements XParserVisitor {
             }
             return null;
         }
-        final NodeList nodeList = ((Element) data).getElementsByTagName(childName);
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Element e = (Element) nodeList.item(i);
-            if (predicateList == null) {
-                // If no predicate is set, no restriction applies, return first.
-                return e;
+        List<Element> childElements = new LinkedList<Element>();
+        findChildElementsByName((Element) data, childName, childElements);
+        if (childElements.isEmpty()) {
+            return null;
+        }
+        if (predicateList == null) {
+            if (childElements.size() > 1) {
+                throw new XBXPathExprNotAllowedForWriting(stepNode, "Ambigous step expression. I can not decide which path to follow. Please add a predicate to specify which element should be selected.");
             }
+            return childElements.get(0);
+        }
+        List<Element> allMatchingElements = new LinkedList<Element>();
+        int i = 0;
+        for (Element e : childElements) {
+            ++i;
             Object accept = predicateList.childrenAccept(new EvaluatePredicateListVisitor(), e);
             if (Boolean.TRUE.equals(accept)) {
-                return e;
+//                  return e;
+                allMatchingElements.add(e);
+                continue;
             }
-            if (Integer.valueOf(i + 1).equals(accept)) {
-                return e;
+            if (Integer.valueOf(i).equals(accept)) {
+                //return e;
+                allMatchingElements.add(e);
+                continue;
             }
+            //this are not the elements you are looking for
         }
-        return null;
+        if (allMatchingElements.isEmpty()) {
+            return null;
+        }
+        if (allMatchingElements.size() > 1) {
+            throw new XBXPathExprNotAllowedForWriting(stepNode, "Ambigous step expression. I can not decide which path to follow. Please add more predicates.");
+        }
+        return allMatchingElements.get(0);
+    }
+
+    /**
+     * @param e
+     * @param childName
+     * @return
+     */
+    private boolean elementNameMatches(final Element e, final String childName) {
+        if ((childName == null) || (childName.isEmpty())) {
+            throw new IllegalArgumentException("You tried to find an elment without a name. How did you get this through the parser?");
+        }
+        if (!needNS(childName)) {
+            return childName.equals(e.getNodeName());
+        }
+        String url = namespaceURI(childName);
+        if ((url != null) && (url.equals(e.getNamespaceURI()))) {
+            return false;
+        }
+
+        return childName.equals(e.getTagName());
     }
 
     /**
@@ -483,8 +516,8 @@ class BuildDocumentVisitor implements XParserVisitor {
      * @param name
      * @return attribute with name or null
      */
-    public Attr getAttributeNodeByName(final Element element, final String name) {
-        return (needNS(name)) ? element.getAttributeNodeNS(namespaceURL(name), name) : element.getAttributeNode(name);
+    private Attr getAttributeNodeByName(final Element element, final String name) {
+        return (needNS(name)) ? element.getAttributeNodeNS(namespaceURI(name), name) : element.getAttributeNode(name);
     }
 
 //    /**
@@ -510,10 +543,20 @@ class BuildDocumentVisitor implements XParserVisitor {
 
     /**
      * @param element
-     * @param name
-     * @return list of children with name 'name'
+     * @param childName
      */
-    public List<Node> getChildElementsByName(final Element element, final String name) {
-        return DOMHelper.asList(needNS(name) ? element.getElementsByTagNameNS(namespaceURL(name), name) : element.getElementsByTagName(name));
+    private void findChildElementsByName(final Element element, final String childName, final List<? super Element> result) {
+        NodeList nodeList = element.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); ++i) {
+            Node n = nodeList.item(i);
+            if (Node.ELEMENT_NODE != n.getNodeType()) {
+                continue;
+            }
+            Element e = (Element) n;
+            if (!elementNameMatches(e, childName)) {
+                continue;
+            }
+            result.add(e);
+        }
     }
 }

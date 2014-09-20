@@ -252,8 +252,8 @@
 			</foo>
 		</after>
 	</test>
-	<test
-		id="Write on element being part of a selector" skipSameValidation="true">
+	<test id="Write on element being part of a selector"
+		skipSameValidation="true">
 		<before>
 			<project>
 				<repositories>
@@ -265,7 +265,7 @@
 			</project>
 		</before>
 		<xpath value="spring-libs-release">
-		/project/repositories/repository[id='spring-libs-snapshot']/id
+			/project/repositories/repository[id='spring-libs-snapshot']/id
 		</xpath>
 		<after>
 			<project>
@@ -278,5 +278,15 @@
 			</project>
 		</after>
 	</test>
-
+	<!--  seems that this case can never happen....
+	<test id="Write on element hidden by same predicated parent">
+		<before>
+			<foo>
+				<bar id="1"></bar>
+				<bar id="1"><child</bar>
+			</foo>
+		</before>
+		<xpath value="/foo/bar[id='2']/hello"></xpath>
+	</test>
+ -->
 </tests>

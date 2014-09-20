@@ -51,6 +51,7 @@ import org.xmlbeam.util.intern.DOMHelper;
 /**
  * @author sven
  */
+@SuppressWarnings("javadoc")
 @RunWith(Parameterized.class)
 public class TestXPathParsing {
 

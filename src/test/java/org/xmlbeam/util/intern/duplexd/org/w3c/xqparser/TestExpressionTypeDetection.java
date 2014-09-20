@@ -31,6 +31,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
 
 /**
  * @author sven
