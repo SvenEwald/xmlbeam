@@ -47,6 +47,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode.StepListFilter;
 
 /**
  */
@@ -263,12 +264,24 @@ class BuildDocumentVisitor implements XParserVisitor {
     }
 
     private final Map<String, String> namespaceMapping;
+    private final StepListFilter stepListFilter;
 
     /**
      * @param namespaceMapping
      */
     public BuildDocumentVisitor(final Map<String, String> namespaceMapping) {
         assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
+        this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
+        this.stepListFilter = null;
+    }
+
+    /**
+     * @param namespaceMapping
+     */
+    public BuildDocumentVisitor(final Map<String, String> namespaceMapping, final StepListFilter stepListFilter) {
+        assert stepListFilter != null;
+        assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
+        this.stepListFilter = stepListFilter;
         this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
     }
 
@@ -282,7 +295,7 @@ class BuildDocumentVisitor implements XParserVisitor {
         case JJTEXPR:
             return node.childrenAccept(this, data);
         case JJTPATHEXPR:
-            return asListofNodes(node.childrenAccept(this, data));
+            return asListofNodes(node.childrenAcceptWithFilter(this, data, stepListFilter));
         case JJTSLASHSLASH:
             throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous locator");
         case JJTSLASH:

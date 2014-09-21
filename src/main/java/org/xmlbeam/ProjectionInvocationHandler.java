@@ -649,6 +649,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
                 //duplexExpression.ensureExistence(settingNode);
+                duplexExpression.ensureParentExistence(node);
                 String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
                 String elementSelector = pathToElement.replaceAll(".*/", "");
                 Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);

@@ -19,12 +19,23 @@ import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode.StepListFilter;
 
 /**
  * @author sven
  */
 public class DuplexExpression {
+
+    private final static StepListFilter ALL_BUT_LAST = new StepListFilter() {
+
+        @Override
+        public List<org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node> filter(SimpleNode[] children) {
+            List<org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node>
+            return null;
+        }
+    };
 
     @Override
     public String toString() {
@@ -56,6 +67,16 @@ public class DuplexExpression {
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
         //node.dump("");
         return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping), contextNode)).get(0);
+    }
+
+    /**
+     * @param contextNode
+     */
+    public org.w3c.dom.Node ensureParentExistence(final Node contextNode) {
+        final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
+        final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        //node.dump("");
+        return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping, ALL_BUT_LAST), contextNode)).get(0);
     }
 
 }

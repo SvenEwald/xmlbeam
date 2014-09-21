@@ -23,6 +23,21 @@ import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
 
 class SimpleNode implements Node {
+
+    /**
+     * Sometimes it's useful to not process all steps.
+     *
+     * @author sven
+     */
+    public interface StepListFilter {
+
+        /**
+         * @param children
+         * @return filtered list of child nodes.
+         */
+        List<Node> filter(SimpleNode[] children);
+    };
+
     private Node parent;
 
     private SimpleNode[] children;
@@ -328,6 +343,40 @@ class SimpleNode implements Node {
         for (SimpleNode child : children) {
             visitorClosure.apply(child, data);
         }
+    }
+
+    /**
+     * @param visitor
+     * @param data
+     * @param stepListFilter
+     */
+    public Object childrenAcceptWithFilter(final XParserVisitor visitor, final org.w3c.dom.Node data, final StepListFilter stepListFilter) {
+        if (stepListFilter == null) {
+            return childrenAccept(visitor, data);
+        }
+        List<Node> filteredChildren = stepListFilter.filter(children);
+        org.w3c.dom.Node result = data;
+        for (Node child : filteredChildren) {
+            Object newResult = (child.jjtAccept(visitor, result));
+//                if (Boolean.FALSE.equals(newResult)) { // Boolean end early exit
+//                    return Boolean.FALSE;
+//                }
+//                if (Boolean.TRUE.equals(newResult)) { // No early exit yet
+//                    if ((i + 1) == children.length) {
+//                        return Boolean.TRUE;
+//                    }
+//                    continue;
+//                }
+            if (newResult instanceof List) {
+                newResult = ((List) newResult).isEmpty() ? null : ((List) newResult).get(0);
+            }
+//            if (newResult instanceof Number) {
+//                return newResult;
+//            }
+            result = (org.w3c.dom.Node) newResult; // proceed step expression
+        }
+
+        return DOMHelper.asList(result);
     }
 
 //    public List<SimpleNode> findChildrenById(final int... ids) {
