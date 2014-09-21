@@ -104,6 +104,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param parentElement
      * @param elementSelector
      */
+    @Deprecated
     private int applyCollectionSetOnElement(final Type typeToSet, final Collection<?> collection, final Element parentElement, final String elementSelector) {
         final Document document = parentElement.getOwnerDocument();
         DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
@@ -164,6 +165,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return (o instanceof InternalProjection) || (o instanceof Node);
     }
 
+    @Deprecated
     private void applySingleSetElementOnElement(final Element element, final Node parentNode, final String elementSelector) {
         //final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
         final Element newElement = (Element) element.cloneNode(true);
@@ -293,10 +295,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @return replaced string
      */
     private String replaceAllIfNotQuoted(final String string, final String pattern, String replacement) {
-//        int p = string.indexOf(pattern);
-//        if (p<0) {
-//            return string;
-//        }
         replacement = Matcher.quoteReplacement(replacement);
         Pattern compile = Pattern.compile(pattern, Pattern.LITERAL);
         Matcher matcher = compile.matcher(string);
@@ -649,27 +647,24 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
 
-            if ((valueToSet instanceof Element) || (valueToSet instanceof InternalProjection)) {
+            if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
                 //duplexExpression.ensureExistence(settingNode);
                 String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
                 String elementSelector = pathToElement.replaceAll(".*/", "");
                 Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
+                if (valueToSet instanceof Attr) {
+                    if (((Attr) valueToSet).getNamespaceURI() != null) {
+                        parentNode.setAttributeNodeNS((Attr) valueToSet);
+                        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                    }
+                    parentNode.setAttributeNode((Attr) valueToSet);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
                 applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
 
             final Element elementToChange = (Element) duplexExpression.ensureExistence(node);
-            if (valueToSet instanceof Node) {
-                Node newNode = ((Node) valueToSet).cloneNode(true);
-                String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
-                String elementSelector = pathToElement.replaceAll(".*/", "");
-                Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-                DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
-                DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newNode);
-                elementToChange.appendChild(newNode);
-                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-            }
-
             if (path.replaceAll("\\[@", "[attribute::").contains("@")) {
                 String attributeName = path.replaceAll(".*@", "");
                 DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
