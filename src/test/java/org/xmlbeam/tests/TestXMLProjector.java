@@ -33,6 +33,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.tests.XMLBeamTestSuite.InnerStructure;
 import org.xmlbeam.tests.XMLBeamTestSuite.Setting;
@@ -48,7 +49,7 @@ public class TestXMLProjector {
         assertNotNull(suite);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = XBException.class)
     public void testSetterWithTrailingSlash() {
         suite.setterWithTrailingSlash("nope");
     }

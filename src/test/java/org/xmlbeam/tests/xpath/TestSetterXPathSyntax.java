@@ -28,8 +28,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.tests.GenericXPathProjection;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBPathParsingException;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBXPathExprNotAllowedForWriting;
+
 @SuppressWarnings("javadoc")
 public class TestSetterXPathSyntax {
 
@@ -48,12 +47,12 @@ public class TestSetterXPathSyntax {
         assertEquals("value", projection.getDOMOwnerDocument().getDocumentElement().getNodeName());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = XBException.class)
     public void emptyAccessNotAllowed() {
         projection.setterXPathString("", "");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = XBException.class)
     public void rootElementValueAccessAllowed() {
         projection.setterXPathString("/", "");
     }
@@ -63,7 +62,7 @@ public class TestSetterXPathSyntax {
         projection.setterXPathString("/@attribute", "value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = XBException.class)
     public void emptyrootElementEmptyAttributeNameNotAllowed() {
         projection.setterXPathString("/@", "");
     }

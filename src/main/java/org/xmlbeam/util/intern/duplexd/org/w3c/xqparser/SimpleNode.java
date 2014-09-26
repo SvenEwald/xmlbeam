@@ -35,7 +35,7 @@ class SimpleNode implements Node {
          * @param children
          * @return filtered list of child nodes.
          */
-        List<Node> filter(SimpleNode[] children);
+        List<SimpleNode> filter(SimpleNode[] children);
     };
 
     private Node parent;
@@ -354,7 +354,7 @@ class SimpleNode implements Node {
         if (stepListFilter == null) {
             return childrenAccept(visitor, data);
         }
-        List<Node> filteredChildren = stepListFilter.filter(children);
+        List<SimpleNode> filteredChildren = stepListFilter.filter(children);
         org.w3c.dom.Node result = data;
         for (Node child : filteredChildren) {
             Object newResult = (child.jjtAccept(visitor, result));

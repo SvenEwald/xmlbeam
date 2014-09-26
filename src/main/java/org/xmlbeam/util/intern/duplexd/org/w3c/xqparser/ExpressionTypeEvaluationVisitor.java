@@ -171,6 +171,8 @@ class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<Expressi
             return ELEMENT;
         case JJTCONTEXTITEMEXPR:
             return NODE;
+        case JJTSLASH:
+            throw new XBXPathExprNotAllowedForWriting(node, "Expression does not select anything.");
         case JJTPARAMLIST:
         case JJTPARAM:
         case JJTENCLOSEDEXPR:
@@ -193,7 +195,6 @@ class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<Expressi
         case JJTUNARYEXPR:
         case JJTMINUS:
         case JJTPLUS:
-        case JJTSLASH:
         case JJTSLASHSLASH:
         case JJTNODETEST:
         case JJTNAMETEST:

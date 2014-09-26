@@ -592,9 +592,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
-        if (!LEGAL_XPATH_SELECTORS_FOR_SETTERS.matcher(path).matches()) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
-        }
+        // if (!LEGAL_XPATH_SELECTORS_FOR_SETTERS.matcher(path).matches()) {
+        //     throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
+        // }
         if (!ReflectionHelper.hasParameters(method)) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
         }
@@ -629,7 +629,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
                 final String elementSelector = pathToElement.replaceAll(".*/", "");
-                final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
+//                final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
+                final Element parentElement = duplexExpression.ensureParentExistence(node);
                 Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
                 int count = applyCollectionSetOnElement(typeToSet, collection2Set, parentElement, elementSelector);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
@@ -649,10 +650,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
                 //duplexExpression.ensureExistence(settingNode);
-                duplexExpression.ensureParentExistence(node);
-                String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
+                Element parentNode = duplexExpression.ensureParentExistence(node);
+
+//                String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
                 String elementSelector = pathToElement.replaceAll(".*/", "");
-                Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
+//                Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
+
                 if (valueToSet instanceof Attr) {
                     if (((Attr) valueToSet).getNamespaceURI() != null) {
                         parentNode.setAttributeNodeNS((Attr) valueToSet);

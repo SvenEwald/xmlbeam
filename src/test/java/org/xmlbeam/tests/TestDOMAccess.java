@@ -46,10 +46,10 @@ public class TestDOMAccess {
         @XBRead("//item")
         List<Node> getAllItems();
 
-        @XBWrite("/gluerootnode/intermediate/fourthElement/innerStructureB")
+        @XBWrite("/gluerootnode/intermediate/fourthElement[1]/innerStructureB")
         void setOneItem(Node newItem);
 
-        @XBWrite("/gluerootnode/intermediate/fourthElement/innerStructureB")
+        @XBWrite("/gluerootnode/intermediate/fourthElement[1]/innerStructureB")
         void setItems(List<Node> nodes);
 
     }

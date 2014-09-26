@@ -15,10 +15,13 @@
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode.StepListFilter;
@@ -31,9 +34,13 @@ public class DuplexExpression {
     private final static StepListFilter ALL_BUT_LAST = new StepListFilter() {
 
         @Override
-        public List<org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node> filter(SimpleNode[] children) {
-            List<org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node>
-            return null;
+        public List<SimpleNode> filter(final SimpleNode[] children) {
+            if (children.length < 2) {
+                return Collections.emptyList();
+            }
+            final List<SimpleNode> list = Arrays.asList(children).subList(0, children.length - 1);
+            assert list.size() == (children.length - 1);
+            return list;
         }
     };
 
@@ -53,6 +60,11 @@ public class DuplexExpression {
         this.xpath = xpath;
     }
 
+    /**
+     * Calculates the return type of the expression.
+     *
+     * @return ExpressionType
+     */
     public ExpressionType getExpressionType() {
         try { //TODO: cache expression type ?
             final ExpressionType expressionType = node.firstChildAccept(new ExpressionTypeEvaluationVisitor(), null);
@@ -62,6 +74,13 @@ public class DuplexExpression {
         }
     }
 
+    /**
+     * Creates nodes until selecting such a path would return something.
+     *
+     * @param contextNode
+     * @return the node that this expression would select.
+     */
+    @SuppressWarnings("unchecked")
     public org.w3c.dom.Node ensureExistence(final org.w3c.dom.Node contextNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
@@ -71,12 +90,13 @@ public class DuplexExpression {
 
     /**
      * @param contextNode
+     * @return the parent element
      */
-    public org.w3c.dom.Node ensureParentExistence(final Node contextNode) {
+    public Element ensureParentExistence(final Node contextNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
         //node.dump("");
-        return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping, ALL_BUT_LAST), contextNode)).get(0);
+        return (Element) ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping, ALL_BUT_LAST), contextNode)).get(0);
     }
 
 }
