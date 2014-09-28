@@ -53,6 +53,33 @@ import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode.StepListFilte
  */
 class BuildDocumentVisitor implements XParserVisitor {
 
+    public enum MODE {
+        CREATE_IF_NOT_EXISTS(true, false, true), JUST_CREATE(false, false, true), DELETE(true, true, false);
+        final private boolean resolveExisting;
+        final private boolean deleteExisting;
+        final private boolean createNew;
+
+        MODE(final boolean resolveExisting, final boolean deleteExisting, final boolean createNew) {
+            this.resolveExisting = resolveExisting;
+            this.deleteExisting = deleteExisting;
+            this.createNew = createNew;
+        }
+
+        public boolean shouldResolve() {
+            return resolveExisting;
+        }
+
+        public boolean shouldDelete() {
+            return deleteExisting;
+        }
+
+        public boolean shouldCreate() {
+            return createNew;
+        }
+    };
+
+    private final MODE mode;
+
     private static class LiteralVisitor implements XParserVisitor {
 
         @Override
@@ -271,6 +298,7 @@ class BuildDocumentVisitor implements XParserVisitor {
      */
     public BuildDocumentVisitor(final Map<String, String> namespaceMapping) {
         assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
+        this.mode = MODE.CREATE_IF_NOT_EXISTS;
         this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
         this.stepListFilter = null;
     }
@@ -278,9 +306,11 @@ class BuildDocumentVisitor implements XParserVisitor {
     /**
      * @param namespaceMapping
      */
-    public BuildDocumentVisitor(final Map<String, String> namespaceMapping, final StepListFilter stepListFilter) {
+    public BuildDocumentVisitor(final Map<String, String> namespaceMapping, final StepListFilter stepListFilter, final MODE mode) {
         assert stepListFilter != null;
         assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
+        assert mode != null;
+        this.mode = mode;
         this.stepListFilter = stepListFilter;
         this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
     }
@@ -318,17 +348,7 @@ class BuildDocumentVisitor implements XParserVisitor {
                     return attributeNode;
                 }
                 Attr newAttribute = createAttribute((Element) data, childName);
-
-                /*
-                 * Attr newAttribute = "xmlns".equals(childName) ?
-                 * DOMHelper.getOwnerDocumentFor(data).createAttribute("xmlns") :
-                 * DOMHelper.getOwnerDocumentFor(data).createAttributeNS(namespaceURL(childName),
-                 * childName); // newAttribute.setTextContent("huhu"); if
-                 * ("xmlns".equals(childName)) { ((Element) data).setAttributeNode(newAttribute); }
-                 * else { ((Element) data).setAttributeNodeNS(newAttribute); }
-                 */
                 return newAttribute;
-                // return ((org.w3c.dom.Element) data).appendChild(newAttribute);
             }
 
             Node nextNode = findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST), node);

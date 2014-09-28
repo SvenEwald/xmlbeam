@@ -24,6 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.BuildDocumentVisitor.MODE;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode.StepListFilter;
 
 /**
@@ -41,6 +42,18 @@ public class DuplexExpression {
             final List<SimpleNode> list = Arrays.asList(children).subList(0, children.length - 1);
             assert list.size() == (children.length - 1);
             return list;
+        }
+    };
+
+    private final static StepListFilter ONLY_LAST_STEP = new StepListFilter() {
+
+        @Override
+        public List<SimpleNode> filter(final SimpleNode[] children) {
+            if (children.length < 1) {
+                return Collections.emptyList();
+            }
+            assert children[children.length - 1] != null;
+            return Collections.singletonList(children[children.length - 1]);
         }
     };
 
@@ -92,11 +105,22 @@ public class DuplexExpression {
      * @param contextNode
      * @return the parent element
      */
+    @SuppressWarnings("unchecked")
+    // due to JCC-API
     public Element ensureParentExistence(final Node contextNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
         //node.dump("");
-        return (Element) ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping, ALL_BUT_LAST), contextNode)).get(0);
+        return (Element) ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping, ALL_BUT_LAST, MODE.CREATE_IF_NOT_EXISTS), contextNode)).get(0);
     }
 
+    /**
+     * @param parentNode
+     */
+    public void deleteAllMatchingChildren(final Node parentNode) {
+        final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
+        final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        BuildDocumentVisitor visitor = new BuildDocumentVisitor(namespaceMapping, ONLY_LAST_STEP, MODE.DELETE);
+        node.firstChildAccept(visitor, parentNode);
+    }
 }
