@@ -121,6 +121,25 @@ public class DuplexExpression {
         final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
         BuildDocumentVisitor visitor = new BuildDocumentVisitor(namespaceMapping, ONLY_LAST_STEP, MODE.DELETE);
-        node.firstChildAccept(visitor, parentNode);
+        List<?> result;
+        int lastLength = -1;
+        do {
+            result = (List<?>) node.firstChildAccept(visitor, parentNode);
+            if (result.size() == lastLength) {
+                throw new IllegalStateException("Infinite loop detected. Please report issue with example.");
+            }
+            lastLength = result.size();
+        } while ((!result.isEmpty()) && (null != result.get(0)));
+    }
+
+    /**
+     * @param parentNode
+     * @return fresh new node
+     */
+    public Node createChildWithPredicate(final Node parentNode) {
+        final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
+        final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        BuildDocumentVisitor visitor = new BuildDocumentVisitor(namespaceMapping, ONLY_LAST_STEP, MODE.JUST_CREATE);
+        return (Node) node.firstChildAccept(visitor, parentNode);
     }
 }
