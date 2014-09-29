@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -813,5 +814,33 @@ public final class DOMHelper {
         for (Node n = element.getFirstChild(); n != null; n = element.getFirstChild()) {
             element.removeChild(n);
         }
+    }
+
+    /**
+     * @param attributeNode
+     */
+    public static void removeAttribute(final Attr attributeNode) {
+        if (attributeNode == null) {
+            return;
+        }
+        final Element owner = attributeNode.getOwnerElement();
+        if (owner == null) {
+            return;
+        }
+        owner.removeAttributeNode(attributeNode);
+    }
+
+    /**
+     * @param node
+     */
+    public static void removeNode(final Node node) {
+        if (node == null) {
+            return;
+        }
+        final Node parent = node.getParentNode();
+        if (parent == null) {
+            return;
+        }
+        parent.removeChild(node);
     }
 }

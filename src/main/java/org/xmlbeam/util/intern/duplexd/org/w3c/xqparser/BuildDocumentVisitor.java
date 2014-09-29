@@ -337,24 +337,33 @@ class BuildDocumentVisitor implements XParserVisitor {
                 return result;
             }
             String childName = nameTest.name;
-            boolean isAttribute = nameTest.isAttribute;
-            if (isAttribute) {
+            //boolean isAttribute = nameTest.isAttribute;
+            if (nameTest.isAttribute) {
                 if (data.getNodeType() == Node.DOCUMENT_NODE) {
                     throw new XBXPathExprNotAllowedForWriting(node, "You can not set or get attributes on the document. You need a root element.");
                 }
                 assert data.getNodeType() == Node.ELEMENT_NODE;
-                Attr attributeNode = ((org.w3c.dom.Element) data).getAttributeNodeNS(namespaceURI(childName), childName);
+                Attr attributeNode = mode.shouldResolve() ? ((org.w3c.dom.Element) data).getAttributeNodeNS(namespaceURI(childName), childName) : null;
                 if (attributeNode != null) {
+                    if (mode.shouldDelete()) {
+                        DOMHelper.removeAttribute(attributeNode);
+                    }
                     return attributeNode;
                 }
-                Attr newAttribute = createAttribute((Element) data, childName);
-                return newAttribute;
+                if (mode.shouldCreate()) {
+                    Attr newAttribute = createAttribute((Element) data, childName);
+                    return newAttribute;
+                }
+                return null;
             }
 
-            Node nextNode = findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST), node);
+            Node nextNode = mode.shouldResolve() ? findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST), node) : null;
             if (nextNode == null) {
 
-                return createChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST));
+                return mode.shouldCreate() ? createChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST)) : null;
+            }
+            if (mode.shouldDelete()) {
+                DOMHelper.removeNode(nextNode);
             }
             return nextNode;
         default:
