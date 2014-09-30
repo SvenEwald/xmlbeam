@@ -325,7 +325,7 @@ class BuildDocumentVisitor implements XParserVisitor {
         case JJTEXPR:
             return node.childrenAccept(this, data);
         case JJTPATHEXPR:
-            return asListofNodes(node.childrenAcceptWithFilter(this, data, stepListFilter));
+            return node.childrenAcceptWithFilter(this, data, stepListFilter);
         case JJTSLASHSLASH:
             throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous locator");
         case JJTSLASH:
@@ -386,21 +386,6 @@ class BuildDocumentVisitor implements XParserVisitor {
         final Attr attr = doc.createAttribute(name);
         data.setAttributeNode(attr);
         return attr;
-    }
-
-    /**
-     * @param childrenAccept
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private List<Node> asListofNodes(final Object childrenAccept) {
-        if (childrenAccept == null) {
-            return Collections.emptyList();
-        }
-        if (childrenAccept instanceof Node) {
-            return Collections.singletonList((Node) childrenAccept);
-        }
-        return (List<Node>) childrenAccept;
     }
 
     /**

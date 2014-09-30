@@ -734,11 +734,14 @@ public final class DOMHelper {
     }
 
     /**
-     * @param n
-     * @return an immutable singleton list of n.
+     * @param node
+     * @return either a List with this node, or an empty list if node is null.
      */
-    public static List<Node> asList(final Node n) {
-        return Collections.singletonList(n);
+    public static List<Node> asList(final Node node) {
+        if (node == null) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList((Node) node);
     }
 
     /**

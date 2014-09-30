@@ -349,45 +349,21 @@ class SimpleNode implements Node {
      * @param visitor
      * @param data
      * @param stepListFilter
+     * @return a List<Node> containing the selection results
      */
-    public Object childrenAcceptWithFilter(final XParserVisitor visitor, final org.w3c.dom.Node data, final StepListFilter stepListFilter) {
+    public List<org.w3c.dom.Node> childrenAcceptWithFilter(final XParserVisitor visitor, final org.w3c.dom.Node data, final StepListFilter stepListFilter) {
         if (stepListFilter == null) {
-            return childrenAccept(visitor, data);
+            return (List<org.w3c.dom.Node>) childrenAccept(visitor, data);
         }
         List<SimpleNode> filteredChildren = stepListFilter.filter(children);
         org.w3c.dom.Node result = data;
         for (Node child : filteredChildren) {
             Object newResult = (child.jjtAccept(visitor, result));
-//                if (Boolean.FALSE.equals(newResult)) { // Boolean end early exit
-//                    return Boolean.FALSE;
-//                }
-//                if (Boolean.TRUE.equals(newResult)) { // No early exit yet
-//                    if ((i + 1) == children.length) {
-//                        return Boolean.TRUE;
-//                    }
-//                    continue;
-//                }
             if (newResult instanceof List) {
-                newResult = ((List) newResult).isEmpty() ? null : ((List) newResult).get(0);
+                newResult = ((List<?>) newResult).isEmpty() ? null : ((List<?>) newResult).get(0);
             }
-//            if (newResult instanceof Number) {
-//                return newResult;
-//            }
             result = (org.w3c.dom.Node) newResult; // proceed step expression
         }
-
         return DOMHelper.asList(result);
     }
-
-//    public List<SimpleNode> findChildrenById(final int... ids) {
-//        FindByPredicateVisitor<SimpleNode> v = new FindByPredicateVisitor<SimpleNode>(new ByIdsPredicate(ids));
-//        childrenAccept(v, null);
-//        return v.getHits();
-//    }
-//
-//    public <T> T findByVisitor(final Transformer<T> predicate) {
-//        TransformingVisitor<T> v = new TransformingVisitor<T>(predicate);
-//        childrenAccept(v, null);
-//        return v.getFirstHit();
-//    }
 }

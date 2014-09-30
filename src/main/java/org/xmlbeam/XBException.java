@@ -40,6 +40,6 @@ public class XBException extends RuntimeException {
      */
     public XBException(final String msg) {
         super(msg);
-    }
+    }  
 
 }
