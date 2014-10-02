@@ -70,15 +70,6 @@ import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBPathParsingException;
  */
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
-    private final static String NONEMPTY = "(?!^$)";
-    private final static String XML_NAME_START_CHARS = ":A-Z_a-z\\u00C0\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02ff\\u0370-\\u037d" + "\\u037f-\\u1fff\\u200c\\u200d\\u2070-\\u218f\\u2c00-\\u2fef\\u3001-\\ud7ff" + "\\uf900-\\ufdcf\\ufdf0-\\ufffd"
-            + String.valueOf(Character.toChars(0x10000)) + "-" + String.valueOf(Character.toChars(0xEFFFF));
-    private final static String XML_NAME_CHARS = XML_NAME_START_CHARS + "\\-\\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
-    private final static String XML_ELEMENT = "[" + XML_NAME_START_CHARS + "]" + "[" + XML_NAME_CHARS + "]*";
-    private final static String ELEMENT_PATH = "(/" + XML_ELEMENT + "(\\[@?" + XML_ELEMENT + "='.+'\\])?)";
-    private final static String ATTRIBUTE_PATH = "(/?@" + XML_ELEMENT + ")";
-    private final static String PARENT_PATH = "(/\\.\\.)";
-    private static final Pattern LEGAL_XPATH_SELECTORS_FOR_SETTERS = Pattern.compile(NONEMPTY + "(^\\.?(" + ELEMENT_PATH + "*" + PARENT_PATH + "*)*(" + ATTRIBUTE_PATH + "|(/\\*))?$)");
     private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
     private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}", Pattern.LITERAL);
     private final Node node;
@@ -627,7 +618,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     //if (path.contains("@")) {
                     throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
                 }
-                final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
+//                final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
                 final String elementSelector = pathToElement.replaceAll(".*/", "");
 //                final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
                 final Element parentElement = duplexExpression.ensureParentExistence(node);
@@ -649,13 +640,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
 
             if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
-                //duplexExpression.ensureExistence(settingNode);
                 Element parentNode = duplexExpression.ensureParentExistence(node);
-
-//                String pathToParent = pathToElement.replaceAll("/[^/]*$", "");
                 String elementSelector = pathToElement.replaceAll(".*/", "");
-//                Element parentNode = DOMHelper.ensureElementExists(document, pathToParent);
-
                 if (valueToSet instanceof Attr) {
                     if (((Attr) valueToSet).getNamespaceURI() != null) {
                         parentNode.setAttributeNodeNS((Attr) valueToSet);
@@ -669,11 +655,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
 
             final Element elementToChange = (Element) duplexExpression.ensureExistence(node);
-            if (path.replaceAll("\\[@", "[attribute::").contains("@")) {
-                String attributeName = path.replaceAll(".*@", "");
-                DOMHelper.setOrRemoveAttribute(elementToChange, attributeName, valueToSet == null ? null : valueToSet.toString());
-                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-            }
             if (valueToSet == null) {
                 //TODO: This should depend on the parameter type?
                 // If param type == String, no structural change might be expected.
