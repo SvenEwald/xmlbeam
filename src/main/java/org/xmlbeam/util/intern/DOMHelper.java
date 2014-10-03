@@ -741,7 +741,7 @@ public final class DOMHelper {
         if (node == null) {
             return Collections.emptyList();
         }
-        return Collections.singletonList((Node) node);
+        return Collections.singletonList(node);
     }
 
     /**
@@ -769,6 +769,8 @@ public final class DOMHelper {
     public static void replaceElement(final Element previous, final Element newNode) {
         assert previous.getParentNode() != null;
         Element parent = (Element) previous.getParentNode();
+        Document document = DOMHelper.getOwnerDocumentFor(parent);
+        DOMHelper.ensureOwnership(document, newNode);
         parent.replaceChild(newNode, previous);
     }
 

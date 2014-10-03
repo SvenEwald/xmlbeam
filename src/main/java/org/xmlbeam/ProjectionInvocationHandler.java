@@ -601,27 +601,25 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
 
         // ROOT element update
-        if ("/*".equals(pathToElement)) { // Setting a new root element.
+        if ("/*".equals(path)) { // Setting a new root element.
             if (isMultiValue) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
             }
             return handeRootElementReplacement(proxy, method, document, valueToSet);
         }
+        final boolean wildCardTarget = path.endsWith("/*");
         try {
-            final DuplexExpression duplexExpression = new DuplexXPathParser().compile(path);
+            final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(path.substring(0, path.length() - 2)) : new DuplexXPathParser().compile(path);
             if (duplexExpression.getExpressionType().equals(ExpressionType.VALUE)) {
                 throw new XBPathException("Unwriteable xpath selector used ", method, path);
             }
             // MULTIVALUE
             if (isMultiValue) {
                 if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
-                    //if (path.contains("@")) {
                     throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
                 }
-//                final String path2Parent = pathToElement.replaceAll("/[^/]+$", "");
                 final String elementSelector = pathToElement.replaceAll(".*/", "");
-//                final Element parentElement = DOMHelper.ensureElementExists(document, path2Parent);
-                final Element parentElement = duplexExpression.ensureParentExistence(node);
+                final Element parentElement = (Element) (wildCardTarget ? duplexExpression.ensureExistence(node) : duplexExpression.ensureParentExistence(node));
                 Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
                 int count = applyCollectionSetOnElement(typeToSet, collection2Set, parentElement, elementSelector);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
@@ -629,6 +627,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             // ATTRIBUTES
             if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
+                if (wildCardTarget) {
+                    //TODO: This may never happen, right?
+                    throw new XBPathException("Wildcards are not allowed when writing to an attribute. I need to know to which Element I should set the attribute", method, path);
+                }
                 Attr attribute = (Attr) duplexExpression.ensureExistence(node);
                 if (valueToSet == null) {
                     attribute.getOwnerElement().removeAttributeNode(attribute);
@@ -640,9 +642,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
 
             if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
-                Element parentNode = duplexExpression.ensureParentExistence(node);
-                String elementSelector = pathToElement.replaceAll(".*/", "");
                 if (valueToSet instanceof Attr) {
+                    if (wildCardTarget) {
+                        throw new XBPathException("Wildcards are not allowed when writing an attribute. I need to know to which Element I should set the attribute", method, path);
+                    }
+                    Element parentNode = duplexExpression.ensureParentExistence(node);
                     if (((Attr) valueToSet).getNamespaceURI() != null) {
                         parentNode.setAttributeNodeNS((Attr) valueToSet);
                         return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
@@ -650,7 +654,18 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     parentNode.setAttributeNode((Attr) valueToSet);
                     return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                 }
-                applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
+                final Element newNodeOrigin = valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet;
+                final Element newNode = (Element) newNodeOrigin.cloneNode(true);
+                DOMHelper.ensureOwnership(document, newNode);
+                if (wildCardTarget) {
+                    Element parentElement = (Element) duplexExpression.ensureExistence(node);
+                    parentElement.appendChild(newNode);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
+                Element previousElement = (Element) duplexExpression.ensureExistence(node);
+
+                DOMHelper.replaceElement(previousElement, newNode);
+                //applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
 

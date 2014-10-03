@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
@@ -37,7 +38,7 @@ public class TestSetterXPathSyntax {
 
     @Before
     public void init() throws IOException {
-        projector = new XBProjector();
+        projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
         projection = projector.projectEmptyDocument(GenericXPathProjection.class);
     }
 
