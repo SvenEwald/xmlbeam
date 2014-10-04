@@ -353,36 +353,6 @@ public final class DOMHelper {
     }
 
     /**
-     * Treat the given path as absolute path to an element and return this element. If any element
-     * on this path does not exist, create it.
-     *
-     * @param document
-     *            document
-     * @param pathToElement
-     *            absolute path to element.
-     * @return element with absolute path.
-     */
-    @Deprecated
-    public static Element ensureElementExists(final Document document, final String pathToElement) {
-        assert document != null;
-        String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
-        if (splitme.isEmpty()) {
-            throw new IllegalArgumentException("Path must not be empty. I don't know which element to return.");
-        }
-        Element element = document.getDocumentElement();
-        final String[] nameAndSelector = splitToNameAndSelector(splitme.replaceAll("/.*", ""));
-        if (element == null) { // No root element yet
-            element = createElementByTagNameAndSelector(document, nameAndSelector[0], nameAndSelector[1]);
-            // element = document.createElement(splitme.replaceAll("/.*", ""));
-            document.appendChild(element);
-        } else {
-            forceSelectorOnElement(document, nameAndSelector[1], element);
-        }
-
-        return ensureElementExists(document, element, splitme.replaceFirst("[^/]*/", ""));
-    }
-
-    /**
      * Replace the current root element. If element is null, the current root element will be
      * removed.
      *

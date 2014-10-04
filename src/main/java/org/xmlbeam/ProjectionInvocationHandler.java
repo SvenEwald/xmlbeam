@@ -156,15 +156,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return (o instanceof InternalProjection) || (o instanceof Node);
     }
 
-    @Deprecated
-    private void applySingleSetElementOnElement(final Element element, final Node parentNode, final String elementSelector) {
-        //final Element newElement = (Element) projection.getDOMBaseElement().cloneNode(true);
-        final Element newElement = (Element) element.cloneNode(true);
-        DOMHelper.removeAllChildrenBySelector(parentNode, elementSelector);
-        DOMHelper.ensureOwnership(parentNode.getOwnerDocument(), newElement);
-        parentNode.appendChild(newElement);
-    }
-
     private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
         final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
         final List<Object> linkedList = new LinkedList<Object>();
@@ -665,7 +656,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 Element previousElement = (Element) duplexExpression.ensureExistence(node);
 
                 DOMHelper.replaceElement(previousElement, newNode);
-                //applySingleSetElementOnElement(valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet, parentNode, elementSelector);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
 
