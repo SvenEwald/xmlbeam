@@ -112,4 +112,4 @@ What XMLBeam does not do
  
  * Building or transforming XML. It utilizes the JRE default DocumentBuilder and Transformers. Again you are able to change this easily.
  
-[ ![Codeship Status for SvenEwald/xmlbeam](https://codeship.io/projects/346d4460-0dec-0132-bc65-1e51a3033676/status)](https://codeship.io/projects/32351)
+
