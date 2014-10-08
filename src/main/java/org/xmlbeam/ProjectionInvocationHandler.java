@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -93,23 +94,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param typeToSet
      * @param collection
      * @param parentElement
+     * @param duplexExpression
      * @param elementSelector
      */
-    @Deprecated
-    private int applyCollectionSetOnElement(final Type typeToSet, final Collection<?> collection, final Element parentElement, final String elementSelector) {
-        final Document document = parentElement.getOwnerDocument();
-        DOMHelper.removeAllChildrenBySelector(parentElement, elementSelector);
-        assert !elementSelector.contains("/") : "Selector should be the trail of the path.";
-        final String elementName = elementSelector.replaceAll("\\[.*", "");
-        if (collection == null) {
-            return 0;
-        }
-        Class<?> componentClass = Object.class;
-        if (typeToSet instanceof ParameterizedType) {
-            Type componentType = ((ParameterizedType) typeToSet).getActualTypeArguments()[0];
-            componentClass = ReflectionHelper.upperBoundAsClass(componentType);
-        }
-
+    private int applyCollectionSetOnElement(final Class<?> componentClass, final Collection<?> collection, final Element parentElement, final DuplexExpression duplexExpression) {
         for (Object o : collection) {
             try {
                 o = ReflectionHelper.unwrap(componentClass, o);
@@ -120,30 +108,33 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 continue;
             }
             if (!isStructureChangingValue(o)) {
-                final Element newElement = document.createElement(elementName);
+                Node newElement = duplexExpression.createChildWithPredicate(parentElement);
                 newElement.setTextContent(o.toString());
-                parentElement.appendChild(newElement);
                 continue;
             }
+            Element elementToAdd;
+
             if (o instanceof Node) {
-                Node newNode = ((Node) o).cloneNode(true);
-                DOMHelper.ensureOwnership(parentElement.getOwnerDocument(), newNode);
-                parentElement.appendChild(newNode);
+                final Node n = (Node) o;
+                elementToAdd = (Element) (Node.DOCUMENT_NODE != n.getNodeType() ? n : n.getOwnerDocument() == null ? null : n.getOwnerDocument().getDocumentElement());
+            } else {
+                final InternalProjection p = (InternalProjection) o;
+                elementToAdd = p.getDOMBaseElement();
+            }
+            if (elementToAdd == null) {
                 continue;
             }
-            final InternalProjection p = (InternalProjection) o;
-            Element pElement = Node.DOCUMENT_NODE == p.getDOMNode().getNodeType() ? p.getDOMOwnerDocument().getDocumentElement() : (Element) p.getDOMNode();
-            if (pElement == null) {
-                continue;
-            }
-            Element clone = (Element) pElement.cloneNode(true);
+
+            Element clone = (Element) elementToAdd.cloneNode(true);
+            Element childWithPredicate = (Element) duplexExpression.createChildWithPredicate(parentElement);
+            final String elementName = childWithPredicate.getNodeName();
             if (!elementName.equals(clone.getNodeName())) {
                 if (!"*".equals(elementName)) {
                     clone = DOMHelper.renameElement(clone, elementName);
                 }
             }
-            DOMHelper.ensureOwnership(document, clone);
-            parentElement.appendChild(clone);
+            DOMHelper.replaceElement(childWithPredicate, clone);
+
         }
         return collection.size();
     }
@@ -609,10 +600,42 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
                     throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
                 }
-                final String elementSelector = pathToElement.replaceAll(".*/", "");
-                final Element parentElement = (Element) (wildCardTarget ? duplexExpression.ensureExistence(node) : duplexExpression.ensureParentExistence(node));
-                Collection<?> collection2Set = (valueToSet != null) && (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-                int count = applyCollectionSetOnElement(typeToSet, collection2Set, parentElement, elementSelector);
+                Class<?> componentClass = Object.class;
+                if (typeToSet instanceof ParameterizedType) {
+                    Type componentType = ((ParameterizedType) typeToSet).getActualTypeArguments()[0];
+                    componentClass = ReflectionHelper.upperBoundAsClass(componentType);
+                }
+                final Collection<?> collection2Set = valueToSet == null ? Collections.emptyList() : (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
+                if (wildCardTarget) {
+                    // TODO: check support of ParameterizedType e.g. Supplier
+                    final Element parentElement = (Element) duplexExpression.ensureExistence(node);
+                    DOMHelper.removeAllChildren(parentElement);
+                    int count = 0;
+                    for (Object o : collection2Set) {
+                        if (o == null) {
+                            continue;
+                        }
+                        try {
+                            o = ReflectionHelper.unwrap(componentClass, o);
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException(e);
+                        }
+                        ++count;
+                        if (o instanceof Node) {
+                            DOMHelper.appendClone(parentElement, (Node) o);
+                            continue;
+                        }
+                        if (o instanceof InternalProjection) {
+                            DOMHelper.appendClone(parentElement, ((InternalProjection) o).getDOMBaseElement());
+                            continue;
+                        }
+                        throw new XBPathException("When using a wildcard target, the type to set must be a DOM Node or another projection. Otherwise I can not determine the element name.", method, path);
+                    }
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
+                }
+                final Element parentElement = duplexExpression.ensureParentExistence(node);
+                duplexExpression.deleteAllMatchingChildren(parentElement);
+                int count = applyCollectionSetOnElement(componentClass, collection2Set, parentElement, duplexExpression);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
             }
 
@@ -650,6 +673,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 DOMHelper.ensureOwnership(document, newNode);
                 if (wildCardTarget) {
                     Element parentElement = (Element) duplexExpression.ensureExistence(node);
+                    DOMHelper.removeAllChildren(parentElement);
                     parentElement.appendChild(newNode);
                     return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                 }

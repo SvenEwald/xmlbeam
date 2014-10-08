@@ -132,7 +132,7 @@ class DuplexEvaluationVisitor implements INodeEvaluationVisitor<List<org.w3c.dom
         case JJTPATHEXPR:
             return node.allChildrenAccept(this, data);
         case JJTSLASH:
-            return DOMHelper.asList(DOMHelper.getOwnerDocumentFor(data));
+            return DOMHelper.<Node> asList(DOMHelper.getOwnerDocumentFor(data));
         case JJTSLASHSLASH:
             throw new XBXPathExprNotAllowedForWriting(node, "Ambiguous target path. You can not use '//' for writing.");
         case JJTSTEPEXPR:
@@ -142,7 +142,7 @@ class DuplexEvaluationVisitor implements INodeEvaluationVisitor<List<org.w3c.dom
             String name = node.firstChildAccept(getStringValueVisitor, data);
             if ("@".equals(node.getValue())) {
                 assertNodeType(data, org.w3c.dom.Node.ELEMENT_NODE);
-                return DOMHelper.asList(((Element) data).getAttributeNode(name));
+                return DOMHelper.<Node> asList(((Element) data).getAttributeNode(name));
             }
 
             return DOMHelper.getChildrendByName(data, name);

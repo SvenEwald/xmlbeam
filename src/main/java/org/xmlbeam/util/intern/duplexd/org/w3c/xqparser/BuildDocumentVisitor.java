@@ -124,7 +124,7 @@ class BuildDocumentVisitor implements XParserVisitor {
                 String name = node.getValue();
                 if (onAttribute) {
                     assert data instanceof Element;
-                    return DOMHelper.asList(getAttributeNodeByName(asElement(data), name));
+                    return DOMHelper.<Node> asList(getAttributeNodeByName(asElement(data), name));
                 }
                 List<Node> list = new LinkedList<Node>();
                 findChildElementsByName(asElement(data), name, list);
@@ -356,14 +356,23 @@ class BuildDocumentVisitor implements XParserVisitor {
                 }
                 return null;
             }
-
-            Node nextNode = mode.shouldResolve() ? findFirstMatchingChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST), node) : null;
+            Node nextNode = null;
+            if (mode.shouldResolve()) {
+                List<Element> existingNodes = findAlltMatchingChildElements(data, childName, node.getFirstChildWithId(JJTPREDICATELIST), node);
+                if (!existingNodes.isEmpty()) {
+                    if (mode.shouldDelete()) {
+                        DOMHelper.removeNodes(existingNodes);
+                        return existingNodes;
+                    }
+                    if (existingNodes.size() > 1) {
+                        throw new XBXPathExprNotAllowedForWriting(node, "You can not set or get attributes on the document. You need a root element.");
+                    }
+                    nextNode = existingNodes.get(0);
+                }
+            }
             if (nextNode == null) {
 
                 return mode.shouldCreate() ? createChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST)) : null;
-            }
-            if (mode.shouldDelete()) {
-                DOMHelper.removeNode(nextNode);
             }
             return nextNode;
         default:
@@ -460,37 +469,40 @@ class BuildDocumentVisitor implements XParserVisitor {
      * @param firstChildWithId
      * @return
      */
-    private Element findFirstMatchingChildElement(final Node data, final String childName, final SimpleNode predicateList, final SimpleNode stepNode) {
+    private List<Element> findAlltMatchingChildElements(final Node data, final String childName, final SimpleNode predicateList, final SimpleNode stepNode) {
         if (data instanceof Document) { // Child must be the root element
             final Element root = ((Document) data).getDocumentElement();
             if (root == null) {
-                return null;
+                return Collections.emptyList();
             }
             if (!root.getNodeName().equals(childName)) {
-                return null;
+                return Collections.emptyList();
             }
             if (predicateList == null) {
-                return root;
+                return DOMHelper.asList(root);
             }
             Object accept = predicateList.childrenAccept(new EvaluatePredicateListVisitor(), root);
             if (Boolean.TRUE.equals(accept)) {
-                return root;
+                return DOMHelper.asList(root);
             }
             if (accept instanceof Integer) {
                 throw new XBXPathExprNotAllowedForWriting(predicateList, "No position predicate on document element allowed");
             }
-            return null;
+            return Collections.emptyList();
         }
         List<Element> childElements = new LinkedList<Element>();
         findChildElementsByName((Element) data, childName, childElements);
         if (childElements.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         if (predicateList == null) {
-            if (childElements.size() > 1) {
-                throw new XBXPathExprNotAllowedForWriting(stepNode, "Ambigous step expression. I can not decide which path to follow. Please add a predicate to specify which element should be selected.");
-            }
-            return childElements.get(0);
+            // if (mode.shouldDelete()) {
+            return childElements;
+            // }
+            // if (childElements.size() > 1) {
+            //     throw new XBXPathExprNotAllowedForWriting(stepNode, "Ambigous step expression. I can not decide which path to follow. Please add a predicate to specify which element should be selected.");
+            // }
+            // return childElements.get(0);
         }
         List<Element> allMatchingElements = new LinkedList<Element>();
         int i = 0;
@@ -510,12 +522,12 @@ class BuildDocumentVisitor implements XParserVisitor {
             //this are not the elements you are looking for
         }
         if (allMatchingElements.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         if (allMatchingElements.size() > 1) {
             throw new XBXPathExprNotAllowedForWriting(stepNode, "Ambigous step expression. I can not decide which path to follow. Please add more predicates.");
         }
-        return allMatchingElements.get(0);
+        return allMatchingElements;
     }
 
     /**

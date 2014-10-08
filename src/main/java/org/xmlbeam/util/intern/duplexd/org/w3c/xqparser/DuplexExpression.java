@@ -140,6 +140,8 @@ public class DuplexExpression {
         final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
         BuildDocumentVisitor visitor = new BuildDocumentVisitor(namespaceMapping, ONLY_LAST_STEP, MODE.JUST_CREATE);
-        return (Node) node.firstChildAccept(visitor, parentNode);
+        List<Node> nodes = (List<Node>) node.firstChildAccept(visitor, parentNode);
+        assert nodes.size() == 1;
+        return nodes.get(0);
     }
 }

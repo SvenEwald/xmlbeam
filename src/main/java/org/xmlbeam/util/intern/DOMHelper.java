@@ -707,7 +707,7 @@ public final class DOMHelper {
      * @param node
      * @return either a List with this node, or an empty list if node is null.
      */
-    public static List<Node> asList(final Node node) {
+    public static <T> List<T> asList(final T node) {
         if (node == null) {
             return Collections.emptyList();
         }
@@ -817,5 +817,25 @@ public final class DOMHelper {
             return;
         }
         parent.removeChild(node);
+    }
+
+    /**
+     * @param parentElement
+     * @param o
+     */
+    public static void appendClone(final Element parentElement, final Node o) {
+        Node clone = o.cloneNode(true);
+        ensureOwnership(DOMHelper.getOwnerDocumentFor(parentElement), clone);
+        parentElement.appendChild(clone);
+    }
+
+    /**
+     * @param existingNodes
+     */
+    public static void removeNodes(final List<? extends Node> existingNodes) {
+        for (Node e : existingNodes) {
+            removeNode(e);
+        }
+
     }
 }
