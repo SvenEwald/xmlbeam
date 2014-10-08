@@ -15,11 +15,8 @@ apply.
  */
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 
-import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
 
 class SimpleNode implements Node {
@@ -48,11 +45,6 @@ class SimpleNode implements Node {
 
     public int beginLine, beginColumn, endLine, endColumn;
 
-    public SimpleNode(final int i) {
-        id = i;
-        parser = null;
-    }
-
     public SimpleNode(final XParser p, final int i) {
         id = i;
         parser = p;
@@ -78,10 +70,6 @@ class SimpleNode implements Node {
     @Override
     public void jjtSetParent(final Node n) {
         parent = n;
-    }
-
-    public void jjtSetChildren(final SimpleNode[] n) {
-        children = n;
     }
 
     @Override
@@ -129,22 +117,18 @@ class SimpleNode implements Node {
         return visitor.visit(this, data);
     }
 
-    public List<org.w3c.dom.Node> allChildrenAccept(final INodeEvaluationVisitor visitor, final org.w3c.dom.Node target) {
-        org.w3c.dom.Node result = target;
-        for (SimpleNode child : children) {
-            result = ((List<org.w3c.dom.Node>) child.jjtAccept(visitor, result)).get(0);
-        }
-        return DOMHelper.asList(result);
-    }
-
-    public org.w3c.dom.Node allButNotLastChildrenAccept(final INodeEvaluationVisitor visitor, final org.w3c.dom.Node target) {
-        org.w3c.dom.Node result = target;
-        for (int i = 0; i < (children.length - 1); ++i) {
-            result = (org.w3c.dom.Node) children[i].jjtAccept(visitor, result);
-        }
-        return result;
-    }
-
+    /*
+     * public List<org.w3c.dom.Node> allChildrenAccept(final INodeEvaluationVisitor visitor, final
+     * org.w3c.dom.Node target) { org.w3c.dom.Node result = target; for (SimpleNode child :
+     * children) { result = ((List<org.w3c.dom.Node>) child.jjtAccept(visitor, result)).get(0); }
+     * return DOMHelper.asList(result); }
+     */
+    /*
+     * public org.w3c.dom.Node allButNotLastChildrenAccept(final INodeEvaluationVisitor visitor,
+     * final org.w3c.dom.Node target) { org.w3c.dom.Node result = target; for (int i = 0; i <
+     * (children.length - 1); ++i) { result = (org.w3c.dom.Node) children[i].jjtAccept(visitor,
+     * result); } return result; }
+     */
     /** Accept the visitor. * */
     public Object childrenAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
         org.w3c.dom.Node result = data;
@@ -180,41 +164,6 @@ class SimpleNode implements Node {
     public Object secondChildAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
         assert children.length > 1 : "No second child found for node " + this;
         return children[1].jjtAccept(visitor, data);
-    }
-
-    /**
-     * @param results
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private Object unwrap(final Object results) {
-        if (results instanceof NodeList) {
-            return unwrap((NodeList) results);
-        }
-        if (!(results instanceof List)) {
-            return results;
-        }
-        if (((List<?>) results).isEmpty()) {
-            return null;
-        }
-        for (ListIterator<Object> i = ((List) results).listIterator(); i.hasNext();) {
-            Object o = i.next();
-            if (o instanceof List) {
-                i.set(unwrap(o));
-                continue;
-            }
-            if (o instanceof NodeList) {
-                i.set(unwrap((NodeList) o));
-            }
-        }
-        return ((List) results).size() == 1 ? ((List) results).get(0) : results;
-    }
-
-    private Object unwrap(final NodeList o) {
-        if (o.getLength() == 1) {
-            return o.item(0);
-        }
-        return DOMHelper.asList(o);
     }
 
     /*
@@ -295,18 +244,12 @@ class SimpleNode implements Node {
         return id;
     }
 
-    public Object childrenFilteredAccept(final XParserVisitor visitor, final int filterID, final org.w3c.dom.Node data) {
-        org.w3c.dom.Node result = data;
-        if (children != null) {
-            for (int i = 0; i < children.length; ++i) {
-                if (children[i].getID() == filterID) {
-                    result = (org.w3c.dom.Node) children[i].jjtAccept(visitor, result);
-                }
-            }
-        }
-        return result;
-    }
-
+    /*
+     * public Object childrenFilteredAccept(final XParserVisitor visitor, final int filterID, final
+     * org.w3c.dom.Node data) { org.w3c.dom.Node result = data; if (children != null) { for (int i =
+     * 0; i < children.length; ++i) { if (children[i].getID() == filterID) { result =
+     * (org.w3c.dom.Node) children[i].jjtAccept(visitor, result); } } } return result; }
+     */
     public SimpleNode getFirstChildWithId(final int id) {
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
@@ -316,10 +259,6 @@ class SimpleNode implements Node {
             }
         }
         return null;
-    }
-
-    public List<SimpleNode> getChildren() {
-        return Arrays.asList(children);
     }
 
     public <T> T firstChildAccept(final INodeEvaluationVisitor<T> visitor, final org.w3c.dom.Node data) {
@@ -338,6 +277,7 @@ class SimpleNode implements Node {
 
     /**
      * @param visitorClosure
+     * @param data
      */
     public void eachChild(final org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
         for (SimpleNode child : children) {
