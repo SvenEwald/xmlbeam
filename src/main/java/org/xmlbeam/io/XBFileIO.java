@@ -29,47 +29,47 @@ import org.xmlbeam.XBProjector;
 public class XBFileIO {
 
     private final XBProjector projector;
-    boolean append = false;
-    private final  File file;
+    private boolean append = false;
+    private final File file;
 
     /**
      * Constructor for file input.
-     * 
+     *
      * @param xmlProjector
      * @param file
      */
-    public XBFileIO(XBProjector xmlProjector, File file) {
-        if (xmlProjector==null) {
+    public XBFileIO(final XBProjector xmlProjector, final File file) {
+        if (xmlProjector == null) {
             throw new NullPointerException("Parameter xmlProjector must not be null.");
         }
-        if (file==null) {
+        if (file == null) {
             throw new NullPointerException("Parameter file must not be null.");
         }
         if (file.isDirectory()) {
-            throw new IllegalArgumentException("File "+file+" is a directory.");
+            throw new IllegalArgumentException("File " + file + " is a directory.");
         }
         this.projector = xmlProjector;
-        this.file=file;
+        this.file = file;
     }
 
     /**
      * Convenient constructor using a filename.
-     * 
+     *
      * @param xmlProjector
      * @param fileName
      */
-    public XBFileIO(XBProjector xmlProjector, String fileName) {
+    public XBFileIO(final XBProjector xmlProjector, final String fileName) {
         this(xmlProjector, new File(fileName));
     }
 
     /**
      * Read a XML document and return a projection to it.
-     * 
+     *
      * @param projectionInterface
      * @return a new projection pointing to the content of the file.
      * @throws IOException
      */
-    public <T> T read(Class<T> projectionInterface) throws IOException {
+    public <T> T read(final Class<T> projectionInterface) throws IOException {
         try {
             Document document = projector.config().createDocumentBuilder().parse(file);
             return projector.projectDOMNode(document, projectionInterface);
@@ -83,19 +83,19 @@ public class XBFileIO {
      * @throws IOException
      * @return this to provide a fluent API.
      */
-    public XBFileIO write(Object projection) throws IOException {       
+    public XBFileIO write(final Object projection) throws IOException {
         FileOutputStream os = new FileOutputStream(file, append);
-        new XBStreamOutput(projector,os).write(projection);
+        new XBStreamOutput(projector, os).write(projection);
         return this;
     }
 
     /**
      * Set whether output should be append to existing file.
-     * 
+     *
      * @param append
      * @return this to provide a fluent API.
      */
-    public XBFileIO setAppend(boolean append) {
+    public XBFileIO setAppend(final boolean append) {
         this.append = append;
         return this;
     }

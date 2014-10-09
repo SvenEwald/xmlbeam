@@ -25,9 +25,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.dom.DOMAccess;
 
-/**
- * @author sven
- */
+@SuppressWarnings("javadoc")
 public class TestDeletionWithPredicates {
 
     private final static String simpleExample = "<root><foo><bar id=\"3\"/><bar id=\"4\"/></foo></root>";

@@ -26,6 +26,7 @@ import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestFloatReturnsNull {
 
     public interface Issue19 {

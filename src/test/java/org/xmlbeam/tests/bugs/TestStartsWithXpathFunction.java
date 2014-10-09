@@ -25,6 +25,7 @@ import org.xmlbeam.annotation.XBRead;
 /**
  * Testcase to cover bug report <a href="https://github.com/SvenEwald/xmlbeam/issues/18">#18</a>
  */
+@SuppressWarnings("javadoc")
 public class TestStartsWithXpathFunction {
 
     public interface Issue18 {

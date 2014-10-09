@@ -23,9 +23,9 @@ import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
- * @param <T> 
+ * @param <T>
  */
-public class StringFactoryConversion<T> extends Conversion<T> {
+class StringFactoryConversion<T> extends Conversion<T> {
 
     private static final long serialVersionUID = 5720231829193321892L;
     private final Method factory;
@@ -37,7 +37,7 @@ public class StringFactoryConversion<T> extends Conversion<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T convert(String data) {
+    public T convert(final String data) {
         try {
             return (T) factory.invoke(null, data);
         } catch (IllegalArgumentException e) {
@@ -45,12 +45,12 @@ public class StringFactoryConversion<T> extends Conversion<T> {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             assert false : "Unreachable code";
-            throw new RuntimeException(e); 
+            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new XBException("Exception while trying to invoke factory method "+factory.toGenericString(), e.getCause());
+            throw new XBException("Exception while trying to invoke factory method " + factory.toGenericString(), e.getCause());
         }
     }
-    
+
     @Override
     public T getDefaultValue(final String value) {
         return convert(value);

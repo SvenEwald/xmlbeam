@@ -24,6 +24,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
+@SuppressWarnings("javadoc")
 public class TestNodeContains {
 
     @XBDocURL("resource://book.xml")

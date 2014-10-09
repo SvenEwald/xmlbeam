@@ -16,10 +16,27 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 /**
+ * Enum for xpath expression types.
+ * 
  * @author sven
  */
 public enum ExpressionType {
-    NODE(false), ELEMENT(false), ATTRIBUTE(false), VALUE(true);
+    /**
+     * Expression selects a node.
+     */
+    NODE(false),
+    /**
+     * Expression selects an element.
+     */
+    ELEMENT(false),
+    /**
+     * Expression selects an attribute.
+     */
+    ATTRIBUTE(false),
+    /**
+     * Expression returns a value.
+     */
+    VALUE(true);
 
     private ExpressionType(final boolean mustEvaluateAsString) {
         this.mustEvaluateAsString = mustEvaluateAsString;

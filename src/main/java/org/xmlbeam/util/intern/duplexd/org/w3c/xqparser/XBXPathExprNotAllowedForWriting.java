@@ -16,13 +16,19 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 /**
- *
+ * Exception for the case that a xpath was declared in @XBWrite that is not allowed for writing.
  */
-public class XBXPathExprNotAllowedForWriting extends XBPathParsingException {
+public class XBXPathExprNotAllowedForWriting extends XBPathParsingException { // NO_UCD (use default)
 
     private static final long serialVersionUID = 8944815612805655746L;
 
-    public XBXPathExprNotAllowedForWriting(final SimpleNode node, final String reason) {
+    /**
+     * Constructor.
+     *
+     * @param node
+     * @param reason
+     */
+    public XBXPathExprNotAllowedForWriting(final SimpleNode node, final String reason) { // NO_UCD (use default)
         super(reason + ": Node " + node.toString() + " is not supported for writing expressions", node.beginLine, node.beginColumn, node.endColumn, node.endLine);
         //node.parser.token_source.input_stream.inputStream.reset().
     }

@@ -206,7 +206,7 @@ class SimpleNode implements Node {
 
     // Manually inserted code begins here
 
-    protected String m_value;
+    private String m_value;
 
     public void processToken(final Token t) {
         m_value = t.image;

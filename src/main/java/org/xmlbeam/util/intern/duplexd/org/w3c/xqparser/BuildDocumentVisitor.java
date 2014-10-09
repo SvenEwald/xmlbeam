@@ -53,7 +53,7 @@ import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.SimpleNode.StepListFilte
  */
 class BuildDocumentVisitor implements XParserVisitor {
 
-    public enum MODE {
+    enum MODE {
         CREATE_IF_NOT_EXISTS(true, false, true), JUST_CREATE(false, false, true), DELETE(true, true, false);
         final private boolean resolveExisting;
         final private boolean deleteExisting;
@@ -100,9 +100,9 @@ class BuildDocumentVisitor implements XParserVisitor {
 
     }
 
-    public class EvaluateStepExprVisitor implements INodeEvaluationVisitor<List<Node>> {
+    private class EvaluateStepExprVisitor implements INodeEvaluationVisitor<List<Node>> {
 
-        final boolean onAttribute;
+        final private boolean onAttribute;
 
         private EvaluateStepExprVisitor(final boolean onAttribute) {
             this.onAttribute = onAttribute;

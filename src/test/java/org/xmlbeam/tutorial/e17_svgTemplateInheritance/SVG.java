@@ -20,6 +20,7 @@ import java.util.List;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBWrite;
 
+@SuppressWarnings("javadoc")
 @XBDocURL("resource://svg_document_template.svg")
 public interface SVG {
 
