@@ -297,6 +297,7 @@ class SimpleNode implements Node {
      * @param stepListFilter
      * @return a List<Node> containing the selection results
      */
+    @SuppressWarnings("unchecked")
     public List<org.w3c.dom.Node> childrenAcceptWithFilter(final XParserVisitor visitor, final org.w3c.dom.Node data, final StepListFilter stepListFilter) {
         if (stepListFilter == null) {
             return (List<org.w3c.dom.Node>) childrenAccept(visitor, data);

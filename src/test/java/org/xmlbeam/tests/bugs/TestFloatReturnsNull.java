@@ -26,7 +26,7 @@ import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 /**
  *
  */
-@SuppressWarnings("javadoc")
+@SuppressWarnings({ "javadoc", "serial" })
 public class TestFloatReturnsNull {
 
     public interface Issue19 {

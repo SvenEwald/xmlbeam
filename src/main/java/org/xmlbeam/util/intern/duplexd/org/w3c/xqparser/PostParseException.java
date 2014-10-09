@@ -37,7 +37,7 @@ public class PostParseException extends RuntimeException {
      * constructor calls its super class with the empty string to force the "toString" method of
      * parent class "Throwable" to print the error message in the form: ParseException: <result of
      * getMessage>
-     * 
+     *
      * @param currentTokenVal
      * @param expectedTokenSequencesVal
      * @param tokenImageVal
@@ -66,6 +66,9 @@ public class PostParseException extends RuntimeException {
         tokenImage = null;
     }
 
+    /**
+     * @param message
+     */
     public PostParseException(final String message) {
         super(message);
         specialConstructor = false;

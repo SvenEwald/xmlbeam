@@ -136,6 +136,7 @@ public class DuplexExpression {
      * @param parentNode
      * @return fresh new node
      */
+    @SuppressWarnings("unchecked")
     public Node createChildWithPredicate(final Node parentNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
