@@ -30,7 +30,6 @@ import java.lang.reflect.Proxy;
 import java.net.URISyntaxException;
 import java.text.Format;
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -720,7 +719,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             for (Class<?> clazz : method.getParameterTypes()) {
                 if (ReflectionHelper.isOptional(clazz)) {
                     throw new IllegalArgumentException("Method " + method + " has java.util.Optional as a parameter type. You simply never should not do this.");
-                }               
+                }
             }
             int count = 0;
             for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {

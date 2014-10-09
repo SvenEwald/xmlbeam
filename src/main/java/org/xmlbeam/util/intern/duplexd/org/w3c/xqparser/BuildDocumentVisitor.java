@@ -108,6 +108,7 @@ class BuildDocumentVisitor implements XParserVisitor {
             this.onAttribute = onAttribute;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public List<Node> visit(final SimpleNode node, final Node data) {
             switch (node.getID()) {
@@ -305,6 +306,8 @@ class BuildDocumentVisitor implements XParserVisitor {
 
     /**
      * @param namespaceMapping
+     * @param stepListFilter
+     * @param mode
      */
     public BuildDocumentVisitor(final Map<String, String> namespaceMapping, final StepListFilter stepListFilter, final MODE mode) {
         assert stepListFilter != null;

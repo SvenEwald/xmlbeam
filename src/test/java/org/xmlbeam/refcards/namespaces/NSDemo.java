@@ -24,12 +24,8 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 
-/**
- * @author sven
- *
- */
+@SuppressWarnings({ "javadoc", "serial" })
 public class NSDemo {
-
 
     @Test
     public void testNoNamespacedElementAccess() throws IOException {
@@ -42,11 +38,11 @@ public class NSDemo {
             }
         });
         projector.config().as(DefaultXMLFactoriesConfig.class).setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC);
-        
+
         NameSpaceProjection projection = projector.io().fromURLAnnotation(NameSpaceProjection.class);
         System.out.println(projection.getTable());
         // System.out.println(projection.getNamepsacedTable() +
 // projection.getDefaultNamepsacedTable());
     }
-    
+
 }

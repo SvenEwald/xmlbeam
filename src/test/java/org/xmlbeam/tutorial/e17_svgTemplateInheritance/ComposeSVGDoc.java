@@ -27,6 +27,7 @@ import org.xmlbeam.tutorial.e17_svgTemplateInheritance.SVG.Ellipse;
 import org.xmlbeam.tutorial.e17_svgTemplateInheritance.SVG.Rect;
 import org.xmlbeam.tutorial.e17_svgTemplateInheritance.SVG.Shape;
 
+@SuppressWarnings("javadoc")
 public class ComposeSVGDoc {
 
     @Test

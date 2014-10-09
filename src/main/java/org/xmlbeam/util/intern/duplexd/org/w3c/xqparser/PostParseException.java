@@ -25,6 +25,11 @@ package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 public class PostParseException extends RuntimeException {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -5700064789730042635L;
+
+    /**
      * This constructor is used by the method "generateParseException" in the generated parser.
      * Calling this constructor generates a new object of this type with the fields "currentToken",
      * "expectedTokenSequences", and "tokenImage" set. The boolean flag "specialConstructor" is also
@@ -32,6 +37,10 @@ public class PostParseException extends RuntimeException {
      * constructor calls its super class with the empty string to force the "toString" method of
      * parent class "Throwable" to print the error message in the form: ParseException: <result of
      * getMessage>
+     * 
+     * @param currentTokenVal
+     * @param expectedTokenSequencesVal
+     * @param tokenImageVal
      */
     public PostParseException(final Token currentTokenVal, final int[][] expectedTokenSequencesVal, final String[] tokenImageVal) {
         super("");

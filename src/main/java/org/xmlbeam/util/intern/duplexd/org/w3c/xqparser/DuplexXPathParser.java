@@ -17,8 +17,6 @@ package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import java.io.StringReader;
 
-import javax.xml.xpath.XPathExpressionException;
-
 import org.xmlbeam.XBException;
 
 /**

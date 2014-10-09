@@ -25,9 +25,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * @author sven
- */
+@SuppressWarnings("javadoc")
 public class DOMDiagnoseHelper {
 
     private final static String[] ATT_NAMES = new String[] { "NodeType", "NodeName", "LocalName", "NamespaceURI", "Prefix", "NodeValue" };

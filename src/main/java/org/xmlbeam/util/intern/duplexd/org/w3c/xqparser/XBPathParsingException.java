@@ -29,8 +29,9 @@ public class XBPathParsingException extends XBException {
      * @param beginLine
      * @param beginColumn
      * @param endColumn
+     * @param endLine
      */
-    public XBPathParsingException(final String string, final int beginLine, final int beginColumn, final int endColumn,final int endLine) {
+    public XBPathParsingException(final String string, final int beginLine, final int beginColumn, final int endColumn, final int endLine) {
         super(string + " in line " + beginLine + " col " + beginColumn + " to " + endColumn, null);
     }
 

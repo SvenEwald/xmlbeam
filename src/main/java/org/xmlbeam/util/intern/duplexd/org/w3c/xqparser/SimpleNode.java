@@ -129,7 +129,13 @@ class SimpleNode implements Node {
      * (children.length - 1); ++i) { result = (org.w3c.dom.Node) children[i].jjtAccept(visitor,
      * result); } return result; }
      */
-    /** Accept the visitor. * */
+    /**
+     * Accept the visitor. *
+     *
+     * @param visitor
+     * @param data
+     * @return evaluation result: Boolean, List, Number or Node
+     **/
     public Object childrenAccept(final XParserVisitor visitor, final org.w3c.dom.Node data) {
         org.w3c.dom.Node result = data;
         if (children != null) {
@@ -145,7 +151,7 @@ class SimpleNode implements Node {
                     continue;
                 }
                 if (newResult instanceof List) {
-                    newResult = ((List) newResult).isEmpty() ? null : ((List) newResult).get(0);
+                    newResult = ((List<?>) newResult).isEmpty() ? null : ((List<?>) newResult).get(0);
                 }
                 if (newResult instanceof Number) {
                     return newResult;
