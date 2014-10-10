@@ -83,38 +83,6 @@ public final class DOMHelper {
     };
 
     /**
-     * Remove all child elements with given node name. If nodeSelector is "*", then remove all
-     * children.
-     *
-     * @param element
-     * @param nodeSelector
-     */
-    @Deprecated
-    public static void removeAllChildrenBySelector(final Node element, final String nodeSelector) {
-        assert nodeSelector != null;
-        NodeList nodeList = element.getChildNodes();
-        List<Node> toBeRemoved = new LinkedList<Node>();
-        if ("*".equals(nodeSelector)) {
-            for (int i = 0; i < nodeList.getLength(); ++i) {
-                toBeRemoved.add(nodeList.item(i));
-            }
-        } else {
-            for (int i = 0; i < nodeList.getLength(); ++i) {
-                Node node = nodeList.item(i);
-                if (Node.ELEMENT_NODE != node.getNodeType()) {
-                    continue;
-                }
-                if (selectorMatches(nodeSelector, (Element) node)) {
-                    toBeRemoved.add(nodeList.item(i));
-                }
-            }
-        }
-        for (Node e : toBeRemoved) {
-            element.removeChild(e);
-        }
-    }
-
-    /**
      * @param documentBuilder
      * @param url
      * @param requestProperties
@@ -182,174 +150,6 @@ public final class DOMHelper {
             map.put(attribute.getLocalName(), attribute.getNodeValue());
         }
         return map;
-    }
-
-    /**
-     * Treat the given path as relative path from a base element to an element and return this
-     * element. If any element on this path does not exist, create it.
-     *
-     * @param document
-     * @param base
-     *            the relative path will start here
-     * @param pathToElement
-     *            relative path to element.
-     * @return element with absolute path.
-     */
-    @Deprecated
-    public static Element ensureElementExists(final Document document, final Element base, final String pathToElement) {
-        assert base != null;
-        assert pathToElement != null;
-        if ((pathToElement.isEmpty()) || (".".equals(pathToElement))) {
-            return base;
-        }
-        Element element = base;
-        String splitme = pathToElement.replaceAll("(^/)|(/$)", "");
-        if (splitme.isEmpty()) {
-            throw new IllegalArgumentException("Path must not be empty. I don't know which element to return.");
-        }
-        for (String expectedElementName : splitme.split("/")) {
-            if (".".equals(expectedElementName)) {
-                continue;
-            }
-            if ("..".equals(expectedElementName)) {
-                Node parent = element.getParentNode();
-                if ((parent == null) || (Node.ELEMENT_NODE != parent.getNodeType())) {
-                    throw new IllegalArgumentException("Reference to parent node via '..' bounced out of scope.");
-                }
-                element = (Element) parent;
-                continue;
-            }
-            if (expectedElementName.equals(element.getNodeName())) {
-                continue;
-            }
-
-            String[] nameAndSelector = splitToNameAndSelector(expectedElementName);
-
-            // String name = expectedElementName.replaceAll("\\[.*", "");
-            // String selector = expectedElementName.contains("[") ?
-// expectedElementName.replaceAll(".*\\[", "").replaceAll("\\]$", "") : "";
-
-            Element child = findElementByTagNameAndSelector(element, nameAndSelector[0], nameAndSelector[1]);
-            if (child == null) {
-                // element = (Element)
-// element.appendChild(document.createElement(expectedElementName));
-                element = (Element) element.appendChild(createElementByTagNameAndSelector(document, nameAndSelector[0], nameAndSelector[1]));
-                continue;
-            }
-            //         forceSelectorOnElement(document, nameAndSelector[1], child);
-            element = child;
-        }
-        return element;
-    }
-
-    @Deprecated
-    private static String[] splitToNameAndSelector(final String nameAndSelector) {
-        return new String[] {//
-        nameAndSelector.replaceAll("\\[.*", ""),//
-                nameAndSelector.contains("[") ? nameAndSelector.replaceAll(".*\\[", "").replaceAll("\\]$", "") : ""//
-        };
-    }
-
-    /**
-     * @param document
-     * @param expectedElementName
-     * @param selector
-     * @return
-     */
-    @Deprecated
-    private static Element createElementByTagNameAndSelector(final Document document, final String name, final String selector) {
-        // Element element = document.createElement(name);
-        final Element element = createElement(document, name);
-        forceSelectorOnElement(document, selector, element);
-        return element;
-    }
-
-    @Deprecated
-    private static Element forceSelectorOnElement(final Document document, final String selector, final Element element) {
-        if (selector.isEmpty()) {
-            return element;
-        }
-        final String[] selectorValues = splitSelector(selector);
-        if (selectorValues[0].startsWith("@")) {
-            final String prefix = getPrefixOfQName(selectorValues[0].substring(1));
-            if (prefix.isEmpty()) {
-                element.setAttribute(selectorValues[0].substring(1), selectorValues[1]);
-            } else {
-                final String namespaceURI = ("xmlns".equals(prefix)) ? "http://www.w3.org/2000/xmlns/" : element.getNamespaceURI();
-                element.setAttributeNS(namespaceURI, selectorValues[0].substring(1), selectorValues[1]);
-            }
-            return element;
-        }
-        // Element child = document.createElement(selectorValues[0]);
-        final Element child = createElement(document, selectorValues[0]);
-        child.setTextContent(selectorValues[1]);
-        element.appendChild(child);
-        return element;
-    }
-
-    /**
-     * @param element
-     * @param expectedElementName
-     * @return
-     */
-    @Deprecated
-    private static Element findElementByTagNameAndSelector(final Element element, final String name, final String selector) {
-        NodeList nodeList = element.getElementsByTagName(name);
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            if (selectorMatches(selector, (Element) nodeList.item(i))) {
-                return (Element) nodeList.item(i);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param selector
-     * @param item
-     * @return
-     */
-    @Deprecated
-    private static boolean selectorMatches(final String selector, final Element item) {
-        if (item == null) {
-            return false;
-        }
-        if ((selector == null) || (selector.isEmpty())) {
-            return true;
-        }
-        if (!selector.contains("=")) {
-            if (selector.matches("^@.+")) {
-                return item.hasAttribute(selector.substring(1));
-            }
-            return selector.equals(item.getNodeName());
-        }
-        String[] selectorValues = splitSelector(selector);
-        if (selectorValues[0].startsWith("@")) {
-            return selectorValues[1].equals(item.getAttribute(selectorValues[0].substring(1)));
-        }
-        NodeList nodeList = item.getElementsByTagName(selectorValues[0]);
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            if (selectorValues[1].equals(nodeList.item(i).getTextContent())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @param selector
-     * @return
-     */
-    @Deprecated
-    private static String[] splitSelector(String selector) {
-        if (!selector.matches("@?[^=]+=[^=]+")) {
-            return new String[] { selector, "" };
-            // throw new
-// IllegalArgumentException("When using a predicate to create elements, predicate expressions must assign values via '=' to an attribute or direct child element.");
-        }
-        selector = selector.replaceAll("(^\\[)|(\\]$)", "");
-        String[] split = selector.split("=");
-        split[1] = split[1].replaceAll("(^')|('$)", "");
-        return split;
     }
 
     /**
@@ -519,26 +319,6 @@ public final class DOMHelper {
         return hash;
     }
 
-//    public static void trimTextNodes(Node e) {
-//        NodeList children = e.getChildNodes();
-//        for (int i = 0; i < children.getLength(); ++i) {
-//            Node child = children.item(i);
-//            if (Node.TEXT_NODE != child.getNodeType()) {
-//                trimTextNodes(child);
-//                continue;
-//            }
-//            String content = child.getNodeValue();
-//            if (content != null) {
-//                content = content.trim();
-//                if (!content.isEmpty()) {
-//                    child.setNodeValue(content);
-//                    continue;
-//                }
-//            }
-//            e.removeChild(child);
-//        }
-//    }
-
     /**
      * @param element
      * @param attributeName
@@ -594,7 +374,6 @@ public final class DOMHelper {
         return documentOrElement.getOwnerDocument();
     }
 
-    @Deprecated
     private static Element createElement(final Document document, final String elementName) {
         final String prefix = getPrefixOfQName(elementName);// .replaceAll("(:.*)|([^:])*", "");
         final String namespaceURI = prefix.isEmpty() ? null : document.lookupNamespaceURI(prefix);
@@ -626,15 +405,6 @@ public final class DOMHelper {
     public static void trim(final Node domNode) {
         assert domNode != null;
         assert (Node.TEXT_NODE != domNode.getNodeType());
-//        if (Node.TEXT_NODE == domNode.getNodeType()) {
-//            String content = domNode.getNodeValue();
-//            if ((content == null) || (content.trim().isEmpty())) {
-//                return;
-//            }
-//            domNode.setNodeValue(content.trim());
-//            assert domNode.getChildNodes().getLength()==0;
-//            return;
-//        }
         List<Text> removeMe = new LinkedList<Text>();
         NodeList childNodes = domNode.getChildNodes();
         for (Node child : nodeListToIterator(childNodes)) {
@@ -718,19 +488,19 @@ public final class DOMHelper {
      * @param nodes
      * @return true if and only if all nodes have the same parent
      */
-    public static boolean haveSameParent(final List<Node> nodes) {
-        if ((nodes == null) || (nodes.isEmpty())) {
-            return true;
-        }
-        Iterator<Node> i = nodes.iterator();
-        Node firstParent = i.next().getParentNode();
-        while (i.hasNext()) {
-            if (firstParent != i.next().getParentNode()) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    public static boolean haveSameParent(final List<Node> nodes) {
+//        if ((nodes == null) || (nodes.isEmpty())) {
+//            return true;
+//        }
+//        Iterator<Node> i = nodes.iterator();
+//        Node firstParent = i.next().getParentNode();
+//        while (i.hasNext()) {
+//            if (firstParent != i.next().getParentNode()) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
     /**
      * @param previous
@@ -749,15 +519,15 @@ public final class DOMHelper {
      * @param name
      * @return list of children with tag name
      */
-    public static List<Node> getChildrendByName(final Node data, final String name) {
-        if (data.getNodeType() == Node.ELEMENT_NODE) {
-            return asList(((Element) data).getElementsByTagName(name));
-        }
-        if (data.getNodeType() == Node.DOCUMENT_NODE) {
-            return asList(((Document) data).getElementsByTagName(name));
-        }
-        throw new IllegalArgumentException("Only Elements and Documents have child nodes");
-    }
+//    public static List<Node> getChildrendByName(final Node data, final String name) {
+//        if (data.getNodeType() == Node.ELEMENT_NODE) {
+//            return asList(((Element) data).getElementsByTagName(name));
+//        }
+//        if (data.getNodeType() == Node.DOCUMENT_NODE) {
+//            return asList(((Document) data).getElementsByTagName(name));
+//        }
+//        throw new IllegalArgumentException("Only Elements and Documents have child nodes");
+//    }
 
     /**
      * Set a text value to a node whether it is an element or an attribute.

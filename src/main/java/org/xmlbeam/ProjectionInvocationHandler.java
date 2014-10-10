@@ -565,9 +565,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
-        // if (!LEGAL_XPATH_SELECTORS_FOR_SETTERS.matcher(path).matches()) {
-        //     throw new IllegalArgumentException("Method " + method + " was invoked as setter and did not have an XPATH expression with an absolute path to an element or attribute:\"" + path + "\"");
-        // }
         if (!ReflectionHelper.hasParameters(method)) {
             throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
         }
