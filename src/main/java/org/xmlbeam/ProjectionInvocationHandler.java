@@ -18,6 +18,7 @@ package org.xmlbeam;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -53,7 +54,6 @@ import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
-import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.DuplexExpression;
@@ -396,17 +396,39 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         if (ReflectionHelper.isDefaultMethod(method)) {
-            if (defaultMethodInvoker == null) {
-                defaultMethodInvoker = ASMHelper.createDefaultMethodProxy(projectionInterface, proxy);
-            }
+            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
+            Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+
+            Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
+            constructor.setAccessible(true);
+            Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
+
+            Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
+
+            Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
+            Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
             try {
-                return method.invoke(defaultMethodInvoker, args);
+                Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
+                return result;
             } catch (InvocationTargetException e) {
                 if (e.getCause() != null) {
                     throw e.getCause();
                 }
                 throw e;
             }
+            //  return ReflectionHelper.invokeDefaultMethod(method,args,proxy);
+//            if (defaultMethodInvoker == null) {
+//
+//                defaultMethodInvoker = ASMHelper.createDefaultMethodProxy(projectionInterface, proxy);
+//            }
+//            try {
+//                return method.invoke(defaultMethodInvoker, args);
+//            } catch (InvocationTargetException e) {
+//                if (e.getCause() != null) {
+//                    throw e.getCause();
+//                }
+//                throw e;
+//            }
         }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }
