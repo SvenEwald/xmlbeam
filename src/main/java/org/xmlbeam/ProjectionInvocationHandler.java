@@ -18,10 +18,8 @@ package org.xmlbeam;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -396,39 +394,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         if (ReflectionHelper.isDefaultMethod(method)) {
-            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
-            Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
-
-            Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
-            constructor.setAccessible(true);
-            Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
-
-            Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
-
-            Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
-            Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
-            try {
-                Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
-                return result;
-            } catch (InvocationTargetException e) {
-                if (e.getCause() != null) {
-                    throw e.getCause();
-                }
-                throw e;
-            }
-            //  return ReflectionHelper.invokeDefaultMethod(method,args,proxy);
-//            if (defaultMethodInvoker == null) {
-//
-//                defaultMethodInvoker = ASMHelper.createDefaultMethodProxy(projectionInterface, proxy);
-//            }
-//            try {
-//                return method.invoke(defaultMethodInvoker, args);
-//            } catch (InvocationTargetException e) {
-//                if (e.getCause() != null) {
-//                    throw e.getCause();
-//                }
-//                throw e;
-//            }
+            return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
         }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }

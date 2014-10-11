@@ -424,24 +424,45 @@ public final class ReflectionHelper {
      * @param method
      * @param args
      * @param proxy
-     * @return return value of invoked mehtod
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
+     * @return return value of invoked method
+     * @throws Throwable
+     *             (whatever the invoked method throws)
      */
-    public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws Throwable {
         try {
-            method.setAccessible(true);
-            Object methodHandlesLookup = findMethodByName(Class.forName("java.lang.invoke.MethodHandles"), "lookup").invoke(null, (Object[]) null);
-            Object in = findMethodByName(methodHandlesLookup.getClass(), "in").invoke(methodHandlesLookup, method.getDeclaringClass());
-            Object unreflectSpecial = findMethodByName(in.getClass(), "unreflectSpecial").invoke(in, method, method.getDeclaringClass());
-            Object bindTo = findMethodByName(unreflectSpecial.getClass(), "bindTo").invoke(unreflectSpecial, proxy);
-            Object result = findMethodByName(bindTo.getClass(), "invokeWithArguments").invoke(bindTo, args);
-//        return MethodHandles.lookup().in(method.getDeclaringClass())
-//                .unreflectSpecial(method, method.getDeclaringClass())
-//                .bindTo(proxy).invokeWithArguments(args);
-            return result;
+            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
+            Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+
+            Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
+            constructor.setAccessible(true);
+            Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
+
+            Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
+
+            Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
+            Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
+            try {
+                Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
+                return result;
+            } catch (InvocationTargetException e) {
+                if (e.getCause() != null) {
+                    throw e.getCause();
+                }
+                throw e;
+            }
         } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
             throw new RuntimeException(e);
         }
     }
