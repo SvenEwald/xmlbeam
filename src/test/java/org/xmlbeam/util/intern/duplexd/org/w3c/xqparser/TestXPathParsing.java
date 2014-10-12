@@ -120,7 +120,8 @@ public class TestXPathParsing {
         document = before.getDOMOwnerDocument();
         // String xpath = "/hoo[@id='wutz']/foo/loo";
         createByXParser(xpath, value);
-        Projection result = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectDOMNode(document, Projection.class);
+        XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML, Flags.ABSENT_IS_EMPTY);
+        Projection result = projector.projectDOMNode(document, Projection.class);
         after.getDOMNode().normalize();
         result.getDOMNode().normalize();
         DOMHelper.trim(after.getDOMNode());
@@ -134,7 +135,7 @@ public class TestXPathParsing {
     @Parameters
     public static Collection<Object[]> tests() throws Exception {
         List<Object[]> params = new LinkedList<Object[]>();
-        Projection testDefinition = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(Projection.class);
+        Projection testDefinition = new XBProjector(Flags.TO_STRING_RENDERS_XML, Flags.ABSENT_IS_EMPTY).io().fromURLAnnotation(Projection.class);
         int count = 0;
         for (Projection test : testDefinition.getTests()) {
             final Object[] param = new Object[] { //

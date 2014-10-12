@@ -26,14 +26,14 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-@SuppressWarnings({"serial","javadoc"})
+@SuppressWarnings({ "serial", "javadoc" })
 public class DefaultTypeConverter implements TypeConverter {
 
     public static abstract class Conversion<T> implements Serializable {
 
         private final T defaultValue;
 
-        protected Conversion(T defaultValue) {
+        protected Conversion(final T defaultValue) {
             this.defaultValue = defaultValue;
         }
 
@@ -94,7 +94,7 @@ public class DefaultTypeConverter implements TypeConverter {
             public Double convert(final String data) {
                 return Double.valueOf(data);
             }
-        });        
+        });
         CONVERSIONS.put(Short.class, new Conversion<Short>(null) {
             @Override
             public Short convert(final String data) {
@@ -133,26 +133,26 @@ public class DefaultTypeConverter implements TypeConverter {
         });
         CONVERSIONS.put(Character.class, new Conversion<Character>(null) {
             @Override
-            public Character convert(String data) {      
-                if (data.length()==1) {
+            public Character convert(final String data) {
+                if (data.length() == 1) {
                     return data.charAt(0);
                 }
-                String trimmed=data.trim();
+                String trimmed = data.trim();
                 return trimmed.isEmpty() ? getDefaultValue("") : trimmed.charAt(0);
             }
         });
         CONVERSIONS.put(Character.TYPE, new Conversion<Character>(' ') {
             @Override
-            public Character convert(String data) {      
-                if (data.length()==1) {
+            public Character convert(final String data) {
+                if (data.length() == 1) {
                     return data.charAt(0);
                 }
-                String trimmed=data.trim();
+                String trimmed = data.trim();
                 return trimmed.isEmpty() ? getDefaultValue("") : trimmed.charAt(0);
             }
         });
 
-        CONVERSIONS.put(String.class, new Conversion<String>("") {
+        CONVERSIONS.put(String.class, new Conversion<String>(null) {
             @Override
             public String convert(final String data) {
                 return data;
@@ -165,11 +165,11 @@ public class DefaultTypeConverter implements TypeConverter {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T convertTo(Class<T> targetType, String data) {        
+    public <T> T convertTo(final Class<T> targetType, final String data) {
         Conversion<?> conversion = CONVERSIONS.get(targetType);
-        assert conversion != null : "Method caller must check existence of conversion. ("+targetType.getName()+")";
+        assert conversion != null : "Method caller must check existence of conversion. (" + targetType.getName() + ")";
 
-        if ((data==null) || (data.isEmpty())) {
+        if (data == null) {
             return (T) conversion.getDefaultValue(data);
         }
 
@@ -180,22 +180,22 @@ public class DefaultTypeConverter implements TypeConverter {
      * {@inheritDoc}
      */
     @Override
-    public <T> boolean isConvertable(Class<T> targetType) {
+    public <T> boolean isConvertable(final Class<T> targetType) {
         if (CONVERSIONS.containsKey(targetType)) {
             return true;
         }
-        Constructor<T> constructor = ReflectionHelper.getCallableConstructorForParams(targetType,String.class);
-        if (constructor!=null) {
-            CONVERSIONS.put(targetType, new StringConstructorConversion<T>(constructor,null));
+        Constructor<T> constructor = ReflectionHelper.getCallableConstructorForParams(targetType, String.class);
+        if (constructor != null) {
+            CONVERSIONS.put(targetType, new StringConstructorConversion<T>(constructor, null));
             return true;
         }
-        
-        Method factory = ReflectionHelper.getCallableFactoryForParams(targetType,String.class);
-        if (factory!=null) {
-            CONVERSIONS.put(targetType, new StringFactoryConversion<T>(factory,null));
+
+        Method factory = ReflectionHelper.getCallableFactoryForParams(targetType, String.class);
+        if (factory != null) {
+            CONVERSIONS.put(targetType, new StringFactoryConversion<T>(factory, null));
             return true;
         }
-        
+
         return false;
     }
 
@@ -214,5 +214,4 @@ public class DefaultTypeConverter implements TypeConverter {
         CONVERSIONS.put(type, conversion);
         return this;
     }
-
 }

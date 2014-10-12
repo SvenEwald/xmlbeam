@@ -80,12 +80,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     // Used to handle invocations on Java8 default methods.
     private transient Object defaultMethodInvoker;
+    private final boolean absentIsEmpty;
 
-    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokers) {
+    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokers, final boolean absentIsEmpty) {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
         this.defaultInvokers = defaultInvokers;
+        this.absentIsEmpty = absentIsEmpty;
     }
 
     /**
@@ -464,11 +466,24 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //        if (ReflectionHelper.mayProvideParameterNames()) {
 //            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
 //        }
+        final DuplexExpression duplexExpression = new DuplexXPathParser().compile(path);
+        final ExpressionType expressionType = duplexExpression.getExpressionType();
         final XPathExpression expression = xPath.compile(path);
+
         final boolean wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
         final Class<?> returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
         if (projector.config().getTypeConverter().isConvertable(returnType)) {
-            String data = (String) expression.evaluate(node, XPathConstants.STRING);
+            String data;
+            if (ExpressionType.VALUE == expressionType) {
+                data = (String) expression.evaluate(node, XPathConstants.STRING);
+            } else {
+                Node dataNode = (Node) expression.evaluate(node, XPathConstants.NODE);
+                data = dataNode == null ? null : dataNode.getTextContent();
+            }
+            if ((data == null) && (absentIsEmpty)) {
+                data = "";
+            }
+
             try {
                 final Object result = projector.config().getTypeConverter().convertTo(returnType, data);
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;

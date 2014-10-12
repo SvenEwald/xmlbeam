@@ -550,7 +550,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
         defaultInvokers.put(DOMAccess.class, invoker);
         defaultInvokers.put(Object.class, invoker);
-        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, defaultInvokers);
+        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, defaultInvokers, flags.contains(Flags.ABSENT_IS_EMPTY));
         if (flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS)) {
             final Document document = DOMHelper.getOwnerDocumentFor(documentOrElement);
             InvocationHandler synchronizedInvocationHandler = new InvocationHandler() {
@@ -616,7 +616,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
         /**
          * Option to strip empty nodes from the result.
          */
-        OMIT_EMPTY_NODES
+        OMIT_EMPTY_NODES,
+        /**
+         * If a node is not present, handle it like it is empty.
+         */
+        ABSENT_IS_EMPTY
     }
 
     /**

@@ -27,7 +27,7 @@ import org.junit.Test;
 @SuppressWarnings("javadoc")
 public class TestPreprocessor {
 
-    ProjectionInvocationHandler handler = new ProjectionInvocationHandler(null, null, null, null);
+    ProjectionInvocationHandler handler = new ProjectionInvocationHandler(null, null, null, null, false);
     static Method m;
 
     @BeforeClass

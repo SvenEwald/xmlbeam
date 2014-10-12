@@ -43,10 +43,10 @@ public class TestUpdatetInvoker {
 
         @XBUpdate("/gluerootnode/intermediate/secondElement/list/entry")
         int setEntries(String value);
-        
+
         @XBRead("//@glueattribute")
         String getAttribute();
-        
+
         @XBUpdate("//@glueattribute")
         int setAttribute(String value);
 
@@ -75,12 +75,12 @@ public class TestUpdatetInvoker {
 
     @Test
     public void attributeUpdate() {
-        assertEquals("with Attribute",projection.getAttribute());
-        assertEquals(1,projection.setAttribute("Huhu"));
-        assertEquals("Huhu",projection.getAttribute());
-        assertEquals(1,projection.setAttribute(null));
-        assertEquals(0,projection.setAttribute("foo"));
-        assertEquals("",projection.getAttribute());
+        assertEquals("with Attribute", projection.getAttribute());
+        assertEquals(1, projection.setAttribute("Huhu"));
+        assertEquals("Huhu", projection.getAttribute());
+        assertEquals(1, projection.setAttribute(null));
+        assertEquals(0, projection.setAttribute("foo"));
+        assertEquals(null, projection.getAttribute());
     }
-    
+
 }
