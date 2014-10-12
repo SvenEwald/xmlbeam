@@ -78,8 +78,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     // Used to handle invocations on Java6 Mixins and Object methods.
     private final Map<Class<?>, Object> defaultInvokers;
 
-    // Used to handle invocations on Java8 default methods.
-    private transient Object defaultMethodInvoker;
+    // treat absent nodes as empty nodes
     private final boolean absentIsEmpty;
 
     ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokers, final boolean absentIsEmpty) {
