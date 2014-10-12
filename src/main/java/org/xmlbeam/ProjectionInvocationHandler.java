@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -53,7 +52,6 @@ import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
-import org.xmlbeam.util.intern.ASMHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.DuplexExpression;
@@ -396,17 +394,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         if (ReflectionHelper.isDefaultMethod(method)) {
-            if (defaultMethodInvoker == null) {
-                defaultMethodInvoker = ASMHelper.createDefaultMethodProxy(projectionInterface, proxy);
-            }
-            try {
-                return method.invoke(defaultMethodInvoker, args);
-            } catch (InvocationTargetException e) {
-                if (e.getCause() != null) {
-                    throw e.getCause();
-                }
-                throw e;
-            }
+            return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
         }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }

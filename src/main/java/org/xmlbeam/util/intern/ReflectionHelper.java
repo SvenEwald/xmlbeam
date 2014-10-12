@@ -45,7 +45,7 @@ public final class ReflectionHelper {
 
     private final static Method ISDEFAULT = findMethodByName(Method.class, "isDefault");
     private final static Class<?> OPTIONAL_CLASS = findOptionalClass();
-    private final static Method OFNULLABLE =  (OPTIONAL_CLASS == null) ? null : findMethodByName(OPTIONAL_CLASS, "ofNullable");
+    private final static Method OFNULLABLE = (OPTIONAL_CLASS == null) ? null : findMethodByName(OPTIONAL_CLASS, "ofNullable");
     private final static Method GETPARAMETERS = findMethodByName(Method.class, "getParameters");
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
@@ -320,7 +320,7 @@ public final class ReflectionHelper {
         if ("java.util.function.Supplier".equals(type.getName())) {
             return findMethodByName(type, "get").invoke(object, (Object[]) null);
         }
-        
+
         return object;
     }
 
@@ -364,6 +364,7 @@ public final class ReflectionHelper {
 
     /**
      * Checks if given type is java.util.Optional with a generic type parameter.
+     *
      * @param type
      * @return true if and only if type is a parameterized Optional
      */
@@ -371,39 +372,41 @@ public final class ReflectionHelper {
         if (OPTIONAL_CLASS == null) {
             return false;
         }
-        
-        if (! (type instanceof ParameterizedType)) {
+
+        if (!(type instanceof ParameterizedType)) {
             // Either this is no Optional, or it's a raw optional which is useless for us anyway...
             return false;
         }
 
-        return OPTIONAL_CLASS.equals(((ParameterizedType)type).getRawType());
+        return OPTIONAL_CLASS.equals(((ParameterizedType) type).getRawType());
     }
-    
+
     /**
      * Checks if a given type is a raw type.
+     *
      * @param type
      * @return true if and only if the type may be parameterized but has no parameter type.
      */
-    public static boolean isRawType(final Type type) {        
+    public static boolean isRawType(final Type type) {
         if (type instanceof Class) {
-            final Class<?> clazz = (Class<?>)type;
-            return (clazz.getTypeParameters().length>0);
+            final Class<?> clazz = (Class<?>) type;
+            return (clazz.getTypeParameters().length > 0);
         }
         if (type instanceof ParameterizedType) {
             final ParameterizedType ptype = (ParameterizedType) type;
-            return (ptype.getActualTypeArguments() .length==0);
+            return (ptype.getActualTypeArguments().length == 0);
         }
         return false;
     }
 
     /**
      * Create an instance of java.util.Optional for given value.
+     *
      * @param value
      * @return a new instance of Optional
      */
-    public static Object createOptional(Object value) {
-        if (OPTIONAL_CLASS==null || OFNULLABLE==null) {
+    public static Object createOptional(final Object value) {
+        if ((OPTIONAL_CLASS == null) || (OFNULLABLE == null)) {
             throw new IllegalStateException("Unreachable Code executed. You just found a bug. Please report!");
         }
         try {
@@ -413,6 +416,53 @@ public final class ReflectionHelper {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param method
+     * @param args
+     * @param proxy
+     * @return return value of invoked method
+     * @throws Throwable
+     *             (whatever the invoked method throws)
+     */
+    public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws Throwable {
+        try {
+            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
+            Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+
+            Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
+            constructor.setAccessible(true);
+            Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
+
+            Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
+
+            Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
+            Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
+            try {
+                Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
+                return result;
+            } catch (InvocationTargetException e) {
+                if (e.getCause() != null) {
+                    throw e.getCause();
+                }
+                throw e;
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
             throw new RuntimeException(e);
         }
     }
