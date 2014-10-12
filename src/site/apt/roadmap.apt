@@ -4,25 +4,42 @@ Roadmap
   
  * Generator to create projection stubs from existing documents. 
 
- * Additional library with generic DOM access projections.
+ * Additional library with generic DOM access projections. (Not needed anymore? Just use Element as projection type.)
 
- * Integration for application logging 
+ * Integration for application logging  
  
 * Version 2.0
 
+ * Move to XPath 2.0
+   (Would simplify quite some code, but introduce a dependency)
+
  * Removing support for Java 6 & 7.
- 
- * Move to XPath 2.0 
- 
-* Version 1.3.2
+   (Would simplify a lot of code)
+   
+* Version 1.4.x
  
  * Replacing dynamic proxy by asm generated class
+   (Depending on result of performance analysis)
+ 
+* Version 1.4.1
  
  * Performance enhancements by pre processing reflection metadata for InvocationHandlers
  
-* Version 1.3.1
+ * Performance enhancements by reusing compiled XPath expressions
+ 
+ * Support for XPath variables to decrease number of dynamic projections (which are slower) 
+ 
+ * Handling of type conversions which depend on a format. (Date, Numbers, ...?)
+ 
+* Version 1.4.0
 
  * Replace current simple XPath-DOM-Writer with a full XPath capable parser (implemented in jcc branch)
+ 
+ * Enhance handling of non existing nodes.
+ 
+ * Breaking API by small bugfix in handling w3c nodes as values
+ 
+ * Breaking API by changing changing the default value for String conversion to null
  
 * Version 1.3.0
 

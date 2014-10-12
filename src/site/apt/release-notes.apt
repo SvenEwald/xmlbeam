@@ -8,6 +8,17 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
+* 1.4.0 upcomig release
+
+ * Changed the default value of String to null.
+   Now you get a null value on selecting non existing values.
+
+ * replaced the old writing XPath logic with a new powerful parser with more features and better error diagnostics
+ 
+ * removal of included ASM lib. Default methods are handled via Reflection and MethodHandles now. Faster and 100kb smaller.
+   ASM may come back to the project to replace the dynamic proxy.
+   More benchmarking needed... 
+
 * 1.3.0 current release
 
  * Changed default value of Boolean, Float, Double, Interger, Long and Character to null.

@@ -5,6 +5,11 @@ FAQ / HowTo
 
 * How to determine if an element or attribute exists? 
 
+ Since Version 1.4.0 the previous answer is out-dated. Now you can expect a null value returned if an element does not exist.
+ If you want to avoid null checks, specify java.util.Optional as return type.
+ If you want non existing nodes to be handled like existing empty ones, set the flag ABSENT_IS_EMPTY on projector creation.
+
+ Previous answer (up to V1.3.0)
  It's not possible to distinguish between empty values and non existing values.
  The cause is a limitation by XPath 1.0. 
  Getting a string value from non existing elements or attributes returns an empty string.
