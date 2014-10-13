@@ -24,27 +24,30 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.util.intern.ReflectionHelper;
+
 @SuppressWarnings("javadoc")
 public class TestReflectionHelper {
 
     @Ignore
-    public String withReturnTypeAndParameter(String a) {
+    public String withReturnTypeAndParameter(final String a) {
         return a;
     }
 
     @Ignore
-    public Void strageSignature(Void v) {
+    public Void strageSignature(final Void v) {
         return v;
     }
-    
+
     @SuppressWarnings("rawtypes")
     @Ignore
-    public List methodWithRawReturn(){return null;}
+    public List methodWithRawReturn() {
+        return null;
+    }
 
     @Ignore
-    public List<String> methodWithNonRawReturn(){return null;}
-
-    
+    public List<String> methodWithNonRawReturn() {
+        return null;
+    }
 
     @Test
     public void testNoReturnTypeNoParam() throws Exception {
@@ -71,19 +74,19 @@ public class TestReflectionHelper {
 
     @Test
     public void testRawTypeDetection() throws Exception {
-        Method raw = TestReflectionHelper.class.getMethod("methodWithRawReturn",(Class[])null);        
+        Method raw = TestReflectionHelper.class.getMethod("methodWithRawReturn", (Class[]) null);
         assertTrue(ReflectionHelper.isRawType(raw.getGenericReturnType()));
     }
-    
+
     @Test
-    public void testRawTypeDetectionForParameterizedTypes() throws Exception {       
-        Method nonraw = TestReflectionHelper.class.getMethod("methodWithNonRawReturn",(Class[])null);        
-        assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));        
+    public void testRawTypeDetectionForParameterizedTypes() throws Exception {
+        Method nonraw = TestReflectionHelper.class.getMethod("methodWithNonRawReturn", (Class[]) null);
+        assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));
     }
-    
+
     @Test
-    public void testNonGegenricTypeIsNoRawType() throws Exception  {
-        Method nonraw = TestReflectionHelper.class.getMethod("withReturnTypeAndParameter",new Class[] {String.class});
+    public void testNonGegenricTypeIsNoRawType() throws Exception {
+        Method nonraw = TestReflectionHelper.class.getMethod("withReturnTypeAndParameter", new Class[] { String.class });
         assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));
     }
 }

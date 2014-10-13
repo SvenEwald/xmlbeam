@@ -17,13 +17,11 @@ package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -179,16 +177,16 @@ public final class ReflectionHelper {
      * @param projectionInterface
      * @return a LinkedList containing all non default methods for the given projection interface.
      */
-    public static List<Method> getNonDefaultMethods(final Class<?> projectionInterface) {
-        final List<Method> list = new LinkedList<Method>();
-        for (final Method m : projectionInterface.getMethods()) {
-            if (isDefaultMethod(m)) {
-                continue;
-            }
-            list.add(m);
-        }
-        return list;
-    }
+//    public static List<Method> getNonDefaultMethods(final Class<?> projectionInterface) {
+//        final List<Method> list = new LinkedList<Method>();
+//        for (final Method m : projectionInterface.getMethods()) {
+//            if (isDefaultMethod(m)) {
+//                continue;
+//            }
+//            list.add(m);
+//        }
+//        return list;
+//    }
 
     /**
      * @param m
@@ -322,31 +320,6 @@ public final class ReflectionHelper {
         }
 
         return object;
-    }
-
-    /**
-     * @param type
-     * @return type as class, if possible.
-     */
-    public static Class<?> upperBoundAsClass(final Type type) {
-        if (type instanceof Class) {
-            return (Class<?>) type;
-        }
-        if (type instanceof ParameterizedType) {
-            return upperBoundAsClass(((ParameterizedType) type).getRawType());
-        }
-        if (type instanceof GenericArrayType) {
-            return Array.newInstance(upperBoundAsClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
-        }
-        if (type instanceof WildcardType) {
-            Type[] bounds = ((WildcardType) type).getUpperBounds();
-            if (bounds.length == 0) {
-                return Object.class;
-            };
-            return upperBoundAsClass(bounds[0]);
-        }
-
-        throw new IllegalArgumentException("Unimplemented conversion for type " + type);
     }
 
     /**

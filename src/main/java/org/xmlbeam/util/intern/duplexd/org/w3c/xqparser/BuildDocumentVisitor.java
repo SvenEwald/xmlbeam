@@ -401,21 +401,6 @@ class BuildDocumentVisitor implements XParserVisitor {
     }
 
     /**
-     * @param first
-     * @return first node of nodelist if its not empty. null instead.
-     */
-    public static Node unwrapNodeList(final NodeList first) {
-        if (first == null) {
-            return null;
-        }
-        if (first.getLength() == 0) {
-            return null;
-        }
-        assert first.getLength() == 1;
-        return first.item(0);
-    }
-
-    /**
      * @param data
      * @return
      */

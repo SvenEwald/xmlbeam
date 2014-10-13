@@ -22,7 +22,7 @@ import org.xmlbeam.XBException;
 import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 
 /**
- *  @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
+ * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 class StringConstructorConversion<T> extends Conversion<T> {
 
@@ -32,28 +32,28 @@ class StringConstructorConversion<T> extends Conversion<T> {
     /**
      * @param defaultValue
      */
-    protected StringConstructorConversion(final Constructor<T> constructor,final T defaultValue) {
-       super(defaultValue);
-       this.constructor = constructor;
+    protected StringConstructorConversion(final Constructor<T> constructor, final T defaultValue) {
+        super(defaultValue);
+        this.constructor = constructor;
     }
 
     @Override
-    public T convert(String data) {
+    public T convert(final String data) {
         try {
-            return  constructor.newInstance(data);
+            return constructor.newInstance(data);
         } catch (IllegalArgumentException e) {
             assert false : "Unreachable code";
-            throw new RuntimeException(e);           
+            throw new RuntimeException(e);
         } catch (InstantiationException e) {
-            throw new XBException("Exception while trying to invoke constructor "+constructor.toGenericString(), e);            
+            throw new XBException("Exception while trying to invoke constructor " + constructor.toGenericString(), e);
         } catch (IllegalAccessException e) {
             assert false : "Unreachable code";
-            throw new RuntimeException(e);            
+            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new XBException("Exception while trying to invoke constructor "+constructor.toGenericString(), e.getCause());
-        }        
+            throw new XBException("Exception while trying to invoke constructor " + constructor.toGenericString(), e.getCause());
+        }
     }
-    
+
     @Override
     public T getDefaultValue(final String value) {
         return convert(value);

@@ -459,21 +459,6 @@ public final class DOMHelper {
     }
 
     /**
-     * @param o
-     * @return Convert a Nodelist into List<Node>
-     */
-    public static List<Node> asList(final NodeList o) {
-        if ((o == null) || (o.getLength() == 0)) {
-            return Collections.emptyList();
-        }
-        List<Node> list = new LinkedList<Node>();
-        for (Node n : nodeListToIterator(o)) {
-            list.add(n);
-        }
-        return list;
-    }
-
-    /**
      * @param node
      * @return either a List with this node, or an empty list if node is null.
      */

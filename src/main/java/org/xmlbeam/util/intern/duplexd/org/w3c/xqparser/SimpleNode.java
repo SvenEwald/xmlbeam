@@ -51,9 +51,9 @@ class SimpleNode implements Node {
     }
 
     // Factory method
-    public static Node jjtCreate(final XParser p, final int id) {
-        return new SimpleNode(p, id);
-    }
+//    public static Node jjtCreate(final XParser p, final int id) {
+//        return new SimpleNode(p, id);
+//    }
 
     @Override
     public void jjtOpen() {
@@ -236,15 +236,15 @@ class SimpleNode implements Node {
         this.m_value = m_value;
     }
 
-    private Object _userValue;
-
-    protected Object getUserValue() {
-        return _userValue;
-    }
-
-    protected void setUserValue(final Object userValue) {
-        _userValue = userValue;
-    }
+//    private Object _userValue;
+//
+//    protected Object getUserValue() {
+//        return _userValue;
+//    }
+//
+//    protected void setUserValue(final Object userValue) {
+//        _userValue = userValue;
+//    }
 
     public int getID() {
         return id;

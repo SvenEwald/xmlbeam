@@ -96,13 +96,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param duplexExpression
      * @param elementSelector
      */
-    private int applyCollectionSetOnElement(final Class<?> componentClass, final Collection<?> collection, final Element parentElement, final DuplexExpression duplexExpression) {
+    private int applyCollectionSetOnElement(final Collection<?> collection, final Element parentElement, final DuplexExpression duplexExpression) {
         for (Object o : collection) {
-            try {
-                o = ReflectionHelper.unwrap(componentClass, o);
-            } catch (Exception e) {
-                throw new IllegalArgumentException(e);
-            }
             if (o == null) {
                 continue;
             }
@@ -578,7 +573,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         assert document != null;
         final int findIndexOfValue = findIndexOfValue(method);
         final Object valueToSet = args[findIndexOfValue];
-        final Type typeToSet = method.getGenericParameterTypes()[findIndexOfValue];
         final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
 
         // ROOT element update
@@ -599,11 +593,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
                     throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
                 }
-                Class<?> componentClass = Object.class;
-                if (typeToSet instanceof ParameterizedType) {
-                    Type componentType = ((ParameterizedType) typeToSet).getActualTypeArguments()[0];
-                    componentClass = ReflectionHelper.upperBoundAsClass(componentType);
-                }
                 final Collection<?> collection2Set = valueToSet == null ? Collections.emptyList() : (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
                 if (wildCardTarget) {
                     // TODO: check support of ParameterizedType e.g. Supplier
@@ -613,11 +602,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     for (Object o : collection2Set) {
                         if (o == null) {
                             continue;
-                        }
-                        try {
-                            o = ReflectionHelper.unwrap(componentClass, o);
-                        } catch (Exception e) {
-                            throw new IllegalArgumentException(e);
                         }
                         ++count;
                         if (o instanceof Node) {
@@ -634,7 +618,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 final Element parentElement = duplexExpression.ensureParentExistence(node);
                 duplexExpression.deleteAllMatchingChildren(parentElement);
-                int count = applyCollectionSetOnElement(componentClass, collection2Set, parentElement, duplexExpression);
+                int count = applyCollectionSetOnElement(collection2Set, parentElement, duplexExpression);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
             }
 

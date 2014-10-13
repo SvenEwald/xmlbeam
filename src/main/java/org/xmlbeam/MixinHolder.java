@@ -17,6 +17,7 @@ package org.xmlbeam;
 
 /**
  */
+@SuppressWarnings("ucd")
 public interface MixinHolder {
 
     /**
@@ -26,7 +27,7 @@ public interface MixinHolder {
      * mixin implementation per projection and mixin type is possible. All existing and all future
      * projection instances will change. Notice that you will break projection serialization if you
      * register a non serializeable mixin.
-     * 
+     *
      * @param projectionInterface
      * @param mixinImplementation
      * @return this for convenience
@@ -35,7 +36,7 @@ public interface MixinHolder {
 
     /**
      * Get the mixin implementation registered for the given projection.
-     * 
+     *
      * @param projectionInterface
      * @param mixinInterface
      * @return the registered mixin implementation. null if none is present.
@@ -44,7 +45,7 @@ public interface MixinHolder {
 
     /**
      * Remove the mixin implementation registered for the given projection.
-     * 
+     *
      * @param projectionInterface
      * @param mixinInterface
      * @return the registered mixin implementation. null if none was present.
