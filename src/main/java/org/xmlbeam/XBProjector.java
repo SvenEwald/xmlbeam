@@ -472,14 +472,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
             Format[] formats = new MessageFormat(url).getFormatsByArgumentIndex();
             for (int i = 0; i < optionalParams.length; ++i) {
                 if (i >= formats.length) {
-                    if ((optionalParams[i] instanceof Map)) {
-                        requestParams.putAll((Map<? extends String, ? extends String>) optionalParams[i]);
+                    if ((optionalParams[i] instanceof Map<?, ?>)) {
+                        requestParams.putAll((Map<String, String>) optionalParams[i]);
                     }
                     continue;
                 }
                 if (formats[i] == null) {
-                    if ((optionalParams[i] instanceof Map)) {
-                        requestParams.putAll((Map<? extends String, ? extends String>) optionalParams[i]);
+                    if ((optionalParams[i] instanceof Map<?, ?>)) {
+                        requestParams.putAll((Map<String, String>) optionalParams[i]);
                     }
                 }
             }
