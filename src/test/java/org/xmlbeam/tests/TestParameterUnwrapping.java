@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
@@ -60,7 +61,8 @@ public class TestParameterUnwrapping {
     }
 
     @SuppressWarnings("unchecked")
-    @Test
+    @Ignore
+    // Nobody wants this, maybe we support this later on demand.
     public void testUnwrappInCollection() {
         List<Callable<String>> collection = Arrays.asList(new Callable<String>() {
 
