@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
@@ -95,4 +96,13 @@ public class TestDOMAccess {
         assertEquals(9, projection.getAllItems().size());
     }
 
+    @Test
+    public void testBaseElementAccess() {
+        DOMAccess domAccess = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectXMLString("<foo><bar/></foo>", DOMAccess.class);
+        assertEquals("foo", domAccess.getDOMBaseElement().getNodeName());
+        Element bar = (Element) domAccess.getDOMBaseElement().getElementsByTagName("bar").item(0);
+        DOMAccess domAccessForBar = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectDOMNode(bar, DOMAccess.class);
+        assertEquals("bar", domAccessForBar.getDOMBaseElement().getNodeName());
+        assertEquals("bar", domAccessForBar.getDOMNode().getNodeName());
+    }
 }
