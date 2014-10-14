@@ -52,6 +52,7 @@ import org.xmlbeam.annotation.XBUpdate;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -73,37 +74,45 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private static class ReflectionInvoker implements InvocationHandler {
         private final Object obj;
+        private final Method method;
 
-        ReflectionInvoker(final Object obj) {
+        ReflectionInvoker(final Method method, final Object obj) {
             this.obj = obj;
+            this.method = method;
         }
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            return method.invoke(obj, args);
+            return this.method.invoke(obj, args);
         }
     }
 
     private static abstract class ProjectionMethodInvocationHandler implements InvocationHandler {
         private final Method method;
         private final String annotationValue;
+        private final Externalizer externalizer;
 
-        ProjectionMethodInvocationHandler(final Method method, final String annotationValue) {
+        ProjectionMethodInvocationHandler(final Method method, final String annotationValue, final Externalizer externalizer) {
             this.method = method;
             this.annotationValue = annotationValue;
+            this.externalizer = externalizer;
+        }
+
+        protected String resolveXPath(final Object[] args) {
+            return ProjectionInvocationHandler.applyParams(externalizer.resolveXPath(annotationValue, method, args), method, args);
         }
 
     }
 
     private static abstract class XPathInvocationHandler extends ProjectionMethodInvocationHandler {
-        XPathInvocationHandler(final Method method, final String annotationValue) {
-            super(method, annotationValue);
+        XPathInvocationHandler(final Method method, final String annotationValue, final Externalizer externalizer) {
+            super(method, annotationValue, externalizer);
         }
     }
 
     private static class ReadInvocationHandler extends XPathInvocationHandler {
-        ReadInvocationHandler(final Method method, final String annotationValue) {
-            super(method, annotationValue);
+        ReadInvocationHandler(final Method method, final String annotationValue, final Externalizer externalizer) {
+            super(method, annotationValue, externalizer);
         }
 
         @Override
@@ -117,9 +126,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         /**
          * @param m
          * @param value
+         * @param externalizer
          */
-        public UpdateInvocationHandler(final Method m, final String value) {
-            super(m, value);
+        public UpdateInvocationHandler(final Method m, final String value, final Externalizer externalizer) {
+            super(m, value, externalizer);
         }
 
         @Override
@@ -134,9 +144,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         /**
          * @param m
          * @param value
+         * @param externalizer
          */
-        public DeleteInvocationHandler(final Method m, final String value) {
-            super(m, value);
+        public DeleteInvocationHandler(final Method m, final String value, final Externalizer externalizer) {
+            super(m, value, externalizer);
         }
 
         @Override
@@ -151,9 +162,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         /**
          * @param m
          * @param value
+         * @param externalizer
          */
-        public WriteInvocationHandler(final Method m, final String value) {
-            super(m, value);
+        public WriteInvocationHandler(final Method m, final String value, final Externalizer externalizer) {
+            super(m, value, externalizer);
         }
 
         @Override
@@ -184,11 +196,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private final Map<Method, InvocationHandler> handlers = new HashMap<Method, InvocationHandler>();
 
-    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokers, final boolean absentIsEmpty) {
+    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokerObjects, final boolean absentIsEmpty) {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
-        this.defaultInvokers = defaultInvokers;
+        this.defaultInvokers = defaultInvokerObjects;
         this.absentIsEmpty = absentIsEmpty;
 
         for (Method m : projectionInterface.getMethods()) {
@@ -200,28 +212,28 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             {
                 final XBRead readAnnotation = m.getAnnotation(XBRead.class);
                 if (readAnnotation != null) {
-                    handlers.put(m, new ReadInvocationHandler(m, readAnnotation.value()));
+                    handlers.put(m, new ReadInvocationHandler(m, readAnnotation.value(), projector.config().getExternalizer()));
                     continue;
                 }
             }
             {
                 final XBUpdate updateAnnotation = m.getAnnotation(XBUpdate.class);
                 if (updateAnnotation != null) {
-                    handlers.put(m, new UpdateInvocationHandler(m, updateAnnotation.value()));
+                    handlers.put(m, new UpdateInvocationHandler(m, updateAnnotation.value(), projector.config().getExternalizer()));
                     continue;
                 }
             }
             {
                 final XBWrite writeAnnotation = m.getAnnotation(XBWrite.class);
                 if (writeAnnotation != null) {
-                    handlers.put(m, new WriteInvocationHandler(m, writeAnnotation.value()));
+                    handlers.put(m, new WriteInvocationHandler(m, writeAnnotation.value(), projector.config().getExternalizer()));
                     continue;
                 }
             }
             {
                 final XBDelete delAnnotation = m.getAnnotation(XBDelete.class);
                 if (delAnnotation != null) {
-                    handlers.put(m, new DeleteInvocationHandler(m, delAnnotation.value()));
+                    handlers.put(m, new DeleteInvocationHandler(m, delAnnotation.value(), projector.config().getExternalizer()));
                     continue;
                 }
             }
@@ -229,18 +241,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
 
             if (customInvoker != null) {
-                handlers.put(m, new ReflectionInvoker(customInvoker));
+                handlers.put(m, new ReflectionInvoker(m, customInvoker));
                 continue;
             }
 
-            final Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
+            final Object defaultInvoker = defaultInvokerObjects.get(methodsDeclaringInterface);
             if (defaultInvoker != null) {
-                handlers.put(m, new ReflectionInvoker(defaultInvoker));
+                handlers.put(m, new ReflectionInvoker(m, defaultInvoker));
                 continue;
             }
-
             throw new IllegalArgumentException("I don't known how to handle method " + m + ". Did you forget to add a XB*-annotation or to register a mixin?");
-
         }
 
     }
