@@ -27,7 +27,6 @@ import org.junit.Test;
 @SuppressWarnings("javadoc")
 public class TestPreprocessor {
 
-    ProjectionInvocationHandler handler = new ProjectionInvocationHandler(null, null, null, null, false);
     static Method m;
 
     @BeforeClass
@@ -37,7 +36,7 @@ public class TestPreprocessor {
     }
 
     private String applyParams(final String string, final Method method, final Object[] args) throws Exception {
-        return (String) m.invoke(handler, string, method, args);
+        return (String) m.invoke(null, string, method, args);
     }
 
     @Test
