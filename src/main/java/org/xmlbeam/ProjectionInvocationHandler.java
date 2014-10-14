@@ -25,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +70,108 @@ import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBPathParsingException;
  */
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
+
+    private static class ReflectionInvoker implements InvocationHandler {
+        private final Object obj;
+
+        ReflectionInvoker(final Object obj) {
+            this.obj = obj;
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            return method.invoke(obj, args);
+        }
+    }
+
+    private static abstract class ProjectionMethodInvocationHandler implements InvocationHandler {
+        private final Method method;
+        private final String annotationValue;
+
+        ProjectionMethodInvocationHandler(final Method method, final String annotationValue) {
+            this.method = method;
+            this.annotationValue = annotationValue;
+        }
+
+    }
+
+    private static abstract class XPathInvocationHandler extends ProjectionMethodInvocationHandler {
+        XPathInvocationHandler(final Method method, final String annotationValue) {
+            super(method, annotationValue);
+        }
+    }
+
+    private static class ReadInvocationHandler extends XPathInvocationHandler {
+        ReadInvocationHandler(final Method method, final String annotationValue) {
+            super(method, annotationValue);
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            return null;
+        }
+    }
+
+    private static class UpdateInvocationHandler extends XPathInvocationHandler {
+
+        /**
+         * @param m
+         * @param value
+         */
+        public UpdateInvocationHandler(final Method m, final String value) {
+            super(m, value);
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            return null;
+        }
+
+    }
+
+    private static class DeleteInvocationHandler extends XPathInvocationHandler {
+
+        /**
+         * @param m
+         * @param value
+         */
+        public DeleteInvocationHandler(final Method m, final String value) {
+            super(m, value);
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            return null;
+        }
+
+    }
+
+    private static class WriteInvocationHandler extends XPathInvocationHandler {
+
+        /**
+         * @param m
+         * @param value
+         */
+        public WriteInvocationHandler(final Method m, final String value) {
+            super(m, value);
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            return null;
+        }
+
+    }
+
     private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
     private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}", Pattern.LITERAL);
+    private static final InvocationHandler DEFAULT_METHOD_INVOCATION_HANDLER = new InvocationHandler() {
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
+        }
+    };
     private final Node node;
     private final Class<?> projectionInterface;
     private final XBProjector projector;
@@ -81,12 +182,67 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     // treat absent nodes as empty nodes
     private final boolean absentIsEmpty;
 
+    private final Map<Method, InvocationHandler> handlers = new HashMap<Method, InvocationHandler>();
+
     ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokers, final boolean absentIsEmpty) {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
         this.defaultInvokers = defaultInvokers;
         this.absentIsEmpty = absentIsEmpty;
+
+        for (Method m : projectionInterface.getMethods()) {
+            if (ReflectionHelper.isDefaultMethod(m)) {
+                handlers.put(m, DEFAULT_METHOD_INVOCATION_HANDLER);
+                continue;
+            }
+
+            {
+                final XBRead readAnnotation = m.getAnnotation(XBRead.class);
+                if (readAnnotation != null) {
+                    handlers.put(m, new ReadInvocationHandler(m, readAnnotation.value()));
+                    continue;
+                }
+            }
+            {
+                final XBUpdate updateAnnotation = m.getAnnotation(XBUpdate.class);
+                if (updateAnnotation != null) {
+                    handlers.put(m, new UpdateInvocationHandler(m, updateAnnotation.value()));
+                    continue;
+                }
+            }
+            {
+                final XBWrite writeAnnotation = m.getAnnotation(XBWrite.class);
+                if (writeAnnotation != null) {
+                    handlers.put(m, new WriteInvocationHandler(m, writeAnnotation.value()));
+                    continue;
+                }
+            }
+            {
+                final XBDelete delAnnotation = m.getAnnotation(XBDelete.class);
+                if (delAnnotation != null) {
+                    handlers.put(m, new DeleteInvocationHandler(m, delAnnotation.value()));
+                    continue;
+                }
+            }
+            final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(m, projectionInterface);
+            final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
+
+            if (customInvoker != null) {
+                handlers.put(m, new ReflectionInvoker(customInvoker));
+                continue;
+            }
+
+            final Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
+            if (defaultInvoker != null) {
+                handlers.put(m, new ReflectionInvoker(defaultInvoker));
+                continue;
+            }
+
+            throw new IllegalArgumentException("I don't known how to handle method " + m + ". Did you forget to add a XB*-annotation or to register a mixin?");
+
+        }
+
     }
 
     /**
@@ -229,7 +385,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param args
      * @return a string with all place holders filled by given parameters
      */
-    private String applyParams(String string, final Method method, final Object[] args) {
+    private static String applyParams(String string, final Method method, final Object[] args) {
         if (args != null) {
             int c = 0;
             for (String param : ReflectionHelper.getMethodParameterNames(method)) {
@@ -261,7 +417,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param object
      * @return replaced string
      */
-    private String replaceAllIfNotQuoted(final String string, final String pattern, String replacement) {
+    private static String replaceAllIfNotQuoted(final String string, final String pattern, String replacement) {
         replacement = Matcher.quoteReplacement(replacement);
         Pattern compile = Pattern.compile(pattern, Pattern.LITERAL);
         Matcher matcher = compile.matcher(string);
