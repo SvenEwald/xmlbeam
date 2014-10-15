@@ -506,58 +506,66 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      */
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-        unwrapArgs(method.getParameterTypes(), args);
-        {
-            String resolvedXpath = null;
+        final InvocationHandler invocationHandler = handlers.get(method);
+        if (invocationHandler != null) {
             try {
-                {
-                    final XBRead readAnnotation = method.getAnnotation(XBRead.class);
-                    if (readAnnotation != null) {
-                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), method, args);
-                        return invokeGetter(proxy, method, resolvedXpath, args);
-                    }
-                }
-                {
-                    final XBUpdate updateAnnotation = method.getAnnotation(XBUpdate.class);
-                    if (updateAnnotation != null) {
-                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(updateAnnotation.value(), method, args), method, args);
-                        return invokeUpdater(proxy, method, resolvedXpath, args);
-                    }
-                }
-                {
-                    final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
-                    if (writeAnnotation != null) {
-                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), method, args);
-                        return invokeSetter(proxy, method, resolvedXpath, args);
-                    }
-                }
-                {
-                    final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
-                    if (delAnnotation != null) {
-                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), method, args);
-                        return invokeDeleter(proxy, method, resolvedXpath, args);
-                    }
-                }
+                return invocationHandler.invoke(proxy, method, args);
             } catch (XPathExpressionException e) {
-                throw new XBPathException(e, method, resolvedXpath);
+                throw new XBPathException(e, method, "??");
             }
         }
-        final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
-        final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
-
-        if (customInvoker != null) {
-            injectMeAttribute((InternalProjection) proxy, customInvoker);
-            return method.invoke(customInvoker, args);
-        }
-
-        final Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
-        if (defaultInvoker != null) {
-            return method.invoke(defaultInvoker, args);
-        }
-
-        if (ReflectionHelper.isDefaultMethod(method)) {
-            return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
-        }
+//        unwrapArgs(method.getParameterTypes(), args);
+//        {
+//            String resolvedXpath = null;
+//            try {
+//                {
+//                    final XBRead readAnnotation = method.getAnnotation(XBRead.class);
+//                    if (readAnnotation != null) {
+//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), method, args);
+//                        return invokeGetter(proxy, method, resolvedXpath, args);
+//                    }
+//                }
+//                {
+//                    final XBUpdate updateAnnotation = method.getAnnotation(XBUpdate.class);
+//                    if (updateAnnotation != null) {
+//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(updateAnnotation.value(), method, args), method, args);
+//                        return invokeUpdater(proxy, method, resolvedXpath, args);
+//                    }
+//                }
+//                {
+//                    final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
+//                    if (writeAnnotation != null) {
+//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), method, args);
+//                        return invokeSetter(proxy, method, resolvedXpath, args);
+//                    }
+//                }
+//                {
+//                    final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
+//                    if (delAnnotation != null) {
+//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), method, args);
+//                        return invokeDeleter(proxy, method, resolvedXpath, args);
+//                    }
+//                }
+//            } catch (XPathExpressionException e) {
+//                throw new XBPathException(e, method, resolvedXpath);
+//            }
+//        }
+//        final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
+//        final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
+//
+//        if (customInvoker != null) {
+//            injectMeAttribute((InternalProjection) proxy, customInvoker);
+//            return method.invoke(customInvoker, args);
+//        }
+//
+//        final Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
+//        if (defaultInvoker != null) {
+//            return method.invoke(defaultInvoker, args);
+//        }
+//
+//        if (ReflectionHelper.isDefaultMethod(method)) {
+//            return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
+//        }
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }
 
