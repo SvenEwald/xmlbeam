@@ -23,6 +23,9 @@ API Reference
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard0|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java} 
 
 **Create a projection from scratch
+
+ You may start with an empty document and create the content by writing projection methods.
+ Projections are bidirectional.
  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard1|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
@@ -34,16 +37,19 @@ API Reference
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard2b|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
-
 **Create a projection for a DOM Document or Element
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard3|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Read or write a projection to a file
 
+ Read XML documents directly into projections or write XML files with one line of code.
+ 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard4|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
 **Read or write a projection with a document origin annotation "@XBDocURL"
+
+ You may delegate the specification of the document origin to the projection interface. 
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard5|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
@@ -134,16 +140,18 @@ API Reference
 
  This annotation declares a projection method to update single values on one or more nodes (elements or attributes).
  In contrast to @XBWrite, here the XPath syntax is not limited.
-
-*** @XBValue
-
-  A setter must have at least one parameter.
-  If you choose to declare more than one parameter (because you use them as MessageFormat parameters) then you should mark the parameter to be set in the document with this annotation.
-  If you don't, the first parameter will be the "setting parameter".
   
 ** @XBDelete
 
  The easiest way to remove something from a document is to declare a deleter method.
  Again this annotation takes a XPath expression as parameter.
  Again only XPath expressions selecting Nodes or NodeSets are valid here.  
+
+** Annotation on method parameters
+
+*** @XBValue
+
+  A setter must have at least one parameter.
+  If you choose to declare more than one parameter (because you use them as MessageFormat parameters) then you should mark the parameter to be set in the document with this annotation.
+  If you don't, the first parameter will be the "setting parameter".
  

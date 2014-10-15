@@ -59,13 +59,16 @@ FAQ / HowTo
   * Cast your projection directly to DOMAccess. 
     The projector makes sure that every projection instance implements this interface.
     
-  * Just declare org.w3c.dom.Node as a return type or a parameter on a projection method.  
+  * Just declare org.w3c.dom.Node as a return type or a parameter on a projection method. 
+  
+ You may change the DOM any time, projections will reflect the changes automatically.  
     
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}    
    
 * How do I implement the toString() method for my projection?
 
- You want to create a mixin: 
+ With Java 8, just define a defautl mehtod in your projection interface.
+ For Java 6 & 7 you want to create a mixin: 
  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinOverridingToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
 
@@ -98,11 +101,4 @@ FAQ / HowTo
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#OwnXPathImplementation|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
 
-* A single quote "'" in the XPath results in an unexpected exception. Why?
-
- The following applies to versions before 1.2.0, which solves this issue. 
- Mind that every XPath is processed java.text.MessageFormat.
- So if you want to use a single quote "'", you have to escape that with another single quote: "''"
- The projector does not decide if an expressions should be processed via MessageFormat or not.
- Simply all expressions are passed through this class and therefore the single quote must be quoted even if the method has no parameters.
   
