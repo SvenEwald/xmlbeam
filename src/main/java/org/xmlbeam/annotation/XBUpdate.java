@@ -35,7 +35,7 @@ public @interface XBUpdate {
      * @return XPath expression. (Can be omitted if your
      *         {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
      */
-    String path() default "";
+    String value() default "";
 
     String format() default "";
 }
