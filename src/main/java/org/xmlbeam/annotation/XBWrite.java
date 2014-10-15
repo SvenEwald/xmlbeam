@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * Define a writeable projection function for elements of a projection.
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,10 @@ public @interface XBWrite {
     /**
      * XPath expression to project XML data to return type of decorated method.
      *
-     * @return XPath expression. (Can be omitted if your {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
+     * @return XPath expression. (Can be omitted if your
+     *         {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
      */
-    String value() default "";
+    String path() default "";
+
+    String format() default "";
 }
