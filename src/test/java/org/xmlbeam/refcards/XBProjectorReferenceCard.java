@@ -15,10 +15,10 @@
  */
 package org.xmlbeam.refcards;
 
-import java.util.Map;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.w3c.dom.Node;
@@ -29,39 +29,40 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.util.IOHelper;
 
 /**
- * 
+ *
  */
 @SuppressWarnings("javadoc")
 public class XBProjectorReferenceCard {
-    
+
     //START SNIPPET: mainExample
     public interface Example {
-        
+
         @XBRead("/xml/example/content")
         String getContent();
-        
+
         @XBRead("/xml/example/content/@type")
         String getType();
-        
+
     }
     //END SNIPPET: mainExample
-    
-    //START SNIPPET: XBProjectorReferenceCardI     
+
+    //START SNIPPET: XBProjectorReferenceCardI
     public interface Projection {
         // Define your projection methods in a public interface.
     };
-    
+
     @XBDocURL("http://...")
     public interface ProjectionWithSourceDeclaration {
         // Define your projection methods in a public interface.
+        // You may add a document url to specify where to get the document for this projection.
     }
 
-    
+    //END SNIPPET: XBProjectorReferenceCardI
+
 //START SNIPPET: XBProjectorReferenceCard0
-XBProjector projector = new XBProjector();       
+XBProjector projector = new XBProjector();
 //END SNIPPET: XBProjectorReferenceCard0
 
-  //END SNIPPET: XBProjectorReferenceCardI
     @SuppressWarnings("unused")
     @Ignore
     // This must compile, but it won't run
@@ -78,9 +79,8 @@ XBProjector projector = new XBProjector();
         Node node = null;
         String systemID = null;
 
-
         {
-//START SNIPPET: XBProjectorReferenceCard1      
+//START SNIPPET: XBProjectorReferenceCard1
         Projection projection = projector.projectEmptyDocument(Projection.class);
 
         Projection subProjection = projector.projectEmptyElement(name, Projection.class);
@@ -94,7 +94,7 @@ XBProjector projector = new XBProjector();
 //START SNIPPET: XBProjectorReferenceCard2b
         // Let the projector convert your projection
         String xml = projector.asString(projection);
-        
+
         // Or, configure the projector this way before you create a projection
         XBProjector projector  = new XBProjector(Flags.TO_STRING_RENDERS_XML);
         //... and later call:
@@ -153,57 +153,57 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
             projector.io().stream(os).write(projection);
 //END SNIPPET: XBProjectorReferenceCard9
         }
-    }        
-       
+    }
+
 //START SNIPPET: XBProjectorReferenceCard10
     public interface MyProjection {
         @XBRead("some/path/to/data")
         MyCustomType getData();
     }
-//END SNIPPET: XBProjectorReferenceCard10  
-     
-//START SNIPPET: XBProjectorReferenceCard11    
+//END SNIPPET: XBProjectorReferenceCard10
+
+//START SNIPPET: XBProjectorReferenceCard11
     public class MyCustomType {
-        public MyCustomType(String data) {
+        public MyCustomType(final String data) {
             //...
         }
     }
-//END SNIPPET: XBProjectorReferenceCard11   
-    
-//START SNIPPET: XBProjectorReferenceCard12    
-    public static MyCustomType valueOf(String data) {
-        return somehowCreateInstanceFor(data);
-    }      
-    
-    public static MyCustomType of(String data) {
-        return somehowCreateInstanceFor(data);
-    } 
-    
-    public static MyCustomType parse(String data) {
-        return somehowCreateInstanceFor(data);
-    } 
-    
-    public static MyCustomType getInstance(String data) {
-        return somehowCreateInstanceFor(data);
-    } 
-//END SNIPPET: XBProjectorReferenceCard12 
+//END SNIPPET: XBProjectorReferenceCard11
 
-        public static MyCustomType somehowCreateInstanceFor(Object o) {
-            return null;
-        }
-        
-  interface Snipped13 {        
+//START SNIPPET: XBProjectorReferenceCard12
+    public static MyCustomType valueOf(final String data) {
+        return somehowCreateInstanceFor(data);
+    }
+
+    public static MyCustomType of(final String data) {
+        return somehowCreateInstanceFor(data);
+    }
+
+    public static MyCustomType parse(final String data) {
+        return somehowCreateInstanceFor(data);
+    }
+
+    public static MyCustomType getInstance(final String data) {
+        return somehowCreateInstanceFor(data);
+    }
+//END SNIPPET: XBProjectorReferenceCard12
+
+    public static MyCustomType somehowCreateInstanceFor(final Object o) {
+        return null;
+    }
+
+    interface Snipped13 {
 //START SNIPPET: XBProjectorReferenceCard13
     @XBRead("/{parentNode}/{subnode}[@id='{id}']")
     String readSomeValue(String parentNode,String subnode,int id);
-//END SNIPPET: XBProjectorReferenceCard13       
- }
-  
-  interface Snipped14 {        
+//END SNIPPET: XBProjectorReferenceCard13
+    }
+
+    interface Snipped14 {
 //START SNIPPET: XBProjectorReferenceCard14
     @XBRead("/{0}/{1}[@id='{2}']")
     String readSomeValue(String parentNode,String subnode,int id);
-//END SNIPPET: XBProjectorReferenceCard14     
- }
-    
+//END SNIPPET: XBProjectorReferenceCard14
+    }
+
 }
