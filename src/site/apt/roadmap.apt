@@ -37,13 +37,14 @@ Roadmap
  
  * Enhance handling of non existing nodes.
  
- * Breaking API by small bugfix in handling w3c nodes as values
+ * Breaking API by small bugfix in handling w3c nodes as values (no one seems to use this feature anyway ;-)
  
  * Breaking API by changing changing the default value for String conversion to null
+   You may get NullPointerExceptions for absent elements or attributes. (There is a flag to choose the previous behavior.)
  
 * Version 1.3.0
 
- * Enhance behavior on non existing values 
+ * Enhance behavior on non existing values. (For primitive types, not for String).
  
 * Version 1.2.1
 
@@ -83,7 +84,7 @@ Roadmap
  
  * Minor changes in unit tests 
 
-* Version 1.0 (current stable realese) 
+* Version 1.0  
 
 * Version 1.x
 
