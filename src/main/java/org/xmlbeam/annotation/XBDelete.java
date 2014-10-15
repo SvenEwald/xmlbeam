@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * Define a projection function to delete elements or attributes.
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -31,8 +31,9 @@ public @interface XBDelete {
 
     /**
      * XPath expression to select XML nodes to be deleted.
-     * 
-     * @return XPath expression. (Can be omitted if your {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
+     *
+     * @return XPath expression. (Can be omitted if your
+     *         {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
      */
-    String value() default "";
+    String path() default "";
 }
