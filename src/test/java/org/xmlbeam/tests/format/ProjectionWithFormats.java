@@ -9,13 +9,13 @@ import org.xmlbeam.annotation.XBRead;
 @SuppressWarnings("javadoc")
 public interface ProjectionWithFormats {
 
-    static DateFormat dateFormat = new SimpleDateFormat("%Y");
+    static DateFormat dateFormat = new SimpleDateFormat("yyyy");
 
 //   static Date asDate(final String string) {
 //        return new Date();
 //    }
 
-    @XBRead(value = "/foo/bar/date", format = "%YYYYMMDD")
+    @XBRead("/foo/bar/date%YYYYMMDD")
     Date getDate();
 
     @XBRead("/some/date")

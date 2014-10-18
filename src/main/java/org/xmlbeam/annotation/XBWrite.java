@@ -36,6 +36,4 @@ public @interface XBWrite {
      *         {@link org.xmlbeam.externalizer.Externalizer} implementation provides a path.)
      */
     String value() default "";
-
-    String format() default "";
 }
