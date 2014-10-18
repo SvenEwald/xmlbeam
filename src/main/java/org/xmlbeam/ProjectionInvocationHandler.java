@@ -468,7 +468,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final Class<?> returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
         if (projector.config().getTypeConverter().isConvertable(returnType)) {
             String data;
-            if (ExpressionType.VALUE == expressionType) {
+            if (expressionType.isMustEvalAsString()) {
                 data = (String) expression.evaluate(node, XPathConstants.STRING);
             } else {
                 Node dataNode = (Node) expression.evaluate(node, XPathConstants.NODE);
@@ -585,7 +585,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final boolean wildCardTarget = path.endsWith("/*");
         try {
             final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(path.substring(0, path.length() - 2)) : new DuplexXPathParser().compile(path);
-            if (duplexExpression.getExpressionType().equals(ExpressionType.VALUE)) {
+            if (duplexExpression.getExpressionType().isMustEvalAsString()) {
                 throw new XBPathException("Unwriteable xpath selector used ", method, path);
             }
             // MULTIVALUE
