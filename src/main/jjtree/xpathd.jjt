@@ -1122,13 +1122,13 @@ TOKEN :
 <DEFAULT>
 TOKEN :
 {
- < Lbrace : "{" > { pushState(); } : DEFAULT
+ < Lbrace : "{{" > { pushState(); } : DEFAULT
 }
 
 <DEFAULT>
 TOKEN :
 {
- < Rbrace : "}" > { popState(); }
+ < Rbrace : "}}" > { popState(); }
 }
 
 <DEFAULT>
