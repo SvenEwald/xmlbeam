@@ -31,7 +31,7 @@ Roadmap
  
  * Handling of type conversions which depend on a format. (Date, Numbers, ...?)
  
-* Version 1.4.0
+* Version 1.4.0 (current release)
 
  * Replace current simple XPath-DOM-Writer with a full XPath capable parser (implemented in jcc branch)
  
