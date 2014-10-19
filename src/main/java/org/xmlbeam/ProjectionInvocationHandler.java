@@ -17,6 +17,7 @@ package org.xmlbeam;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -29,10 +30,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -71,25 +77,129 @@ import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XBPathParsingException;
  */
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
+    private class DefaultDOMAccessInvoker implements DOMAccess {
+        private final Node documentOrElement;
+        private final Class<?> projectionInterface;
+
+        /**
+         * @param documentOrElement
+         * @param projectionInterface
+         */
+        private DefaultDOMAccessInvoker(final Node documentOrElement, final Class<?> projectionInterface) {
+            this.documentOrElement = documentOrElement;
+            this.projectionInterface = projectionInterface;
+        }
+
+        @Override
+        public Class<?> getProjectionInterface() {
+            return projectionInterface;
+        }
+
+        @Override
+        public Node getDOMNode() {
+            return documentOrElement;
+        }
+
+        @Override
+        public Document getDOMOwnerDocument() {
+            return DOMHelper.getOwnerDocumentFor(documentOrElement);
+        }
+
+        @Override
+        public Element getDOMBaseElement() {
+            if (Node.DOCUMENT_NODE == documentOrElement.getNodeType()) {
+                return ((Document) documentOrElement).getDocumentElement();
+            }
+            assert Node.ELEMENT_NODE == documentOrElement.getNodeType();
+            return (Element) documentOrElement;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (!(o instanceof DOMAccess)) {
+                return false;
+            }
+            DOMAccess op = (DOMAccess) o;
+            if (!projectionInterface.equals(op.getProjectionInterface())) {
+                return false;
+            }
+            // Unfortunately Node.isEqualNode() is implementation specific and does
+            // not need to match our hashCode implementation.
+            // So we define our own node equality.
+            return DOMHelper.nodesAreEqual(documentOrElement, op.getDOMNode());
+        }
+
+        @Override
+        public int hashCode() {
+            return (31 * projectionInterface.hashCode()) + (27 * DOMHelper.nodeHashCode(documentOrElement));
+        }
+
+        @Override
+        public String asString() {
+            try {
+                final StringWriter writer = new StringWriter();
+                projector.config().createTransformer().transform(new DOMSource(getDOMNode()), new StreamResult(writer));
+                final String output = writer.getBuffer().toString();
+                return output;
+            } catch (TransformerConfigurationException e) {
+                throw new RuntimeException(e);
+            } catch (TransformerException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private final class DefaultObjectInvoker extends DefaultDOMAccessInvoker {
+        private DefaultObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
+            super(documentOrElement, projectionInterface);
+        }
+
+        @Override
+        public String toString() {
+            final String typeDesc = getDOMNode().getNodeType() == Node.DOCUMENT_NODE ? "document '" + getDOMNode().getBaseURI() + "'" : "element " + "'" + getDOMNode().getNodeName() + "[" + Integer.toString(getDOMNode().hashCode(), 16) + "]'";
+            return "Projection [" + getProjectionInterface().getName() + "]" + " to " + typeDesc;
+        }
+    }
+
+    private final class XMLRenderingObjectInvoker extends DefaultDOMAccessInvoker {
+        private XMLRenderingObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
+            super(documentOrElement, projectionInterface);
+        }
+
+        @Override
+        public String toString() {
+            return super.asString();
+        }
+    }
+
+    private Map<Method, InvocationHandler> getDefaultInvokers(final Object defaultInvokerObject) {
+        final ReflectionInvoker reflectionInvoker = new ReflectionInvoker(defaultInvokerObject);
+        final Map<Method, InvocationHandler> invokers = new HashMap<Method, InvocationHandler>();
+        for (Method m : DOMAccess.class.getMethods()) {
+            invokers.put(m, reflectionInvoker);
+        }
+        invokers.put(ReflectionHelper.findMethodByName(Object.class, "toString"), reflectionInvoker);
+        invokers.put(ReflectionHelper.findMethodByName(Object.class, "equals"), reflectionInvoker);
+        invokers.put(ReflectionHelper.findMethodByName(Object.class, "hashCode"), reflectionInvoker);
+        return Collections.unmodifiableMap(invokers);
+    }
 
     private static class ReflectionInvoker implements InvocationHandler {
         private final Object obj;
-        private final Method method;
 
-        ReflectionInvoker(final Method method, final Object obj) {
+        ReflectionInvoker(final Object obj) {
             this.obj = obj;
-            this.method = method;
         }
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            return this.method.invoke(obj, args);
+            return method.invoke(obj, args);
         }
     }
 
     private static abstract class ProjectionMethodInvocationHandler implements InvocationHandler {
         private final Method method;
-        private final String annotationValue;
+        protected final String annotationValue;
         private final Externalizer externalizer;
 
         ProjectionMethodInvocationHandler(final Method method, final String annotationValue, final Externalizer externalizer) {
@@ -110,18 +220,20 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
     }
 
-    private static class ReadInvocationHandler extends XPathInvocationHandler {
+    private class ReadInvocationHandler extends XPathInvocationHandler {
         ReadInvocationHandler(final Method method, final String annotationValue, final Externalizer externalizer) {
             super(method, annotationValue, externalizer);
         }
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            return null;
+            final String resolvedXpath = applyParams(resolveXPath(args), method, args);
+            return invokeGetter(proxy, method, resolvedXpath, args);
+
         }
     }
 
-    private static class UpdateInvocationHandler extends XPathInvocationHandler {
+    private class UpdateInvocationHandler extends XPathInvocationHandler {
 
         /**
          * @param m
@@ -134,12 +246,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            return null;
+            final String resolvedXpath = applyParams(resolveXPath(args), method, args);
+            return invokeUpdater(proxy, method, resolvedXpath, args);
+
         }
 
     }
 
-    private static class DeleteInvocationHandler extends XPathInvocationHandler {
+    private class DeleteInvocationHandler extends XPathInvocationHandler {
 
         /**
          * @param m
@@ -152,12 +266,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            return null;
+            final String resolvedXpath = applyParams(resolveXPath(args), method, args);
+            return invokeDeleter(proxy, method, resolvedXpath, args);
         }
 
     }
 
-    private static class WriteInvocationHandler extends XPathInvocationHandler {
+    private class WriteInvocationHandler extends XPathInvocationHandler {
 
         /**
          * @param m
@@ -170,10 +285,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            return null;
+            final String resolvedXpath = applyParams(resolveXPath(args), method, args);
+            return invokeSetter(proxy, method, resolvedXpath, args);
         }
 
     }
+
+    private final Map<Method, InvocationHandler> defaultInvocationHandlers;
 
     private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
     private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}", Pattern.LITERAL);
@@ -189,68 +307,79 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private final XBProjector projector;
 
     // Used to handle invocations on Java6 Mixins and Object methods.
-    private final Map<Class<?>, Object> defaultInvokers;
+    //private final Map<Class<?>, Object> defaultInvokers;
 
     // treat absent nodes as empty nodes
     private final boolean absentIsEmpty;
 
     private final Map<Method, InvocationHandler> handlers = new HashMap<Method, InvocationHandler>();
 
-    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> defaultInvokerObjects, final boolean absentIsEmpty) {
+    //private final Object defaultInvokerObject;
+
+    ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final boolean toStringRendersXML, final boolean absentIsEmpty) {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
-        this.defaultInvokers = defaultInvokerObjects;
         this.absentIsEmpty = absentIsEmpty;
+        Object defaultInvokerObject = toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node) : new DefaultObjectInvoker(projectionInterface, node);
+        //final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(m, projectionInterface);
 
-        for (Method m : projectionInterface.getMethods()) {
-            if (ReflectionHelper.isDefaultMethod(m)) {
-                handlers.put(m, DEFAULT_METHOD_INVOCATION_HANDLER);
-                continue;
-            }
+        defaultInvocationHandlers = getDefaultInvokers(defaultInvokerObject);
+//        final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
+//        if (customInvoker != null) {
+//            handlers.put(m, new ReflectionInvoker(m, customInvoker));
+//            continue;
+//        }
 
-            {
-                final XBRead readAnnotation = m.getAnnotation(XBRead.class);
-                if (readAnnotation != null) {
-                    handlers.put(m, new ReadInvocationHandler(m, readAnnotation.value(), projector.config().getExternalizer()));
+        handlers.putAll(defaultInvocationHandlers);
+
+//        final Object defaultInvoker = defaultInvokerObjects.get(methodsDeclaringInterface);
+//        if (defaultInvoker != null) {
+//            handlers.put(m, new ReflectionInvoker(m, defaultInvoker));
+//            continue;
+//        }
+
+        Set<Class<?>> allSuperInterfaces = ReflectionHelper.findAllSuperInterfaces(projectionInterface);
+        for (Class<?> i7e : allSuperInterfaces) {
+            for (Method m : i7e.getMethods()) {
+                if (ReflectionHelper.isDefaultMethod(m)) {
+                    handlers.put(m, DEFAULT_METHOD_INVOCATION_HANDLER);
                     continue;
                 }
-            }
-            {
-                final XBUpdate updateAnnotation = m.getAnnotation(XBUpdate.class);
-                if (updateAnnotation != null) {
-                    handlers.put(m, new UpdateInvocationHandler(m, updateAnnotation.value(), projector.config().getExternalizer()));
+                if (defaultInvocationHandlers.containsKey(m)) {
                     continue;
                 }
-            }
-            {
-                final XBWrite writeAnnotation = m.getAnnotation(XBWrite.class);
-                if (writeAnnotation != null) {
-                    handlers.put(m, new WriteInvocationHandler(m, writeAnnotation.value(), projector.config().getExternalizer()));
-                    continue;
-                }
-            }
-            {
-                final XBDelete delAnnotation = m.getAnnotation(XBDelete.class);
-                if (delAnnotation != null) {
-                    handlers.put(m, new DeleteInvocationHandler(m, delAnnotation.value(), projector.config().getExternalizer()));
-                    continue;
-                }
-            }
-            final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(m, projectionInterface);
-            final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
 
-            if (customInvoker != null) {
-                handlers.put(m, new ReflectionInvoker(m, customInvoker));
-                continue;
+                {
+                    final XBRead readAnnotation = m.getAnnotation(XBRead.class);
+                    if (readAnnotation != null) {
+                        handlers.put(m, new ReadInvocationHandler(m, readAnnotation.value(), projector.config().getExternalizer()));
+                        continue;
+                    }
+                }
+                {
+                    final XBUpdate updateAnnotation = m.getAnnotation(XBUpdate.class);
+                    if (updateAnnotation != null) {
+                        handlers.put(m, new UpdateInvocationHandler(m, updateAnnotation.value(), projector.config().getExternalizer()));
+                        continue;
+                    }
+                }
+                {
+                    final XBWrite writeAnnotation = m.getAnnotation(XBWrite.class);
+                    if (writeAnnotation != null) {
+                        handlers.put(m, new WriteInvocationHandler(m, writeAnnotation.value(), projector.config().getExternalizer()));
+                        continue;
+                    }
+                }
+                {
+                    final XBDelete delAnnotation = m.getAnnotation(XBDelete.class);
+                    if (delAnnotation != null) {
+                        handlers.put(m, new DeleteInvocationHandler(m, delAnnotation.value(), projector.config().getExternalizer()));
+                        continue;
+                    }
+                }
+                throw new IllegalArgumentException("I don't known how to handle method " + m + ". Did you forget to add a XB*-annotation or to register a mixin?");
             }
-
-            final Object defaultInvoker = defaultInvokerObjects.get(methodsDeclaringInterface);
-            if (defaultInvoker != null) {
-                handlers.put(m, new ReflectionInvoker(m, defaultInvoker));
-                continue;
-            }
-            throw new IllegalArgumentException("I don't known how to handle method " + m + ". Did you forget to add a XB*-annotation or to register a mixin?");
         }
 
     }
@@ -507,6 +636,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         final InvocationHandler invocationHandler = handlers.get(method);
+        handlers.keySet();
         if (invocationHandler != null) {
             try {
                 return invocationHandler.invoke(proxy, method, args);
