@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -39,11 +38,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
@@ -131,112 +126,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
     private Externalizer externalizer = NOOP_EXTERNALIZER;
 
     private final Set<Flags> flags;
-
-    private class DefaultDOMAccessInvoker implements DOMAccess {
-        private final Node documentOrElement;
-        private final Class<?> projectionInterface;
-
-        /**
-         * @param documentOrElement
-         * @param projectionInterface
-         */
-        private DefaultDOMAccessInvoker(final Node documentOrElement, final Class<?> projectionInterface) {
-            this.documentOrElement = documentOrElement;
-            this.projectionInterface = projectionInterface;
-        }
-
-        @Override
-        public Class<?> getProjectionInterface() {
-            return projectionInterface;
-        }
-
-        @Override
-        public Node getDOMNode() {
-            return documentOrElement;
-        }
-
-        @Override
-        public Document getDOMOwnerDocument() {
-            return DOMHelper.getOwnerDocumentFor(documentOrElement);
-        }
-
-        @Override
-        public Element getDOMBaseElement() {
-            if (Node.DOCUMENT_NODE == documentOrElement.getNodeType()) {
-                return ((Document) documentOrElement).getDocumentElement();
-            }
-            assert Node.ELEMENT_NODE == documentOrElement.getNodeType();
-            return (Element) documentOrElement;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (!(o instanceof DOMAccess)) {
-                return false;
-            }
-            DOMAccess op = (DOMAccess) o;
-            if (!projectionInterface.equals(op.getProjectionInterface())) {
-                return false;
-            }
-            // Unfortunately Node.isEqualNode() is implementation specific and does
-            // not need to match our hashCode implementation.
-            // So we define our own node equality.
-            return DOMHelper.nodesAreEqual(documentOrElement, op.getDOMNode());
-        }
-
-        @Override
-        public int hashCode() {
-            return (31 * projectionInterface.hashCode()) + (27 * DOMHelper.nodeHashCode(documentOrElement));
-        }
-
-        @Override
-        public String asString() {
-            try {
-                final StringWriter writer = new StringWriter();
-                config().createTransformer().transform(new DOMSource(getDOMNode()), new StreamResult(writer));
-                final String output = writer.getBuffer().toString();
-                return output;
-            } catch (TransformerConfigurationException e) {
-                throw new RuntimeException(e);
-            } catch (TransformerException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-// /*
-// * (non-Javadoc)
-// *
-// * @see org.xmlbeam.dom.DOMAccess#addNameSpace(java.lang.String, java.lang.String)
-// */
-// @Override
-// public T addNameSpace(String URI, String prefix) {
-// getDOMNode().)
-// return null;
-// }
-    }
-
-    private final class DefaultObjectInvoker extends DefaultDOMAccessInvoker {
-        private DefaultObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
-            super(documentOrElement, projectionInterface);
-        }
-
-        @Override
-        public String toString() {
-            final String typeDesc = getDOMNode().getNodeType() == Node.DOCUMENT_NODE ? "document '" + getDOMNode().getBaseURI() + "'" : "element " + "'" + getDOMNode().getNodeName() + "[" + Integer.toString(getDOMNode().hashCode(), 16) + "]'";
-            return "Projection [" + getProjectionInterface().getName() + "]" + " to " + typeDesc;
-        }
-    }
-
-    private final class XMLRenderingObjectInvoker extends DefaultDOMAccessInvoker {
-        private XMLRenderingObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
-            super(documentOrElement, projectionInterface);
-        }
-
-        @Override
-        public String toString() {
-            return super.asString();
-        }
-    }
 
     /**
      * A variation of the builder pattern. All methods to configure the projector are hidden in this
@@ -541,16 +430,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             throw new IllegalArgumentException("Parameter node must not be null");
         }
 
-        Map<Class<?>, Object> defaultInvokers = new HashMap<Class<?>, Object>();
-        DefaultDOMAccessInvoker invoker;
-        if (flags.contains(Flags.TO_STRING_RENDERS_XML)) {
-            invoker = new XMLRenderingObjectInvoker(projectionInterface, documentOrElement);
-        } else {
-            invoker = new DefaultObjectInvoker(projectionInterface, documentOrElement);
-        }
-        defaultInvokers.put(DOMAccess.class, invoker);
-        defaultInvokers.put(Object.class, invoker);
-        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, defaultInvokers, flags.contains(Flags.ABSENT_IS_EMPTY));
+        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
         if (flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS)) {
             final Document document = DOMHelper.getOwnerDocumentFor(documentOrElement);
             InvocationHandler synchronizedInvocationHandler = new InvocationHandler() {
