@@ -439,45 +439,46 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         List<Class<?>> allSuperInterfaces = ReflectionHelper.findAllSuperInterfaces(projectionInterface);
         for (Class<?> i7e : allSuperInterfaces) {
             for (Method m : i7e.getDeclaredMethods()) {
+                final MethodSignature methodSignature = new MethodSignature(m);
                 if (ReflectionHelper.isDefaultMethod(m)) {
-                    handlers.put(new MethodSignature(m), DEFAULT_METHOD_INVOCATION_HANDLER);
+                    handlers.put(methodSignature, DEFAULT_METHOD_INVOCATION_HANDLER);
                     continue;
                 }
 
-                if (defaultInvocationHandlers.containsKey(new MethodSignature(m))) {
+                if (defaultInvocationHandlers.containsKey(methodSignature)) {
                     continue;
                 }
 
                 {
                     final XBRead readAnnotation = m.getAnnotation(XBRead.class);
                     if (readAnnotation != null) {
-                        handlers.put(new MethodSignature(m), new ReadInvocationHandler(m, readAnnotation.value(), projector.config().getExternalizer()));
+                        handlers.put(methodSignature, new ReadInvocationHandler(m, readAnnotation.value(), projector.config().getExternalizer()));
                         continue;
                     }
                 }
                 {
                     final XBUpdate updateAnnotation = m.getAnnotation(XBUpdate.class);
                     if (updateAnnotation != null) {
-                        handlers.put(new MethodSignature(m), new UpdateInvocationHandler(m, updateAnnotation.value(), projector.config().getExternalizer()));
+                        handlers.put(methodSignature, new UpdateInvocationHandler(m, updateAnnotation.value(), projector.config().getExternalizer()));
                         continue;
                     }
                 }
                 {
                     final XBWrite writeAnnotation = m.getAnnotation(XBWrite.class);
                     if (writeAnnotation != null) {
-                        handlers.put(new MethodSignature(m), new WriteInvocationHandler(m, writeAnnotation.value(), projector.config().getExternalizer()));
+                        handlers.put(methodSignature, new WriteInvocationHandler(m, writeAnnotation.value(), projector.config().getExternalizer()));
                         continue;
                     }
                 }
                 {
                     final XBDelete delAnnotation = m.getAnnotation(XBDelete.class);
                     if (delAnnotation != null) {
-                        handlers.put(new MethodSignature(m), new DeleteInvocationHandler(m, delAnnotation.value(), projector.config().getExternalizer()));
+                        handlers.put(methodSignature, new DeleteInvocationHandler(m, delAnnotation.value(), projector.config().getExternalizer()));
                         continue;
                     }
                 }
 
-                if (mixinHandlers.containsKey(new MethodSignature(m))) {
+                if (mixinHandlers.containsKey(methodSignature)) {
                     continue;
                 }
 
