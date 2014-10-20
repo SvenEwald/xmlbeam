@@ -13,11 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplexd;
 
 import java.io.StringReader;
 
 import org.xmlbeam.XBException;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
 
 /**
  * @author sven

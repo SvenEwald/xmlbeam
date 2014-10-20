@@ -1,4 +1,6 @@
-package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplexd;
+
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
 
 interface INodeEvaluationVisitor<R> extends XParserVisitor {
 

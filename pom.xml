@@ -72,7 +72,8 @@
 						<excludes>
 							<exclude>**/*Exception.class</exclude>
 							<exclude>**/*Error.class</exclude>
-							<exclude>**/org/objectweb/asm/*.class</exclude>
+							<!--  <exclude>**/org/objectweb/asm/*.class</exclude> -->
+							<exclude>**/org/w3c/xqparser/**.class</exclude>
 						</excludes>
 					</instrumentation>
 				</configuration>

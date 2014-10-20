@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplexd;
 
 /**
  * Exception for the case that a xpath was declared in @XBWrite that is not allowed for writing.

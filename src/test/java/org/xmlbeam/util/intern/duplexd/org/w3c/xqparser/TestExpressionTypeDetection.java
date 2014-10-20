@@ -16,10 +16,10 @@
 package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
 
 import static org.junit.Assert.assertEquals;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType.ATTRIBUTE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType.ELEMENT;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType.NODE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType.VALUE;
+import static org.xmlbeam.util.intern.duplexd.ExpressionType.ATTRIBUTE;
+import static org.xmlbeam.util.intern.duplexd.ExpressionType.ELEMENT;
+import static org.xmlbeam.util.intern.duplexd.ExpressionType.NODE;
+import static org.xmlbeam.util.intern.duplexd.ExpressionType.VALUE;
 
 import java.io.StringReader;
 import java.util.Arrays;
@@ -31,7 +31,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ExpressionType;
+import org.xmlbeam.util.intern.duplexd.ExpressionType;
+import org.xmlbeam.util.intern.duplexd.ExpressionTypeEvaluationVisitor;
+import org.xmlbeam.util.intern.duplexd.SimpleNode;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
 

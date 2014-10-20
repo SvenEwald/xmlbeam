@@ -13,11 +13,16 @@ and software licensing rules
 (http://www.w3.org/Consortium/Legal/copyright-software-19980720)
 apply.
  */
-package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplexd;
 
 import java.util.List;
 
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Token;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants;
+import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
 
 class SimpleNode implements Node {
 
@@ -285,7 +290,7 @@ class SimpleNode implements Node {
      * @param visitorClosure
      * @param data
      */
-    public void eachChild(final org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
+    public void eachChild(final org.xmlbeam.util.intern.duplexd.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
         for (SimpleNode child : children) {
             visitorClosure.apply(child, data);
         }
