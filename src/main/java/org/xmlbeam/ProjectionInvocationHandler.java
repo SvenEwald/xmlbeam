@@ -411,10 +411,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         this.node = node;
         this.projectionInterface = projectionInterface;
         this.absentIsEmpty = absentIsEmpty;
-        Object defaultInvokerObject = toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node) : new DefaultObjectInvoker(projectionInterface, node);
-        //final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(m, projectionInterface);
+        final Object defaultInvokerObject = toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node) : new DefaultObjectInvoker(projectionInterface, node);
 
-        Map<MethodSignature, InvocationHandler> defaultInvocationHandlers = getDefaultInvokers(defaultInvokerObject);
+        final Map<MethodSignature, InvocationHandler> defaultInvocationHandlers = getDefaultInvokers(defaultInvokerObject);
 
         for (Entry<Class<?>, Object> e : mixins.entrySet()) {
             for (Method m : e.getKey().getMethods()) {
@@ -422,19 +421,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
         }
 
-//        final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
-//        if (customInvoker != null) {
-//            handlers.put(m, new ReflectionInvoker(m, customInvoker));
-//            continue;
-//        }
-
         handlers.putAll(defaultInvocationHandlers);
-
-//        final Object defaultInvoker = defaultInvokerObjects.get(methodsDeclaringInterface);
-//        if (defaultInvoker != null) {
-//            handlers.put(m, new ReflectionInvoker(m, defaultInvoker));
-//            continue;
-//        }
 
         List<Class<?>> allSuperInterfaces = ReflectionHelper.findAllSuperInterfaces(projectionInterface);
         for (Class<?> i7e : allSuperInterfaces) {
@@ -444,11 +431,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     handlers.put(methodSignature, DEFAULT_METHOD_INVOCATION_HANDLER);
                     continue;
                 }
-
                 if (defaultInvocationHandlers.containsKey(methodSignature)) {
                     continue;
                 }
-
                 {
                     final XBRead readAnnotation = m.getAnnotation(XBRead.class);
                     if (readAnnotation != null) {

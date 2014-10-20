@@ -479,27 +479,27 @@ public final class ReflectionHelper {
         }
     }
 
-    /**
-     * @param m
-     * @return list of methods overridden by given method
-     */
-    public static List<Method> findAllOverridenMethods(final Method m) {
-        List<Method> methods = new LinkedList<Method>();
-        for (Class<?> c : findAllSuperClasses(m.getDeclaringClass())) {
-            Method method = classImplementsMethdod(c, m);
-            if (method != null) {
-                methods.add(method);
-            }
-        }
-        return methods;
-    }
-
-    /**
-     * @param c
-     * @param m
-     * @return
-     */
-    private static Method classImplementsMethdod(final Class<?> c, final Method m) {
-        return findMethodByNameAndParams(c, m.getName(), m.getParameterTypes());
-    }
+//    /**
+//     * @param m
+//     * @return list of methods overridden by given method
+//     */
+//    public static List<Method> findAllOverridenMethods(final Method m) {
+//        List<Method> methods = new LinkedList<Method>();
+//        for (Class<?> c : findAllSuperClasses(m.getDeclaringClass())) {
+//            Method method = classImplementsMethdod(c, m);
+//            if (method != null) {
+//                methods.add(method);
+//            }
+//        }
+//        return methods;
+//    }
+//
+//    /**
+//     * @param c
+//     * @param m
+//     * @return
+//     */
+//    private static Method classImplementsMethdod(final Class<?> c, final Method m) {
+//        return findMethodByNameAndParams(c, m.getName(), m.getParameterTypes());
+//    }
 }
