@@ -24,8 +24,8 @@ import org.w3c.dom.Element;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.util.intern.duplexd.DuplexExpression;
-import org.xmlbeam.util.intern.duplexd.DuplexXPathParser;
+import org.xmlbeam.util.intern.duplex.DuplexExpression;
+import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 
 @SuppressWarnings("javadoc")
 public class TestDeletionWithPredicates {

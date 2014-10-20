@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd;
+package org.xmlbeam.util.intern.duplex;
 
-import static org.xmlbeam.util.intern.duplexd.ExpressionType.ATTRIBUTE;
-import static org.xmlbeam.util.intern.duplexd.ExpressionType.ELEMENT;
-import static org.xmlbeam.util.intern.duplexd.ExpressionType.NODE;
-import static org.xmlbeam.util.intern.duplexd.ExpressionType.VALUE;
+import static org.xmlbeam.util.intern.duplex.ExpressionType.ATTRIBUTE;
+import static org.xmlbeam.util.intern.duplex.ExpressionType.ELEMENT;
+import static org.xmlbeam.util.intern.duplex.ExpressionType.NODE;
+import static org.xmlbeam.util.intern.duplex.ExpressionType.VALUE;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVFORWARDSTEP;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVREVERSESTEP;
 import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTADDITIVEEXPR;

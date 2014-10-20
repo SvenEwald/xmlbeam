@@ -13,7 +13,7 @@ and software licensing rules
 (http://www.w3.org/Consortium/Legal/copyright-software-19980720)
 apply.
  */
-package org.xmlbeam.util.intern.duplexd;
+package org.xmlbeam.util.intern.duplex;
 
 import java.util.List;
 
@@ -290,7 +290,7 @@ class SimpleNode implements Node {
      * @param visitorClosure
      * @param data
      */
-    public void eachChild(final org.xmlbeam.util.intern.duplexd.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
+    public void eachChild(final org.xmlbeam.util.intern.duplex.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
         for (SimpleNode child : children) {
             visitorClosure.apply(child, data);
         }

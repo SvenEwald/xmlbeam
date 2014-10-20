@@ -47,9 +47,9 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplexd.DuplexExpression;
-import org.xmlbeam.util.intern.duplexd.DuplexXPathParser;
-import org.xmlbeam.util.intern.duplexd.SimpleNode;
+import org.xmlbeam.util.intern.duplex.DuplexExpression;
+import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
+import org.xmlbeam.util.intern.duplex.SimpleNode;
 
 /**
  * @author sven

@@ -64,10 +64,10 @@ import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
-import org.xmlbeam.util.intern.duplexd.DuplexExpression;
-import org.xmlbeam.util.intern.duplexd.DuplexXPathParser;
-import org.xmlbeam.util.intern.duplexd.ExpressionType;
-import org.xmlbeam.util.intern.duplexd.XBPathParsingException;
+import org.xmlbeam.util.intern.duplex.DuplexExpression;
+import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
+import org.xmlbeam.util.intern.duplex.ExpressionType;
+import org.xmlbeam.util.intern.duplex.XBPathParsingException;
 
 /**
  * This class implements the "magic" behind projection methods. Each projection is linked with a

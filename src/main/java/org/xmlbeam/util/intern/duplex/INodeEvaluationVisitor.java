@@ -1,4 +1,4 @@
-package org.xmlbeam.util.intern.duplexd;
+package org.xmlbeam.util.intern.duplex;
 
 import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
 

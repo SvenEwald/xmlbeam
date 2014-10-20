@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd;
+package org.xmlbeam.util.intern.duplex;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,8 +24,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplexd.BuildDocumentVisitor.MODE;
-import org.xmlbeam.util.intern.duplexd.SimpleNode.StepListFilter;
+import org.xmlbeam.util.intern.duplex.BuildDocumentVisitor.MODE;
+import org.xmlbeam.util.intern.duplex.SimpleNode.StepListFilter;
 
 /**
  * @author sven

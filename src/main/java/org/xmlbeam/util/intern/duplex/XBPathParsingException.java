@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd;
+package org.xmlbeam.util.intern.duplex;
 
 import org.xmlbeam.XBException;
 
