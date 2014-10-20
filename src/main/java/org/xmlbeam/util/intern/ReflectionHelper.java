@@ -83,6 +83,27 @@ public final class ReflectionHelper {
         }
         return null;
     }
+    
+    /**
+     * Non exception throwing shortcut to find the first method with a given name and parameter types.
+     *
+     * @param clazz
+     * @param name
+     * @param paramTypes
+     * @return method with name "name" and parameters or null if it does not exist.
+     */
+    public static Method findMethodByNameAndParams(final Class<?> clazz, final String name,final Class<?>[] paramTypes) {
+        for (final Method m : clazz.getMethods()) {
+            if (!name.equals(m.getName())) {
+                continue;
+            }
+            if (!Arrays.equals(m.getParameterTypes(),paramTypes)) {
+                continue;
+            }
+            return m;
+        }
+        return null;
+    }
 
     /**
      * @param a
@@ -98,7 +119,18 @@ public final class ReflectionHelper {
         }
         return set;
     };
-
+    
+    public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
+        if (c == null ) {
+            return Collections.emptyList();
+        }
+        if (c.isInterface()) {
+            return new LinkedList<Class<?>>(findAllSuperInterfaces(c));
+        }
+        LinkedList<Class<?>> superclasses = new LinkedList<Class<?>>(findAllSuperClasses(c.getSuperclass()));
+        superclasses.addFirst(c);
+        return superclasses;
+    }
     /**
      * Defensive implemented method to determine if method has a return type.
      *
@@ -439,4 +471,28 @@ public final class ReflectionHelper {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * @param m
+     * @return list of methods overridden by given method
+     */
+    public static List<Method> findAllOverridenMethods(Method m) {
+         List<Method> methods=new LinkedList<Method>();
+        for (Class<?> c:findAllSuperClasses(m.getDeclaringClass())) {            
+            Method method = classImplementsMethdod(c,m);
+            if (method !=null) {    methods.add(method);}
+        }
+        return methods;
+    }
+
+    /**
+     * @param c
+     * @param m
+     * @return
+     */
+    private static Method classImplementsMethdod(Class<?> c, Method m) {        
+        return findMethodByNameAndParams(c, m.getName(), m.getParameterTypes());        
+    }
 }
+
+   

@@ -15,8 +15,7 @@
  */
 package org.xmlbeam.tests.util.intern;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -89,4 +88,19 @@ public class TestReflectionHelper {
         Method nonraw = TestReflectionHelper.class.getMethod("withReturnTypeAndParameter", new Class[] { String.class });
         assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));
     }
+    
+    @Test
+    public void testOverridenMethods() {
+        Method toStringMethod = ReflectionHelper.findMethodByName(Object.class, "toString");
+        Object o = new Object() {
+            public String toString() {
+                return "myOverridenString";
+            }
+        };
+        List<Method> findAllOverridenMethods = ReflectionHelper.findAllOverridenMethods(ReflectionHelper.findMethodByName(o.getClass(), "toString"));
+        assertTrue(findAllOverridenMethods.contains(toStringMethod));
+        assertTrue(findAllOverridenMethods.contains(ReflectionHelper.findMethodByName(o.getClass(), "toString")));
+        assertEquals(2,findAllOverridenMethods.size());
+    }
+    
 }

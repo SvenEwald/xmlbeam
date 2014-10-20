@@ -430,7 +430,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
             throw new IllegalArgumentException("Parameter node must not be null");
         }
 
-        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
+        final Map<Class<?>, Object> mixinsForProjection = mixins.containsKey(projectionInterface) ? Collections.unmodifiableMap(mixins.get(projectionInterface)) :Collections.<Class<?>,Object>emptyMap();
+        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface,mixinsForProjection,flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
         if (flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS)) {
             final Document document = DOMHelper.getOwnerDocumentFor(documentOrElement);
             InvocationHandler synchronizedInvocationHandler = new InvocationHandler() {
