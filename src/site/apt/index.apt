@@ -24,7 +24,7 @@ Welcome to XMLBeam
  
 * This is how it looks
 
- Access XML data directly via XPath-annotated Java interfaces:
+ Access XML data directly via XPath-annotated Java interfaces (called "Projections"):
  
 ----------------------------------------
 <xml>

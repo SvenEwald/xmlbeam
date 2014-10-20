@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
@@ -83,21 +83,22 @@ public final class ReflectionHelper {
         }
         return null;
     }
-    
+
     /**
-     * Non exception throwing shortcut to find the first method with a given name and parameter types.
+     * Non exception throwing shortcut to find the first method with a given name and parameter
+     * types.
      *
      * @param clazz
      * @param name
      * @param paramTypes
      * @return method with name "name" and parameters or null if it does not exist.
      */
-    public static Method findMethodByNameAndParams(final Class<?> clazz, final String name,final Class<?>[] paramTypes) {
+    public static Method findMethodByNameAndParams(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
         for (final Method m : clazz.getMethods()) {
             if (!name.equals(m.getName())) {
                 continue;
             }
-            if (!Arrays.equals(m.getParameterTypes(),paramTypes)) {
+            if (!Arrays.equals(m.getParameterTypes(), paramTypes)) {
                 continue;
             }
             return m;
@@ -106,22 +107,27 @@ public final class ReflectionHelper {
     }
 
     /**
+     * Returns list of super interfaces,sorted from the top (super) to the bottom (extended).
+     *
      * @param a
      * @return a set of all super interfaces of a
      */
-    public static Set<Class<?>> findAllSuperInterfaces(final Class<?> a) {
-        final Set<Class<?>> set = new LinkedHashSet<Class<?>>();
-        if (a.isInterface()) {
-            set.add(a);
+    public static List<Class<?>> findAllSuperInterfaces(final Class<?> a) {
+        LinkedList<Class<?>> list = new LinkedList<Class<?>>();
+        Queue<Class<?>> queue = new LinkedList<Class<?>>();
+        queue.add(a);
+        while (!queue.isEmpty()) {
+            Class<?> c = queue.poll();
+            if (c.isInterface()) {
+                list.addFirst(c);
+            }
+            queue.addAll(Arrays.asList(c.getInterfaces()));
         }
-        for (final Class<?> i : a.getInterfaces()) {
-            set.addAll(findAllSuperInterfaces(i));
-        }
-        return set;
+        return list;
     };
-    
+
     public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
-        if (c == null ) {
+        if (c == null) {
             return Collections.emptyList();
         }
         if (c.isInterface()) {
@@ -131,6 +137,7 @@ public final class ReflectionHelper {
         superclasses.addFirst(c);
         return superclasses;
     }
+
     /**
      * Defensive implemented method to determine if method has a return type.
      *
@@ -476,11 +483,13 @@ public final class ReflectionHelper {
      * @param m
      * @return list of methods overridden by given method
      */
-    public static List<Method> findAllOverridenMethods(Method m) {
-         List<Method> methods=new LinkedList<Method>();
-        for (Class<?> c:findAllSuperClasses(m.getDeclaringClass())) {            
-            Method method = classImplementsMethdod(c,m);
-            if (method !=null) {    methods.add(method);}
+    public static List<Method> findAllOverridenMethods(final Method m) {
+        List<Method> methods = new LinkedList<Method>();
+        for (Class<?> c : findAllSuperClasses(m.getDeclaringClass())) {
+            Method method = classImplementsMethdod(c, m);
+            if (method != null) {
+                methods.add(method);
+            }
         }
         return methods;
     }
@@ -490,9 +499,7 @@ public final class ReflectionHelper {
      * @param m
      * @return
      */
-    private static Method classImplementsMethdod(Class<?> c, Method m) {        
-        return findMethodByNameAndParams(c, m.getName(), m.getParameterTypes());        
+    private static Method classImplementsMethdod(final Class<?> c, final Method m) {
+        return findMethodByNameAndParams(c, m.getName(), m.getParameterTypes());
     }
 }
-
-   

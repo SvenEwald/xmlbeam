@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,23 +90,25 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final Class<?>[] paramTypes;
         private final String name;
 
-        public static MethodSignature forVoidMethod(String name) {
-            return new MethodSignature(name, new Class<?>[]{});
+        public static MethodSignature forVoidMethod(final String name) {
+            return new MethodSignature(name, new Class<?>[] {});
         }
-        public static MethodSignature forSingleParam(String name, Class<?> singleParam) {
-            return new MethodSignature(name,new Class<?>[]{singleParam});
+
+        public static MethodSignature forSingleParam(final String name, final Class<?> singleParam) {
+            return new MethodSignature(name, new Class<?>[] { singleParam });
         }
+
         /**
          * @param method
          */
-        public MethodSignature(Method method) {
+        public MethodSignature(final Method method) {
             this.name = method.getName();
             this.paramTypes = method.getParameterTypes();
         }
 
         /**
          */
-        public MethodSignature(String name, Class<?>[] paramTypes) {
+        public MethodSignature(final String name, final Class<?>[] paramTypes) {
             this.paramTypes = paramTypes;
             this.name = name;
         }
@@ -116,27 +117,33 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((name == null) ? 0 : name.hashCode());
-            result = prime * result + Arrays.hashCode(paramTypes);
+            result = (prime * result) + ((name == null) ? 0 : name.hashCode());
+            result = (prime * result) + Arrays.hashCode(paramTypes);
             return result;
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
+        public boolean equals(final Object obj) {
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             MethodSignature other = (MethodSignature) obj;
             if (name == null) {
-                if (other.name != null)
+                if (other.name != null) {
                     return false;
-            } else if (!name.equals(other.name))
+                }
+            } else if (!name.equals(other.name)) {
                 return false;
-            if (!Arrays.equals(paramTypes, other.paramTypes))
+            }
+            if (!Arrays.equals(paramTypes, other.paramTypes)) {
                 return false;
+            }
             return true;
         }
 
@@ -243,9 +250,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         for (Method m : DOMAccess.class.getMethods()) {
             invokers.put(new MethodSignature(m), reflectionInvoker);
         }
-        
+
         invokers.put(MethodSignature.forVoidMethod("toString"), reflectionInvoker);
-        invokers.put(MethodSignature.forSingleParam("equals",Object.class), reflectionInvoker);
+        invokers.put(MethodSignature.forSingleParam("equals", Object.class), reflectionInvoker);
         invokers.put(MethodSignature.forVoidMethod("hashCode"), reflectionInvoker);
         return invokers;//Collections.unmodifiableMap(invokers);
     }
@@ -268,7 +275,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     private class MixinInvoker extends ReflectionInvoker {
-        MixinInvoker(Object obj) {
+        MixinInvoker(final Object obj) {
             super(obj);
         }
 
@@ -405,7 +412,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         this.projectionInterface = projectionInterface;
         this.absentIsEmpty = absentIsEmpty;
         Object defaultInvokerObject = toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node) : new DefaultObjectInvoker(projectionInterface, node);
-        //final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(m, projectionInterface);        
+        //final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(m, projectionInterface);
 
         Map<MethodSignature, InvocationHandler> defaultInvocationHandlers = getDefaultInvokers(defaultInvokerObject);
 
@@ -429,9 +436,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            continue;
 //        }
 
-        Set<Class<?>> allSuperInterfaces = ReflectionHelper.findAllSuperInterfaces(projectionInterface);
+        List<Class<?>> allSuperInterfaces = ReflectionHelper.findAllSuperInterfaces(projectionInterface);
         for (Class<?> i7e : allSuperInterfaces) {
-            for (Method m : i7e.getMethods()) {
+            for (Method m : i7e.getDeclaredMethods()) {
                 if (ReflectionHelper.isDefaultMethod(m)) {
                     handlers.put(new MethodSignature(m), DEFAULT_METHOD_INVOCATION_HANDLER);
                     continue;
@@ -747,7 +754,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 throw new XBPathException(e, method, "??");
             }
         }
-//        
+//
 //        {
 //            String resolvedXpath = null;
 //            try {
