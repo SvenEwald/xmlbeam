@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplex;
 
 import static org.junit.Assert.assertEquals;
 import static org.xmlbeam.util.intern.duplex.ExpressionType.ATTRIBUTE;
@@ -34,8 +34,8 @@ import org.junit.runners.Parameterized.Parameters;
 import org.xmlbeam.util.intern.duplex.ExpressionType;
 import org.xmlbeam.util.intern.duplex.ExpressionTypeEvaluationVisitor;
 import org.xmlbeam.util.intern.duplex.SimpleNode;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
+import org.xmlbeam.util.intern.duplex.ParseException;
+import org.xmlbeam.util.intern.duplex.XParser;
 
 /**
  * @author sven

@@ -18,11 +18,11 @@ package org.xmlbeam.util.intern.duplex;
 import java.util.List;
 
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Node;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.Token;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
+import org.xmlbeam.util.intern.duplex.Node;
+import org.xmlbeam.util.intern.duplex.Token;
+import org.xmlbeam.util.intern.duplex.XParser;
+import org.xmlbeam.util.intern.duplex.XParserTreeConstants;
+import org.xmlbeam.util.intern.duplex.XParserVisitor;
 
 class SimpleNode implements Node {
 

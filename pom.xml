@@ -73,7 +73,15 @@
 							<exclude>**/*Exception.class</exclude>
 							<exclude>**/*Error.class</exclude>
 							<!--  <exclude>**/org/objectweb/asm/*.class</exclude> -->
-							<exclude>**/org/w3c/xqparser/**.class</exclude>
+							<exclude>**/duplex/JJTXParserState.class</exclude>
+							<exclude>**/duplex/Node.class</exclude>
+							<exclude>**/duplex/XParserTreeConstants.class</exclude>
+							<exclude>**/duplex/XParserVisitor.class</exclude>
+							<exclude>**/duplex/ParseException.class</exclude>
+							<exclude>**/duplex/SimpleCharStream.class</exclude>
+							<exclude>**/duplex/Token.class</exclude>
+							<exclude>**/duplex/TokenMgrError.class</exclude>
+							<exclude>**/duplex/XParser*.class</exclude>
 						</excludes>
 					</instrumentation>
 				</configuration>

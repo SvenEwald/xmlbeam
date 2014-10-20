@@ -15,26 +15,26 @@
  */
 package org.xmlbeam.util.intern.duplex;
 
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVFORWARDSTEP;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTABBREVREVERSESTEP;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCOMPARISONEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTCONTEXTITEMEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDECIMALLITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTDOUBLELITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTINTEGERLITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNAMETEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTNODETEST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPATHEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPREDICATE;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTPREDICATELIST;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTQNAME;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSLASH;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSLASHSLASH;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTART;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTEPEXPR;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTSTRINGLITERAL;
-import static org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserTreeConstants.JJTXPATH;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTABBREVFORWARDSTEP;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTABBREVREVERSESTEP;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTCOMPARISONEXPR;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTCONTEXTITEMEXPR;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTDECIMALLITERAL;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTDOUBLELITERAL;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTEXPR;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTINTEGERLITERAL;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTNAMETEST;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTNODETEST;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTPATHEXPR;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTPREDICATE;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTPREDICATELIST;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTQNAME;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSLASH;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSLASHSLASH;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTART;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTEPEXPR;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTRINGLITERAL;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTXPATH;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplex.SimpleNode.StepListFilter;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParserVisitor;
+import org.xmlbeam.util.intern.duplex.XParserVisitor;
 
 /**
  */

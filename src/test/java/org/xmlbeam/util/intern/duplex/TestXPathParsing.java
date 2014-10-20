@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.util.intern.duplexd.org.w3c.xqparser;
+package org.xmlbeam.util.intern.duplex;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,6 +50,8 @@ import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 import org.xmlbeam.util.intern.duplex.SimpleNode;
+import org.xmlbeam.util.intern.duplex.ParseException;
+import org.xmlbeam.util.intern.duplex.XParser;
 
 /**
  * @author sven

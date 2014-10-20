@@ -18,8 +18,8 @@ package org.xmlbeam.util.intern.duplex;
 import java.io.StringReader;
 
 import org.xmlbeam.XBException;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.ParseException;
-import org.xmlbeam.util.intern.duplexd.org.w3c.xqparser.XParser;
+import org.xmlbeam.util.intern.duplex.ParseException;
+import org.xmlbeam.util.intern.duplex.XParser;
 
 /**
  * @author sven
