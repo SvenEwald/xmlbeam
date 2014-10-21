@@ -317,7 +317,68 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String resolvedXpath = applyParams(resolveXPath(args), method, args);
-            return invokeGetter(proxy, method, resolvedXpath, args);
+            final Node node = getNodeForMethod(method, args);
+            final Document document = DOMHelper.getOwnerDocumentFor(node);
+            final XPath xPath = projector.config().createXPath(document);
+            // Automatic propagation of parameters as XPath variables
+            // disabled so far...
+//            try {
+//            if (ReflectionHelper.mayProvideParameterNames()) {
+//                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
+//            }
+            final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
+            final ExpressionType expressionType = duplexExpression.getExpressionType();
+            final XPathExpression expression = xPath.compile(resolvedXpath);
+
+            final boolean wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
+            final Class<?> returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
+            if (projector.config().getTypeConverter().isConvertable(returnType)) {
+                String data;
+                if (expressionType.isMustEvalAsString()) {
+                    data = (String) expression.evaluate(node, XPathConstants.STRING);
+                } else {
+                    Node dataNode = (Node) expression.evaluate(node, XPathConstants.NODE);
+                    data = dataNode == null ? null : dataNode.getTextContent();
+                }
+                if ((data == null) && (absentIsEmpty)) {
+                    data = "";
+                }
+
+                try {
+                    final Object result = projector.config().getTypeConverter().convertTo(returnType, data);
+                    return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
+                } catch (NumberFormatException e) {
+                    throw new NumberFormatException(e.getMessage() + " XPath was:" + resolvedXpath);
+                }
+            }
+            if (Node.class.isAssignableFrom(returnType)) {
+                // Try to evaluate as node
+                // if evaluated type does not match return type, ClassCastException will follow
+                final Object result = expression.evaluate(node, XPathConstants.NODE);
+                return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
+            }
+            if (List.class.equals(returnType)) {
+                final Object result = evaluateAsList(expression, node, method);
+                return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
+            }
+            if (returnType.isArray()) {
+                List<?> list = evaluateAsList(expression, node, method);
+                return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
+            }
+            if (returnType.isInterface()) {
+                Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
+                if (newNode == null) {
+                    return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
+                }
+                InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
+                return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
+            }
+            throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
+            // Automatic propagation of parameters as XPath variables
+            // disabled so far...
+//            } finally {
+//                xPath.reset();
+//            }
 
         }
     }
@@ -336,7 +397,49 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String resolvedXpath = applyParams(resolveXPath(args), method, args);
-            return invokeUpdater(proxy, method, resolvedXpath, args);
+            if (!ReflectionHelper.hasParameters(method)) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as updater but has no parameter. Please add a parameter so this method could actually change the DOM.");
+            }
+            if (method.getAnnotation(XBDocURL.class) != null) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as updater but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining updaters on external projections is not valid because there is no DOM attached.");
+            }
+            final Node node = getNodeForMethod(method, args);
+            final Document document = DOMHelper.getOwnerDocumentFor(node);
+            final XPath xPath = projector.config().createXPath(document);
+            final XPathExpression expression = xPath.compile(resolvedXpath);
+            final int findIndexOfValue = findIndexOfValue(method);
+            final Object valueToSet = args[findIndexOfValue];
+            final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
+            final boolean isMultiValue = isMultiValue(typeToSet);
+            if (isMultiValue) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as updater but with multiple values. Update is possible for single values only. Consider using @XBWrite.");
+            }
+            NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+            final int count = nodes.getLength();
+            for (int i = 0; i < count; ++i) {
+                final Node n = nodes.item(i);
+                if (n == null) {
+                    continue;
+                }
+                if (Node.ATTRIBUTE_NODE == n.getNodeType()) {
+                    Element e = ((Attr) n).getOwnerElement();
+                    if (e == null) {
+                        continue;
+                    }
+                    DOMHelper.setOrRemoveAttribute(e, n.getNodeName(), valueToSet == null ? null : valueToSet.toString());
+                    continue;
+                }
+                if (valueToSet instanceof Element) {
+                    if (!(n instanceof Element)) {
+                        throw new IllegalArgumentException("XPath for element update need to select elements only");
+                    }
+                    DOMHelper.replaceElement((Element) n, (Element) ((Element) valueToSet).cloneNode(true));
+                    continue;
+                }
+                n.setTextContent(valueToSet == null ? null : valueToSet.toString());
+            }
+
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
 
         }
 
@@ -356,7 +459,34 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String resolvedXpath = applyParams(resolveXPath(args), method, args);
-            return invokeDeleter(proxy, method, resolvedXpath, args);
+            final Document document = DOMHelper.getOwnerDocumentFor(node);
+            final XPath xPath = projector.config().createXPath(document);
+//            try {
+//                if (ReflectionHelper.mayProvideParameterNames()) {
+//                    xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, xPath.getXPathVariableResolver()));
+//               }
+
+            final XPathExpression expression = xPath.compile(resolvedXpath);
+            NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+            int count = 0;
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                if (Node.ATTRIBUTE_NODE == nodes.item(i).getNodeType()) {
+                    Attr attr = (Attr) nodes.item(i);
+                    attr.getOwnerElement().removeAttributeNode(attr);
+                    ++count;
+                    continue;
+                }
+                Node parentNode = nodes.item(i).getParentNode();
+                if (parentNode == null) {
+                    continue;
+                }
+                parentNode.removeChild(nodes.item(i));
+                ++count;
+            }
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
+//            } finally {
+//                xPath.reset();
+//            }
         }
 
     }
@@ -375,7 +505,122 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String resolvedXpath = applyParams(resolveXPath(args), method, args);
-            return invokeSetter(proxy, method, resolvedXpath, args);
+            if (!ReflectionHelper.hasParameters(method)) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
+            }
+            if (method.getAnnotation(XBDocURL.class) != null) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
+            }
+            final String pathToElement = resolvedXpath.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
+            final Document document = DOMHelper.getOwnerDocumentFor(node);
+            assert document != null;
+            final int findIndexOfValue = findIndexOfValue(method);
+            final Object valueToSet = args[findIndexOfValue];
+            final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
+
+            // ROOT element update
+            if ("/*".equals(resolvedXpath)) { // Setting a new root element.
+                if (isMultiValue) {
+                    throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
+                }
+                return handeRootElementReplacement(proxy, method, document, valueToSet);
+            }
+            final boolean wildCardTarget = resolvedXpath.endsWith("/*");
+            try {
+                final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(resolvedXpath.substring(0, resolvedXpath.length() - 2)) : new DuplexXPathParser().compile(resolvedXpath);
+                if (duplexExpression.getExpressionType().isMustEvalAsString()) {
+                    throw new XBPathException("Unwriteable xpath selector used ", method, resolvedXpath);
+                }
+                // MULTIVALUE
+                if (isMultiValue) {
+                    if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
+                        throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
+                    }
+                    final Collection<?> collection2Set = valueToSet == null ? Collections.emptyList() : (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
+                    if (wildCardTarget) {
+                        // TODO: check support of ParameterizedType e.g. Supplier
+                        final Element parentElement = (Element) duplexExpression.ensureExistence(node);
+                        DOMHelper.removeAllChildren(parentElement);
+                        int count = 0;
+                        for (Object o : collection2Set) {
+                            if (o == null) {
+                                continue;
+                            }
+                            ++count;
+                            if (o instanceof Node) {
+                                DOMHelper.appendClone(parentElement, (Node) o);
+                                continue;
+                            }
+                            if (o instanceof InternalProjection) {
+                                DOMHelper.appendClone(parentElement, ((InternalProjection) o).getDOMBaseElement());
+                                continue;
+                            }
+                            throw new XBPathException("When using a wildcard target, the type to set must be a DOM Node or another projection. Otherwise I can not determine the element name.", method, resolvedXpath);
+                        }
+                        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
+                    }
+                    final Element parentElement = duplexExpression.ensureParentExistence(node);
+                    duplexExpression.deleteAllMatchingChildren(parentElement);
+                    int count = applyCollectionSetOnElement(collection2Set, parentElement, duplexExpression);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
+                }
+
+                // ATTRIBUTES
+                if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
+                    if (wildCardTarget) {
+                        //TODO: This may never happen, right?
+                        throw new XBPathException("Wildcards are not allowed when writing to an attribute. I need to know to which Element I should set the attribute", method, resolvedXpath);
+                    }
+                    Attr attribute = (Attr) duplexExpression.ensureExistence(node);
+                    if (valueToSet == null) {
+                        attribute.getOwnerElement().removeAttributeNode(attribute);
+                        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                    }
+
+                    DOMHelper.setStringValue(attribute, valueToSet.toString());
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
+
+                if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
+                    if (valueToSet instanceof Attr) {
+                        if (wildCardTarget) {
+                            throw new XBPathException("Wildcards are not allowed when writing an attribute. I need to know to which Element I should set the attribute", method, resolvedXpath);
+                        }
+                        Element parentNode = duplexExpression.ensureParentExistence(node);
+                        if (((Attr) valueToSet).getNamespaceURI() != null) {
+                            parentNode.setAttributeNodeNS((Attr) valueToSet);
+                            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                        }
+                        parentNode.setAttributeNode((Attr) valueToSet);
+                        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                    }
+                    final Element newNodeOrigin = valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet;
+                    final Element newNode = (Element) newNodeOrigin.cloneNode(true);
+                    DOMHelper.ensureOwnership(document, newNode);
+                    if (wildCardTarget) {
+                        Element parentElement = (Element) duplexExpression.ensureExistence(node);
+                        DOMHelper.removeAllChildren(parentElement);
+                        parentElement.appendChild(newNode);
+                        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                    }
+                    Element previousElement = (Element) duplexExpression.ensureExistence(node);
+
+                    DOMHelper.replaceElement(previousElement, newNode);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
+
+                final Element elementToChange = (Element) duplexExpression.ensureExistence(node);
+                if (valueToSet == null) {
+                    //TODO: This should depend on the parameter type?
+                    // If param type == String, no structural change might be expected.
+                    DOMHelper.removeAllChildren(elementToChange);
+                } else {
+                    elementToChange.setTextContent(valueToSet.toString());
+                }
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+            } catch (XBPathParsingException e) {
+                throw new XBPathException(e, method, pathToElement);
+            }
         }
 
     }
@@ -740,58 +985,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 throw new XBPathException(e, method, "??");
             }
         }
-//
-//        {
-//            String resolvedXpath = null;
-//            try {
-//                {
-//                    final XBRead readAnnotation = method.getAnnotation(XBRead.class);
-//                    if (readAnnotation != null) {
-//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(readAnnotation.value(), method, args), method, args);
-//                        return invokeGetter(proxy, method, resolvedXpath, args);
-//                    }
-//                }
-//                {
-//                    final XBUpdate updateAnnotation = method.getAnnotation(XBUpdate.class);
-//                    if (updateAnnotation != null) {
-//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(updateAnnotation.value(), method, args), method, args);
-//                        return invokeUpdater(proxy, method, resolvedXpath, args);
-//                    }
-//                }
-//                {
-//                    final XBWrite writeAnnotation = method.getAnnotation(XBWrite.class);
-//                    if (writeAnnotation != null) {
-//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(writeAnnotation.value(), method, args), method, args);
-//                        return invokeSetter(proxy, method, resolvedXpath, args);
-//                    }
-//                }
-//                {
-//                    final XBDelete delAnnotation = method.getAnnotation(XBDelete.class);
-//                    if (delAnnotation != null) {
-//                        resolvedXpath = applyParams(projector.config().getExternalizer().resolveXPath(delAnnotation.value(), method, args), method, args);
-//                        return invokeDeleter(proxy, method, resolvedXpath, args);
-//                    }
-//                }
-//            } catch (XPathExpressionException e) {
-//                throw new XBPathException(e, method, resolvedXpath);
-//            }
-//        }
-//        final Class<?> methodsDeclaringInterface = ReflectionHelper.findDeclaringInterface(method, projectionInterface);
-//        final Object customInvoker = projector.mixins().getProjectionMixin(projectionInterface, methodsDeclaringInterface);
-//
-//        if (customInvoker != null) {
-//            injectMeAttribute((InternalProjection) proxy, customInvoker);
-//            return method.invoke(customInvoker, args);
-//        }
-//
-//        final Object defaultInvoker = defaultInvokers.get(methodsDeclaringInterface);
-//        if (defaultInvoker != null) {
-//            return method.invoke(defaultInvoker, args);
-//        }
-//
-//        if (ReflectionHelper.isDefaultMethod(method)) {
-//            return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
-//        }
+
         throw new IllegalArgumentException("I don't known how to invoke method " + method + ". Did you forget to add a XB*-annotation or to register a mixin?");
     }
 
@@ -813,271 +1007,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException(e);
         }
 
-    }
-
-    /**
-     * @param proxy
-     * @param format
-     */
-    private Object invokeDeleter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
-        final Document document = DOMHelper.getOwnerDocumentFor(node);
-        final XPath xPath = projector.config().createXPath(document);
-//        try {
-//            if (ReflectionHelper.mayProvideParameterNames()) {
-//                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, xPath.getXPathVariableResolver()));
-//           }
-
-        final XPathExpression expression = xPath.compile(path);
-        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-        int count = 0;
-        for (int i = 0; i < nodes.getLength(); ++i) {
-            if (Node.ATTRIBUTE_NODE == nodes.item(i).getNodeType()) {
-                Attr attr = (Attr) nodes.item(i);
-                attr.getOwnerElement().removeAttributeNode(attr);
-                ++count;
-                continue;
-            }
-            Node parentNode = nodes.item(i).getParentNode();
-            if (parentNode == null) {
-                continue;
-            }
-            parentNode.removeChild(nodes.item(i));
-            ++count;
-        }
-        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-//        } finally {
-//            xPath.reset();
-//        }
-    }
-
-    private Object invokeGetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
-        final Node node = getNodeForMethod(method, args);
-        final Document document = DOMHelper.getOwnerDocumentFor(node);
-        final XPath xPath = projector.config().createXPath(document);
-// Automatic propagation of parameters as XPath variables
-// disabled so far...
-//        try {
-//        if (ReflectionHelper.mayProvideParameterNames()) {
-//            xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
-//        }
-        final DuplexExpression duplexExpression = new DuplexXPathParser().compile(path);
-        final ExpressionType expressionType = duplexExpression.getExpressionType();
-        final XPathExpression expression = xPath.compile(path);
-
-        final boolean wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
-        final Class<?> returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
-        if (projector.config().getTypeConverter().isConvertable(returnType)) {
-            String data;
-            if (expressionType.isMustEvalAsString()) {
-                data = (String) expression.evaluate(node, XPathConstants.STRING);
-            } else {
-                Node dataNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-                data = dataNode == null ? null : dataNode.getTextContent();
-            }
-            if ((data == null) && (absentIsEmpty)) {
-                data = "";
-            }
-
-            try {
-                final Object result = projector.config().getTypeConverter().convertTo(returnType, data);
-                return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
-            } catch (NumberFormatException e) {
-                throw new NumberFormatException(e.getMessage() + " XPath was:" + path);
-            }
-        }
-        if (Node.class.isAssignableFrom(returnType)) {
-            // Try to evaluate as node
-            // if evaluated type does not match return type, ClassCastException will follow
-            final Object result = expression.evaluate(node, XPathConstants.NODE);
-            return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
-        }
-        if (List.class.equals(returnType)) {
-            final Object result = evaluateAsList(expression, node, method);
-            return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
-        }
-        if (returnType.isArray()) {
-            List<?> list = evaluateAsList(expression, node, method);
-            return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
-        }
-        if (returnType.isInterface()) {
-            Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-            if (newNode == null) {
-                return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
-            }
-            InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
-            return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
-        }
-        throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
-// Automatic propagation of parameters as XPath variables
-// disabled so far...
-//        } finally {
-//            xPath.reset();
-//        }
-    }
-
-    private Object invokeUpdater(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
-        if (!ReflectionHelper.hasParameters(method)) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as updater but has no parameter. Please add a parameter so this method could actually change the DOM.");
-        }
-        if (method.getAnnotation(XBDocURL.class) != null) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as updater but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining updaters on external projections is not valid because there is no DOM attached.");
-        }
-        final Node node = getNodeForMethod(method, args);
-        final Document document = DOMHelper.getOwnerDocumentFor(node);
-        final XPath xPath = projector.config().createXPath(document);
-        final XPathExpression expression = xPath.compile(path);
-        final int findIndexOfValue = findIndexOfValue(method);
-        final Object valueToSet = args[findIndexOfValue];
-        final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
-        final boolean isMultiValue = isMultiValue(typeToSet);
-        if (isMultiValue) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as updater but with multiple values. Update is possible for single values only. Consider using @XBWrite.");
-        }
-        NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-        final int count = nodes.getLength();
-        for (int i = 0; i < count; ++i) {
-            final Node n = nodes.item(i);
-            if (n == null) {
-                continue;
-            }
-            if (Node.ATTRIBUTE_NODE == n.getNodeType()) {
-                Element e = ((Attr) n).getOwnerElement();
-                if (e == null) {
-                    continue;
-                }
-                DOMHelper.setOrRemoveAttribute(e, n.getNodeName(), valueToSet == null ? null : valueToSet.toString());
-                continue;
-            }
-            if (valueToSet instanceof Element) {
-                if (!(n instanceof Element)) {
-                    throw new IllegalArgumentException("XPath for element update need to select elements only");
-                }
-                DOMHelper.replaceElement((Element) n, (Element) ((Element) valueToSet).cloneNode(true));
-                continue;
-            }
-            n.setTextContent(valueToSet == null ? null : valueToSet.toString());
-        }
-
-        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-    }
-
-    private Object invokeSetter(final Object proxy, final Method method, final String path, final Object[] args) throws Throwable {
-        if (!ReflectionHelper.hasParameters(method)) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
-        }
-        if (method.getAnnotation(XBDocURL.class) != null) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
-        }
-        final String pathToElement = path.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
-        final Document document = DOMHelper.getOwnerDocumentFor(node);
-        assert document != null;
-        final int findIndexOfValue = findIndexOfValue(method);
-        final Object valueToSet = args[findIndexOfValue];
-        final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
-
-        // ROOT element update
-        if ("/*".equals(path)) { // Setting a new root element.
-            if (isMultiValue) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element, but tries to set multiple values.");
-            }
-            return handeRootElementReplacement(proxy, method, document, valueToSet);
-        }
-        final boolean wildCardTarget = path.endsWith("/*");
-        try {
-            final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(path.substring(0, path.length() - 2)) : new DuplexXPathParser().compile(path);
-            if (duplexExpression.getExpressionType().isMustEvalAsString()) {
-                throw new XBPathException("Unwriteable xpath selector used ", method, path);
-            }
-            // MULTIVALUE
-            if (isMultiValue) {
-                if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
-                    throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
-                }
-                final Collection<?> collection2Set = valueToSet == null ? Collections.emptyList() : (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
-                if (wildCardTarget) {
-                    // TODO: check support of ParameterizedType e.g. Supplier
-                    final Element parentElement = (Element) duplexExpression.ensureExistence(node);
-                    DOMHelper.removeAllChildren(parentElement);
-                    int count = 0;
-                    for (Object o : collection2Set) {
-                        if (o == null) {
-                            continue;
-                        }
-                        ++count;
-                        if (o instanceof Node) {
-                            DOMHelper.appendClone(parentElement, (Node) o);
-                            continue;
-                        }
-                        if (o instanceof InternalProjection) {
-                            DOMHelper.appendClone(parentElement, ((InternalProjection) o).getDOMBaseElement());
-                            continue;
-                        }
-                        throw new XBPathException("When using a wildcard target, the type to set must be a DOM Node or another projection. Otherwise I can not determine the element name.", method, path);
-                    }
-                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-                }
-                final Element parentElement = duplexExpression.ensureParentExistence(node);
-                duplexExpression.deleteAllMatchingChildren(parentElement);
-                int count = applyCollectionSetOnElement(collection2Set, parentElement, duplexExpression);
-                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-            }
-
-            // ATTRIBUTES
-            if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
-                if (wildCardTarget) {
-                    //TODO: This may never happen, right?
-                    throw new XBPathException("Wildcards are not allowed when writing to an attribute. I need to know to which Element I should set the attribute", method, path);
-                }
-                Attr attribute = (Attr) duplexExpression.ensureExistence(node);
-                if (valueToSet == null) {
-                    attribute.getOwnerElement().removeAttributeNode(attribute);
-                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-                }
-
-                DOMHelper.setStringValue(attribute, valueToSet.toString());
-                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-            }
-
-            if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
-                if (valueToSet instanceof Attr) {
-                    if (wildCardTarget) {
-                        throw new XBPathException("Wildcards are not allowed when writing an attribute. I need to know to which Element I should set the attribute", method, path);
-                    }
-                    Element parentNode = duplexExpression.ensureParentExistence(node);
-                    if (((Attr) valueToSet).getNamespaceURI() != null) {
-                        parentNode.setAttributeNodeNS((Attr) valueToSet);
-                        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-                    }
-                    parentNode.setAttributeNode((Attr) valueToSet);
-                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-                }
-                final Element newNodeOrigin = valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet;
-                final Element newNode = (Element) newNodeOrigin.cloneNode(true);
-                DOMHelper.ensureOwnership(document, newNode);
-                if (wildCardTarget) {
-                    Element parentElement = (Element) duplexExpression.ensureExistence(node);
-                    DOMHelper.removeAllChildren(parentElement);
-                    parentElement.appendChild(newNode);
-                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-                }
-                Element previousElement = (Element) duplexExpression.ensureExistence(node);
-
-                DOMHelper.replaceElement(previousElement, newNode);
-                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-            }
-
-            final Element elementToChange = (Element) duplexExpression.ensureExistence(node);
-            if (valueToSet == null) {
-                //TODO: This should depend on the parameter type?
-                // If param type == String, no structural change might be expected.
-                DOMHelper.removeAllChildren(elementToChange);
-            } else {
-                elementToChange.setTextContent(valueToSet.toString());
-            }
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-        } catch (XBPathParsingException e) {
-            throw new XBPathException(e, method, pathToElement);
-        }
     }
 
     private Object handeRootElementReplacement(final Object proxy, final Method method, final Document document, final Object valueToSet) {
