@@ -723,17 +723,17 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
         }
     };
-    private final Node node;
-    private final Class<?> projectionInterface;
-    private final XBProjector projector;
+//    private final Node node;
+//    private final Class<?> projectionInterface;
+//    private final XBProjector projector;
 
     private final Map<MethodSignature, InvocationHandler> handlers = new HashMap<MethodSignature, InvocationHandler>();
     private final Map<MethodSignature, InvocationHandler> mixinHandlers = new HashMap<MethodSignature, InvocationHandler>();
 
     ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> mixins, final boolean toStringRendersXML, final boolean absentIsEmpty) {
-        this.projector = projector;
-        this.node = node;
-        this.projectionInterface = projectionInterface;
+//        this.projector = projector;
+//        this.node = node;
+//        this.projectionInterface = projectionInterface;
         final Object defaultInvokerObject = toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node, projector) : new DefaultObjectInvoker(projectionInterface, node, projector);
 
         final Map<MethodSignature, InvocationHandler> defaultInvocationHandlers = getDefaultInvokers(defaultInvokerObject);
