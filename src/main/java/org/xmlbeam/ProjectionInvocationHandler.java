@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,86 +79,19 @@ import org.xmlbeam.util.intern.duplex.XBPathParsingException;
 @SuppressWarnings("serial")
 final class ProjectionInvocationHandler implements InvocationHandler, Serializable {
 
-    private static class MethodSignature implements Serializable {
-
-        @Override
-        public String toString() {
-            return "MethodSignature [name=" + name + ", paramTypes=" + Arrays.toString(paramTypes) + "]";
-        }
-
-        private final Class<?>[] paramTypes;
-        private final String name;
-
-        public static MethodSignature forVoidMethod(final String name) {
-            return new MethodSignature(name, new Class<?>[] {});
-        }
-
-        public static MethodSignature forSingleParam(final String name, final Class<?> singleParam) {
-            return new MethodSignature(name, new Class<?>[] { singleParam });
-        }
-
-        /**
-         * @param method
-         */
-        public MethodSignature(final Method method) {
-            this.name = method.getName();
-            this.paramTypes = method.getParameterTypes();
-        }
-
-        /**
-         */
-        public MethodSignature(final String name, final Class<?>[] paramTypes) {
-            this.paramTypes = paramTypes;
-            this.name = name;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = (prime * result) + ((name == null) ? 0 : name.hashCode());
-            result = (prime * result) + Arrays.hashCode(paramTypes);
-            return result;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            MethodSignature other = (MethodSignature) obj;
-            if (name == null) {
-                if (other.name != null) {
-                    return false;
-                }
-            } else if (!name.equals(other.name)) {
-                return false;
-            }
-            if (!Arrays.equals(paramTypes, other.paramTypes)) {
-                return false;
-            }
-            return true;
-        }
-
-    }
-
-    private class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
+    private static class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
         private final Node documentOrElement;
         private final Class<?> projectionInterface;
+        private final XBProjector projector;
 
         /**
          * @param documentOrElement
          * @param projectionInterface
          */
-        private DefaultDOMAccessInvoker(final Node documentOrElement, final Class<?> projectionInterface) {
+        private DefaultDOMAccessInvoker(final Node documentOrElement, final Class<?> projectionInterface, final XBProjector projector) {
             this.documentOrElement = documentOrElement;
             this.projectionInterface = projectionInterface;
+            this.projector = projector;
         }
 
         @Override
@@ -221,9 +153,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
     }
 
-    private final class DefaultObjectInvoker extends DefaultDOMAccessInvoker {
-        private DefaultObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
-            super(documentOrElement, projectionInterface);
+    private final static class DefaultObjectInvoker extends DefaultDOMAccessInvoker {
+        private DefaultObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement, final XBProjector projector) {
+            super(documentOrElement, projectionInterface, projector);
         }
 
         @Override
@@ -233,9 +165,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
     }
 
-    private final class XMLRenderingObjectInvoker extends DefaultDOMAccessInvoker {
-        private XMLRenderingObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement) {
-            super(documentOrElement, projectionInterface);
+    private final static class XMLRenderingObjectInvoker extends DefaultDOMAccessInvoker {
+        private XMLRenderingObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement, final XBProjector projector) {
+            super(documentOrElement, projectionInterface, projector);
         }
 
         @Override
@@ -248,7 +180,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final ReflectionInvoker reflectionInvoker = new ReflectionInvoker(defaultInvokerObject);
         final Map<MethodSignature, InvocationHandler> invokers = new HashMap<MethodSignature, InvocationHandler>();
         for (Method m : DOMAccess.class.getMethods()) {
-            invokers.put(new MethodSignature(m), reflectionInvoker);
+            invokers.put(MethodSignature.forMethod(m), reflectionInvoker);
         }
 
         invokers.put(MethodSignature.forVoidMethod("toString"), reflectionInvoker);
@@ -306,6 +238,26 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private static abstract class XPathInvocationHandler extends ProjectionMethodInvocationHandler {
         XPathInvocationHandler(final Method method, final String annotationValue, final Externalizer externalizer) {
             super(method, annotationValue, externalizer);
+        }
+
+        /**
+         * Determine a methods return value that does not depend on the methods execution. Possible
+         * values are void or the proxy itself (would be "this").
+         *
+         * @param method
+         * @return
+         */
+        protected Object getProxyReturnValueForMethod(final Object proxy, final Method method, final Integer numberOfChanges) {
+            if (!ReflectionHelper.hasReturnType(method)) {
+                return null;
+            }
+            if (method.getReturnType().equals(method.getDeclaringClass())) {
+                return proxy;
+            }
+            if ((numberOfChanges != null) && (method.getReturnType().isAssignableFrom(Integer.class) || method.getReturnType().isAssignableFrom(int.class))) {
+                return numberOfChanges;
+            }
+            throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
         }
     }
 
@@ -438,9 +390,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 n.setTextContent(valueToSet == null ? null : valueToSet.toString());
             }
-
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-
         }
 
     }
@@ -500,6 +450,32 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
          */
         public WriteInvocationHandler(final Method m, final String value, final Externalizer externalizer) {
             super(m, value, externalizer);
+        }
+
+        private Object handeRootElementReplacement(final Object proxy, final Method method, final Document document, final Object valueToSet) {
+            int count = document.getDocumentElement() == null ? 0 : 1;
+            if (valueToSet == null) {
+                DOMHelper.setDocumentElement(document, null);
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
+            }
+            if (valueToSet instanceof Element) {
+                Element clone = (Element) ((Element) valueToSet).cloneNode(true);
+                document.adoptNode(clone);
+                if (document.getDocumentElement() == null) {
+                    document.appendChild(clone);
+                    return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+                }
+                document.replaceChild(document.getDocumentElement(), clone);
+                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
+            }
+            if (!(valueToSet instanceof InternalProjection)) {
+                throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
+            }
+            InternalProjection projection = (InternalProjection) valueToSet;
+            Element element = projection.getDOMBaseElement();
+            assert element != null;
+            DOMHelper.setDocumentElement(document, element);
+            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
 
         @Override
@@ -625,8 +601,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     }
 
-    //private final Map<Method, InvocationHandler> defaultInvocationHandlers;
-
     private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
     private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}", Pattern.LITERAL);
     private static final InvocationHandler DEFAULT_METHOD_INVOCATION_HANDLER = new InvocationHandler() {
@@ -640,29 +614,24 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private final Class<?> projectionInterface;
     private final XBProjector projector;
 
-    // Used to handle invocations on Java6 Mixins and Object methods.
-    //private final Map<Class<?>, Object> defaultInvokers;
-
     // treat absent nodes as empty nodes
     private final boolean absentIsEmpty;
 
     private final Map<MethodSignature, InvocationHandler> handlers = new HashMap<MethodSignature, InvocationHandler>();
     private final Map<MethodSignature, InvocationHandler> mixinHandlers = new HashMap<MethodSignature, InvocationHandler>();
 
-    //private final Object defaultInvokerObject;
-
     ProjectionInvocationHandler(final XBProjector projector, final Node node, final Class<?> projectionInterface, final Map<Class<?>, Object> mixins, final boolean toStringRendersXML, final boolean absentIsEmpty) {
         this.projector = projector;
         this.node = node;
         this.projectionInterface = projectionInterface;
         this.absentIsEmpty = absentIsEmpty;
-        final Object defaultInvokerObject = toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node) : new DefaultObjectInvoker(projectionInterface, node);
+        final Object defaultInvokerObject = toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node, projector) : new DefaultObjectInvoker(projectionInterface, node, projector);
 
         final Map<MethodSignature, InvocationHandler> defaultInvocationHandlers = getDefaultInvokers(defaultInvokerObject);
 
         for (Entry<Class<?>, Object> e : mixins.entrySet()) {
             for (Method m : e.getKey().getMethods()) {
-                mixinHandlers.put(new MethodSignature(m), new MixinInvoker(e.getValue()));
+                mixinHandlers.put(MethodSignature.forMethod(m), new MixinInvoker(e.getValue()));
             }
         }
 
@@ -671,7 +640,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         List<Class<?>> allSuperInterfaces = ReflectionHelper.findAllSuperInterfaces(projectionInterface);
         for (Class<?> i7e : allSuperInterfaces) {
             for (Method m : i7e.getDeclaredMethods()) {
-                final MethodSignature methodSignature = new MethodSignature(m);
+                final MethodSignature methodSignature = MethodSignature.forMethod(m);
                 if (ReflectionHelper.isDefaultMethod(m)) {
                     handlers.put(methodSignature, DEFAULT_METHOD_INVOCATION_HANDLER);
                     continue;
@@ -906,26 +875,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
-     * Determine a methods return value that does not depend on the methods execution. Possible
-     * values are void or the proxy itself (would be "this").
-     *
-     * @param method
-     * @return
-     */
-    private Object getProxyReturnValueForMethod(final Object proxy, final Method method, final Integer numberOfChanges) {
-        if (!ReflectionHelper.hasReturnType(method)) {
-            return null;
-        }
-        if (method.getReturnType().equals(method.getDeclaringClass())) {
-            return proxy;
-        }
-        if ((numberOfChanges != null) && (method.getReturnType().isAssignableFrom(Integer.class) || method.getReturnType().isAssignableFrom(int.class))) {
-            return numberOfChanges;
-        }
-        throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
-    }
-
-    /**
      * Find the "me" attribute (which is a replacement for "this") and inject the projection proxy
      * instance.
      *
@@ -971,13 +920,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         unwrapArgs(method.getParameterTypes(), args);
         if (!mixinHandlers.isEmpty()) {
-            MethodSignature methodSignature = new MethodSignature(method);
+            MethodSignature methodSignature = MethodSignature.forMethod(method);
             if (mixinHandlers.containsKey(methodSignature)) {
                 return mixinHandlers.get(methodSignature).invoke(proxy, method, args);
             }
         }
 
-        final InvocationHandler invocationHandler = handlers.get(new MethodSignature(method));
+        final InvocationHandler invocationHandler = handlers.get(MethodSignature.forMethod(method));
         if (invocationHandler != null) {
             try {
                 return invocationHandler.invoke(proxy, method, args);
@@ -1007,32 +956,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException(e);
         }
 
-    }
-
-    private Object handeRootElementReplacement(final Object proxy, final Method method, final Document document, final Object valueToSet) {
-        int count = document.getDocumentElement() == null ? 0 : 1;
-        if (valueToSet == null) {
-            DOMHelper.setDocumentElement(document, null);
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
-        }
-        if (valueToSet instanceof Element) {
-            Element clone = (Element) ((Element) valueToSet).cloneNode(true);
-            document.adoptNode(clone);
-            if (document.getDocumentElement() == null) {
-                document.appendChild(clone);
-                return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-            }
-            document.replaceChild(document.getDocumentElement(), clone);
-            return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
-        }
-        if (!(valueToSet instanceof InternalProjection)) {
-            throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
-        }
-        InternalProjection projection = (InternalProjection) valueToSet;
-        Element element = projection.getDOMBaseElement();
-        assert element != null;
-        DOMHelper.setDocumentElement(document, element);
-        return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
     }
 
     /**
