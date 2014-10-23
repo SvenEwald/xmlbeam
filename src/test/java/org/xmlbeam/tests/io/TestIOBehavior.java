@@ -18,12 +18,12 @@ package org.xmlbeam.tests.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -50,15 +50,17 @@ public class TestIOBehavior {
     @XBDocURL("http://{0}:{1,number,#}/path")
     public interface FooProjectionWithDocSource extends FooProjection {
     }
-    
-    public interface ExternalFooProjection extends FooProjection {        
+
+    public interface ExternalFooProjection extends FooProjection {
         @XBRead("//foo")
         @XBDocURL("{0}")
-        FooProjection getExternalProjection(String url,Map<String,String> requestParams);
-        
+        FooProjection getExternalProjection(String url, Map<String, String> requestParams);
+    }
+
+    public interface BrokenExternalFooProjection extends FooProjection {
         @XBWrite("/*")
         @XBDocURL("{0}")
-        FooProjection postExternalProjection(String url,@XBValue FooProjection value);
+        FooProjection postExternalProjection(String url, @XBValue FooProjection value);
     }
 
     @Test
@@ -108,13 +110,13 @@ public class TestIOBehavior {
         assertTrue(parrot.getRequest().contains("A: B"));
         assertEquals("foo", projection.getRootName());
     }
-    
+
     @Test
     public void ensureGetExternalProjectionsWorksWithParams() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
         Map<String, String> requestParams = new HashMap<String, String>(1);
         requestParams.put("A", "B");
-        FooProjection projection =new XBProjector().projectEmptyDocument(ExternalFooProjection.class).getExternalProjection(parrot.getURL().toString(), requestParams);
+        FooProjection projection = new XBProjector().projectEmptyDocument(ExternalFooProjection.class).getExternalProjection(parrot.getURL().toString(), requestParams);
         assertTrue(parrot.getRequest().contains("A: B"));
         assertEquals("foo", projection.getRootName());
     }
@@ -130,16 +132,16 @@ public class TestIOBehavior {
         new XBProjector().io().toURLAnnotationViaPOST(projection, host, port, requestParams);
         assertTrue(parrot.getRequest().contains("A: B"));
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void ensurePostExternalProjectionsWorksWithParams() throws Exception {
         FooProjection postValue = new XBProjector().projectEmptyDocument(FooProjection.class);
-        new XBProjector().projectEmptyDocument(ExternalFooProjection.class).postExternalProjection("http://foo",postValue);
+        new XBProjector().projectEmptyDocument(BrokenExternalFooProjection.class).postExternalProjection("http://foo", postValue);
     }
 
     @Test
     public void testFileIO() throws IOException {
-        XBProjector projector=new XBProjector(new DefaultXMLFactoriesConfig().setPrettyPrinting(false));
+        XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig().setPrettyPrinting(false));
         FooProjection p = projector.projectXMLString("<foo><bar/></foo>", FooProjection.class);
         File tempFile = File.createTempFile(this.getClass().getSimpleName(), Long.toBinaryString(System.currentTimeMillis()));
         {
@@ -161,11 +163,11 @@ public class TestIOBehavior {
         tempFile.delete();
     }
 
-    private XBUrlIO addRequestParams(XBUrlIO io) {
+    private XBUrlIO addRequestParams(final XBUrlIO io) {
         return io.addRequestProperty("testparam", "mustBeInRequest").addRequestProperties(IOHelper.createBasicAuthenticationProperty("user", "password"));
     }
 
-    private void validateRequest(String request) {
+    private void validateRequest(final String request) {
         assertTrue(request.contains("Authorization: Basic dXNlcjpwYXNzd29yZA=="));
         assertTrue(request.contains("testparam: mustBeInRequest"));
     }

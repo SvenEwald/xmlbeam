@@ -430,8 +430,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
             throw new IllegalArgumentException("Parameter node must not be null");
         }
 
-        final Map<Class<?>, Object> mixinsForProjection = mixins.containsKey(projectionInterface) ? Collections.unmodifiableMap(mixins.get(projectionInterface)) :Collections.<Class<?>,Object>emptyMap();
-        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface,mixinsForProjection,flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
+        final Map<Class<?>, Object> mixinsForProjection = mixins.containsKey(projectionInterface) ? Collections.unmodifiableMap(mixins.get(projectionInterface)) : Collections.<Class<?>, Object> emptyMap();
+        final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, mixinsForProjection, flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
         if (flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS)) {
             final Document document = DOMHelper.getOwnerDocumentFor(documentOrElement);
             InvocationHandler synchronizedInvocationHandler = new InvocationHandler() {
@@ -580,8 +580,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
             final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
             final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
+            final boolean isExternal = (method.getAnnotation(XBDocURL.class) != null);
             if (isRead ? isUpdate || isWrite || isDelete : (isUpdate ? isWrite || isDelete : isWrite && isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName());
+            }
+            if (isExternal && (isWrite || isUpdate || isDelete)) {
+                throw new IllegalArgumentException("Method " + method + " was declared as writing projection but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining external projections is only possible when reading because there is no DOM attached.");
             }
             if (isRead) {
                 if (!ReflectionHelper.hasReturnType(method)) {
