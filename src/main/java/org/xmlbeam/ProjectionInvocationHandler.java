@@ -114,7 +114,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             injectMeAttribute((InternalProjection) proxy, obj, projectionInterface);
-            return super.invoke(proxy, method, args);
+            try {
+                return super.invoke(proxy, method, args);
+            } catch (InvocationTargetException e) {
+                throw e.getCause() == null ? e : e.getCause();
+            }
         }
     }
 
@@ -124,6 +128,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         protected final XBProjector projector;
         protected final Node node;
         private final String docAnnotationValue;
+        private final boolean isVoidMethod;
 
         ProjectionMethodInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
             this.method = method;
@@ -132,6 +137,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             this.node = node;
             final XBDocURL annotation = method.getAnnotation(XBDocURL.class);
             this.docAnnotationValue = annotation == null ? null : annotation.value();
+            this.isVoidMethod = !ReflectionHelper.hasReturnType(method);
         }
 
         protected Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
@@ -156,7 +162,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
          * @return
          */
         protected Object getProxyReturnValueForMethod(final Object proxy, final Method method, final Integer numberOfChanges) {
-            if (!ReflectionHelper.hasReturnType(method)) {
+            if (isVoidMethod) {
                 return null;
             }
             if (method.getReturnType().equals(method.getDeclaringClass())) {
@@ -335,6 +341,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private static class UpdateInvocationHandler extends XPathInvocationHandler {
 
+        private final int findIndexOfValue;
+
         /**
          * @param m
          * @param value
@@ -342,16 +350,17 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
          */
         public UpdateInvocationHandler(final Node node, final Method m, final String value, final XBProjector projector) {
             super(node, m, value, projector);
+            findIndexOfValue = findIndexOfValue(m);
         }
 
         @Override
-        public Object invokeXpathProjection(final XPath xpath, final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
+        public Object invokeXpathProjection(final XPath xPath, final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
             assert ReflectionHelper.hasParameters(method);
             final Node node = getNodeForMethod(method, args);
-            final Document document = DOMHelper.getOwnerDocumentFor(node);
-            final XPath xPath = projector.config().createXPath(document);
+//            final Document document = DOMHelper.getOwnerDocumentFor(node);
+//            final XPath xPath = projector.config().createXPath(document);
             final XPathExpression expression = xPath.compile(resolvedXpath);
-            final int findIndexOfValue = findIndexOfValue(method);
+
             final Object valueToSet = args[findIndexOfValue];
             final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
             final boolean isMultiValue = isMultiValue(typeToSet);
@@ -433,13 +442,17 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private static class WriteInvocationHandler extends ProjectionMethodInvocationHandler {
 
+        private final int findIndexOfValue;
+
         /**
+         * @param node
          * @param m
          * @param value
          * @param projector
          */
         public WriteInvocationHandler(final Node node, final Method m, final String value, final XBProjector projector) {
             super(node, m, value, projector);
+            findIndexOfValue = findIndexOfValue(m);
         }
 
         private Object handeRootElementReplacement(final Object proxy, final Method method, final Document document, final Object valueToSet) {
