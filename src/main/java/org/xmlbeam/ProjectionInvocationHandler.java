@@ -123,12 +123,54 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     private static abstract class ProjectionMethodInvocationHandler implements InvocationHandler, Serializable {
-        private final Method method;
+
+        private static final InvocationContext EMPTY_INVOCATION_CONTEXT = new InvocationContext(null, null, null, null);
+
+        static class InvocationContext {
+            public String getResolvedXPath() {
+                return resolvedXPath;
+            }
+
+            public XPath getxPath() {
+                return xPath;
+            }
+
+            public XPathExpression getxPathExpression() {
+                return xPathExpression;
+            }
+
+            public DuplexExpression getDuplexExpression() {
+                return duplexExpression;
+            }
+
+            public InvocationContext(final String resolvedXPath, final XPath xPath, final XPathExpression xPathExpression, final DuplexExpression duplexExpression) {
+                this.resolvedXPath = resolvedXPath;
+                this.xPath = xPath;
+                this.xPathExpression = xPathExpression;
+                this.duplexExpression = duplexExpression;
+            }
+
+            final String resolvedXPath;
+            final XPath xPath;
+            final XPathExpression xPathExpression;
+            final DuplexExpression duplexExpression;
+
+            /**
+             * @param resolvedXpath
+             * @return true if this invocation context may be reused for given path
+             */
+            public boolean isStillValid(final String resolvedXpath) {
+                return resolvedXpath.equals(this.resolvedXPath);
+            }
+        }
+
+        protected final Method method;
         protected final String annotationValue;
         protected final XBProjector projector;
         protected final Node node;
         private final String docAnnotationValue;
         private final boolean isVoidMethod;
+        protected InvocationContext lastInvocationContext = EMPTY_INVOCATION_CONTEXT;
 
         ProjectionMethodInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
             this.method = method;
@@ -174,29 +216,36 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("Method " + method + " has illegal return type \"" + method.getReturnType() + "\". I don't know what to return. I expected void or " + method.getDeclaringClass().getSimpleName());
         }
 
-        abstract protected Object invokeProjection(final String resolvedXpath, Object proxy, final Method method, final Object[] args) throws Throwable;
+        abstract protected Object invokeProjection(final String resolvedXpath, final Object proxy, final Object[] args) throws Throwable;
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String xPath = resolveXPath(args);
             final String resolvedXpath = applyParams(xPath, method, args);
-            return invokeProjection(resolvedXpath, proxy, method, args);
+            return invokeProjection(resolvedXpath, proxy, args);
         }
 
     }
 
     private static abstract class XPathInvocationHandler extends ProjectionMethodInvocationHandler {
-        XPathInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
+
+        private XPathInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
             super(node, method, annotationValue, projector);
         }
 
         @Override
-        final protected Object invokeProjection(final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
+        final protected Object invokeProjection(final String resolvedXpath, final Object proxy, final Object[] args) throws Throwable {
             final XPath xPath = projector.config().createXPath(DOMHelper.getOwnerDocumentFor(node));
-            return invokeXpathProjection(xPath, resolvedXpath, proxy, method, args);
+
+            if (!lastInvocationContext.isStillValid(resolvedXpath)) {
+                final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
+                final XPathExpression xPathExpression = xPath.compile(resolvedXpath);
+                lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression);
+            }
+            return invokeXpathProjection(lastInvocationContext, proxy, args);
         }
 
-        abstract protected Object invokeXpathProjection(final XPath xpath, final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable;
+        abstract protected Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable;
     }
 
     private static class ReadInvocationHandler extends XPathInvocationHandler {
@@ -276,7 +325,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         @Override
-        public Object invokeXpathProjection(final XPath xPath, final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
+        public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Node node = getNodeForMethod(method, args);
             // Automatic propagation of parameters as XPath variables
             // disabled so far...
@@ -284,9 +333,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 //            if (ReflectionHelper.mayProvideParameterNames()) {
 //                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
 //            }
-            final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
-            final ExpressionType expressionType = duplexExpression.getExpressionType();
-            final XPathExpression expression = xPath.compile(resolvedXpath);
+
+            final ExpressionType expressionType = invocationContext.getDuplexExpression().getExpressionType();
+            final XPathExpression expression = invocationContext.getxPathExpression();
 
             if (isConvertable) {
                 String data;
@@ -304,7 +353,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     final Object result = projector.config().getTypeConverter().convertTo(returnType, data);
                     return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
                 } catch (NumberFormatException e) {
-                    throw new NumberFormatException(e.getMessage() + " XPath was:" + resolvedXpath);
+                    throw new NumberFormatException(e.getMessage() + " XPath was:" + invocationContext.getResolvedXPath());
                 }
             }
             if (isReturnAsNode) {
@@ -344,6 +393,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final int findIndexOfValue;
 
         /**
+         * @param node
          * @param m
          * @param value
          * @param projector
@@ -357,16 +407,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         @Override
-        public Object invokeXpathProjection(final XPath xPath, final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
+        public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             assert ReflectionHelper.hasParameters(method);
             final Node node = getNodeForMethod(method, args);
 //            final Document document = DOMHelper.getOwnerDocumentFor(node);
 //            final XPath xPath = projector.config().createXPath(document);
-            final XPathExpression expression = xPath.compile(resolvedXpath);
+            final XPathExpression expression = invocationContext.getxPathExpression();
 
             final Object valueToSet = args[findIndexOfValue];
-            final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
-            final boolean isMultiValue = isMultiValue(typeToSet);
+            //      final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
+            //     final boolean isMultiValue = isMultiValue(typeToSet);
             NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
             final int count = nodes.getLength();
             for (int i = 0; i < count; ++i) {
@@ -408,14 +458,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         @Override
-        public Object invokeXpathProjection(final XPath xPath, final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
+        public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
 
 //            try {
 //                if (ReflectionHelper.mayProvideParameterNames()) {
 //                    xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, xPath.getXPathVariableResolver()));
 //               }
 
-            final XPathExpression expression = xPath.compile(resolvedXpath);
+            final XPathExpression expression = invocationContext.getxPathExpression();
             NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
             int count = 0;
             for (int i = 0; i < nodes.getLength(); ++i) {
@@ -526,7 +576,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
 
         @Override
-        public Object invokeProjection(final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
+        public Object invokeProjection(final String resolvedXpath, final Object proxy, final Object[] args) throws Throwable {
             //   final String pathToElement = resolvedXpath.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
             final Document document = DOMHelper.getOwnerDocumentFor(node);
             assert document != null;
@@ -542,7 +592,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             final boolean wildCardTarget = resolvedXpath.endsWith("/*");
             try {
-                final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(resolvedXpath.substring(0, resolvedXpath.length() - 2)) : new DuplexXPathParser().compile(resolvedXpath);
+                if (!lastInvocationContext.isStillValid(resolvedXpath)) {
+                    final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(resolvedXpath.substring(0, resolvedXpath.length() - 2)) : new DuplexXPathParser().compile(resolvedXpath);
+                    lastInvocationContext = new InvocationContext(resolvedXpath, null, null, duplexExpression);
+                }
+                final DuplexExpression duplexExpression = lastInvocationContext.getDuplexExpression();
                 if (duplexExpression.getExpressionType().isMustEvalAsString()) {
                     throw new XBPathException("Unwriteable xpath selector used ", method, resolvedXpath);
                 }
