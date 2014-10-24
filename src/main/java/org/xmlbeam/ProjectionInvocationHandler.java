@@ -351,6 +351,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         public UpdateInvocationHandler(final Node node, final Method m, final String value, final XBProjector projector) {
             super(node, m, value, projector);
             findIndexOfValue = findIndexOfValue(m);
+            if (isMultiValue(m.getParameterTypes()[findIndexOfValue])) {
+                throw new IllegalArgumentException("Method " + m + " was declated as updater but with multiple values. Update is possible for single values only. Consider using @XBWrite.");
+            }
         }
 
         @Override
@@ -364,9 +367,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final Object valueToSet = args[findIndexOfValue];
             final Class<?> typeToSet = method.getParameterTypes()[findIndexOfValue];
             final boolean isMultiValue = isMultiValue(typeToSet);
-            if (isMultiValue) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as updater but with multiple values. Update is possible for single values only. Consider using @XBWrite.");
-            }
             NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
             final int count = nodes.getLength();
             for (int i = 0; i < count; ++i) {
@@ -527,16 +527,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         @Override
         public Object invokeProjection(final String resolvedXpath, final Object proxy, final Method method, final Object[] args) throws Throwable {
-            if (!ReflectionHelper.hasParameters(method)) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as setter but has no parameter. Please add a parameter so this method could actually change the DOM.");
-            }
-            if (method.getAnnotation(XBDocURL.class) != null) {
-                throw new IllegalArgumentException("Method " + method + " was invoked as setter but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining setters on external projections is not valid because there is no DOM attached.");
-            }
             //   final String pathToElement = resolvedXpath.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
             final Document document = DOMHelper.getOwnerDocumentFor(node);
             assert document != null;
-            final int findIndexOfValue = findIndexOfValue(method);
             final Object valueToSet = args[findIndexOfValue];
             final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
 
