@@ -14,7 +14,6 @@
  *  limitations under the License.
  */
 /**
- * Internal package with classes that will change in minor version updates.
- * Do not use this package.
+ * You may like to use the {@link org.xmlbeam.util.IOHelper} class to add basic HTTP authentication. 
  */
-package org.xmlbeam.util.intern;
+package org.xmlbeam.util;

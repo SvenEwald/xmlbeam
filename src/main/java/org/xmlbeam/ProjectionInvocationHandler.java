@@ -46,6 +46,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xmlbeam.XBProjector.IOBuilder;
 import org.xmlbeam.XBProjector.InternalProjection;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
@@ -185,7 +186,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         protected Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
             if (docAnnotationValue != null) {
                 String uri = projector.config().getExternalizer().resolveURL(docAnnotationValue, method, args);
-                final Map<String, String> requestParams = projector.io().filterRequestParamsFromParams(uri, args);
+                final Map<String, String> requestParams = ((IOBuilder)projector.io()).filterRequestParamsFromParams(uri, args);
                 uri = applyParams(uri, method, args);
                 return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass());
             }

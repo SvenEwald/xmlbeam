@@ -16,6 +16,8 @@
 package org.xmlbeam;
 
 /**
+ * Interface to enable the {@link org.xmlbeam.XBProjector} to register mixins.
+ * Will be removed when the Java 6 & 7 support is dropped.
  */
 @SuppressWarnings("ucd")
 public interface MixinHolder {

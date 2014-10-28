@@ -14,5 +14,7 @@
  *  limitations under the License.
  */
 /**
+ * Contains the {@link org.xmlbeam.config.XMLFactoriesConfig} interface and it's default implementation. 
+ * You need this if you wand to plug in another XML parser or XPath engine.
  */
 package org.xmlbeam.config;

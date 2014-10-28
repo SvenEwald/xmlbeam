@@ -250,7 +250,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * A variation of the builder pattern. Mixin related methods are grouped behind this builder
      * class.
      */
-    public class MixinBuilder implements MixinHolder {
+     class MixinBuilder implements MixinHolder {
         /**
          * {@inheritDoc}
          */
@@ -294,7 +294,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
     /**
      * A variation of the builder pattern. IO related methods are grouped behind this builder class.
      */
-    public class IOBuilder implements ProjectionIO {
+    class IOBuilder implements ProjectionIO {
 
         /**
          * {@inheritDoc}
@@ -409,14 +409,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
         Element element = document.createElement(name);
         return projectDOMNode(element, projectionInterface);
     }
-
-//    public <T> T projectProjection(final T projection,String xpath) {
-//        if (!( projection instanceof InternalProjection)) {
-//            throw new IllegalArgumentException("Given object is not a projection created by a projector.");
-//        }
-//        DOMAccess domAccess = (DOMAccess) projection;
-//        xMLFactoriesConfig.createXPath(domAccess.getDOMOwnerDocument())
-//    }
 
     /**
      * {@inheritDoc}
@@ -544,11 +536,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
     }
 
     /**
-     * Shortcut for creating a {@link MixinBuilder} object add or remove mixins to projections.
+     * Shortcut for creating a {@link MixinHolder} object add or remove mixins to projections.
      *
      * @return a new MixinBuilder for this projector.
      */
-    public MixinBuilder mixins() {
+    public MixinHolder mixins() {
         return new MixinBuilder();
     }
 
@@ -634,7 +626,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @return A new IOBuilder providing methods to read or write projections.
      */
     @Override
-    public IOBuilder io() {
+    public ProjectionIO io() {
         return new IOBuilder();
     }
 

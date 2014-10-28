@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 /**
- * This package contains the {@link org.xmlbeam.XBProjector}.
+ * This package contains the {@link org.xmlbeam.XBProjector} which is the starting point of using XMLBeam.
  *
  */
 package org.xmlbeam;
