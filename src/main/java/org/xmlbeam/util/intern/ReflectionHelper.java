@@ -481,15 +481,32 @@ public final class ReflectionHelper {
 
     /**
      * Throws a throwable of type throwableType. The throwable will be created
-     * using the default constructor.
+     * using an args matching constructor of the default constructor if no 
+     * matching constructor can be found.
      * 
      * @param throwableType type of throwable to be thrown
-     * @param args for the throwable
+     * @param args for the throwable construction
      * @throws Throwable 
      */
     public static void throwThrowable(Class<?> throwableType, Object[] args) throws Throwable {
-        throw (Throwable) throwableType.newInstance();
+        Class<?>[] argsClasses = getClassesOfObjects(args);
+        Constructor<?> constructor = ReflectionHelper.getCallableConstructorForParams(throwableType, argsClasses);
+        Throwable throwable = null;
+        if(constructor != null) {
+            throwable = (Throwable) constructor.newInstance(args);
+        } else {
+            throwable = (Throwable) throwableType.newInstance();
+        }
+        throw throwable;
         
+    }
+    
+    private static Class<?>[] getClassesOfObjects(Object... objects){
+        Class<?>[] classes = new Class<?>[objects.length];
+        for(int i=0; i<objects.length; ++i) {
+            classes[i] = objects[i].getClass();
+        }
+        return classes;
     }
 
 //    /**
