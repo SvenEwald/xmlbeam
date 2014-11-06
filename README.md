@@ -29,7 +29,7 @@ XMLBeam Feature List
 
  * Tiny foot print, dependency free
  
-   The XMLBeam jar weights about 165kb and does not have any runtime dependency.  
+   The XMLBeam jar weights about 200kb and does not have any runtime dependency.  
    So you won't get any transitive dependencies.
 
  * Glue code free framework
