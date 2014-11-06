@@ -128,4 +128,7 @@ public interface XMLBeamTestSuite extends DOMAccess {
     
     @XBRead("/gluerootnode/intermediate/nonexistingvalue")
     String getNonExistingValue() throws RuntimeException;
+    
+    @XBRead(value = "/gluerootnode/intermediate/nonexistingelement")
+    InnerStructure getNonExistingInnerStructure() throws RuntimeException;
 }

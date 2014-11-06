@@ -265,4 +265,9 @@ public class TestXMLProjector {
     public void getNonExistingValueWithThrows() {
         suite.getNonExistingValue();
     }
+    
+    @Test(expected=RuntimeException.class)
+    public void getNonExistingInnerStructureWithThrows() {
+        suite.getNonExistingInnerStructure();
+    }
 }

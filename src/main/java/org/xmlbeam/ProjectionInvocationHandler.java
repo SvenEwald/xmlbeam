@@ -381,6 +381,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsSubProjection) {
                 final Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
+                if ((newNode == null) && (isThrowIfAbsent)) {
+                    ReflectionHelper.throwThrowable(exceptionType, args);
+                }
                 if (newNode == null) {
                     return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
                 }
