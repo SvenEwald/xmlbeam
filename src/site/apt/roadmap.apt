@@ -21,6 +21,10 @@ Roadmap
  * Replacing dynamic proxy by asm generated class
    (Depending on result of performance analysis)
  
+* Version 1.4.2
+
+ * New feature: Reading projection methods may throw exception on non existing values. 
+ 
 * Version 1.4.1
  
  * Performance enhancements by pre processing reflection metadata for InvocationHandlers

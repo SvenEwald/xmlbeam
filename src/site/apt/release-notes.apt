@@ -8,7 +8,16 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.0 current release
+* 1.4.1 current release
+
+ * New feature: Reading projection methods may now throw exceptions when values do not exist.
+   Just declare your exception type in the method signature.
+   If your exception constructor has parameters matching the projection methods, all method parameters are passed to the exception.
+   This is useful if you call projection methods from multiple places and returning Optional would replicate your error handling. 
+ 
+ * Performance improvements. Reusing more objects in consecutive projection method calls.
+
+* 1.4.0
 
  * Changed the default value of String conversions to null.
    Now you get a null value on selecting non existing values.
