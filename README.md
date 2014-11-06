@@ -9,23 +9,17 @@
 
 About
 
- This is a Java library to project parts of a XML DOM tree into Java and back.  
+ This is a Java XML CRUD library and a very flexible alternative to data binding.
+ It works by "projecting" parts of a XML DOM tree into Java objects and back.   
 
 Motivation: 
 
  What's wrong with Java XML data binding?
-
- This library is an alternative to Java XML binding libraries which convert XML entities into java objects and back.
- There is quite a list of these libraries, frequently used examples are: JAXB, XStream, XMLBeans, ...
  
- They have in common, that the structures of XML documents are mirrored to Java object structures.
+ Data binding needs the structure of XML documents being mirrored to Java object structures.
  That means your Java API is determined by XML.
  
- When you use this API scattered in your application code you get harmful dependencies from your code to the XML structure.
- You may want to prevent this by adding a glue code layer between your application code and your XML API.
- But anyway will changing the XML schema may lead to code changes. 
- 
- XMLBeam helps to avoid glue code and even API changes by utilizing a mapping layer of tiny XPath expressions.
+ XMLBeam helps to avoid API changes by utilizing a mapping layer of tiny XPath expressions.
  Don't worry, you won't need a deep knowledge of XPath.
 
 XMLBeam Feature List
@@ -83,8 +77,8 @@ XMLBeam Feature List
   
  * Painless DOM access
  
-   You may at any time access and modify the DOM behind the scenes. You will find convenient access methods in XBProjector.java.
-   Changes will reflect automatically in projections, because XMLBeam uses the DOM as backend. 
+   You may at any time access and modify the DOM behind the scenes. You will find convenient access methods for documents, elements and attributes.
+   Changes will reflect automatically in projections, because XMLBeam uses the DOM as back end. 
    
  * Easy name space handling
  
@@ -98,7 +92,8 @@ XMLBeam Feature List
  * API Mimicry
  
    XMLBeam is so flexible that it can even be used to mimicry other APIs.
-   (See tutorial e08 where the DOM4J API is imitated.) 
+   (See tutorial e08 where the DOM4J API is imitated.)
+   
    
 You can not use XMLBeam
  
