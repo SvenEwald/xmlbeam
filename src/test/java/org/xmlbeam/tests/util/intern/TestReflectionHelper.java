@@ -15,7 +15,9 @@
  */
 package org.xmlbeam.tests.util.intern;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -88,6 +90,35 @@ public class TestReflectionHelper {
     public void testNonGegenricTypeIsNoRawType() throws Exception {
         Method nonraw = TestReflectionHelper.class.getMethod("withReturnTypeAndParameter", new Class[] { String.class });
         assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void testThrowThrowableWithoutArgs() throws Throwable {
+        ReflectionHelper.throwThrowable(RuntimeException.class, new Object[]{});
+    }
+    
+    @Test
+    public void testThrowThrowableWithMatchingArgs() throws Throwable {
+        boolean exceptionCaught = false;
+        try {
+        ReflectionHelper.throwThrowable(IllegalArgumentException.class, new Object[]{"My message"});
+        } catch(IllegalArgumentException e) {
+            exceptionCaught = true;
+            assertEquals("My message", e.getMessage());
+        }
+        assertTrue(exceptionCaught);
+    }
+    
+    @Test
+    public void testThrowThrowableWithNotMatchingArgs() throws Throwable {
+        boolean exceptionCaught = false;
+        try {
+        ReflectionHelper.throwThrowable(IllegalArgumentException.class, new Object[]{15});
+        } catch(IllegalArgumentException e) {
+            exceptionCaught = true;
+            assertNull(e.getMessage());
+        }
+        assertTrue(exceptionCaught);
     }
 
 //    @Test

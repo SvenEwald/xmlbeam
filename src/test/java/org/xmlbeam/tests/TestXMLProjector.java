@@ -260,4 +260,26 @@ public class TestXMLProjector {
         final Document xmlDocForProjection = emptyDocumentProjection.getDOMOwnerDocument();
         assertNull(xmlDocForProjection.getDocumentElement());
     }
+    
+    @Test(expected=RuntimeException.class)
+    public void getNonExistingValueWithThrows() {
+        suite.getNonExistingValue();
+    }
+    
+    @Test(expected=RuntimeException.class)
+    public void getNonExistingInnerStructureWithThrows() {
+        suite.getNonExistingInnerStructure();
+    }
+    
+    @Test
+    public void getNonExistingDynamicInnerStructureWithThrows() {
+        boolean exceptionCaught = false;
+        try {
+            suite.getNonExistingValue("Value");
+        } catch(IllegalArgumentException e) {
+            exceptionCaught = true;
+            assertEquals("Value", e.getMessage());
+        }
+        assertTrue(exceptionCaught);
+    }
 }
