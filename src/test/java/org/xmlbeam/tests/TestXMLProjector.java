@@ -260,4 +260,9 @@ public class TestXMLProjector {
         final Document xmlDocForProjection = emptyDocumentProjection.getDOMOwnerDocument();
         assertNull(xmlDocForProjection.getDocumentElement());
     }
+    
+    @Test(expected=RuntimeException.class)
+    public void getNonExistingValueWithThrows() {
+        suite.getNonExistingValue();
+    }
 }

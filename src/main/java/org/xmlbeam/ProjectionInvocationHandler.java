@@ -254,23 +254,28 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final boolean wrappedInOptional;
         private final Class<?> returnType;
         private final Class<?> targetComponentType;
+        private final Class<?> exceptionType;
         private final boolean isConvertable;
         private final boolean isReturnAsNode;
         private final boolean isEvaluateAsList;
         private final boolean isEvaluateAsArray;
         private final boolean isEvaluateAsSubProjection;
+        private final boolean isThrowIfAbsent;
 
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
             this.absentIsEmpty = absentIsEmpty;
             wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
             returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
+            Class<?>[] exceptionTypes = method.getExceptionTypes();
+            exceptionType = exceptionTypes.length > 0 ? exceptionTypes[0] : null;
             this.isConvertable = projector.config().getTypeConverter().isConvertable(returnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
             this.isEvaluateAsList = List.class.equals(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             this.targetComponentType = isEvaluateAsList || isEvaluateAsArray ? findTargetComponentType(method) : null;
             this.isEvaluateAsSubProjection = returnType.isInterface();
+            this.isThrowIfAbsent = exceptionType != null;
         }
 
         /**
@@ -345,6 +350,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 } else {
                     Node dataNode = (Node) expression.evaluate(node, XPathConstants.NODE);
                     data = dataNode == null ? null : dataNode.getTextContent();
+                }
+                if ((data == null) && (isThrowIfAbsent)) {
+                    ReflectionHelper.throwThrowable(exceptionType, args);
                 }
                 if ((data == null) && (absentIsEmpty)) {
                     data = "";

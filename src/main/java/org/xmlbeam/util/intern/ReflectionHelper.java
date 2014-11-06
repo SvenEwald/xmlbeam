@@ -479,6 +479,19 @@ public final class ReflectionHelper {
         }
     }
 
+    /**
+     * Throws a throwable of type throwableType. The throwable will be created
+     * using the default constructor.
+     * 
+     * @param throwableType type of throwable to be thrown
+     * @param args for the throwable
+     * @throws Throwable 
+     */
+    public static void throwThrowable(Class<?> throwableType, Object[] args) throws Throwable {
+        throw (Throwable) throwableType.newInstance();
+        
+    }
+
 //    /**
 //     * @param m
 //     * @return list of methods overridden by given method

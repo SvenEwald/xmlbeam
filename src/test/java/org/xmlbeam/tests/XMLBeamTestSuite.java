@@ -125,4 +125,7 @@ public interface XMLBeamTestSuite extends DOMAccess {
 
     @XBWrite("/description")
     void setDescription(String description);
+    
+    @XBRead("/gluerootnode/intermediate/nonexistingvalue")
+    String getNonExistingValue() throws RuntimeException;
 }
