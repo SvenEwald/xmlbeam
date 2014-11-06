@@ -80,6 +80,7 @@ public class DuplexExpression {
      */
     public ExpressionType getExpressionType() {
         try { //TODO: cache expression type ?
+            node.dump("");
             final ExpressionType expressionType = node.firstChildAccept(new ExpressionTypeEvaluationVisitor(), null);
             return expressionType;
         } catch (IllegalArgumentException e) {

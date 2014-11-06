@@ -239,6 +239,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                 final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
+                duplexExpression.getExpressionType();
                 final XPathExpression xPathExpression = xPath.compile(resolvedXpath);
                 lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression);
             }
