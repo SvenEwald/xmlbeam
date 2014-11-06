@@ -270,4 +270,16 @@ public class TestXMLProjector {
     public void getNonExistingInnerStructureWithThrows() {
         suite.getNonExistingInnerStructure();
     }
+    
+    @Test
+    public void getNonExistingDynamicInnerStructureWithThrows() {
+        boolean exceptionCaught = false;
+        try {
+            suite.getNonExistingValue("Value");
+        } catch(IllegalArgumentException e) {
+            exceptionCaught = true;
+            assertEquals("Value", e.getMessage());
+        }
+        assertTrue(exceptionCaught);
+    }
 }
