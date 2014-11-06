@@ -89,6 +89,11 @@ public class TestReflectionHelper {
         Method nonraw = TestReflectionHelper.class.getMethod("withReturnTypeAndParameter", new Class[] { String.class });
         assertFalse(ReflectionHelper.isRawType(nonraw.getGenericReturnType()));
     }
+    
+    @Test(expected = RuntimeException.class)
+    public void testThrowThrowableWithoutArgs() throws Throwable {
+        ReflectionHelper.throwThrowable(RuntimeException.class, new Object[]{});
+    }
 
 //    @Test
 //    public void testOverridenMethods() {
