@@ -186,7 +186,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         protected Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
             if (docAnnotationValue != null) {
                 String uri = projector.config().getExternalizer().resolveURL(docAnnotationValue, method, args);
-                final Map<String, String> requestParams = ((IOBuilder)projector.io()).filterRequestParamsFromParams(uri, args);
+                final Map<String, String> requestParams = ((IOBuilder) projector.io()).filterRequestParamsFromParams(uri, args);
                 uri = applyParams(uri, method, args);
                 return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass());
             }
@@ -264,7 +264,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
-            this.absentIsEmpty = absentIsEmpty;
             wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
             returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
             Class<?>[] exceptionTypes = method.getExceptionTypes();
@@ -276,6 +275,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             this.targetComponentType = isEvaluateAsList || isEvaluateAsArray ? findTargetComponentType(method) : null;
             this.isEvaluateAsSubProjection = returnType.isInterface();
             this.isThrowIfAbsent = exceptionType != null;
+
+            // Throwing exception overrides empty default value.
+            this.absentIsEmpty = absentIsEmpty && (!isThrowIfAbsent);
         }
 
         /**
@@ -332,6 +334,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         @Override
         public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
+            final Object result = invokeReadProjection(invocationContext, proxy, args);
+            if ((result == null) && (isThrowIfAbsent)) {
+                ReflectionHelper.throwThrowable(exceptionType, args);
+            }
+            return result;
+        }
+
+        private Object invokeReadProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Node node = getNodeForMethod(method, args);
             // Automatic propagation of parameters as XPath variables
             // disabled so far...
@@ -350,9 +360,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 } else {
                     Node dataNode = (Node) expression.evaluate(node, XPathConstants.NODE);
                     data = dataNode == null ? null : dataNode.getTextContent();
-                }
-                if ((data == null) && (isThrowIfAbsent)) {
-                    ReflectionHelper.throwThrowable(exceptionType, args);
                 }
                 if ((data == null) && (absentIsEmpty)) {
                     data = "";
@@ -381,9 +388,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsSubProjection) {
                 final Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
-                if ((newNode == null) && (isThrowIfAbsent)) {
-                    ReflectionHelper.throwThrowable(exceptionType, args);
-                }
                 if (newNode == null) {
                     return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
                 }
