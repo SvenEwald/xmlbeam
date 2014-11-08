@@ -2,11 +2,21 @@ About
 
 * Developer
   
-  XMLBeam is developed by {{{https://github.com/SvenEwald}Sven Ewald.}}
+  XMLBeam is developed by {{{https://github.com/SvenEwald}Sven Ewald}} with contributions by {{{https://github.com/cemonds}Christoph Emonds}}.
+  
+* Special thanks to 
+
+ * {{{https://github.com/olivergierke}Oliver Gierke}} for feature requests and bug reports.
+ 
+ * {{{https://github.com/neilmcguigan}Neil McGuigan}} for feature requests and bug reports.
+ 
+ * {{{https://plus.google.com/101312240852175091441/}Micha Kops}} for his {{{http://www.hascode.com/2014/07/xmlbeam-snippets-and-examples/}tutorial}}.
+ 
+ * {{{https://github.com/ghajba}Gábor László Hajba}} for his {{{https://hahamo.wordpress.com/tag/xmlbeam/}articles on XMLBeam}}.
   
 * Bug Tracking
 
-  Feel free to use the {{{https://github.com/SvenEwald/xmlbeam/issues}bugtracker.}} 
+  Feel free to use the {{{https://github.com/SvenEwald/xmlbeam/issues}bugtracker}}. 
   
 * License
 
