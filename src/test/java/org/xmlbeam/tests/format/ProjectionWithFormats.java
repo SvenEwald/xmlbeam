@@ -20,6 +20,9 @@ public interface ProjectionWithFormats {
     @XBRead("(:YYYY:)/foo/bar/date")
     Date getDate();
 
+    @XBRead("(:YYYYMMDD:)/foo/bar/date")
+    Date getDate2();
+
 //    @XBRead("/some/date using DateTimeFormatter.ofPattern(\"yyyy MM dd\")")
 //    Date getOtherDate(DateFormat format);
 }
