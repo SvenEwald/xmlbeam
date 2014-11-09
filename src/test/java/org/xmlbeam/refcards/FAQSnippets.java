@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
-
 import java.util.List;
 
 import javax.xml.xpath.XPath;
@@ -35,10 +34,9 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
-import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
-@SuppressWarnings({ "unused", "serial","javadoc" })
+@SuppressWarnings({ "unused", "serial", "javadoc" })
 public class FAQSnippets {
 
     /**
@@ -50,7 +48,7 @@ public class FAQSnippets {
          * {@inheritDoc}
          */
         @Override
-        public boolean isObjectModelSupported(String objectModel) {
+        public boolean isObjectModelSupported(final String objectModel) {
             return false;
         }
 
@@ -58,7 +56,7 @@ public class FAQSnippets {
          * {@inheritDoc}
          */
         @Override
-        public void setFeature(String name, boolean value) throws XPathFactoryConfigurationException {
+        public void setFeature(final String name, final boolean value) throws XPathFactoryConfigurationException {
 
         }
 
@@ -66,7 +64,7 @@ public class FAQSnippets {
          * {@inheritDoc}
          */
         @Override
-        public boolean getFeature(String name) throws XPathFactoryConfigurationException {
+        public boolean getFeature(final String name) throws XPathFactoryConfigurationException {
             return false;
         }
 
@@ -74,7 +72,7 @@ public class FAQSnippets {
          * {@inheritDoc}
          */
         @Override
-        public void setXPathVariableResolver(XPathVariableResolver resolver) {
+        public void setXPathVariableResolver(final XPathVariableResolver resolver) {
 
         }
 
@@ -82,7 +80,7 @@ public class FAQSnippets {
          * {@inheritDoc}
          */
         @Override
-        public void setXPathFunctionResolver(XPathFunctionResolver resolver) {
+        public void setXPathFunctionResolver(final XPathFunctionResolver resolver) {
 
         }
 
@@ -109,23 +107,25 @@ public class FAQSnippets {
     }
     //END SNIPPET: MixinOverridingToString
 
-    //START SNIPPET: Projection    
+    //START SNIPPET: Projection
     public interface Projection extends MixinOverridingToString {
         // Your projection methods here
+        @XBRead("...")
+        String getSomeValue();
     }
     //END SNIPPET: Projection
 
     {
         //START SNIPPET: MixinRegistration
         Object mixin = new Object() {
-            private DOMAccess me;
+            private Projection me;
             @Override
             public String toString() {
-                return "I'm a "+ me.getProjectionInterface().getSimpleName();
+                return "I have value "+me.getSomeValue();
             };
-        };        
+        };
         projector.mixins().addProjectionMixin(Projection.class, mixin);
-        //END SNIPPET: MixinRegistration  
+        //END SNIPPET: MixinRegistration
     }
 
     {
@@ -164,7 +164,7 @@ public class FAQSnippets {
              * Or override this to bypass the factory and create your own XPath implementation here.
              */
             @Override
-            public XPath createXPath(Document... document) {
+            public XPath createXPath(final Document... document) {
                 return super.createXPath(document);
             }
         };
@@ -183,7 +183,7 @@ public class FAQSnippets {
         XBProjector projector = new XBProjector();
         projector.config().setExternalizer(new ExternalizerAdapter() {
             @Override
-            public String resolveXPath(String annotationValue, Method method, Object[] args) {
+            public String resolveXPath(final String annotationValue, final Method method, final Object[] args) {
                 // Simplest conversion of camel case getter to xpath expression.
                 return method.getName().substring(3).replaceAll("[A-Z]", "/$0");
             }

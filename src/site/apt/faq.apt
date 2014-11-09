@@ -70,10 +70,15 @@ FAQ / HowTo
    
 * How do I implement the toString() method for my projection?
 
- With Java 8, just define a defautl mehtod in your projection interface.
- For Java 6 & 7 you want to create a mixin: 
+ You can easily implement your own toString() method which can access your projection getter methods.
+ With Java 8, just define a defautl mehtod with the toString() signature in your projection interface.
+ 
+ For Java 6 & 7 you need to create a mixin: 
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinOverridingToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+
 
  And register it in your projector:
 
