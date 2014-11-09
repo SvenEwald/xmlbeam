@@ -6,30 +6,21 @@ FAQ / HowTo
 * How to determine if an element or attribute exists? 
 
  Since Version 1.4.0 you can expect a null value returned if an element does not exist.
- The projector will determine the type of the XPath expression and invoke the evaluation accordingly.
+ The projector will determine the type of the XPath expression and invoke the evaluation accordingly whether it is a function, a node value or a node itself.
  If you want to avoid null checks, specify java.util.Optional as return type.
  If you want non existing nodes to be handled like existing empty ones, set the flag ABSENT_IS_EMPTY on projector creation.
-
- Previous answer (up to V1.3.0)
- Up to version 1.4 it was not possible to distinguish between empty values and non existing values.
- The cause is a limitation by XPath 1.0, which does not allow all expressions to be evaluated as nodes.
- Getting a string value from non existing elements or attributes returns an empty string.
- You will never get a null value from projections returning a string.
- It is even a common practice to omit empty elements in documents.
- There are two ways to determine if an element exists:
  
- * Project the element to an empty sub projection. 
-   This will return null if the element is not present.
-   You may even reuse the sub projection interface for all elements to be examined.
-   
- * Use a XPath function to create a boolean projection: "count(/path/element) > 0"
- 
- Now it's easier to upgrade to version 1.4.x.
+ Since Version 1.4.1 you can choose to let the projection method throw an exception if a value is absent.
+ Just declare your method with the suffix "throws <some exception type", with your own exception or use a standard JDK exception.
+ It may be a checked or unchecked exception. 
+ If your getter method takes parameters and your exception has a constructor matching these parameters, this constructor will be used to create the exception.
+ You won't get any exception if you choose the ABSENT_IS_EMPTY flag.
+ You may not specify Optional as return type if you declare an exception to be thrown.  
 
 * What's the syntax for writable XPath expressions?
 
  XPath expressions used in setters (methods with @XBWrite) are limited to absolute paths of non-ambiguous selectors. 
- Functions are not allowed.
+ Functions are not allowed. 
  The reason for this is to make a setter executable regardless of the current document structure, having a reproducible result.
  If you just need to change values in your DOM tree, use the @XBUpdate annotation on your method. This will allow full XPath syntax. 
  
@@ -71,14 +62,13 @@ FAQ / HowTo
 * How do I implement the toString() method for my projection?
 
  You can easily implement your own toString() method which can access your projection getter methods.
- With Java 8, just define a defautl mehtod with the toString() signature in your projection interface.
+ With Java 8, just define a default method with the toString() signature in your projection interface.
  
  For Java 6 & 7 you need to create a mixin: 
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinOverridingToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
-
 
  And register it in your projector:
 
@@ -89,6 +79,7 @@ FAQ / HowTo
  Caching is not a concern of this library. Implement your own cache to avoid unnecessary XPath overhead.
  The projector does not know anything about the purpose of the data it reads.
  To be able to circumvent unexpected caching side effects you need knowledge about the application context.
+ The XPath expression however is cached, to avoid multiple compilations of the same expression.
  
 * How do I change the used XPath engine?
 
