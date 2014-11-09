@@ -3,3 +3,5 @@ http://xmlbeam.org/introduction.html
 http://xmlbeam.org/tutorial.html
 http://xmlbeam.org/refcards.html
 http://xmlbeam.org/faq.html
+http://xmlbeam.org/links.html
+http://xmlbeam.org/about.html
