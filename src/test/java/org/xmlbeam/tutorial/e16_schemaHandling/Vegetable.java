@@ -13,16 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tutorial.e18_schemaHandling;
+package org.xmlbeam.tutorial.e16_schemaHandling;
 
 import org.xmlbeam.annotation.XBRead;
 
-
 @SuppressWarnings("javadoc")
+//START SNIPPET: SchemaHandling
 public interface Vegetable {
     @XBRead("@name")
     String getName();
-    
+
     @XBRead("@color")
     String getColor();
 }
+//END SNIPPET: SchemaHandling

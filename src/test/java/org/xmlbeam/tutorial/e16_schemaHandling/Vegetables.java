@@ -13,15 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tutorial.e18_schemaHandling;
+package org.xmlbeam.tutorial.e16_schemaHandling;
 
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 
-
 @SuppressWarnings("javadoc")
+//START SNIPPET: SchemaHandling
 @XBDocURL("resource://vegetables.xml")
 public interface Vegetables {
     @XBRead("/xbdefaultns:Vegetables/xbdefaultns:Vegetable[@name='{0}']")
     Vegetable getVegetable(String name);
 }
+//END SNIPPET: SchemaHandling

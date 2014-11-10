@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tutorial.e18_schemaHandling;
+package org.xmlbeam.tutorial.e16_schemaHandling;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,30 +31,31 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 
-/* START SNIPPET: TutorialDescription      
- ~~
+//START SNIPPET: Tutorial16
+
+/*START SNIPPET: TutorialDescription
+~~
  This example shows how to use a schema with your projections.
 
  This time we read some data from xml files which use a defined schema. This way we can handle
- default values for attributes and honor restrictions. 
+ default values for attributes and honor restrictions.
 
- The solution to this shows: 
+ The solution to this shows:
 
  * Usage of a schema for validation xml source.
- 
+
  * Reading default values specified in a schema works as expected.
 
  []
 
- END SNIPPET: TutorialDescription
- */
+END SNIPPET: TutorialDescription */
 @SuppressWarnings("javadoc")
 @Category(Tutorial.class)
 //START SNIPPET: SchemaHandling
 public class TestSchemaHandling extends TutorialTestCase {
 
     Vegetables vegetables;
-    
+
     @Before
     public void readVegetables() throws Exception {
         XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig(){
@@ -74,7 +75,7 @@ public class TestSchemaHandling extends TutorialTestCase {
                 return factory;
             }
         });
-        
+
         vegetables = projector.io().fromURLAnnotation(Vegetables.class);
     }
 

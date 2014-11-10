@@ -104,4 +104,10 @@ Tutorial Examples
 
 %{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e15_plist/TestPlistAccess.java}
 
- {{{./t15.html}Start tutorial 15}} 
+ {{{./t15.html}Start tutorial 15}}
+ 
+*E16 Using an XML schema to define default values and validate the document
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e16_schemaHandling/TestSchemaHandling.java}
+
+ {{{./t16.html}Start tutorial 16}} 
