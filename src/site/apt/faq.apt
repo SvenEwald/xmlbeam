@@ -11,7 +11,7 @@ FAQ / HowTo
  If you want non existing nodes to be handled like existing empty ones, set the flag ABSENT_IS_EMPTY on projector creation.
  
  Since Version 1.4.1 you can choose to let the projection method throw an exception if a value is absent.
- Just declare your method with the suffix "throws <some exception type", with your own exception or use a standard JDK exception.
+ Just declare your method with the suffix "throws <some exception type>", with your own exception or use a standard JDK exception.
  It may be a checked or unchecked exception. 
  If your getter method takes parameters and your exception has a constructor matching these parameters, this constructor will be used to create the exception.
  You won't get any exception if you choose the ABSENT_IS_EMPTY flag.
