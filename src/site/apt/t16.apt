@@ -1,0 +1,22 @@
+Tutorial 16
+
+*E16 Using an XML schema to define default values and validate documents
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e16_schemaHandling/TestSchemaHandling.java}
+
+* XML Data
+
+%{include|highlight-theme=eclipse|show-gutter=false|source=src/test/java/org/xmlbeam/tutorial/e16_schemaHandling/schema.xsd}
+
+%{include|highlight-theme=eclipse|show-gutter=false|source=src/test/java/org/xmlbeam/tutorial/e16_schemaHandling/vegetables.xml}
+
+* Projection
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SchemaHandling|source=src/test/java/org/xmlbeam/tutorial/e16_schemaHandling/Vegetable.java}
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SchemaHandling|source=src/test/java/org/xmlbeam/tutorial/e16_schemaHandling/Vegetables.java}
+
+
+* Example Code
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#SchemaHandling|source=src/test/java/org/xmlbeam/tutorial/e16_schemaHandling/TestSchemaHandling.java}
