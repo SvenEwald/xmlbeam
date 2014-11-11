@@ -240,7 +240,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final XPath xPath = projector.config().createXPath(DOMHelper.getOwnerDocumentFor(node));
 
             if (!lastInvocationContext.isStillValid(resolvedXpath)) {
-                final Format[] formats = findFormats(resolvedXpath);
                 final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
                 final XPathExpression xPathExpression = xPath.compile(stripFormats(resolvedXpath));
                 lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression);

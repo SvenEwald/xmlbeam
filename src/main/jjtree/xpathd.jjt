@@ -146,23 +146,11 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
         SimpleNode START() :
         {}
         {
-            (ResultFormat())?XPath()<EOF>
-            { 
+            XPath()<EOF>
+            { if(this.token_source.curLexState == XParserConstants.EXPR_COMMENT)
+                throw new ParseException("Unterminated comment.");
             return jjtThis ; }
         }
-        
-    void ResultFormat() :
-      {}
-      {
-      "(:"Comment()":)"
-      }    
-      
-    void Comment() :
-    {}
-    {
-    (<Char>)*
-    }  
-      
     void XPath()  :
         {}
         {
@@ -1134,19 +1122,42 @@ TOKEN :
 <DEFAULT>
 TOKEN :
 {
- < Lbrace : "{{" > { pushState(); } : DEFAULT
+ < Lbrace : "{" > { pushState(); } : DEFAULT
 }
 
 <DEFAULT>
 TOKEN :
 {
- < Rbrace : "}}" > { popState(); }
+ < Rbrace : "}" > { popState(); }
 }
 
 <DEFAULT>
 TOKEN :
 {
  < LessThanOpOrTagO : "<" > { pushState(DEFAULT); } : DEFAULT
+}
+
+SPECIAL_TOKEN :
+{
+ < #Comment : <CommentStart> ((<CommentContents>))* <CommentEnd> >
+}
+
+<DEFAULT, EXPR_COMMENT>
+SPECIAL_TOKEN :
+{
+ < CommentStart : "(:" > { pushState(); } : EXPR_COMMENT
+}
+
+<EXPR_COMMENT>
+SPECIAL_TOKEN :
+{
+ < CommentContent : <Char> >
+}
+
+<EXPR_COMMENT>
+SPECIAL_TOKEN :
+{
+ < CommentEnd : ":)" > { popState(); }
 }
 
 <DEFAULT>
@@ -1193,6 +1204,11 @@ TOKEN :
 TOKEN :
 {
  < #Digits : (["0" - "9"])+  >
+}
+
+SPECIAL_TOKEN :
+{
+ < #CommentContents : (<CommentContent>)+  >
 }
 
 TOKEN :
