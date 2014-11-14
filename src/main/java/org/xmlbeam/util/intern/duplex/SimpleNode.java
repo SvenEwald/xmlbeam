@@ -48,7 +48,9 @@ class SimpleNode implements Node {
 
     private final XParser parser;
 
-    public int beginLine, beginColumn, endLine, endColumn;
+    public int begin;
+    public int end;
+   // public int beginLine, beginColumn, endLine, endColumn;
 
     public SimpleNode(final XParser p, final int i) {
         id = i;
@@ -61,15 +63,17 @@ class SimpleNode implements Node {
 //    }
 
     @Override
-    public void jjtOpen() {
-        beginLine = parser.token.beginLine;
-        beginColumn = parser.token.beginColumn;
+    public void jjtOpen() {  
+       begin=parser.token.absoluteBeginColumn;
+//        beginLine = parser.token.beginLine;
+//        beginColumn = parser.token.beginColumn;
     }
 
     @Override
     public void jjtClose() {
-        endLine = parser.token.endLine;
-        endColumn = parser.token.endColumn;
+        end=parser.token.absoluteEndColumn;
+//        endLine = parser.token.endLine;
+//        endColumn = parser.token.endColumn;
     }
 
     @Override
@@ -203,7 +207,7 @@ class SimpleNode implements Node {
     public void dump(final String prefix, final java.io.PrintStream ps) {
         ps.print(toString(prefix));
         printValue(ps);
-        ps.print(" [" + (beginLine + 1) + ":" + beginColumn + " - " + endLine + ":" + endColumn + "]");
+       // ps.print(" [" + (beginLine + 1) + ":" + beginColumn + " - " + endLine + ":" + endColumn + "]");
         ps.println();
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {

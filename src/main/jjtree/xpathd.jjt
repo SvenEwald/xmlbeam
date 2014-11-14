@@ -1,6 +1,5 @@
 options {
         
-        
         STATIC = false;
         MULTI=false;
         VISITOR=true ;     
@@ -11,8 +10,13 @@ options {
         FORCE_LA_CHECK=true;
         NODE_PACKAGE="org.xmlbeam.util.intern.duplex";
         NODE_PREFIX="";
+        TOKEN_EXTENDS ="DuplexToken";
+        TRACK_TOKENS =false;
+        COMMON_TOKEN_ACTION=true;
     
         }
+
+
 
         
         PARSER_BEGIN(XParser)
@@ -64,8 +68,17 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
             public int offset = 0;
 
             
-        void CommonTokenAction(Token t) {}
-    
+        void CommonTokenAction(Token t) {
+        		t.absoluteBeginColumn = getCurrentTokenAbsolutePosition();
+		        t.absoluteEndColumn = t.absoluteBeginColumn + t.image.length();
+        
+        }
+    public int getCurrentTokenAbsolutePosition()
+	{
+		if (input_stream instanceof SimpleCharStream)
+			return ((SimpleCharStream)input_stream).getAbsoluteTokenBengin();
+		return -1;
+	}
 
             /**
               * Push the current state onto the state stack.
@@ -146,7 +159,7 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
         SimpleNode START() :
         {}
         {
-            XPath()<EOF>
+            XPath()ExpressionFormat()<EOF>
             { if(this.token_source.curLexState == XParserConstants.EXPR_COMMENT)
                 throw new ParseException("Unterminated comment.");
             return jjtThis ; }
@@ -156,6 +169,12 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
         {
             Expr()
         }
+        
+	void ExpressionFormat()  :
+	{}
+	{
+	<ExpressionFormatStart> <ANYTHING>{processToken(jjtThis, token);}
+	}        
 
     void ParamList()  :
         {}
@@ -1021,6 +1040,18 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
                 | "treat"{jjtThis.processValue("treat");}
                 | "union"{jjtThis.processValue("union");})
         }
+
+<EXPRFORMAT>
+TOKEN :
+{
+ <ANYTHING: (["\u0001" - "\uffdc"])+>
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < ExpressionFormatStart : " using " > { pushState(); } : EXPRFORMAT
+}
 
     
 <DEFAULT>

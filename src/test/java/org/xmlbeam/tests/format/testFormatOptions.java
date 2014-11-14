@@ -17,6 +17,8 @@ package org.xmlbeam.tests.format;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.util.intern.duplex.DuplexExpression;
+import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 
 /**
  * @author sven
@@ -25,9 +27,13 @@ public class testFormatOptions {
 
     @Test
     public void testFormatOptions() {
-
+/*
         ProjectionWithFormats projection = new XBProjector().projectEmptyDocument(ProjectionWithFormats.class);
-        projection.getDate();
+        projection.getDate3();
+        */
+        DuplexExpression expression = new DuplexXPathParser().compile("/foo/bar/date using YYYYMMDD");
+        expression.dump();
+        System.out.println(expression.getExpressionFormatPattern());
     }
 
 }

@@ -15,24 +15,11 @@
  */
 package org.xmlbeam.util.intern.duplex;
 
-import org.xmlbeam.XBException;
-
 /**
  * @author sven
+ *
  */
-public class XBPathParsingException extends XBException {
-
-    private static final long serialVersionUID = -4923686442969043087L;
-
-    /** TODO:Refactor to absolute begin and end
-     * @param string
-     * @param beginLine
-     * @param beginColumn
-     * @param endColumn
-     * @param endLine
-     */
-    public XBPathParsingException(final String string, final int beginLine, final int beginColumn, final int endColumn, final int endLine) {
-        super(string + " in line " + beginLine + " col " + beginColumn + " to " + endColumn, null);
-    }
-
+public abstract class DuplexToken {
+    public int absoluteBeginColumn = 0;
+    public int absoluteEndColumn = 0;
 }

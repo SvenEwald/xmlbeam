@@ -29,7 +29,7 @@ public class XBXPathExprNotAllowedForWriting extends XBPathParsingException { //
      * @param reason
      */
     public XBXPathExprNotAllowedForWriting(final SimpleNode node, final String reason) { // NO_UCD (use default)
-        super(reason + ": Node " + node.toString() + " is not supported for writing expressions", node.beginLine, node.beginColumn, node.endColumn, node.endLine);
+        super(reason + ": Node " + node.toString() + " is not supported for writing expressions", node.begin, node.begin, node.end, node.end);
         //node.parser.token_source.input_stream.inputStream.reset().
     }
 }

@@ -80,7 +80,6 @@ public class DuplexExpression {
      */
     public ExpressionType getExpressionType() {
         try { //TODO: cache expression type ?
-            node.dump("");
             final ExpressionType expressionType = node.firstChildAccept(new ExpressionTypeEvaluationVisitor(), null);
             return expressionType;
         } catch (IllegalArgumentException e) {
@@ -146,4 +145,27 @@ public class DuplexExpression {
         assert nodes.size() == 1;
         return nodes.get(0);
     }
+
+    public void dump() {
+        this.node.dump("");
+    }
+
+    /**
+     * @return String representation of expressions pattern
+     */
+    public String getExpressionFormatPattern() {
+        SimpleNode formatPatternNode = node.getFirstChildWithId(XParserTreeConstants.JJTEXPRESSIONFORMAT);
+        return formatPatternNode == null ? "" : formatPatternNode.getValue();
+        //return (String) node.secondChildAccept(new GetExpressionFormatPatternVisitor(),null);
+        //node.getFirstChildWithId(XParserTreeConstants.JJTEXPRESSIONFORMAT);
+    }
+
+    public String getExpressionAsStringWithoutFormatPaterns() {
+        SimpleNode formatPatternNode = node.getFirstChildWithId(XParserTreeConstants.JJTEXPRESSIONFORMAT);
+        if (formatPatternNode == null) {
+            return this.xpath;
+        };
+        return xpath.substring(0, node.begin);
+    }
+
 }
