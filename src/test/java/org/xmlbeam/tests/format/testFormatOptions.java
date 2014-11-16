@@ -38,4 +38,18 @@ public class testFormatOptions {
         System.out.println(expression.getExpressionAsStringWithoutFormatPaterns());
     }
 
+    @Test
+    public void testFormatOptions2() {
+        /*
+         * ProjectionWithFormats projection = new
+         * XBProjector().projectEmptyDocument(ProjectionWithFormats.class); projection.getDate3();
+         */
+        //                                                                       111111111122222222
+        //                                                             0123456789012345678901234567
+        DuplexExpression expression = new DuplexXPathParser().compile("/foo/(:This be comment:)bar/date using YYYYMMDD");
+        expression.dump();
+        System.out.println(expression.getExpressionFormatPattern());
+        System.out.println(expression.getExpressionAsStringWithoutFormatPaterns());
+    }
+
 }

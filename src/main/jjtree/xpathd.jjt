@@ -1151,25 +1151,25 @@ TOKEN :
  < LessThanOpOrTagO : "<" > { pushState(DEFAULT); } : DEFAULT
 }
 
-SPECIAL_TOKEN :
+TOKEN :
 {
  < #Comment : <CommentStart> ((<CommentContents>))* <CommentEnd> >
 }
 
 <DEFAULT, EXPR_COMMENT>
-SPECIAL_TOKEN :
+TOKEN :
 {
  < CommentStart : "(:" > { pushState(); } : EXPR_COMMENT
 }
 
 <EXPR_COMMENT>
-SPECIAL_TOKEN :
+TOKEN :
 {
  < CommentContent : <Char> >
 }
 
 <EXPR_COMMENT>
-SPECIAL_TOKEN :
+TOKEN :
 {
  < CommentEnd : ":)" > { popState(); }
 }
@@ -1220,7 +1220,7 @@ TOKEN :
  < #Digits : (["0" - "9"])+  >
 }
 
-SPECIAL_TOKEN :
+TOKEN :
 {
  < #CommentContents : (<CommentContent>)+  >
 }
