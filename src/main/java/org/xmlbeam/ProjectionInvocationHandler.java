@@ -24,8 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.text.Format;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -241,34 +239,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                 final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
-                final XPathExpression xPathExpression = xPath.compile(stripFormats(resolvedXpath));
+                String strippedXPath = duplexExpression.getExpressionAsStringWithoutFormatPaterns();
+                final XPathExpression xPathExpression = xPath.compile(strippedXPath);
                 lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression);
             }
             return invokeXpathProjection(lastInvocationContext, proxy, args);
-        }
-
-        /**
-         * @param resolvedXpath
-         * @return
-         */
-        private String stripFormats(final String resolvedXpath) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        /**
-         * @param resolvedXpath
-         * @return
-         */
-        private Format[] findFormats(final String resolvedXpath, final Class<?>[] paramTypes) {
-            int pos = resolvedXpath.indexOf("(:", 0);
-            List<String> formatPatterns = new ArrayList<String>();
-            while ((pos >= 0) && (pos < resolvedXpath.length())) {
-                final String formatPattern = resolvedXpath.substring(pos + 2, resolvedXpath.indexOf(":)", pos + 1));
-                formatPatterns.add(formatPattern);
-                pos = resolvedXpath.indexOf("(:", pos + 1);
-            }
-            return null;
         }
 
         abstract protected Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable;
