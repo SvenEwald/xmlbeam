@@ -18,11 +18,6 @@ package org.xmlbeam.util.intern.duplex;
 import java.util.List;
 
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplex.Node;
-import org.xmlbeam.util.intern.duplex.Token;
-import org.xmlbeam.util.intern.duplex.XParser;
-import org.xmlbeam.util.intern.duplex.XParserTreeConstants;
-import org.xmlbeam.util.intern.duplex.XParserVisitor;
 
 class SimpleNode implements Node {
 
@@ -48,9 +43,7 @@ class SimpleNode implements Node {
 
     private final XParser parser;
 
-    public int begin;
-    public int end;
-   // public int beginLine, beginColumn, endLine, endColumn;
+    public int beginLine, beginColumn, endLine, endColumn;
 
     public SimpleNode(final XParser p, final int i) {
         id = i;
@@ -63,17 +56,15 @@ class SimpleNode implements Node {
 //    }
 
     @Override
-    public void jjtOpen() {  
-       begin=parser.token.absoluteBeginColumn;
-//        beginLine = parser.token.beginLine;
-//        beginColumn = parser.token.beginColumn;
+    public void jjtOpen() {
+        beginLine = parser.token.beginLine;
+        beginColumn = parser.token.beginColumn;
     }
 
     @Override
     public void jjtClose() {
-        end=parser.token.absoluteEndColumn;
-//        endLine = parser.token.endLine;
-//        endColumn = parser.token.endColumn;
+        endLine = parser.token.endLine;
+        endColumn = parser.token.endColumn;
     }
 
     @Override
@@ -207,7 +198,7 @@ class SimpleNode implements Node {
     public void dump(final String prefix, final java.io.PrintStream ps) {
         ps.print(toString(prefix));
         printValue(ps);
-       // ps.print(" [" + (beginLine + 1) + ":" + beginColumn + " - " + endLine + ":" + endColumn + "]");
+        ps.print(" [" + (beginLine + 1) + ":" + beginColumn + " - " + endLine + ":" + endColumn + "] " + firstToken.beginLine + ":" + firstToken.beginColumn + "-" + lastToken.endLine + ":" + lastToken.endColumn);
         ps.println();
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
@@ -222,6 +213,10 @@ class SimpleNode implements Node {
     // Manually inserted code begins here
 
     private String m_value;
+
+    private Token firstToken;
+
+    private Token lastToken;
 
     public void processToken(final Token t) {
         m_value = t.image;
@@ -321,5 +316,27 @@ class SimpleNode implements Node {
             result = (org.w3c.dom.Node) newResult; // proceed step expression
         }
         return DOMHelper.asList(result);
+    }
+
+    /**
+     * @param token
+     */
+    void jjtSetFirstToken(final Token token) {
+        this.firstToken = token;
+    }
+
+    /**
+     * @param token
+     */
+    void jjtSetLastToken(final Token token) {
+        this.lastToken = token;
+    }
+
+    public int getStartColumn() {
+        return firstToken.beginColumn - 1;
+    }
+
+    public int getEndColumn() {
+        return lastToken.endColumn - 1;
     }
 }

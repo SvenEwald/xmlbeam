@@ -165,7 +165,17 @@ public class DuplexExpression {
         if (formatPatternNode == null) {
             return this.xpath;
         };
-        return xpath.substring(0, node.begin);
+        return removeStringPart(xpath, formatPatternNode.getStartColumn(), formatPatternNode.getEndColumn() + 1);
+    }
+
+    /**
+     * @param xpath2
+     * @param begin
+     * @param end
+     * @return
+     */
+    private final static String removeStringPart(final String string, final int begin, final int end) {
+        return string.substring(0, begin) + (end > string.length() ? "" : string.substring(end, string.length()));
     }
 
 }
