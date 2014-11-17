@@ -198,7 +198,7 @@ class SimpleNode implements Node {
     public void dump(final String prefix, final java.io.PrintStream ps) {
         ps.print(toString(prefix));
         printValue(ps);
-        ps.print(" [" + (beginLine + 1) + ":" + beginColumn + " - " + endLine + ":" + endColumn + "] " + firstToken.beginLine + ":" + firstToken.beginColumn + "-" + lastToken.endLine + ":" + lastToken.endColumn);
+        ps.print(" [" + firstToken.beginLine + ":" + firstToken.beginColumn + "-" + lastToken.endLine + ":" + lastToken.endColumn + "]");
         ps.println();
         if (children != null) {
             for (int i = 0; i < children.length; ++i) {
@@ -228,7 +228,7 @@ class SimpleNode implements Node {
 
     public void printValue(final java.io.PrintStream ps) {
         if (null != m_value) {
-            ps.print(" " + m_value);
+            ps.print(" \"" + m_value + "\"");
         }
     }
 
@@ -289,9 +289,22 @@ class SimpleNode implements Node {
      * @param visitorClosure
      * @param data
      */
-    public void eachChild(final org.xmlbeam.util.intern.duplex.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
+    public void eachDirectChild(final org.xmlbeam.util.intern.duplex.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
+        if (children == null) {
+            return;
+        }
         for (SimpleNode child : children) {
             visitorClosure.apply(child, data);
+        }
+    }
+
+    public void eachChild(final org.xmlbeam.util.intern.duplex.INodeEvaluationVisitor.VisitorClosure visitorClosure, final org.w3c.dom.Node data) {
+        if (children == null) {
+            return;
+        }
+        for (SimpleNode child : children) {
+            visitorClosure.apply(child, data);
+            child.eachChild(visitorClosure, data);
         }
     }
 
