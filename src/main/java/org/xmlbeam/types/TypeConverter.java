@@ -31,14 +31,13 @@ public interface TypeConverter extends Serializable {
     <T> boolean isConvertable(Class<T> targetType);
 
     /**
-     * Convert a String value to the given target type.
-     * There is no parameter check. Caller <b>must</b> check by
-     * calling {@code isConvertable(...)} before.
-     * 
+     * Convert a String value to the given target type. There is no parameter check. Caller
+     * <b>must</b> check by calling {@code isConvertable(...)} before.
+     *
      * @param targetType
      * @param data
      * @return a new instance of the target type.
      */
-    <T> T convertTo(Class<T> targetType, String data);
+    <T> T convertTo(Class<T> targetType, String data, String... optionalFormatPattern);
 
 }
