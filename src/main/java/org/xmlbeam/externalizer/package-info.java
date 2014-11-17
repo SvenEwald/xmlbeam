@@ -14,7 +14,8 @@
  *  limitations under the License.
  */
 /**
- * Internal package with classes that will change in minor version updates.
- * Do not use this package.
+ * Package containing the  {@link org.xmlbeam.externalizer.Externalizer} interface.
+ * You need it if you want to store the XPath expressions outside of the Java code.
+ * There is even an example implementation {@link org.xmlbeam.externalizer.PropertyFileExternalizer}.
  */
-package org.xmlbeam.util.intern;
+package org.xmlbeam.externalizer;

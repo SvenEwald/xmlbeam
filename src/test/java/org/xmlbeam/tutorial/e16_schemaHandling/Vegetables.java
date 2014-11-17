@@ -1,5 +1,5 @@
 /**
- *  Copyright 2013 Sven Ewald
+ *  Copyright 2014 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-/**
- * Internal package with classes that will change in minor version updates.
- * Do not use this package.
- */
-package org.xmlbeam.util.intern;
+package org.xmlbeam.tutorial.e16_schemaHandling;
+
+import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBRead;
+
+@SuppressWarnings("javadoc")
+//START SNIPPET: SchemaHandling
+@XBDocURL("resource://vegetables.xml")
+public interface Vegetables {
+    @XBRead("/xbdefaultns:Vegetables/xbdefaultns:Vegetable[@name='{0}']")
+    Vegetable getVegetable(String name);
+}
+//END SNIPPET: SchemaHandling

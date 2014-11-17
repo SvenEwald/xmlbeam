@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.nubean.com/schemas/schema.xsd"
+	targetNamespace="http://schemas.xmlbeam.org/tutorials/18" 
+	xmlns="http://schemas.xmlbeam.org/tutorials/18" 
+	elementFormDefault="qualified">
+	
+	<xs:complexType name="VegetablesType">
+		<xs:sequence>
+			<xs:element name="Vegetable" type="VegetableType" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="VegetableType">
+		<xs:attribute name="name" type="xs:string" use="required" />
+		<xs:attribute name="color" type="xs:string" default="green" />
+	</xs:complexType>
+
+	<xs:element name="Vegetables" type="VegetablesType" />
+</xs:schema>

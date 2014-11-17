@@ -250,7 +250,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * A variation of the builder pattern. Mixin related methods are grouped behind this builder
      * class.
      */
-    public class MixinBuilder implements MixinHolder {
+    class MixinBuilder implements MixinHolder {
         /**
          * {@inheritDoc}
          */
@@ -294,7 +294,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
     /**
      * A variation of the builder pattern. IO related methods are grouped behind this builder class.
      */
-    public class IOBuilder implements ProjectionIO {
+    class IOBuilder implements ProjectionIO {
 
         /**
          * {@inheritDoc}
@@ -409,14 +409,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
         Element element = document.createElement(name);
         return projectDOMNode(element, projectionInterface);
     }
-
-//    public <T> T projectProjection(final T projection,String xpath) {
-//        if (!( projection instanceof InternalProjection)) {
-//            throw new IllegalArgumentException("Given object is not a projection created by a projector.");
-//        }
-//        DOMAccess domAccess = (DOMAccess) projection;
-//        xMLFactoriesConfig.createXPath(domAccess.getDOMOwnerDocument())
-//    }
 
     /**
      * {@inheritDoc}
@@ -544,11 +536,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
     }
 
     /**
-     * Shortcut for creating a {@link MixinBuilder} object add or remove mixins to projections.
+     * Shortcut for creating a {@link MixinHolder} object add or remove mixins to projections.
      *
      * @return a new MixinBuilder for this projector.
      */
-    public MixinBuilder mixins() {
+    public MixinHolder mixins() {
         return new MixinBuilder();
     }
 
@@ -581,6 +573,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
             final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
             final boolean isExternal = (method.getAnnotation(XBDocURL.class) != null);
+            final boolean isThrowsException = (method.getExceptionTypes().length > 0);
             if (isRead ? isUpdate || isWrite || isDelete : (isUpdate ? isWrite || isDelete : isWrite && isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName());
             }
@@ -594,6 +587,15 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 if (ReflectionHelper.isRawType(method.getGenericReturnType())) {
                     throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but has a raw return type.");
                 }
+                if (method.getExceptionTypes().length > 1) {
+                    throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but declares to throw multiple exceptions. Which one should I throw?");
+                }
+                if (ReflectionHelper.isOptional(method.getReturnType()) && isThrowsException) {
+                    throw new IllegalArgumentException("Method " + method + " has an Optional<> return type, but declares to throw an exception. Exception will never be thrown because return value must not be null.");
+                }
+            }
+            if ((isWrite || isUpdate || isDelete) && isThrowsException) {
+                throw new IllegalArgumentException("Method " + method + " declares to throw exception " + method.getExceptionTypes()[0].getSimpleName() + " but is not a reading projection method. When should this exception be thrown?");
             }
             if (isWrite) {
                 if (!ReflectionHelper.hasParameters(method)) {
@@ -634,7 +636,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @return A new IOBuilder providing methods to read or write projections.
      */
     @Override
-    public IOBuilder io() {
+    public ProjectionIO io() {
         return new IOBuilder();
     }
 

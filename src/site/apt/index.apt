@@ -9,6 +9,8 @@
 
 Welcome to XMLBeam
 
+ An XML CRUD library for Java.
+
  If you are new here, please read {{{./introduction.html} the introduction}}.
  Are you in a hurry?
  Read the {{{./tutorials.html}the tutorials}}!
@@ -39,6 +41,11 @@ Welcome to XMLBeam
  {{{./introduction.html} Learn more}}. 
  
 * Project status
+
+** 2014-11-06
+
+ * New release 1.4.1 with cool error handling feature: Let projection methods throw exceptions.
+   See the {{{./release-notes.html} release notes}}. 
 
 ** 2014-10-13
 

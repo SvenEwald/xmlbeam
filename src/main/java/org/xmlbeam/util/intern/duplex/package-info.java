@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 /**
- * Internal package with classes that will change in minor version updates.
+ * Internal package for the bidirectional XPath parser.
  * Do not use this package.
  */
-package org.xmlbeam.util.intern;
+package org.xmlbeam.util.intern.duplex;
