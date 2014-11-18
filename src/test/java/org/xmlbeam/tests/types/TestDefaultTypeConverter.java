@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.xmlbeam.types.DefaultTypeConverter;
@@ -32,7 +33,7 @@ import org.xmlbeam.types.TypeConverter;
 @SuppressWarnings("javadoc")
 public class TestDefaultTypeConverter {
 
-    TypeConverter converter = new DefaultTypeConverter(Locale.getDefault());
+    TypeConverter converter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getDefault());
 
     @Test
     public void ensureConversionDefauls() {
@@ -90,21 +91,21 @@ public class TestDefaultTypeConverter {
             assertEquals(Short.valueOf(Short.MAX_VALUE), converter.convertTo(c, "32767"));
         }
     }
-    
+
     @Test
     public void ensureDate() {
-       assertEquals(549842400000L, new DefaultTypeConverter(Locale.getDefault()).convertTo(Date.class, "19870605", "yyyyMMdd").getTime());
+        assertEquals(549849600000L, new DefaultTypeConverter(Locale.US, TimeZone.getTimeZone("GMT")).convertTo(Date.class, "19870605", "yyyyMMdd").getTime());
     }
-    
+
     @Test
     public void ensureNumber() {
-        assertEquals(Double.valueOf(123456.987D),new DefaultTypeConverter(Locale.US).convertTo(Number.class, "123,456.987", "###,###.###"));
-        assertEquals(Long.valueOf(123456),new DefaultTypeConverter(Locale.US).convertTo(Number.class, "123,456", "###,###"));
+        assertEquals(Double.valueOf(123456.987D), new DefaultTypeConverter(Locale.US, TimeZone.getTimeZone("GMT")).convertTo(Number.class, "123,456.987", "###,###.###"));
+        assertEquals(Long.valueOf(123456), new DefaultTypeConverter(Locale.US, TimeZone.getTimeZone("GMT")).convertTo(Number.class, "123,456", "###,###"));
     }
-    
+
     @Test
     public void ensureBigdecimal() {
-        assertEquals(new BigDecimal("123456"),new DefaultTypeConverter(Locale.US).convertTo(BigDecimal.class, "123,456", ""));
+        assertEquals(new BigDecimal("123456"), new DefaultTypeConverter(Locale.US, TimeZone.getTimeZone("GMT")).convertTo(BigDecimal.class, "123,456", ""));
     }
-    
+
 }

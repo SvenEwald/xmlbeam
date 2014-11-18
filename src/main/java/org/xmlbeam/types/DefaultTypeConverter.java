@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -28,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.xmlbeam.util.intern.ReflectionHelper;
 
@@ -63,9 +66,12 @@ public class DefaultTypeConverter implements TypeConverter {
 
     private final Map<Class<?>, Conversion<?>> CONVERSIONS = new HashMap<Class<?>, Conversion<?>>();
     private Locale locale;
+    private TimeZone timezone;
 
-    public DefaultTypeConverter(final Locale locale) {
+    public DefaultTypeConverter(final Locale locale, final TimeZone timezone) {
         this.locale = locale;
+        this.timezone = timezone;
+
         CONVERSIONS.put(Boolean.class, new Conversion<Boolean>(null) {
             @Override
             public Boolean convert(final String data) {
@@ -239,10 +245,11 @@ public class DefaultTypeConverter implements TypeConverter {
         });
 
         CONVERSIONS.put(Date.class, new Conversion<Date>(null) {
+
             @Override
             public Date convert(final String data) {
                 try {
-                    return SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT, locale).parse(data);
+                    return DateFormat.getTimeInstance(DateFormat.SHORT, locale).parse(data);
                 } catch (ParseException e) {
                     NumberFormatException exception = new NumberFormatException(data);
                     exception.initCause(e);
@@ -252,7 +259,9 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Date convertWithPattern(final String data, final String pattern) throws ParseException {
-                return new SimpleDateFormat(pattern).parse(data);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(pattern, DateFormatSymbols.getInstance(locale));
+                dateFormat.setTimeZone(timezone);
+                return dateFormat.parse(data);
             }
         });
 
@@ -276,7 +285,7 @@ public class DefaultTypeConverter implements TypeConverter {
             @Override
             public Number convert(final String data) {
                 try {
-                    return DecimalFormat.getInstance(locale).parse(data);
+                    return NumberFormat.getInstance(locale).parse(data);
                 } catch (ParseException e) {
                     NumberFormatException exception = new NumberFormatException(data);
                     exception.initCause(e);
@@ -305,7 +314,7 @@ public class DefaultTypeConverter implements TypeConverter {
             return (T) conversion.getDefaultValue(data);
         }
 
-        if ((optionalFormatPattern != null) && (optionalFormatPattern.length > 0)&&(optionalFormatPattern[0]!=null)) {
+        if ((optionalFormatPattern != null) && (optionalFormatPattern.length > 0) && (optionalFormatPattern[0] != null)) {
             try {
                 return (T) conversion.convertWithPattern(data, optionalFormatPattern[0]);
             } catch (ParseException e) {
@@ -353,9 +362,14 @@ public class DefaultTypeConverter implements TypeConverter {
         CONVERSIONS.put(type, conversion);
         return this;
     }
-    
+
     public DefaultTypeConverter setLocale(final Locale locale) {
-        this.locale=locale;
+        this.locale = locale;
+        return this;
+    }
+
+    public DefaultTypeConverter setTimeZone(final TimeZone timezone) {
+        this.timezone = timezone;
         return this;
     }
 }

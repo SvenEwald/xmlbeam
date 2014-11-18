@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.xmlbeam.XBException;
@@ -33,7 +34,7 @@ import org.xmlbeam.types.TypeConverter;
 @SuppressWarnings("javadoc")
 public class TestStringBasedTypeConversion {
 
-    private final TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault());
+    private final TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getDefault());
 
     public static abstract class CustomClass {
         public final String param;

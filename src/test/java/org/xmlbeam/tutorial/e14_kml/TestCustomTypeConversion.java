@@ -19,12 +19,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.types.DefaultTypeConverter;
+
 //START SNIPPET: Tutorial14
 
 /* START SNIPPET: TutorialDescription
@@ -36,10 +38,10 @@ import org.xmlbeam.types.DefaultTypeConverter;
  basically just one line of code.
 END SNIPPET: TutorialDescription */
 
-@SuppressWarnings({"serial","javadoc"})
+@SuppressWarnings({ "serial", "javadoc" })
 //START SNIPPET: TestCustomTypeConversion
 public class TestCustomTypeConversion {
-   
+
     /**
      * This Conversion defines how String data is converted to our target type and
      * what default is to be applied when no data is available.
@@ -50,28 +52,28 @@ public class TestCustomTypeConversion {
         }
 
         @Override
-        public CoordinateList convert(String data) {
+        public CoordinateList convert(final String data) {
             return new CoordinateList(data);
         }
     }
 
     @Test
     public void testApplyOffsetToCoordinates() throws IOException {
-        XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig().setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC));        
-        DefaultTypeConverter converter = new DefaultTypeConverter(Locale.getDefault()).setConversionForType(CoordinateList.class, new CoordinateListConversion());
+        XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig().setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC));
+        DefaultTypeConverter converter = new DefaultTypeConverter(Locale.getDefault(),TimeZone.getDefault()).setConversionForType(CoordinateList.class, new CoordinateListConversion());
         projector.config().setTypeConverter(converter);
         KML kml = projector.io().fromURLAnnotation(KML.class);
-        
+
         // Extract the list of coordinates
         CoordinateList coordinates = kml.getCoordinates();
-        
+
         assertTrue(coordinates.iterator().hasNext());
-        
+
         // Apply some offset
         for (Coordinate a:coordinates) {
             a.setX(a.getX()+10);
         }
-        
+
         // Set the list again
         kml.setCoordinates(coordinates);
     }

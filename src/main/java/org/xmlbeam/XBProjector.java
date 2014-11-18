@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -464,7 +465,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private final Map<Class<?>, Map<Class<?>, Object>> mixins = new HashMap<Class<?>, Map<Class<?>, Object>>();
 
-    private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault());
+    private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
 
 // private XBProjector(Set<Flags>flags,XMLFactoriesConfig xMLFactoriesConfig) {
 // this.xMLFactoriesConfig = xMLFactoriesConfig;
