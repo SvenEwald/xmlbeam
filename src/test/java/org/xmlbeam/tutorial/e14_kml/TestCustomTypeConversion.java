@@ -18,6 +18,7 @@ package org.xmlbeam.tutorial.e14_kml;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -57,7 +58,7 @@ public class TestCustomTypeConversion {
     @Test
     public void testApplyOffsetToCoordinates() throws IOException {
         XBProjector projector = new XBProjector(new DefaultXMLFactoriesConfig().setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC));        
-        DefaultTypeConverter converter = new DefaultTypeConverter().setConversionForType(CoordinateList.class, new CoordinateListConversion());
+        DefaultTypeConverter converter = new DefaultTypeConverter(Locale.getDefault()).setConversionForType(CoordinateList.class, new CoordinateListConversion());
         projector.config().setTypeConverter(converter);
         KML kml = projector.io().fromURLAnnotation(KML.class);
         

@@ -32,6 +32,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -463,7 +464,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private final Map<Class<?>, Map<Class<?>, Object>> mixins = new HashMap<Class<?>, Map<Class<?>, Object>>();
 
-    private TypeConverter typeConverter = new DefaultTypeConverter();
+    private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault());
 
 // private XBProjector(Set<Flags>flags,XMLFactoriesConfig xMLFactoriesConfig) {
 // this.xMLFactoriesConfig = xMLFactoriesConfig;

@@ -20,10 +20,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -53,14 +56,16 @@ public class DefaultTypeConverter implements TypeConverter {
          * @return converted object
          */
         public T convertWithPattern(final String data, final String pattern) throws ParseException {
-            throw new IllegalArgumentException("Can not convert type " + getClass().getTypeParameters()[0].getName() + " with format pattern.");
+            throw new IllegalArgumentException("Can not convert type " + getClass().getSimpleName() + " with format pattern.");
         }
 
     }
 
     private final Map<Class<?>, Conversion<?>> CONVERSIONS = new HashMap<Class<?>, Conversion<?>>();
+    private Locale locale;
 
-    public DefaultTypeConverter() {
+    public DefaultTypeConverter(final Locale locale) {
+        this.locale = locale;
         CONVERSIONS.put(Boolean.class, new Conversion<Boolean>(null) {
             @Override
             public Boolean convert(final String data) {
@@ -81,7 +86,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Byte convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Byte.valueOf(new DecimalFormat(pattern).parse(data).byteValue());
+                return Byte.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).byteValue());
             }
         });
         CONVERSIONS.put(Byte.TYPE, new Conversion<Byte>((byte) 0) {
@@ -92,7 +97,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Byte convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Byte.valueOf(new DecimalFormat(pattern).parse(data).byteValue());
+                return Byte.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).byteValue());
             }
         });
         CONVERSIONS.put(Float.class, new Conversion<Float>(null) {
@@ -103,7 +108,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Float convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Float.valueOf(new DecimalFormat(pattern).parse(data).floatValue());
+                return Float.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).floatValue());
             }
         });
         CONVERSIONS.put(Float.TYPE, new Conversion<Float>(0F) {
@@ -114,7 +119,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Float convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Float.valueOf(new DecimalFormat(pattern).parse(data).floatValue());
+                return Float.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).floatValue());
             }
         });
         CONVERSIONS.put(Double.class, new Conversion<Double>(null) {
@@ -125,7 +130,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Double convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Double.valueOf(new DecimalFormat(pattern).parse(data).doubleValue());
+                return Double.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).doubleValue());
             }
         });
         CONVERSIONS.put(Double.TYPE, new Conversion<Double>(0D) {
@@ -136,7 +141,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Double convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Double.valueOf(new DecimalFormat(pattern).parse(data).doubleValue());
+                return Double.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).doubleValue());
             }
         });
         CONVERSIONS.put(Short.class, new Conversion<Short>(null) {
@@ -147,7 +152,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Short convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Short.valueOf(new DecimalFormat(pattern).parse(data).shortValue());
+                return Short.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).shortValue());
             }
         });
         CONVERSIONS.put(Short.TYPE, new Conversion<Short>((short) 0) {
@@ -158,7 +163,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Short convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Short.valueOf(new DecimalFormat(pattern).parse(data).shortValue());
+                return Short.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).shortValue());
             }
         });
         CONVERSIONS.put(Integer.class, new Conversion<Integer>(null) {
@@ -169,7 +174,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Integer convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Integer.valueOf(new DecimalFormat(pattern).parse(data).intValue());
+                return Integer.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).intValue());
             }
         });
         CONVERSIONS.put(Integer.TYPE, new Conversion<Integer>(0) {
@@ -180,7 +185,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Integer convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Integer.valueOf(new DecimalFormat(pattern).parse(data).intValue());
+                return Integer.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).intValue());
             }
         });
         CONVERSIONS.put(Long.class, new Conversion<Long>(null) {
@@ -191,7 +196,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Long convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Long.valueOf(new DecimalFormat(pattern).parse(data).longValue());
+                return Long.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).longValue());
             }
         });
         CONVERSIONS.put(Long.TYPE, new Conversion<Long>(0L) {
@@ -202,7 +207,7 @@ public class DefaultTypeConverter implements TypeConverter {
 
             @Override
             public Long convertWithPattern(final String data, final String pattern) throws ParseException {
-                return Long.valueOf(new DecimalFormat(pattern).parse(data).longValue());
+                return Long.valueOf(new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale)).parse(data).longValue());
             }
         });
         CONVERSIONS.put(Character.class, new Conversion<Character>(null) {
@@ -236,7 +241,13 @@ public class DefaultTypeConverter implements TypeConverter {
         CONVERSIONS.put(Date.class, new Conversion<Date>(null) {
             @Override
             public Date convert(final String data) {
-                throw new IllegalArgumentException("Conversion to type Date needs a format pattern.");
+                try {
+                    return SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT, locale).parse(data);
+                } catch (ParseException e) {
+                    NumberFormatException exception = new NumberFormatException(data);
+                    exception.initCause(e);
+                    throw exception;
+                }
             }
 
             @Override
@@ -246,19 +257,38 @@ public class DefaultTypeConverter implements TypeConverter {
         });
 
         CONVERSIONS.put(BigDecimal.class, new Conversion<BigDecimal>(null) {
-
             @Override
             public BigDecimal convert(final String data) {
-                throw new IllegalArgumentException("Conversion to type BigDecimal needs a format pattern.");
+                return new BigDecimal(data);
+                //throw new IllegalArgumentException("Conversion to type BigDecimal needs a format pattern.");
             }
 
             @Override
             public BigDecimal convertWithPattern(final String data, final String pattern) throws ParseException {
-                DecimalFormat decimalFormat = new DecimalFormat(pattern);
+                DecimalFormat decimalFormat = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale));
                 decimalFormat.setParseBigDecimal(true);
                 return (BigDecimal) decimalFormat.parseObject(data);
             }
 
+        });
+
+        CONVERSIONS.put(Number.class, new Conversion<Number>(null) {
+            @Override
+            public Number convert(final String data) {
+                try {
+                    return DecimalFormat.getInstance(locale).parse(data);
+                } catch (ParseException e) {
+                    NumberFormatException exception = new NumberFormatException(data);
+                    exception.initCause(e);
+                    throw exception;
+                }
+            }
+
+            @Override
+            public Number convertWithPattern(final String data, final String pattern) throws ParseException {
+                DecimalFormat decimalFormat = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(locale));
+                return decimalFormat.parse(data);
+            }
         });
 
     }
@@ -275,7 +305,7 @@ public class DefaultTypeConverter implements TypeConverter {
             return (T) conversion.getDefaultValue(data);
         }
 
-        if ((optionalFormatPattern != null) && (optionalFormatPattern.length > 0)) {
+        if ((optionalFormatPattern != null) && (optionalFormatPattern.length > 0)&&(optionalFormatPattern[0]!=null)) {
             try {
                 return (T) conversion.convertWithPattern(data, optionalFormatPattern[0]);
             } catch (ParseException e) {
@@ -321,6 +351,11 @@ public class DefaultTypeConverter implements TypeConverter {
             return this;
         }
         CONVERSIONS.put(type, conversion);
+        return this;
+    }
+    
+    public DefaultTypeConverter setLocale(final Locale locale) {
+        this.locale=locale;
         return this;
     }
 }

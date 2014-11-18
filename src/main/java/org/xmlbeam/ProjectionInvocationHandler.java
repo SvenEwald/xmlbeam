@@ -163,6 +163,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             public boolean isStillValid(final String resolvedXpath) {
                 return resolvedXpath.equals(this.resolvedXPath);
             }
+
+            /**
+             * @return Format pattern for the expression within with this context.
+             */
+            public String getExpressionFormatPattern() {
+                return duplexExpression.getExpressionFormatPattern();
+            }
         }
 
         protected final Method method;
@@ -304,7 +311,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return (Class<?>) componentType;
         }
 
-        private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
+        private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method, InvocationContext invocationContext) throws XPathExpressionException {
             assert targetComponentType != null;
             final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
             final List<Object> linkedList = new LinkedList<Object>();
@@ -312,7 +319,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final TypeConverter typeConverter = projector.config().getTypeConverter();
             if (typeConverter.isConvertable(targetComponentType)) {
                 for (int i = 0; i < nodes.getLength(); ++i) {
-                    linkedList.add(typeConverter.convertTo(targetComponentType, nodes.item(i).getTextContent()));
+                    linkedList.add(typeConverter.convertTo(targetComponentType, nodes.item(i).getTextContent(), invocationContext.getExpressionFormatPattern()));
                 }
                 return linkedList;
             }
@@ -367,7 +374,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
 
                 try {
-                    final Object result = projector.config().getTypeConverter().convertTo(returnType, data);
+                    final Object result = projector.config().getTypeConverter().convertTo(returnType, data, invocationContext.getExpressionFormatPattern());
                     return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
                 } catch (NumberFormatException e) {
                     throw new NumberFormatException(e.getMessage() + " XPath was:" + invocationContext.getResolvedXPath());
@@ -380,11 +387,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsList) {
-                final Object result = evaluateAsList(expression, node, method);
+                final Object result = evaluateAsList(expression, node, method, invocationContext);
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsArray) {
-                final List<?> list = evaluateAsList(expression, node, method);
+                final List<?> list = evaluateAsList(expression, node, method, invocationContext);
                 return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
             }
             if (isEvaluateAsSubProjection) {

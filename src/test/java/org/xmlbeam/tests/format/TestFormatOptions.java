@@ -25,7 +25,7 @@ import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
  * @author sven
  */
 @SuppressWarnings("javadoc")
-public class testFormatOptions {
+public class TestFormatOptions {
 
     @Test
     public void testFormatOptions1() {
@@ -41,9 +41,9 @@ public class testFormatOptions {
     public void testFormatOptions2() {
         //                                                                       111111111122222222
         //                                                             0123456789012345678901234567
-        DuplexExpression expression = new DuplexXPathParser().compile("/foo/bar/date(:using YYYYMMDD:)");
+        DuplexExpression expression = new DuplexXPathParser().compile("/foo/bar/date(:using yyyyMMdd:)");
        // expression.dump();
-        assertEquals("YYYYMMDD",expression.getExpressionFormatPattern());
+        assertEquals("yyyyMMdd",expression.getExpressionFormatPattern());
         assertEquals("/foo/bar/date",expression.getExpressionAsStringWithoutFormatPatterns());
     }
     
@@ -51,22 +51,22 @@ public class testFormatOptions {
     public void testFormatOptions3() {
         //                                                                       111111111122222222
         //                                                             0123456789012345678901234567
-        DuplexExpression expression = new DuplexXPathParser().compile("/foo/$bar(:YYYYMMDD:)/date");
+        DuplexExpression expression = new DuplexXPathParser().compile("/foo/$bar(:yyyyMMdd:)/date");
        // expression.dump();
         assertNull(expression.getExpressionFormatPattern());
         assertEquals("/foo/$bar/date",expression.getExpressionAsStringWithoutFormatPatterns());
-        assertEquals("YYYYMMDD",expression.getVariableFormatPattern("bar"));
+        assertEquals("yyyyMMdd",expression.getVariableFormatPattern("bar"));
     }
     
     @Test
     public void testFormatOptions4() {
         //                                                                       111111111122222222
         //                                                             0123456789012345678901234567
-        DuplexExpression expression = new DuplexXPathParser().compile("/foo/$bar(:using YYYYMMDD:)/date");
+        DuplexExpression expression = new DuplexXPathParser().compile("/foo/$bar(:using yyyyMMdd:)/date");
        // expression.dump();
         assertNull(expression.getExpressionFormatPattern());
         assertEquals("/foo/$bar/date",expression.getExpressionAsStringWithoutFormatPatterns());
-        assertEquals("YYYYMMDD",expression.getVariableFormatPattern("bar"));
+        assertEquals("yyyyMMdd",expression.getVariableFormatPattern("bar"));
     }
 
 }
