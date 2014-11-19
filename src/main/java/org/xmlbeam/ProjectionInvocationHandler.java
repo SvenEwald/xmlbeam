@@ -311,7 +311,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return (Class<?>) componentType;
         }
 
-        private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method, InvocationContext invocationContext) throws XPathExpressionException {
+        private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method, final InvocationContext invocationContext) throws XPathExpressionException {
             assert targetComponentType != null;
             final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
             final List<Object> linkedList = new LinkedList<Object>();
@@ -569,6 +569,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 if (!isStructureChangingValue(o)) {
                     Node newElement = duplexExpression.createChildWithPredicate(parentElement);
+                    if (duplexExpression.hasExpressionFormatPattern()) {
+                        String asString = projector.config().getTypeConverter().renderAsString(o.getClass(), o, duplexExpression.getExpressionFormatPattern());
+                        newElement.setTextContent(asString);
+                        continue;
+                    }
                     newElement.setTextContent(o.toString());
                     continue;
                 }
@@ -708,14 +713,19 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     // If param type == String, no structural change might be expected.
                     DOMHelper.removeAllChildren(elementToChange);
                 } else {
-                    elementToChange.setTextContent(valueToSet.toString());
+                    if (duplexExpression.hasExpressionFormatPattern()) {
+                        final String asString = projector.config().getTypeConverter().renderAsString(valueToSet.getClass(), valueToSet, duplexExpression.getExpressionFormatPattern());
+                        elementToChange.setTextContent(asString);
+
+                    } else {
+                        elementToChange.setTextContent(valueToSet.toString());
+                    }
                 }
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             } catch (XBPathParsingException e) {
                 throw new XBPathException(e, method, resolvedXpath);
             }
         }
-
     }
 
     private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
@@ -965,4 +975,5 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         string = DOUBLE_RBRACES.matcher(string).replaceAll("}");
         return string;
     }
+
 }

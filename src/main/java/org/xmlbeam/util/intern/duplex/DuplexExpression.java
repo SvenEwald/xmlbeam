@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,7 +86,7 @@ public class DuplexExpression {
         node.getFirstChildWithId(XParserTreeConstants.JJTXPATH).eachChild(new VisitorClosure() {
 
             @Override
-            public void apply(SimpleNode node, Node data) {
+            public void apply(final SimpleNode node, final Node data) {
                 if (node.getID() != XParserTreeConstants.JJTVARNAME) {
                     return;
                 }
@@ -241,12 +240,12 @@ public class DuplexExpression {
 //        if (formatPatternNode != null) {
 //            return removeStringPart(xpath, formatPatternNode.getStartColumn(), formatPatternNode.getEndColumn() + 1);
 //        };
-//        
+//
 //        formatPatternNode = node.getFirstChildWithId(XParserTreeConstants.JJTVARIABLEFORMAT);
 //        if (formatPatternNode != null) {
 //            return removeStringPart(xpath, formatPatternNode.getStartColumn(), formatPatternNode.getEndColumn() + 1);
 //        };
-//        
+//
 //        return this.xpath;
     }
 
@@ -260,7 +259,14 @@ public class DuplexExpression {
 //        return string.substring(0, begin) + (end > string.length() ? "" : string.substring(end, string.length()));
 //    }
 
-    public String getVariableFormatPattern(String name) {
+    public String getVariableFormatPattern(final String name) {
         return variableFormatPatterns.get(name);
+    }
+
+    /**
+     * @return true if getExpressionFormat is not null.
+     */
+    public boolean hasExpressionFormatPattern() {
+        return expressionFormatPattern != null;
     }
 }

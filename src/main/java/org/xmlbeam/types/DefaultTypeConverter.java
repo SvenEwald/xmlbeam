@@ -372,4 +372,19 @@ public class DefaultTypeConverter implements TypeConverter {
         this.timezone = timezone;
         return this;
     }
+
+    @Override
+    public String renderAsString(final Class<?> dataType, final Object data, final String... optionalFormatPattern) {
+        assert dataType != null;
+        if ((optionalFormatPattern == null) || (optionalFormatPattern.length == 0) || (optionalFormatPattern[0] == null)) {
+            return data.toString();
+        }
+        if (data instanceof Date) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(optionalFormatPattern[0], DateFormatSymbols.getInstance(locale));
+            dateFormat.setTimeZone(timezone);
+            return dateFormat.format(data);
+        }
+        throw new IllegalArgumentException("Type " + data.getClass().getSimpleName() + " can not be formatted using a pattern");
+
+    }
 }

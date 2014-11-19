@@ -1,0 +1,24 @@
+
+Formatting Data
+
+ You may enrich the XPath expressions with formatting patterns.
+ This pattern will be used for reading and writing values.
+
+
+%{toc|section=1|fromDepth=2|toDepth=2}
+
+
+* Which Format instances are used for which Java type?
+
+*--------------------*----------------*
+||Java Type          ||    Format used|
+*--------------------*----------------*
+|java.util.Date      |SimpleDateFormat|
+*--------------------*----------------*
+|java.lang.Number    |   DecimalFormat|
+*--------------------*----------------*
+|java.math.BigDecimal|NumberFormat    |
+*--------------------*----------------*
+
+* How read values to a java.util.Date object using a custom format pattern? 
+
