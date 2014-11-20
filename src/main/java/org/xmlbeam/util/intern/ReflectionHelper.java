@@ -266,8 +266,11 @@ public final class ReflectionHelper {
                 return Collections.emptyList();
             }
             List<String> paramNames = new LinkedList<String>();
+            int i = 0;
             for (Object o : params) {
-                paramNames.add((String) getName.invoke(o));
+                String name = (String) getName.invoke(o);
+                paramNames.add(name == null ? "PARAM" + i : name);
+                ++i;
             }
             return paramNames;
         } catch (IllegalArgumentException e) {
