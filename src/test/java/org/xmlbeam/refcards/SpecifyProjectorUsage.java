@@ -41,6 +41,7 @@ public class SpecifyProjectorUsage {
             config.setPrettyPrinting(true);
             @SuppressWarnings("unused")
             XBProjector projector = new XBProjector(config);
+            projector.hashCode();
         }
         {
             XBProjector projector = new XBProjector();

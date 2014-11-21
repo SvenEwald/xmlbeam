@@ -568,13 +568,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     continue;
                 }
                 if (!isStructureChangingValue(o)) {
-                    Node newElement = duplexExpression.createChildWithPredicate(parentElement);
-                    if (duplexExpression.hasExpressionFormatPattern()) {
-                        String asString = projector.config().getTypeConverter().renderAsString(o.getClass(), o, duplexExpression.getExpressionFormatPattern());
-                        newElement.setTextContent(asString);
-                        continue;
-                    }
-                    newElement.setTextContent(o.toString());
+                    final Node newElement = duplexExpression.createChildWithPredicate(parentElement);
+                    final String asString = projector.config().getStringRenderer().render(o.getClass(), o, duplexExpression.getExpressionFormatPattern());
+                    newElement.setTextContent(asString);
                     continue;
                 }
                 Element elementToAdd;
@@ -713,13 +709,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     // If param type == String, no structural change might be expected.
                     DOMHelper.removeAllChildren(elementToChange);
                 } else {
-                    if (duplexExpression.hasExpressionFormatPattern()) {
-                        final String asString = projector.config().getTypeConverter().renderAsString(valueToSet.getClass(), valueToSet, duplexExpression.getExpressionFormatPattern());
-                        elementToChange.setTextContent(asString);
-
-                    } else {
-                        elementToChange.setTextContent(valueToSet.toString());
-                    }
+                    final String asString = projector.config().getStringRenderer().render(valueToSet.getClass(), valueToSet, duplexExpression.getExpressionFormatPattern());
+                    elementToChange.setTextContent(asString);
                 }
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             } catch (XBPathParsingException e) {

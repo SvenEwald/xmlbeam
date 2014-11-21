@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathVariableResolver;
 
+import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 
@@ -32,19 +33,19 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
     private final Object[] args;
     private final Method method;
     private final DuplexExpression expression;
-    private final TypeConverter typeConverter;
+    private final StringRenderer stringRenderer;
 
     /**
      * @param method
      * @param args
      * @param originalResolver
      */
-    public MethodParamVariableResolver(final Method method, final Object[] args, final DuplexExpression expression, final TypeConverter typeConverter, final XPathVariableResolver originalResolver) {
+    public MethodParamVariableResolver(final Method method, final Object[] args, final DuplexExpression expression, final StringRenderer stringRenderer, final XPathVariableResolver originalResolver) {
         this.method = method;
         this.args = args;
         this.originalResolver = originalResolver;
         this.expression = expression;
-        this.typeConverter = typeConverter;
+        this.stringRenderer = stringRenderer;
     }
 
     @Override
@@ -53,7 +54,7 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
         for (String name : ReflectionHelper.getMethodParameterNames(method)) {
             ++c;
             if (QName.valueOf(name).equals(variableName)) {
-                return typeConverter.renderAsString(args[c].getClass(), args[c], expression.getVariableFormatPattern(variableName.getLocalPart()));
+                return stringRenderer.render(args[c].getClass(), args[c], expression.getVariableFormatPattern(variableName.getLocalPart()));
             }
         }
         if (originalResolver == null) {

@@ -63,6 +63,7 @@ import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
+import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -245,6 +246,32 @@ public class XBProjector implements Serializable, ProjectionFactory {
         @Override
         public XPath createXPath(final Document... document) {
             return XBProjector.this.xMLFactoriesConfig.createXPath(document);
+        }
+
+        /**
+         * @return StringRenderer used to convert objects into strings 
+         */
+        public StringRenderer getStringRenderer() {
+            return XBProjector.this.stringRenderer;
+        }
+        
+        /**
+         * Cast the type StringRenderer to the current type.
+         *
+         * @param clazz
+         * @return StringRenderer casted down to clazz.
+         */
+        public <T extends StringRenderer> T getStringRendererAs(final Class<T> clazz) {
+            return clazz.cast(getTypeConverter());
+        }
+        
+        /**
+         * @param renderer to be used to convert objects into strings
+         * @return this for convenience
+         */
+        public ConfigBuilder setStringRenderer(final StringRenderer renderer) {
+            XBProjector.this.stringRenderer= renderer;
+            return this;
         }
     }
 
@@ -466,6 +493,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
     private final Map<Class<?>, Map<Class<?>, Object>> mixins = new HashMap<Class<?>, Map<Class<?>, Object>>();
 
     private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
+    private StringRenderer stringRenderer = (StringRenderer) typeConverter;
 
 // private XBProjector(Set<Flags>flags,XMLFactoriesConfig xMLFactoriesConfig) {
 // this.xMLFactoriesConfig = xMLFactoriesConfig;

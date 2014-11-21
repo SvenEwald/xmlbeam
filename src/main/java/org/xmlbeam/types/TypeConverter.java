@@ -39,7 +39,4 @@ public interface TypeConverter extends Serializable {
      * @return a new instance of the target type.
      */
     <T> T convertTo(Class<T> targetType, String data, String... optionalFormatPattern);
-
-    String renderAsString(Class<?> dataType, Object data, String... optionalFormatPattern);
-
 }
