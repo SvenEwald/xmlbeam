@@ -39,6 +39,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathVariableResolver;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -57,6 +58,7 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.MethodParamVariableResolver;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
@@ -248,6 +250,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                 final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
                 String strippedXPath = duplexExpression.getExpressionAsStringWithoutFormatPatterns();
+                if (duplexExpression.isUsingVariables()) {
+                    XPathVariableResolver peviousResolver = xPath.getXPathVariableResolver();
+                    xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), peviousResolver));
+
+                }
                 final XPathExpression xPathExpression = xPath.compile(strippedXPath);
                 lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression);
             }
@@ -473,6 +480,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private static class DeleteInvocationHandler extends XPathInvocationHandler {
 
         /**
+         * @param node
          * @param m
          * @param value
          * @param projector
@@ -620,6 +628,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                     final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(resolvedXpath.substring(0, resolvedXpath.length() - 2)) : new DuplexXPathParser().compile(resolvedXpath);
                     lastInvocationContext = new InvocationContext(resolvedXpath, null, null, duplexExpression);
+                    if (duplexExpression.isUsingVariables()) {
+                        final MethodParamVariableResolver resolver = new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), null);
+                        duplexExpression.setXPathVariableResolver(resolver);
+                    }
                 }
                 final DuplexExpression duplexExpression = lastInvocationContext.getDuplexExpression();
                 if (duplexExpression.getExpressionType().isMustEvalAsString()) {

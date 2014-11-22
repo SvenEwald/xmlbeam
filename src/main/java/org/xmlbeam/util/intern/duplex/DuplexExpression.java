@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.xpath.XPathVariableResolver;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,6 +63,17 @@ public class DuplexExpression {
         }
     };
 
+    private XPathVariableResolver variableResolver = null;
+
+    /**
+     * @param resolver
+     * @return this for convenience
+     */
+    public DuplexExpression setXPathVariableResolver(final XPathVariableResolver resolver) {
+        this.variableResolver = resolver;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "DuplexExpression [xpath=" + xpath + "]";
@@ -96,6 +109,7 @@ public class DuplexExpression {
                 }
                 SimpleNode formatNode = node.getFirstChildWithId(XParserTreeConstants.JJTVARIABLEFORMAT);
                 if (formatNode == null) {
+                    variableFormatPatterns.put(qnameNode.getValue(), null);
                     return;
                 }
                 variableFormatPatterns.put(qnameNode.getValue(), stripFormatMarkers(formatNode.getValue()));
@@ -126,6 +140,13 @@ public class DuplexExpression {
             stringBuilder.delete(removeStartPositions.pop(), removeEndPositions.pop() + 1);
         }
         strippedXPath = stringBuilder.toString();
+    }
+
+    /**
+     * @return true if expression makes use of XPath variables
+     */
+    public boolean isUsingVariables() {
+        return !variableFormatPatterns.keySet().isEmpty();
     }
 
     /**
@@ -162,7 +183,7 @@ public class DuplexExpression {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
         //node.dump("");
-        return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping), contextNode)).get(0);
+        return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(variableResolver, namespaceMapping), contextNode)).get(0);
     }
 
     /**
@@ -175,7 +196,7 @@ public class DuplexExpression {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
         //node.dump("");
-        return (Element) ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(namespaceMapping, ALL_BUT_LAST, MODE.CREATE_IF_NOT_EXISTS), contextNode)).get(0);
+        return (Element) ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(variableResolver, namespaceMapping, ALL_BUT_LAST, MODE.CREATE_IF_NOT_EXISTS), contextNode)).get(0);
     }
 
     /**
@@ -184,7 +205,7 @@ public class DuplexExpression {
     public void deleteAllMatchingChildren(final Node parentNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
-        BuildDocumentVisitor visitor = new BuildDocumentVisitor(namespaceMapping, ONLY_LAST_STEP, MODE.DELETE);
+        BuildDocumentVisitor visitor = new BuildDocumentVisitor(variableResolver, namespaceMapping, ONLY_LAST_STEP, MODE.DELETE);
         List<?> result;
         int lastLength = -1;
         do {
@@ -204,12 +225,15 @@ public class DuplexExpression {
     public Node createChildWithPredicate(final Node parentNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
         final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
-        BuildDocumentVisitor visitor = new BuildDocumentVisitor(namespaceMapping, ONLY_LAST_STEP, MODE.JUST_CREATE);
+        BuildDocumentVisitor visitor = new BuildDocumentVisitor(variableResolver, namespaceMapping, ONLY_LAST_STEP, MODE.JUST_CREATE);
         List<Node> nodes = (List<Node>) node.firstChildAccept(visitor, parentNode);
         assert nodes.size() == 1;
         return nodes.get(0);
     }
 
+    /**
+     * Dumps the tree behind the expression for debugging purpose.
+     */
     public void dump() {
         this.node.dump("");
     }
@@ -234,6 +258,9 @@ public class DuplexExpression {
 //        //node.getFirstChildWithId(XParserTreeConstants.JJTEXPRESSIONFORMAT);
     }
 
+    /**
+     * @return xpath compileable with regular xpath engine.
+     */
     public String getExpressionAsStringWithoutFormatPatterns() {
         return strippedXPath;
 //        SimpleNode formatPatternNode = node.getFirstChildWithId(XParserTreeConstants.JJTEXPRESSIONFORMAT);
@@ -259,6 +286,10 @@ public class DuplexExpression {
 //        return string.substring(0, begin) + (end > string.length() ? "" : string.substring(end, string.length()));
 //    }
 
+    /**
+     * @param name
+     * @return pattern for variable or null if no format is defined.
+     */
     public String getVariableFormatPattern(final String name) {
         return variableFormatPatterns.get(name);
     }

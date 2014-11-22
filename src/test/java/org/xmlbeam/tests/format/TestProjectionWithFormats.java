@@ -25,11 +25,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 
 /**
  * @author sven
  */
-public class ProjectionWithFormatsTests {
+@SuppressWarnings("javadoc")
+public class TestProjectionWithFormats {
 
     private ProjectionWithFormats projection;
 
@@ -37,7 +39,9 @@ public class ProjectionWithFormatsTests {
 
     @Before
     public void init() throws IOException {
-        projection = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectEmptyDocument(ProjectionWithFormats.class);
+        final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+        projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(false);
+        projection = projector.projectEmptyDocument(ProjectionWithFormats.class);
     }
 
     @Test
@@ -53,4 +57,12 @@ public class ProjectionWithFormatsTests {
         assertTrue(projection.toString().contains("<date>19870605</date>"));
         assertEquals(date, projection.getDate2());
     }
+
+    @Test
+    public void testFormatInVariable() {
+        projection.setBar(date, "foobar");
+        assertEquals("<foo date=\"0605\"><bar>foobar</bar></foo>", projection.toString());
+        assertEquals("foobar", projection.getBar(date));
+    }
+
 }

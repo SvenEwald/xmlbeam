@@ -22,16 +22,16 @@ public interface ProjectionWithFormats {
     @XBWrite("/foo/bar/date(:using yyyyMMdd:)")
     void setDate2(Date date);
 
-    @XBRead("/foo[date=$PARAM0(:using MMDD:)]/bar")
+    @XBRead("/foo[@date=$PARAM0(:using MMdd:)]/bar")
     String getBar(Date birthdate);
 
-    @XBRead("/foo[date=$BIRHDATE(:using MMDD:)]/bar")
+    @XBRead("/foo[@date=$BIRHDATE(:using MMdd:)]/bar")
     String getBar2(Date birthdate);
 
-    @XBWrite("/foo[date=$PARAM0(:using MMDD:)]/bar")
+    @XBWrite("/foo[@date=$PARAM0(:using MMdd:)]/bar")
     void setBar(Date birthdate, @XBValue String value);
 
-    @XBWrite("/foo[date=$BIRHDATE(:using MMDD:)]/bar")
+    @XBWrite("/foo[@date=$BIRHDATE(:using MMdd:)]/bar")
     void setBar2(Date birthdate, @XBValue String value);
 }
 //END SNIPPET: ProjectionWithFormats

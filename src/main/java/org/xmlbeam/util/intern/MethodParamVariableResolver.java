@@ -21,7 +21,6 @@ import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathVariableResolver;
 
 import org.xmlbeam.types.StringRenderer;
-import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 
 /**
@@ -38,6 +37,8 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
     /**
      * @param method
      * @param args
+     * @param expression
+     * @param stringRenderer
      * @param originalResolver
      */
     public MethodParamVariableResolver(final Method method, final Object[] args, final DuplexExpression expression, final StringRenderer stringRenderer, final XPathVariableResolver originalResolver) {
@@ -53,7 +54,7 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
         int c = -1;
         for (String name : ReflectionHelper.getMethodParameterNames(method)) {
             ++c;
-            if (QName.valueOf(name).equals(variableName)) {
+            if (name.equalsIgnoreCase(variableName.getLocalPart())) {
                 return stringRenderer.render(args[c].getClass(), args[c], expression.getVariableFormatPattern(variableName.getLocalPart()));
             }
         }
