@@ -126,6 +126,10 @@ public final class ReflectionHelper {
         return list;
     };
 
+    /**
+     * @param c
+     * @return list of all extended classes and implemented interfaces
+     */
     public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
         if (c == null) {
             return Collections.emptyList();
@@ -253,8 +257,16 @@ public final class ReflectionHelper {
      *         parameter names else.
      */
     public static List<String> getMethodParameterNames(final Method m) {
-        if ((GETPARAMETERS == null) || (m == null)) {
+        if (m == null) {
             return Collections.emptyList();
+        }
+        List<String> paramNames = new LinkedList<String>();
+        if ((GETPARAMETERS == null)) {
+            final int count = m.getParameterTypes().length;
+            for (int i = 0; i < count; ++i) {
+                paramNames.add("PARAM" + i++);
+            }
+            return paramNames;
         }
         try {
             Object[] params = (Object[]) GETPARAMETERS.invoke(m);
@@ -265,9 +277,11 @@ public final class ReflectionHelper {
             if (getName == null) {
                 return Collections.emptyList();
             }
-            List<String> paramNames = new LinkedList<String>();
+            int i = 0;
             for (Object o : params) {
-                paramNames.add((String) getName.invoke(o));
+                String name = (String) getName.invoke(o);
+                paramNames.add(name == null ? "PARAM" + i : name);
+                ++i;
             }
             return paramNames;
         } catch (IllegalArgumentException e) {

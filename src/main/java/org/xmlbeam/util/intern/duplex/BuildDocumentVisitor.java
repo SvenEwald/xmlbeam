@@ -34,12 +34,16 @@ import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSLASHSLASH;
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTART;
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTEPEXPR;
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTRINGLITERAL;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTVARNAME;
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTXPATH;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathVariableResolver;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -48,7 +52,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplex.SimpleNode.StepListFilter;
-import org.xmlbeam.util.intern.duplex.XParserVisitor;
 
 /**
  */
@@ -216,6 +219,10 @@ class BuildDocumentVisitor implements XParserVisitor {
             case JJTDECIMALLITERAL:
             case JJTDOUBLELITERAL:
                 return node.jjtAccept(new LiteralVisitor(), data);
+            case JJTQNAME:
+                return QName.valueOf(node.getValue());
+            case JJTVARNAME:
+                return resolveVariable(node, data);
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expetced here.");
             }
@@ -245,6 +252,10 @@ class BuildDocumentVisitor implements XParserVisitor {
             case JJTDECIMALLITERAL:
             case JJTDOUBLELITERAL:
                 return node.jjtAccept(new LiteralVisitor(), data);
+            case JJTVARNAME:
+                return resolveVariable(node, data);
+            case JJTQNAME:
+                return QName.valueOf(node.getValue());
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
@@ -294,29 +305,34 @@ class BuildDocumentVisitor implements XParserVisitor {
 
     private final Map<String, String> namespaceMapping;
     private final StepListFilter stepListFilter;
+    private final XPathVariableResolver variableResolver;
 
     /**
+     * @param variableResolver
      * @param namespaceMapping
      */
-    public BuildDocumentVisitor(final Map<String, String> namespaceMapping) {
+    public BuildDocumentVisitor(final XPathVariableResolver variableResolver, final Map<String, String> namespaceMapping) {
         assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
         this.mode = MODE.CREATE_IF_NOT_EXISTS;
         this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
         this.stepListFilter = null;
+        this.variableResolver = variableResolver;
     }
 
     /**
+     * @param variableResolver
      * @param namespaceMapping
      * @param stepListFilter
      * @param mode
      */
-    public BuildDocumentVisitor(final Map<String, String> namespaceMapping, final StepListFilter stepListFilter, final MODE mode) {
+    public BuildDocumentVisitor(final XPathVariableResolver variableResolver, final Map<String, String> namespaceMapping, final StepListFilter stepListFilter, final MODE mode) {
         assert stepListFilter != null;
         assert (namespaceMapping == null) || (!namespaceMapping.isEmpty());
         assert mode != null;
         this.mode = mode;
         this.stepListFilter = stepListFilter;
         this.namespaceMapping = namespaceMapping == null ? Collections.<String, String> emptyMap() : Collections.unmodifiableMap(namespaceMapping);
+        this.variableResolver = variableResolver;
     }
 
     @Override
@@ -379,6 +395,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                 return mode.shouldCreate() ? createChildElement(data, childName, node.getFirstChildWithId(JJTPREDICATELIST)) : null;
             }
             return nextNode;
+
+        case JJTVARNAME:
+            return resolveVariable(node, data);
         default:
             throw new XBXPathExprNotAllowedForWriting(node, "Not implemented");
         }
@@ -586,5 +605,17 @@ class BuildDocumentVisitor implements XParserVisitor {
             }
             result.add(e);
         }
+    }
+
+    private Object resolveVariable(final SimpleNode node, final Node data) {
+        final QName name = (QName) node.firstChildAccept(new EvaluatePredicateListVisitor(), data);
+        if (variableResolver == null) {
+            throw new XBPathParsingException("Variable '" + name + "' used, but no resolver defined.", 1, node.getStartColumn(), node.getEndColumn(), 1);
+        }
+        Object value = variableResolver.resolveVariable(name);
+        if (value != null) {
+            return value;
+        }
+        throw new XBPathParsingException("Variable '" + name + "' has no value.", 1, node.getStartColumn(), node.getEndColumn(), 1);
     }
 }

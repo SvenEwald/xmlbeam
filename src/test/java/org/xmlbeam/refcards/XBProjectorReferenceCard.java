@@ -85,6 +85,8 @@ XBProjector projector = new XBProjector();
 
         Projection subProjection = projector.projectEmptyElement(name, Projection.class);
 //END SNIPPET: XBProjectorReferenceCard1
+        projection.hashCode();
+        subProjection.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard2
@@ -100,11 +102,14 @@ XBProjector projector = new XBProjector();
         //... and later call:
         projection.toString();
 //END SNIPPET: XBProjectorReferenceCard2b
+        projector.hashCode();
+        xml.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard3
             Projection projection =  projector.projectDOMNode(node, Projection.class);
 //END SNIPPET: XBProjectorReferenceCard3
+            projection.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard4
@@ -135,6 +140,8 @@ XBProjector projector = new XBProjector();
 
             Projection projection2 = projector.io().url(httpurl).addRequestProperties(props).read(Projection.class);
 //END SNIPPET: XBProjectorReferenceCard7
+            projection.hashCode();
+            projection2.hashCode();
         }
         {
             Object projection = null;
@@ -152,6 +159,7 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
 
             projector.io().stream(os).write(projection);
 //END SNIPPET: XBProjectorReferenceCard9
+            projectionWithSystemID.hashCode();
         }
     }
 

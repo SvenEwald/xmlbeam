@@ -134,7 +134,7 @@ class ExpressionTypeEvaluationVisitor implements INodeEvaluationVisitor<Expressi
             return "root".equals(node.getValue()) ? ELEMENT : VALUE;
         case JJTUNIONEXPR:
             final EnumSet<ExpressionType> types = EnumSet.noneOf(ExpressionType.class);
-            node.eachChild(new VisitorClosure() {
+            node.eachDirectChild(new VisitorClosure() {
                 @Override
                 public void apply(final SimpleNode node, final Node data) {
                     types.add(visit(node, data));
