@@ -108,7 +108,7 @@ class BuildDocumentVisitor implements XParserVisitor {
 
         final private boolean onAttribute;
 
-        private EvaluateStepExprVisitor(final boolean onAttribute) {
+        EvaluateStepExprVisitor(final boolean onAttribute) {
             this.onAttribute = onAttribute;
         }
 
@@ -185,6 +185,8 @@ class BuildDocumentVisitor implements XParserVisitor {
     }
 
     private class ApplyPredicatesVisitor implements XParserVisitor {
+        ApplyPredicatesVisitor() {
+        };
 
         @Override
         public Object visit(final SimpleNode node, final Node data) {
@@ -231,6 +233,13 @@ class BuildDocumentVisitor implements XParserVisitor {
     }
 
     private class EvaluatePredicateListVisitor implements XParserVisitor {
+
+        /**
+         *
+         */
+        public EvaluatePredicateListVisitor() {
+            // TODO Auto-generated constructor stub
+        }
 
         @Override
         public Object visit(final SimpleNode node, final Node data) {

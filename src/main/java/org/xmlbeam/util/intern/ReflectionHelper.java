@@ -25,9 +25,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -256,34 +259,30 @@ public final class ReflectionHelper {
      * @return Empty list if no parameters present or names could not be determined. List of
      *         parameter names else.
      */
-    public static List<String> getMethodParameterNames(final Method m) {
-        if (m == null) {
-            return Collections.emptyList();
+    public static Map<String, Integer> getMethodParameterIndexes(final Method m) {
+        if ((GETPARAMETERS == null) || (m == null)) {
+            return Collections.emptyMap();
         }
-        List<String> paramNames = new LinkedList<String>();
-        if ((GETPARAMETERS == null)) {
-            final int count = m.getParameterTypes().length;
-            for (int i = 0; i < count; ++i) {
-                paramNames.add("PARAM" + i++);
-            }
-            return paramNames;
-        }
+        Map<String, Integer> paramNames = new HashMap<String, Integer>();
         try {
             Object[] params = (Object[]) GETPARAMETERS.invoke(m);
             if (params.length == 0) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
             Method getName = findMethodByName(params[0].getClass(), "getName");
             if (getName == null) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
-            int i = 0;
+            int i = -1;
             for (Object o : params) {
-                String name = (String) getName.invoke(o);
-                paramNames.add(name == null ? "PARAM" + i : name);
                 ++i;
+                String name = (String) getName.invoke(o);
+                if (name == null) {
+                    continue;
+                }
+                paramNames.put(name.toUpperCase(Locale.ENGLISH), i);
             }
-            return paramNames;
+            return Collections.unmodifiableMap(paramNames);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {

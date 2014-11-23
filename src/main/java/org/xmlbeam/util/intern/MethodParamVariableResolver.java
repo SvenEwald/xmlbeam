@@ -16,6 +16,7 @@
 package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathVariableResolver;
@@ -51,11 +52,15 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
 
     @Override
     public Object resolveVariable(final QName variableName) {
-        int c = -1;
-        for (String name : ReflectionHelper.getMethodParameterNames(method)) {
-            ++c;
-            if (name.equalsIgnoreCase(variableName.getLocalPart())) {
-                return stringRenderer.render(args[c].getClass(), args[c], expression.getVariableFormatPattern(variableName.getLocalPart()));
+        if ((variableName != null) && (variableName.getLocalPart() == null)) {
+            final String uppercaseName = variableName.getLocalPart().toUpperCase(Locale.ENGLISH);
+            Integer index = ReflectionHelper.getMethodParameterIndexes(method).get(uppercaseName);
+            if (index != null) {
+                return stringRenderer.render(args[index].getClass(), args[index], expression.getVariableFormatPattern(variableName.getLocalPart()));
+            }
+            int preprocessorIndex = Preprocessor.getParameterIndex(uppercaseName);
+            if (preprocessorIndex >= 0) {
+                return stringRenderer.render(args[preprocessorIndex].getClass(), args[preprocessorIndex], expression.getVariableFormatPattern(variableName.getLocalPart()));
             }
         }
         if (originalResolver == null) {

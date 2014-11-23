@@ -59,6 +59,7 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
+import org.xmlbeam.util.intern.Preprocessor;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
@@ -181,6 +182,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final String docAnnotationValue;
         private final boolean isVoidMethod;
         protected InvocationContext lastInvocationContext = EMPTY_INVOCATION_CONTEXT;
+        protected final Map<String, Integer> methodParameterIndexes;
 
         ProjectionMethodInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
             this.method = method;
@@ -190,20 +192,21 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final XBDocURL annotation = method.getAnnotation(XBDocURL.class);
             this.docAnnotationValue = annotation == null ? null : annotation.value();
             this.isVoidMethod = !ReflectionHelper.hasReturnType(method);
+            methodParameterIndexes = ReflectionHelper.getMethodParameterIndexes(method);
         }
 
         protected Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
             if (docAnnotationValue != null) {
                 String uri = projector.config().getExternalizer().resolveURL(docAnnotationValue, method, args);
                 final Map<String, String> requestParams = ((IOBuilder) projector.io()).filterRequestParamsFromParams(uri, args);
-                uri = applyParams(uri, method, args);
+                uri = Preprocessor.applyParams(uri, methodParameterIndexes, args);
                 return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass());
             }
             return node;
         }
 
         protected String resolveXPath(final Object[] args) {
-            return applyParams(projector.config().getExternalizer().resolveXPath(annotationValue, method, args), method, args);
+            return Preprocessor.applyParams(projector.config().getExternalizer().resolveXPath(annotationValue, method, args), methodParameterIndexes, args);
         }
 
         /**
@@ -231,7 +234,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String xPath = resolveXPath(args);
-            final String resolvedXpath = applyParams(xPath, method, args);
+            final String resolvedXpath = Preprocessor.applyParams(xPath, methodParameterIndexes, args);
             return invokeProjection(resolvedXpath, proxy, args);
         }
 
@@ -949,34 +952,28 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return type.isArray() || Collection.class.isAssignableFrom(type);
     }
 
-    /**
-     * @param uri
-     * @param method
-     * @param args
-     * @return a string with all place holders filled by given parameters
-     */
-    private static String applyParams(String string, final Method method, final Object[] args) {
-        assert string != null;
-        if (args != null) {
-            int c = 0;
-            for (String param : ReflectionHelper.getMethodParameterNames(method)) {
-                if (args[c] == null) {
-                    continue;
-                }
-                string = replaceAllIfNotQuoted(string, "{" + param + "}", args[c++].toString());
-                //string = string.replaceAll("[^\\{]\\{" + Pattern.quote(param) + "\\}", "" + args[c++]);
-            }
-            for (c = 0; c < args.length; ++c) {
-                if (args[c] == null) {
-                    continue;
-                }
-                //string = string.replaceAll("[^\\{]\\{" + c + "\\}", "" + args[c]);
-                string = replaceAllIfNotQuoted(string, "{" + c + "}", args[c].toString());
-            }
-        }
-        string = DOUBLE_LBRACES.matcher(string).replaceAll("{");
-        string = DOUBLE_RBRACES.matcher(string).replaceAll("}");
-        return string;
-    }
-
 }
+//
+//        assert string != null;
+//        if (args != null) {
+//            int c = 0;
+//            for (String param : ReflectionHelper.getMethodParameterNames(method)) {
+//                if (args[c] == null) {
+//                    continue;
+//                }
+//                string = replaceAllIfNotQuoted(string, "{" + param + "}", args[c++].toString());
+//                //string = string.replaceAll("[^\\{]\\{" + Pattern.quote(param) + "\\}", "" + args[c++]);
+//            }
+//            for (c = 0; c < args.length; ++c) {
+//                if (args[c] == null) {
+//                    continue;
+////                }
+//                //string = string.replaceAll("[^\\{]\\{" + c + "\\}", "" + args[c]);
+//                string = replaceAllIfNotQuoted(string, "{" + c + "}", args[c].toString());
+//            }
+//        }
+//        string = DOUBLE_LBRACES.matcher(string).replaceAll("{");
+//        string = DOUBLE_RBRACES.matcher(string).replaceAll("}");
+//        return string;
+//    }
+//}

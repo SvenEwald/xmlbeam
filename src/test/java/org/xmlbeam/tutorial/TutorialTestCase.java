@@ -28,7 +28,7 @@ import org.xmlbeam.testutils.JUnitHttpProxy;
  * Abstract base class for tutorial test cases. The tutorial tests are printing out a lot of stuff
  * to demonstrate the example projections. To suppress this output and get a faster and more
  * readable log, set the "SwallowTutorialOutput" property.
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @SuppressWarnings("javadoc")
@@ -43,6 +43,7 @@ public abstract class TutorialTestCase {
         proxy.setAsProxy();
     }
 
+    @SuppressWarnings("resource")
     @Before
     public void swallowOutput() {
         if (System.getProperty("SwallowTutorialOutput") == null) {
@@ -51,7 +52,7 @@ public abstract class TutorialTestCase {
         this.origSyso = System.out;
         System.setOut(new PrintStream(new OutputStream() {
             @Override
-            public void write(int b) {
+            public void write(final int b) {
             }
         }));
     }

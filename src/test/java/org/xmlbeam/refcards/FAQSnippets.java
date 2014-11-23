@@ -36,7 +36,7 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
-@SuppressWarnings({ "unused", "serial", "javadoc" })
+@SuppressWarnings({ "serial", "javadoc" })
 public class FAQSnippets {
 
     /**

@@ -15,24 +15,21 @@
  */
 package org.xmlbeam.externalizer;
 
-import java.lang.reflect.Method;
-
-import java.util.Properties;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
+import java.util.Properties;
 
 /**
- * A full working example for an Externalizer implementation.
- * This Externalizer reads the XPaths from a property file instead from
- * the projection annotations.  
+ * A full working example for an Externalizer implementation. This Externalizer reads the XPaths
+ * from a property file instead from the projection annotations.
  */
 public class PropertyFileExternalizer implements Externalizer {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -2752447643606854521L;
     private final File propertyFile;
@@ -43,29 +40,32 @@ public class PropertyFileExternalizer implements Externalizer {
 
     /**
      * Constructor for a given property file.
+     *
      * @param propertyFile
      */
-    public PropertyFileExternalizer(File propertyFile) {
+    public PropertyFileExternalizer(final File propertyFile) {
         this.propertyFile = propertyFile;
         this.useXmlFormat = false;
     }
 
     /**
      * Constructor for a given property file with the option to choose XML format.
+     *
      * @param propertyFile
      * @param useXmlFormat
      */
-    public PropertyFileExternalizer(File propertyFile, boolean useXmlFormat) {
+    public PropertyFileExternalizer(final File propertyFile, final boolean useXmlFormat) {
         this.propertyFile = propertyFile;
         this.useXmlFormat = useXmlFormat;
     }
 
     /**
-     * Setter for file encoding. 
+     * Setter for file encoding.
+     *
      * @param encodingName
      * @return this for convenience
      */
-    public PropertyFileExternalizer setEncoding(String encodingName) {
+    public PropertyFileExternalizer setEncoding(final String encodingName) {
         this.encodingName = encodingName;
         return this;
     }
@@ -86,6 +86,7 @@ public class PropertyFileExternalizer implements Externalizer {
                 props.loadFromXML(inputStream);
                 return;
             }
+            @SuppressWarnings("resource")
             InputStreamReader reader = new InputStreamReader(inputStream, encodingName);
             props.load(reader);
         } catch (IOException e) {
@@ -103,13 +104,13 @@ public class PropertyFileExternalizer implements Externalizer {
     }
 
     @Override
-    public String resolveXPath(String annotationValue, Method method, Object[] args) {
+    public String resolveXPath(final String annotationValue, final Method method, final Object[] args) {
         updateProps();
         return findProperty(annotationValue, method, args);
     }
 
     @Override
-    public String resolveURL(String annotationValue, Method method, Object[] args) {
+    public String resolveURL(final String annotationValue, final Method method, final Object[] args) {
         updateProps();
         return findProperty(annotationValue, method, args);
     }
@@ -120,7 +121,7 @@ public class PropertyFileExternalizer implements Externalizer {
      * @param args
      * @return
      */
-    protected String findProperty(String key, Method method, Object[] args) {
+    protected String findProperty(final String key, final Method method, final Object[] args) {
         String[] propNameCandidates = new String[] {//
         method.getDeclaringClass().getName() + "." + method.getName(),//
                 method.getDeclaringClass().getSimpleName() + "." + method.getName(),//
