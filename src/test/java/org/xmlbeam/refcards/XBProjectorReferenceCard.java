@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.junit.Ignore;
 import org.w3c.dom.Node;
@@ -87,8 +88,8 @@ XBProjector projector = new XBProjector();
 
         Projection subProjection = projector.projectEmptyElement(name, Projection.class);
 //END SNIPPET: XBProjectorReferenceCard1
-        projection.hashCode();
-        subProjection.hashCode();
+            projection.hashCode();
+            subProjection.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard2
@@ -104,8 +105,8 @@ XBProjector projector = new XBProjector();
         //... and later call:
         projection.toString();
 //END SNIPPET: XBProjectorReferenceCard2b
-        projector.hashCode();
-        xml.hashCode();
+            projector.hashCode();
+            xml.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard3
@@ -216,12 +217,15 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
 //END SNIPPET: XBProjectorReferenceCard14
     }
 
+    {
+//START SNIPPET: XBProjectorReferenceCard15
+        new XBProjector().config().getTypeConverterAs(DefaultTypeConverter.class).setLocale(Locale.ROOT);
+//END SNIPPET: XBProjectorReferenceCard15
+    }
 
     {
-//START SNIPPET: XBProjectorReferenceCard14
-        
-        new XBProjector().config().getStringRendererAs(DefaultTypeConverter.class).setLocale(Locale.ROOT);
-        
-//END SNIPPET: XBProjectorReferenceCard14        
+//START SNIPPET: XBProjectorReferenceCard16
+        new XBProjector().config().getTypeConverterAs(DefaultTypeConverter.class).setTimeZone(TimeZone.getDefault());
+//END SNIPPET: XBProjectorReferenceCard16
     }
 }

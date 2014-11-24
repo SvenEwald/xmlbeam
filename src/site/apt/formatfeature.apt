@@ -43,6 +43,16 @@ Formatting Data
 
 * How to change the locale used for formatting?
 
- If you need to change the locale used in formatting, you may d
+ If you need to change the locale used in formatting, you may change the default locale (system wide) or just the locale used by your XBProjector instance: 
 
-* How do I change the timezone and why would I do that? 
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard15|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+ 
+
+* How do I change the timezone? 
+
+ Your timezone affects parsing of Date objects.
+ To get reproduceable results, the DefaultTypeConverter uses 'GMT' as default.
+ If you have the need to use other timezones, you can specify this:
+ 
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard16|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
+ 
