@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
@@ -65,4 +66,18 @@ public class TestProjectionWithFormats {
         assertEquals("foobar", projection.getBar(date));
     }
 
+    @Ignore
+    // needs Java8
+    public void testFormatInVariableVariant2() {
+        projection.setBar2(date, "foobar");
+        assertEquals("<foo date=\"0605\"><bar>foobar</bar></foo>", projection.toString());
+        assertEquals("foobar", projection.getBar2(date));
+    }
+    
+    @Test
+    public void testFormatInVariableVariant3() {
+        projection.setBar(date, "foobar");
+        assertEquals("<foo date=\"0605\"><bar>foobar</bar></foo>", projection.toString());
+        assertEquals("foobar", projection.getBar(date));
+    }
 }

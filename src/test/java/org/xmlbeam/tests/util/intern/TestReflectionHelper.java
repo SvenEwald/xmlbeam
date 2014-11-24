@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -94,17 +95,18 @@ public class TestReflectionHelper {
     
     @Test(expected = RuntimeException.class)
     public void testThrowThrowableWithoutArgs() throws Throwable {
-        ReflectionHelper.throwThrowable(RuntimeException.class, new Object[]{});
+        ReflectionHelper.throwThrowable(RuntimeException.class, new Object[]{},null);
     }
     
     @Test
     public void testThrowThrowableWithMatchingArgs() throws Throwable {
         boolean exceptionCaught = false;
         try {
-        ReflectionHelper.throwThrowable(IllegalArgumentException.class, new Object[]{"My message"});
+        ReflectionHelper.throwThrowable(IllegalArgumentException.class, new Object[]{"My message"},new IOException());
         } catch(IllegalArgumentException e) {
             exceptionCaught = true;
             assertEquals("My message", e.getMessage());
+            assertEquals(IOException.class, e.getCause().getClass());
         }
         assertTrue(exceptionCaught);
     }
@@ -113,7 +115,7 @@ public class TestReflectionHelper {
     public void testThrowThrowableWithNotMatchingArgs() throws Throwable {
         boolean exceptionCaught = false;
         try {
-        ReflectionHelper.throwThrowable(IllegalArgumentException.class, new Object[]{15});
+        ReflectionHelper.throwThrowable(IllegalArgumentException.class, new Object[]{15},null);
         } catch(IllegalArgumentException e) {
             exceptionCaught = true;
             assertNull(e.getMessage());

@@ -18,6 +18,7 @@ package org.xmlbeam.refcards;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Ignore;
@@ -26,6 +27,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.util.IOHelper;
 
 /**
@@ -214,4 +216,12 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
 //END SNIPPET: XBProjectorReferenceCard14
     }
 
+
+    {
+//START SNIPPET: XBProjectorReferenceCard14
+        
+        new XBProjector().config().getStringRendererAs(DefaultTypeConverter.class).setLocale(Locale.ROOT);
+        
+//END SNIPPET: XBProjectorReferenceCard14        
+    }
 }

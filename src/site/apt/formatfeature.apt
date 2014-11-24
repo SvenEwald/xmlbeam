@@ -2,11 +2,33 @@
 Formatting Data
 
  You may enrich the XPath expressions with formatting patterns.
- This pattern will be used for reading and writing values.
+ These patterns will be used for reading and writing values so you do not need to care about that yourself.
+ 
 
 
 %{toc|section=1|fromDepth=2|toDepth=2}
 
+* How do I parse XML values like '20141031' into a java.util.Date object?
+
+ Append the keyword ' using ' followed by the format pattern to your XPath expression:
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectionWithFormats1|source=src/test/java/org/xmlbeam/tests/format/ProjectionWithFormats.java}
+ 
+
+* How do I write formatted java.util.Date objects?
+
+ Just the same like you did with the reading projection:
+ 
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectionWithFormats2|source=src/test/java/org/xmlbeam/tests/format/ProjectionWithFormats.java}
+
+* What about formatting parameters used in a predicate?
+
+ If your XPath depends on selecting formatted numbers or dates, you need to use an XPath variable followed by the pattern enclosed in XPath comments.
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectionWithFormats3|source=src/test/java/org/xmlbeam/tests/format/ProjectionWithFormats.java}
+
+ With Java 8 you even can use the Java parameter name directly as XPath variable: 
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectionWithFormats4|source=src/test/java/org/xmlbeam/tests/format/ProjectionWithFormats.java}
 
 * Which Format instances are used for which Java type?
 
@@ -17,11 +39,9 @@ Formatting Data
 *--------------------*----------------*
 |java.lang.Number    |   DecimalFormat|
 *--------------------*----------------*
-|java.math.BigDecimal|NumberFormat    |
-*--------------------*----------------*
 
-* How read values to a java.util.Date object using a custom format pattern?
+* How to change the locale used for formatting?
 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectionWithFormats|source=src/test/java/org/xmlbeam/tests/format/ProjectionWithFormats.java}
- 
+ If you need to change the locale used in formatting, you may d
 
+* How do I change the timezone and why would I do that? 

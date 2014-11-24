@@ -18,8 +18,6 @@ package org.xmlbeam.util.intern;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author sven
@@ -54,48 +52,63 @@ public class Preprocessor {
     }
 
     /**
+     * @param string
+     * @param paramNameIndexMap
      * @param args
      * @return a string with all place holders filled by given parameters
      */
     public static String applyParams(final String string, final Map<String, Integer> paramNameIndexMap, final Object[] args) {
-        Matcher matcher = Pattern.compile("\\{[^\\{\\}]+\\}").matcher(string);
-        if (matcher.matches()) {
-
+        if ((string == null) || (string.length() == 0)) {
+            return string;
         }
-        return string;
+        final StringBuilder applied = new StringBuilder(), paramNameBuilder = new StringBuilder();
+        char a,b;
+        boolean inVarname = false;
+        for (int i = 0; i <= string.length() - 1; ++i) {
+            a = string.charAt(i);
+            b = i < string.length() - 1 ? string.charAt(i + 1) : 'X';
+            if ((a == '{') && (b == '{')) {
+                applied.append('{');
+                ++i;
+                continue;
+            }
+            if ((a == '}') && (b == '}')) {
+                applied.append('}');
+                ++i;
+                continue;
+            }
+            if (a != '{') {
+                applied.append(a);
+                continue;
+            }
+            inVarname = true;
+            while ((i < string.length() - 2) && (b != '}')) {
+                paramNameBuilder.append(b);
+                i++;
+                b = string.charAt(i + 1);
+            }
+            inVarname = b != '}';
+            ++i;
+            applied.append(resolveParameter(paramNameBuilder.toString(), paramNameIndexMap, args));
+        }
 
-//    }
-//        int i = 0;
-//        while (i < string.length()) {
-//            int indexStart = string.indexOf('{', i);
-//            if ((indexStart >= 0) && (indexStart < (string.length() - 1))) {
-//
-//
-//            i = indexStart;
-//            if (string.charAt(indexStart + 1) == '{') {
-//                // Found escaped {
-//                string = string.substring(0, indexStart) + string.substring(indexStart + 1, string.length());
-//                i++;
-//                continue;
-//            }
-//            int indexEnd = string.indexOf('}', i);
-//            if ((indexEnd < 0) || (indexEnd >= (string.length() - 1))) {
-//                return string;
-//            }
-//            i = indexEnd;
-//            if (string.charAt(indexEnd + 1) == '}') {
-//                // Found escaped }
-//                string = string.substring(0, indexEnd) + string.substring(indexEnd + 1, string.length());
-//                ++i;
-//                continue;
-//            }
-//            String paramName = string.substring(indexStart, indexEnd);
-//            int methodParameterIndex = getParameterIndex(paramName);
-//            if ((methodParameterIndex < 0) || (methodParameterIndex > args.length)) {
-//                throw new IllegalArgumentException("Illegal parameter '" + paramName + "' could not be applied.");
-//            }
-//            string = string.substring(0, indexStart) + args[methodParameterIndex] + string.substring(indexEnd, string.length());
-//        }
-//        return string;
+        if (inVarname) {
+            throw new IllegalArgumentException("Unmatched '{'");
+        }
+        return applied.toString();
+    }
+
+    private static String resolveParameter(final String paramName, final Map<String, Integer> paramNameIndexMap, final Object[] args) {
+        if (paramNameIndexMap != null) {
+            Integer index = paramNameIndexMap.get(paramName);
+            if (index != null) {
+                return args[index.intValue()].toString();
+            }
+        }
+        int index = getParameterIndex(paramName);
+        if (index >= 0) {
+            return args[index].toString();
+        }
+        throw new IllegalArgumentException("Can not find argument for parameter '" + paramName + "'");
     }
 }

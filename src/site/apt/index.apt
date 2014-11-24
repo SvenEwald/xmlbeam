@@ -42,6 +42,11 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-11-25
+
+ * New release 1.4.2 with super convenient feature to automatically handle number and date formats.
+   See the {{{./release-notes.html} release notes}} and the {{{./formatfeature.html} format feature explained}}.   
+
 ** 2014-11-06
 
  * New release 1.4.1 with cool error handling feature: Let projection methods throw exceptions.

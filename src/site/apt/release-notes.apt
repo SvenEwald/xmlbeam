@@ -8,7 +8,16 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.1 current release
+* 1.4.2 current release
+ 
+ * New feature: Specify a format pattern to choose the representation of dates and numbers.
+   This works for reading and writing projection methods and can even be used in predicates.
+   {{{./formatfeature.html} Format feature explained.}}
+   
+ * XPath variables now provide a way to have dynamic projections without the need to recompile the XPath expression again.
+   This is much faster when methods are reused with different parameters. 
+
+* 1.4.1
 
  * New feature: Reading projection methods may now throw exceptions when values do not exist.
    Just declare your exception type in the method signature.

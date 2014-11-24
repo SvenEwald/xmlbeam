@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.junit.Test;
+import org.xmlbeam.XBProjector;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.TypeConverter;
 
@@ -104,7 +105,7 @@ public class TestDefaultTypeConverter {
     }
 
     @Test
-    public void ensureBigdecimal() {
+    public void ensureBigdecimal() {        
         assertEquals(new BigDecimal("123456"), new DefaultTypeConverter(Locale.US, TimeZone.getTimeZone("GMT")).convertTo(BigDecimal.class, "123,456", ""));
     }
 

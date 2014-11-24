@@ -500,9 +500,10 @@ public final class ReflectionHelper {
      *            type of throwable to be thrown
      * @param args
      *            for the throwable construction
+     * @param optionalCause cause to be set, may be null
      * @throws Throwable
      */
-    public static void throwThrowable(final Class<?> throwableType, final Object[] args) throws Throwable {
+    public static void throwThrowable(final Class<?> throwableType, final Object[] args,final Throwable optionalCause) throws Throwable {
         Class<?>[] argsClasses = getClassesOfObjects(args);
         Constructor<?> constructor = ReflectionHelper.getCallableConstructorForParams(throwableType, argsClasses);
         Throwable throwable = null;
@@ -510,6 +511,9 @@ public final class ReflectionHelper {
             throwable = (Throwable) constructor.newInstance(args);
         } else {
             throwable = (Throwable) throwableType.newInstance();
+        }
+        if (optionalCause!=null) {
+            throwable.initCause(optionalCause);
         }
         throw throwable;
 

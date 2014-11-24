@@ -31,8 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -354,7 +352,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Object result = invokeReadProjection(invocationContext, proxy, args);
             if ((result == null) && (isThrowIfAbsent)) {
-                ReflectionHelper.throwThrowable(exceptionType, args);
+                XBDataNotFoundException dataNotFoundException = new XBDataNotFoundException(invocationContext.resolvedXPath);
+                if (XBDataNotFoundException.class.equals(exceptionType)) {
+                    throw dataNotFoundException;
+                }
+                ReflectionHelper.throwThrowable(exceptionType, args,dataNotFoundException);
             }
             return result;
         }
@@ -734,8 +736,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         }
     }
 
-    private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
-    private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}", Pattern.LITERAL);
     private static final InvocationHandler DEFAULT_METHOD_INVOCATION_HANDLER = new InvocationHandler() {
 
         @Override
@@ -834,30 +834,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             ++index;
         }
         return 0; // If no attribute is annotated, the first one is taken.
-    }
-
-    /**
-     * Replace all occurrences of pattern in string with replacement, but only if they are not
-     * quoted out.
-     *
-     * @param string
-     * @param pattern
-     * @param object
-     * @return replaced string
-     */
-    private static String replaceAllIfNotQuoted(final String string, final String pattern, String replacement) {
-        replacement = Matcher.quoteReplacement(replacement);
-        Pattern compile = Pattern.compile(pattern, Pattern.LITERAL);
-        Matcher matcher = compile.matcher(string);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            if ((matcher.start() > 1) && (Character.valueOf('{').equals(string.charAt(matcher.start() - 1)))) {
-                continue;
-            }
-            matcher.appendReplacement(sb, replacement);
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
     }
 
     /**

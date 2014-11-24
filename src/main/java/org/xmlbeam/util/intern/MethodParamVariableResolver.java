@@ -52,7 +52,7 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
 
     @Override
     public Object resolveVariable(final QName variableName) {
-        if ((variableName != null) && (variableName.getLocalPart() == null)) {
+        if ((variableName != null) && (variableName.getLocalPart() != null)) {
             final String uppercaseName = variableName.getLocalPart().toUpperCase(Locale.ENGLISH);
             Integer index = ReflectionHelper.getMethodParameterIndexes(method).get(uppercaseName);
             if (index != null) {

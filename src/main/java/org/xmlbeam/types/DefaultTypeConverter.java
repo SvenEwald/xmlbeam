@@ -413,8 +413,9 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
             return dateFormat.format(data);
         }
         if (Number.class.isAssignableFrom(dataType)) {
-            decimalFormat.applyPattern(optionalFormatPattern[0]);
-            return decimalFormat.format(data);
+            DecimalFormat clone = (DecimalFormat) decimalFormat.clone();
+            clone.applyPattern(optionalFormatPattern[0]);
+            return clone.format(data);
         }
         throw new IllegalArgumentException("Type " + data.getClass().getSimpleName() + " can not be formatted using a pattern");
     }
