@@ -64,9 +64,9 @@ public class TestPreprocessor2 {
         assertEquals("abc{value0}defg", Preprocessor.applyParams("abc{value0}defg", paramNameIndexMap, args));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParam2() {
-        Preprocessor.applyParams("abc{huhu0}defg", paramNameIndexMap, args);
+        assertEquals("abcvalue0defg", Preprocessor.applyParams("abc{huhu0}defg", paramNameIndexMap, args));
     }
 
     @Test
