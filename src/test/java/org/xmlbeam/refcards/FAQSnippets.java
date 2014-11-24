@@ -36,7 +36,7 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
-@SuppressWarnings({ "unused", "serial", "javadoc" })
+@SuppressWarnings({ "serial", "javadoc" })
 public class FAQSnippets {
 
     /**
@@ -149,6 +149,7 @@ public class FAQSnippets {
 
         XBProjector projector = new XBProjector(myConfig);
         //END SNIPPET: OwnXPathFactoriesImplementation
+        projector.hashCode();
     }
     {
         //START SNIPPET: OwnXPathImplementation
@@ -171,6 +172,7 @@ public class FAQSnippets {
 
         XBProjector projector = new XBProjector(myConfig);
         //END SNIPPET: OwnXPathImplementation
+        projector.hashCode();
     }
 
     public interface ExampleProjection {

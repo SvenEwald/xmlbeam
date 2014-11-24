@@ -90,7 +90,7 @@ public final class DOMHelper {
      * @return new document instance
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "resource" })
     public static Document getDocumentFromURL(final DocumentBuilder documentBuilder, final String url, final Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
         try {
             for (String resProto : RESOURCE_PROTO_NAMES) {

@@ -25,9 +25,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -126,6 +129,10 @@ public final class ReflectionHelper {
         return list;
     };
 
+    /**
+     * @param c
+     * @return list of all extended classes and implemented interfaces
+     */
     public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
         if (c == null) {
             return Collections.emptyList();
@@ -252,24 +259,30 @@ public final class ReflectionHelper {
      * @return Empty list if no parameters present or names could not be determined. List of
      *         parameter names else.
      */
-    public static List<String> getMethodParameterNames(final Method m) {
+    public static Map<String, Integer> getMethodParameterIndexes(final Method m) {
         if ((GETPARAMETERS == null) || (m == null)) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
+        Map<String, Integer> paramNames = new HashMap<String, Integer>();
         try {
             Object[] params = (Object[]) GETPARAMETERS.invoke(m);
             if (params.length == 0) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
             Method getName = findMethodByName(params[0].getClass(), "getName");
             if (getName == null) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
-            List<String> paramNames = new LinkedList<String>();
+            int i = -1;
             for (Object o : params) {
-                paramNames.add((String) getName.invoke(o));
+                ++i;
+                String name = (String) getName.invoke(o);
+                if (name == null) {
+                    continue;
+                }
+                paramNames.put(name.toUpperCase(Locale.ENGLISH), i);
             }
-            return paramNames;
+            return Collections.unmodifiableMap(paramNames);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
@@ -487,9 +500,10 @@ public final class ReflectionHelper {
      *            type of throwable to be thrown
      * @param args
      *            for the throwable construction
+     * @param optionalCause cause to be set, may be null
      * @throws Throwable
      */
-    public static void throwThrowable(final Class<?> throwableType, final Object[] args) throws Throwable {
+    public static void throwThrowable(final Class<?> throwableType, final Object[] args,final Throwable optionalCause) throws Throwable {
         Class<?>[] argsClasses = getClassesOfObjects(args);
         Constructor<?> constructor = ReflectionHelper.getCallableConstructorForParams(throwableType, argsClasses);
         Throwable throwable = null;
@@ -497,6 +511,9 @@ public final class ReflectionHelper {
             throwable = (Throwable) constructor.newInstance(args);
         } else {
             throwable = (Throwable) throwableType.newInstance();
+        }
+        if (optionalCause!=null) {
+            throwable.initCause(optionalCause);
         }
         throw throwable;
 

@@ -9,11 +9,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.xmlbeam</groupId>
 	<artifactId>xmlprojector</artifactId>
-	<version>1.4.1</version>
+	<version>1.4.2</version>
 	<name>XMLBeam Data Projector</name>
-	<description>
-	A java library to create "projections" of XML-Data to Java (and back). A projection is a defined subset of XML elements or attributes in an XML DOM tree. In contrast to data binding the resulting Java API is much more stable. Requires at least Java6 and has no further runtime dependencies.
-	</description>
+	<description>A java XML CRUD library to create &quot;projections&quot; of XML-Data to Java (and back). A projection is a defined subset of XML elements or attributes in an XML DOM tree. In contrast to data binding the resulting Java API does not mirror the XML structure, but user defined views to the structure. Requires at least Java6, supports Java8 features and has no further runtime dependencies.</description>
 	<inceptionYear>2012-12-21</inceptionYear>
 	<url>http://xmlbeam.org</url>
 	<licenses>
@@ -39,6 +37,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cobertura.aggregate>true</cobertura.aggregate>
 		<java.version>1.6</java.version>
+		<!-- <additionalparam>-Xdoclint:none</additionalparam> -->
 	</properties>
 	<build>
 		<testResources>
@@ -72,7 +71,7 @@
 						<excludes>
 							<exclude>**/*Exception.class</exclude>
 							<exclude>**/*Error.class</exclude>
-							<!--  <exclude>**/org/objectweb/asm/*.class</exclude> -->
+							<!-- <exclude>**/org/objectweb/asm/*.class</exclude> -->
 							<exclude>**/duplex/JJTXParserState.class</exclude>
 							<exclude>**/duplex/Node.class</exclude>
 							<exclude>**/duplex/XParserTreeConstants.class</exclude>
@@ -162,33 +161,35 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>javacc-maven-plugin</artifactId>
-        <version>2.6</version>
-        <executions>
-          <execution>
-            <id>xpath</id>
-            <goals>
-              <goal>jjtree-javacc</goal>
-            </goals>
-            <configuration>
-<!--             
-            <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
- -->            
-            <javadocFriendlyComments>true</javadocFriendlyComments>
-              <lookAhead>2</lookAhead>
-              <isStatic>false</isStatic>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javacc-maven-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>xpath</id>
+						<goals>
+							<goal>jjtree-javacc</goal>
+						</goals>
+						<configuration>
+							<!-- <outputDirectory>${project.build.directory}/generated-sources</outputDirectory> -->
+							<javadocFriendlyComments>true</javadocFriendlyComments>
+							<lookAhead>2</lookAhead>
+							<isStatic>false</isStatic>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+				<plugin>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.0</version>
+					<version>3.4</version>
 					<dependencies>
 						<!-- additional dependencies required by "source-class" implementations 
 							are added here -->
@@ -221,6 +222,14 @@
 			<id>xmlbeam.org</id>
 			<url>file:/tmp</url>
 		</site>
+		<repository>
+			<id>bintray</id>
+			<url>https://api.bintray.com/maven/svenewald/xmlbeam/xmlbeam</url>
+		</repository>
+		<snapshotRepository>
+			<id>bintray-snapshots</id>
+			<url>https://api.bintray.com/maven/svenewald/xmlbeam/xmlbeam</url>
+		</snapshotRepository>
 	</distributionManagement>
 	<profiles>
 		<profile>

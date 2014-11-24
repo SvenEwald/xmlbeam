@@ -86,6 +86,7 @@ public class XBFileIO {
     public XBFileIO write(final Object projection) throws IOException {
         FileOutputStream os = new FileOutputStream(file, append);
         new XBStreamOutput(projector, os).write(projection);
+        os.close();
         return this;
     }
 

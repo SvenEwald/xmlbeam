@@ -15,24 +15,26 @@
  */
 package org.xmlbeam.util.intern.duplex;
 
-import org.xmlbeam.XBException;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTART;
+import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.*;
+
+import org.w3c.dom.Node;
 
 /**
- * @author sven
+ * @author se
+ *
  */
-public class XBPathParsingException extends XBException {
+public class GetExpressionFormatPatternVisitor implements XParserVisitor {
 
-    private static final long serialVersionUID = -4923686442969043087L;
-
-    /** TODO:Refactor to absolute begin and end
-     * @param string
-     * @param beginLine
-     * @param beginColumn
-     * @param endColumn
-     * @param endLine
-     */
-    public XBPathParsingException(final String string, final int beginLine, final int beginColumn, final int endColumn, final int endLine) {
-        super(string + " in line " + beginLine + " col " + beginColumn + " to " + endColumn, null);
+    @Override
+    public Object visit(SimpleNode node, Node data) {
+        switch (node.getID()) {
+        case JJTSTART:
+            return node.childrenAccept(this, data);
+        case JJTEXPRESSIONFORMAT:
+            return node.getValue();
+        default:
+            return null;
+        }
     }
-
 }

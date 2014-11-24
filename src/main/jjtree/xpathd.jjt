@@ -11,6 +11,8 @@ options {
         FORCE_LA_CHECK=true;
         NODE_PACKAGE="org.xmlbeam.util.intern.duplex";
         NODE_PREFIX="";
+        TRACK_TOKENS =true;
+        COMMON_TOKEN_ACTION=false;
     
         }
 
@@ -40,22 +42,16 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
 
             void processToken(SimpleNode n, Token t)
             {
-                
-                
+                /*                
                     if(t.kind == XParserConstants.Slash && n.id != XParserTreeConstants.JJTSLASH)
                         return;
-                
+                */
                 n.processToken(t);
             }
-
-            
-
 
         }
 
         PARSER_END(XParser)
-
-    
 
         TOKEN_MGR_DECLS : {
             public Stack stateStack = new Stack();
@@ -146,9 +142,10 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
         SimpleNode START() :
         {}
         {
-            XPath()<EOF>
-            { if(this.token_source.curLexState == XParserConstants.EXPR_COMMENT)
-                throw new ParseException("Unterminated comment.");
+            XPath()(VariableFormat()|ExpressionFormat())?<EOF>
+            {
+// if(this.token_source.curLexState == XParserConstants.EXPR_COMMENT)
+//                throw new ParseException("Unterminated comment.");
             return jjtThis ; }
         }
     void XPath()  :
@@ -156,6 +153,12 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
         {
             Expr()
         }
+        
+	void ExpressionFormat()  :
+	{}
+	{
+	<ExpressionFormatStart> <ANYTHING>{processToken(jjtThis, token);}
+	}        
 
     void ParamList()  :
         {}
@@ -703,13 +706,20 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
     void VarRef()  #void :
         {}
         {
+//            "$" VarName() (VariableFormat())?
             "$" VarName()
         }
+
+    void VariableFormat() :
+    {}
+    {
+    	 <FormatLiteral> {processToken(jjtThis, token); }  
+    }
 
     void VarName()  :
         {}
         {
-            QName()
+            QName() (VariableFormat())?
         }
 
     void ParenthesizedExpr()  :
@@ -1022,11 +1032,42 @@ import org.xmlbeam.util.intern.duplex.SimpleNode;
                 | "union"{jjtThis.processValue("union");})
         }
 
+<EXPRFORMAT>
+TOKEN :
+{
+ <ANYTHING: (["\u0001" - "\uffdc"])+>
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < ExpressionFormatStart : " using " > { pushState(); } : EXPRFORMAT
+}
+
     
 <DEFAULT>
 TOKEN :
 {
  < IntegerLiteral : <Digits> >
+}
+
+<DEFAULT>
+TOKEN :
+{
+// < FormatLiteral : "(:"(<Char>)+":)" >
+ < FormatLiteral : <FormatLiteralStart> (<Char>)+ <FormatLiteralEnd> >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < FormatLiteralStart : "(:" >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < FormatLiteralEnd : ":)" >
 }
 
 <DEFAULT>
@@ -1137,29 +1178,6 @@ TOKEN :
  < LessThanOpOrTagO : "<" > { pushState(DEFAULT); } : DEFAULT
 }
 
-SPECIAL_TOKEN :
-{
- < #Comment : <CommentStart> ((<CommentContents>))* <CommentEnd> >
-}
-
-<DEFAULT, EXPR_COMMENT>
-SPECIAL_TOKEN :
-{
- < CommentStart : "(:" > { pushState(); } : EXPR_COMMENT
-}
-
-<EXPR_COMMENT>
-SPECIAL_TOKEN :
-{
- < CommentContent : <Char> >
-}
-
-<EXPR_COMMENT>
-SPECIAL_TOKEN :
-{
- < CommentEnd : ":)" > { popState(); }
-}
-
 <DEFAULT>
 TOKEN :
 {
@@ -1204,11 +1222,6 @@ TOKEN :
 TOKEN :
 {
  < #Digits : (["0" - "9"])+  >
-}
-
-SPECIAL_TOKEN :
-{
- < #CommentContents : (<CommentContent>)+  >
 }
 
 TOKEN :

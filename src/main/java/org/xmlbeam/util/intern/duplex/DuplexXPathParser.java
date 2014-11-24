@@ -18,8 +18,6 @@ package org.xmlbeam.util.intern.duplex;
 import java.io.StringReader;
 
 import org.xmlbeam.XBException;
-import org.xmlbeam.util.intern.duplex.ParseException;
-import org.xmlbeam.util.intern.duplex.XParser;
 
 /**
  * @author sven
@@ -37,7 +35,7 @@ public class DuplexXPathParser {
             SimpleNode node = parser.START();
             return new DuplexExpression(node, expression);
         } catch (ParseException e) {
-            throw new XBException("Can not parse xpath", e);
+            throw new XBException("Can not parse xpath:'" + expression + "'", e);
         }
     }
 }

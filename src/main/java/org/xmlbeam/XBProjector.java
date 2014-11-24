@@ -32,8 +32,10 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,6 +63,7 @@ import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
 import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
+import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -244,13 +247,39 @@ public class XBProjector implements Serializable, ProjectionFactory {
         public XPath createXPath(final Document... document) {
             return XBProjector.this.xMLFactoriesConfig.createXPath(document);
         }
+
+        /**
+         * @return StringRenderer used to convert objects into strings 
+         */
+        public StringRenderer getStringRenderer() {
+            return XBProjector.this.stringRenderer;
+        }
+        
+        /**
+         * Cast the type StringRenderer to the current type.
+         *
+         * @param clazz
+         * @return StringRenderer casted down to clazz.
+         */
+        public <T extends StringRenderer> T getStringRendererAs(final Class<T> clazz) {
+            return clazz.cast(getTypeConverter());
+        }
+        
+        /**
+         * @param renderer to be used to convert objects into strings
+         * @return this for convenience
+         */
+        public ConfigBuilder setStringRenderer(final StringRenderer renderer) {
+            XBProjector.this.stringRenderer= renderer;
+            return this;
+        }
     }
 
     /**
      * A variation of the builder pattern. Mixin related methods are grouped behind this builder
      * class.
      */
-     class MixinBuilder implements MixinHolder {
+    class MixinBuilder implements MixinHolder {
         /**
          * {@inheritDoc}
          */
@@ -463,7 +492,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private final Map<Class<?>, Map<Class<?>, Object>> mixins = new HashMap<Class<?>, Map<Class<?>, Object>>();
 
-    private TypeConverter typeConverter = new DefaultTypeConverter();
+    private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
+    private StringRenderer stringRenderer = (StringRenderer) typeConverter;
 
 // private XBProjector(Set<Flags>flags,XMLFactoriesConfig xMLFactoriesConfig) {
 // this.xMLFactoriesConfig = xMLFactoriesConfig;
@@ -573,6 +603,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
             final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
             final boolean isExternal = (method.getAnnotation(XBDocURL.class) != null);
+            final boolean isThrowsException = (method.getExceptionTypes().length > 0);
             if (isRead ? isUpdate || isWrite || isDelete : (isUpdate ? isWrite || isDelete : isWrite && isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName());
             }
@@ -586,6 +617,15 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 if (ReflectionHelper.isRawType(method.getGenericReturnType())) {
                     throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but has a raw return type.");
                 }
+                if (method.getExceptionTypes().length > 1) {
+                    throw new IllegalArgumentException("Method " + method + " has @" + XBRead.class.getSimpleName() + " annotation, but declares to throw multiple exceptions. Which one should I throw?");
+                }
+                if (ReflectionHelper.isOptional(method.getReturnType()) && isThrowsException) {
+                    throw new IllegalArgumentException("Method " + method + " has an Optional<> return type, but declares to throw an exception. Exception will never be thrown because return value must not be null.");
+                }
+            }
+            if ((isWrite || isUpdate || isDelete) && isThrowsException) {
+                throw new IllegalArgumentException("Method " + method + " declares to throw exception " + method.getExceptionTypes()[0].getSimpleName() + " but is not a reading projection method. When should this exception be thrown?");
             }
             if (isWrite) {
                 if (!ReflectionHelper.hasParameters(method)) {

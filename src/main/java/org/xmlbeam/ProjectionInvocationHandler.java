@@ -31,14 +31,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathVariableResolver;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -57,6 +56,8 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.MethodParamVariableResolver;
+import org.xmlbeam.util.intern.Preprocessor;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
@@ -163,6 +164,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             public boolean isStillValid(final String resolvedXpath) {
                 return resolvedXpath.equals(this.resolvedXPath);
             }
+
+            /**
+             * @return Format pattern for the expression within with this context.
+             */
+            public String getExpressionFormatPattern() {
+                return duplexExpression.getExpressionFormatPattern();
+            }
         }
 
         protected final Method method;
@@ -172,6 +180,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final String docAnnotationValue;
         private final boolean isVoidMethod;
         protected InvocationContext lastInvocationContext = EMPTY_INVOCATION_CONTEXT;
+        protected final Map<String, Integer> methodParameterIndexes;
 
         ProjectionMethodInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
             this.method = method;
@@ -181,20 +190,21 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final XBDocURL annotation = method.getAnnotation(XBDocURL.class);
             this.docAnnotationValue = annotation == null ? null : annotation.value();
             this.isVoidMethod = !ReflectionHelper.hasReturnType(method);
+            methodParameterIndexes = ReflectionHelper.getMethodParameterIndexes(method);
         }
 
         protected Node getNodeForMethod(final Method method, final Object[] args) throws SAXException, IOException, ParserConfigurationException {
             if (docAnnotationValue != null) {
                 String uri = projector.config().getExternalizer().resolveURL(docAnnotationValue, method, args);
                 final Map<String, String> requestParams = ((IOBuilder) projector.io()).filterRequestParamsFromParams(uri, args);
-                uri = applyParams(uri, method, args);
+                uri = Preprocessor.applyParams(uri, methodParameterIndexes, args);
                 return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass());
             }
             return node;
         }
 
         protected String resolveXPath(final Object[] args) {
-            return applyParams(projector.config().getExternalizer().resolveXPath(annotationValue, method, args), method, args);
+            return Preprocessor.applyParams(projector.config().getExternalizer().resolveXPath(annotationValue, method, args), methodParameterIndexes, args);
         }
 
         /**
@@ -222,7 +232,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String xPath = resolveXPath(args);
-            final String resolvedXpath = applyParams(xPath, method, args);
+            final String resolvedXpath = Preprocessor.applyParams(xPath, methodParameterIndexes, args);
             return invokeProjection(resolvedXpath, proxy, args);
         }
 
@@ -240,7 +250,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
             if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                 final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
-                final XPathExpression xPathExpression = xPath.compile(resolvedXpath);
+                String strippedXPath = duplexExpression.getExpressionAsStringWithoutFormatPatterns();
+                if (duplexExpression.isUsingVariables()) {
+                    XPathVariableResolver peviousResolver = xPath.getXPathVariableResolver();
+                    xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), peviousResolver));
+
+                }
+                final XPathExpression xPathExpression = xPath.compile(strippedXPath);
                 lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression);
             }
             return invokeXpathProjection(lastInvocationContext, proxy, args);
@@ -303,7 +319,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return (Class<?>) componentType;
         }
 
-        private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method) throws XPathExpressionException {
+        private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method, final InvocationContext invocationContext) throws XPathExpressionException {
             assert targetComponentType != null;
             final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
             final List<Object> linkedList = new LinkedList<Object>();
@@ -311,7 +327,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final TypeConverter typeConverter = projector.config().getTypeConverter();
             if (typeConverter.isConvertable(targetComponentType)) {
                 for (int i = 0; i < nodes.getLength(); ++i) {
-                    linkedList.add(typeConverter.convertTo(targetComponentType, nodes.item(i).getTextContent()));
+                    linkedList.add(typeConverter.convertTo(targetComponentType, nodes.item(i).getTextContent(), invocationContext.getExpressionFormatPattern()));
                 }
                 return linkedList;
             }
@@ -336,7 +352,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Object result = invokeReadProjection(invocationContext, proxy, args);
             if ((result == null) && (isThrowIfAbsent)) {
-                ReflectionHelper.throwThrowable(exceptionType, args);
+                XBDataNotFoundException dataNotFoundException = new XBDataNotFoundException(invocationContext.resolvedXPath);
+                if (XBDataNotFoundException.class.equals(exceptionType)) {
+                    throw dataNotFoundException;
+                }
+                ReflectionHelper.throwThrowable(exceptionType, args,dataNotFoundException);
             }
             return result;
         }
@@ -366,7 +386,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
 
                 try {
-                    final Object result = projector.config().getTypeConverter().convertTo(returnType, data);
+                    final Object result = projector.config().getTypeConverter().convertTo(returnType, data, invocationContext.getExpressionFormatPattern());
                     return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
                 } catch (NumberFormatException e) {
                     throw new NumberFormatException(e.getMessage() + " XPath was:" + invocationContext.getResolvedXPath());
@@ -379,11 +399,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsList) {
-                final Object result = evaluateAsList(expression, node, method);
+                final Object result = evaluateAsList(expression, node, method, invocationContext);
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsArray) {
-                final List<?> list = evaluateAsList(expression, node, method);
+                final List<?> list = evaluateAsList(expression, node, method, invocationContext);
                 return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
             }
             if (isEvaluateAsSubProjection) {
@@ -465,6 +485,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     private static class DeleteInvocationHandler extends XPathInvocationHandler {
 
         /**
+         * @param node
          * @param m
          * @param value
          * @param projector
@@ -560,8 +581,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     continue;
                 }
                 if (!isStructureChangingValue(o)) {
-                    Node newElement = duplexExpression.createChildWithPredicate(parentElement);
-                    newElement.setTextContent(o.toString());
+                    final Node newElement = duplexExpression.createChildWithPredicate(parentElement);
+                    final String asString = projector.config().getStringRenderer().render(o.getClass(), o, duplexExpression.getExpressionFormatPattern());
+                    newElement.setTextContent(asString);
                     continue;
                 }
                 Element elementToAdd;
@@ -611,6 +633,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                     final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(resolvedXpath.substring(0, resolvedXpath.length() - 2)) : new DuplexXPathParser().compile(resolvedXpath);
                     lastInvocationContext = new InvocationContext(resolvedXpath, null, null, duplexExpression);
+                    if (duplexExpression.isUsingVariables()) {
+                        final MethodParamVariableResolver resolver = new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), null);
+                        duplexExpression.setXPathVariableResolver(resolver);
+                    }
                 }
                 final DuplexExpression duplexExpression = lastInvocationContext.getDuplexExpression();
                 if (duplexExpression.getExpressionType().isMustEvalAsString()) {
@@ -700,18 +726,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     // If param type == String, no structural change might be expected.
                     DOMHelper.removeAllChildren(elementToChange);
                 } else {
-                    elementToChange.setTextContent(valueToSet.toString());
+                    final String asString = projector.config().getStringRenderer().render(valueToSet.getClass(), valueToSet, duplexExpression.getExpressionFormatPattern());
+                    elementToChange.setTextContent(asString);
                 }
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             } catch (XBPathParsingException e) {
                 throw new XBPathException(e, method, resolvedXpath);
             }
         }
-
     }
 
-    private static final Pattern DOUBLE_LBRACES = Pattern.compile("{{", Pattern.LITERAL);
-    private static final Pattern DOUBLE_RBRACES = Pattern.compile("}}", Pattern.LITERAL);
     private static final InvocationHandler DEFAULT_METHOD_INVOCATION_HANDLER = new InvocationHandler() {
 
         @Override
@@ -813,30 +837,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     /**
-     * Replace all occurrences of pattern in string with replacement, but only if they are not
-     * quoted out.
-     *
-     * @param string
-     * @param pattern
-     * @param object
-     * @return replaced string
-     */
-    private static String replaceAllIfNotQuoted(final String string, final String pattern, String replacement) {
-        replacement = Matcher.quoteReplacement(replacement);
-        Pattern compile = Pattern.compile(pattern, Pattern.LITERAL);
-        Matcher matcher = compile.matcher(string);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            if ((matcher.start() > 1) && (Character.valueOf('{').equals(string.charAt(matcher.start() - 1)))) {
-                continue;
-            }
-            matcher.appendReplacement(sb, replacement);
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
-    }
-
-    /**
      * Find the "me" attribute (which is a replacement for "this") and inject the projection proxy
      * instance.
      *
@@ -928,33 +928,28 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return type.isArray() || Collection.class.isAssignableFrom(type);
     }
 
-    /**
-     * @param uri
-     * @param method
-     * @param args
-     * @return a string with all place holders filled by given parameters
-     */
-    private static String applyParams(String string, final Method method, final Object[] args) {
-        assert string != null;
-        if (args != null) {
-            int c = 0;
-            for (String param : ReflectionHelper.getMethodParameterNames(method)) {
-                if (args[c] == null) {
-                    continue;
-                }
-                string = replaceAllIfNotQuoted(string, "{" + param + "}", args[c++].toString());
-                //string = string.replaceAll("[^\\{]\\{" + Pattern.quote(param) + "\\}", "" + args[c++]);
-            }
-            for (c = 0; c < args.length; ++c) {
-                if (args[c] == null) {
-                    continue;
-                }
-                //string = string.replaceAll("[^\\{]\\{" + c + "\\}", "" + args[c]);
-                string = replaceAllIfNotQuoted(string, "{" + c + "}", args[c].toString());
-            }
-        }
-        string = DOUBLE_LBRACES.matcher(string).replaceAll("{");
-        string = DOUBLE_RBRACES.matcher(string).replaceAll("}");
-        return string;
-    }
 }
+//
+//        assert string != null;
+//        if (args != null) {
+//            int c = 0;
+//            for (String param : ReflectionHelper.getMethodParameterNames(method)) {
+//                if (args[c] == null) {
+//                    continue;
+//                }
+//                string = replaceAllIfNotQuoted(string, "{" + param + "}", args[c++].toString());
+//                //string = string.replaceAll("[^\\{]\\{" + Pattern.quote(param) + "\\}", "" + args[c++]);
+//            }
+//            for (c = 0; c < args.length; ++c) {
+//                if (args[c] == null) {
+//                    continue;
+////                }
+//                //string = string.replaceAll("[^\\{]\\{" + c + "\\}", "" + args[c]);
+//                string = replaceAllIfNotQuoted(string, "{" + c + "}", args[c].toString());
+//            }
+//        }
+//        string = DOUBLE_LBRACES.matcher(string).replaceAll("{");
+//        string = DOUBLE_RBRACES.matcher(string).replaceAll("}");
+//        return string;
+//    }
+//}

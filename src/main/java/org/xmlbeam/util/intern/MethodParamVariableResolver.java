@@ -16,9 +16,13 @@
 package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathVariableResolver;
+
+import org.xmlbeam.types.StringRenderer;
+import org.xmlbeam.util.intern.duplex.DuplexExpression;
 
 /**
  *
@@ -28,31 +32,40 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
     private final XPathVariableResolver originalResolver;
     private final Object[] args;
     private final Method method;
+    private final DuplexExpression expression;
+    private final StringRenderer stringRenderer;
 
     /**
      * @param method
-     * @param args 
+     * @param args
+     * @param expression
+     * @param stringRenderer
      * @param originalResolver
      */
-    public MethodParamVariableResolver(final Method method,final Object[] args,final XPathVariableResolver originalResolver) {
+    public MethodParamVariableResolver(final Method method, final Object[] args, final DuplexExpression expression, final StringRenderer stringRenderer, final XPathVariableResolver originalResolver) {
         this.method = method;
         this.args = args;
         this.originalResolver = originalResolver;
+        this.expression = expression;
+        this.stringRenderer = stringRenderer;
     }
 
     @Override
-    public Object resolveVariable(QName variableName) {
-        int c=-1;
-        for (String name:ReflectionHelper.getMethodParameterNames(method)) {
-            ++c;
-            if (QName.valueOf(name).equals(variableName)) {
-                return args[c];
+    public Object resolveVariable(final QName variableName) {
+        if ((variableName != null) && (variableName.getLocalPart() != null)) {
+            final String uppercaseName = variableName.getLocalPart().toUpperCase(Locale.ENGLISH);
+            Integer index = ReflectionHelper.getMethodParameterIndexes(method).get(uppercaseName);
+            if (index != null) {
+                return stringRenderer.render(args[index].getClass(), args[index], expression.getVariableFormatPattern(variableName.getLocalPart()));
+            }
+            int preprocessorIndex = Preprocessor.getParameterIndex(uppercaseName);
+            if (preprocessorIndex >= 0) {
+                return stringRenderer.render(args[preprocessorIndex].getClass(), args[preprocessorIndex], expression.getVariableFormatPattern(variableName.getLocalPart()));
             }
         }
-        if (originalResolver==null) {
+        if (originalResolver == null) {
             return null;
         }
         return originalResolver.resolveVariable(variableName);
     }
-
 }

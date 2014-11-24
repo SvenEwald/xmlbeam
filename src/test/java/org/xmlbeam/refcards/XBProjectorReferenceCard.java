@@ -18,7 +18,9 @@ package org.xmlbeam.refcards;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.junit.Ignore;
 import org.w3c.dom.Node;
@@ -26,6 +28,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.util.IOHelper;
 
 /**
@@ -85,6 +88,8 @@ XBProjector projector = new XBProjector();
 
         Projection subProjection = projector.projectEmptyElement(name, Projection.class);
 //END SNIPPET: XBProjectorReferenceCard1
+            projection.hashCode();
+            subProjection.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard2
@@ -100,11 +105,14 @@ XBProjector projector = new XBProjector();
         //... and later call:
         projection.toString();
 //END SNIPPET: XBProjectorReferenceCard2b
+            projector.hashCode();
+            xml.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard3
             Projection projection =  projector.projectDOMNode(node, Projection.class);
 //END SNIPPET: XBProjectorReferenceCard3
+            projection.hashCode();
         }
         {
 //START SNIPPET: XBProjectorReferenceCard4
@@ -135,6 +143,8 @@ XBProjector projector = new XBProjector();
 
             Projection projection2 = projector.io().url(httpurl).addRequestProperties(props).read(Projection.class);
 //END SNIPPET: XBProjectorReferenceCard7
+            projection.hashCode();
+            projection2.hashCode();
         }
         {
             Object projection = null;
@@ -152,6 +162,7 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
 
             projector.io().stream(os).write(projection);
 //END SNIPPET: XBProjectorReferenceCard9
+            projectionWithSystemID.hashCode();
         }
     }
 
@@ -206,4 +217,15 @@ projector.io().url(httpurl).addRequestProperties(credentials).write(projection);
 //END SNIPPET: XBProjectorReferenceCard14
     }
 
+    {
+//START SNIPPET: XBProjectorReferenceCard15
+        new XBProjector().config().getTypeConverterAs(DefaultTypeConverter.class).setLocale(Locale.ROOT);
+//END SNIPPET: XBProjectorReferenceCard15
+    }
+
+    {
+//START SNIPPET: XBProjectorReferenceCard16
+        new XBProjector().config().getTypeConverterAs(DefaultTypeConverter.class).setTimeZone(TimeZone.getDefault());
+//END SNIPPET: XBProjectorReferenceCard16
+    }
 }
