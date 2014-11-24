@@ -27,7 +27,8 @@ Formatting Data
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectionWithFormats3|source=src/test/java/org/xmlbeam/tests/format/ProjectionWithFormats.java}
 
- With Java 8 you even can use the Java parameter name directly as XPath variable: 
+ With Java 8 you even can use the Java parameter name directly as XPath variable:
+  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectionWithFormats4|source=src/test/java/org/xmlbeam/tests/format/ProjectionWithFormats.java}
 
 * Which Format instances are used for which Java type?

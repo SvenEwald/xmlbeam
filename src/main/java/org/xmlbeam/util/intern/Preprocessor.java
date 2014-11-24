@@ -62,11 +62,11 @@ public class Preprocessor {
             return string;
         }
         final StringBuilder applied = new StringBuilder(), paramNameBuilder = new StringBuilder();
-        char a,b;
+        char a, b;
         boolean inVarname = false;
-        for (int i = 0; i <= string.length() - 1; ++i) {
+        for (int i = 0; i <= (string.length() - 1); ++i) {
             a = string.charAt(i);
-            b = i < string.length() - 1 ? string.charAt(i + 1) : 'X';
+            b = i < (string.length() - 1) ? string.charAt(i + 1) : 'X';
             if ((a == '{') && (b == '{')) {
                 applied.append('{');
                 ++i;
@@ -82,7 +82,7 @@ public class Preprocessor {
                 continue;
             }
             inVarname = true;
-            while ((i < string.length() - 2) && (b != '}')) {
+            while ((i < (string.length() - 2)) && (b != '}')) {
                 paramNameBuilder.append(b);
                 i++;
                 b = string.charAt(i + 1);
@@ -90,6 +90,7 @@ public class Preprocessor {
             inVarname = b != '}';
             ++i;
             applied.append(resolveParameter(paramNameBuilder.toString(), paramNameIndexMap, args));
+            paramNameBuilder.delete(0, paramNameBuilder.length());
         }
 
         if (inVarname) {

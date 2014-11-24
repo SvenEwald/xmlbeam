@@ -25,7 +25,7 @@ API Reference
 **Create a projection from scratch
 
  You may start with an empty document and create the content by writing projection methods.
- Projections are bidirectional.
+ Projections can be bidirectional.
  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard1|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
@@ -88,6 +88,22 @@ API Reference
 
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard12|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}  
 
+* Dynamic Projections
+
+ Dynamic Projections may change the XPath during runtime using parameters of the projection method.
+ There are two ways to use method parameters in XPath expressions:
+ 
+ * XPath variables: Parameters are bound to XPath variables.
+   The first parameter can be referred by '$PARAM0' or alternatively '$ARG0'. 
+   The second parameter by '$PARAM1' or '$ARG1'.
+   Variable names are case insensitive, thus '$Param2' and '$param2' refer both to the third parameter of the projection method.
+   These variables may be decorated by {{{./formatfeature.html} format specifications}}.
+ 
+ * Preprocessor: If you need to change more than just values (e.g. the structure of the XPath), you can do this by using the build in preprocessor.
+   The place holders are '\{PARAM0\}', '\{ARG0\}' or just '\{0\}' for the first parameter, '\{PARAM1\}', '\{ARG1\}', '\{1\}' for the second and so on...
+   Like the variables, these tokens are case insensitive.
+   Preprocessor place holders are slower on multiple method invocations, because the XPath expression needs to be compiled every time.  
+
 **Use parameter names in dynamic projections
  
  You have to use Java 8 and set the javac option "-parameters" for your projection interfaces. Then you can do something like this:
@@ -98,13 +114,15 @@ API Reference
  
 %{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#XBProjectorReferenceCard14|source=src/test/java/org/xmlbeam/refcards/XBProjectorReferenceCard.java}
 
+ Of course, this works with XPath variables, too. 
+
 * Annotations
 
 ** @XBDocURL
  
  This annotation may be used on a projection interface do declare a document origin.
  When the document is fetched from this URL, this value becomes the system id.
- As any other annotation string values the URL may contain MessageFormats place holders ("\{n\}", where n=0,1,2... is a parameter index).
+ As any other annotation string values the URL may contain preprocessor place holders ("\{n\}", where n=0,1,2... is a parameter index).
  
  When attached to a getter method in a projection interface, this is called an external projection. 
  The getters XPath expression will be evaluated on the document fetched from this URL.  
