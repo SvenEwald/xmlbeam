@@ -8,7 +8,15 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.2 current release
+* 1.4.3 current release
+ 
+ * XMLBeam jars are now OSGI bundles, directly usable in eclipse target platform.
+ 
+ * Source code is automatically attached in Eclipse RCP plugin development.
+ 
+ * Nothing changes for non OSGI/RCP developers. The jars are just contain additional meta data.
+
+* 1.4.2 
  
  * New feature: Specify a format pattern to choose the representation of dates and numbers.
    This works for reading and writing projection methods and can even be used in predicates.
