@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.xmlbeam</groupId>
 	<artifactId>xmlprojector</artifactId>
-	<version>1.4.3-SNAPSHOT</version>
+	<version>1.4.4</version>
 	<name>XMLBeam Data Projector</name>
 	<description>A java XML CRUD library to create &quot;projections&quot; of XML-Data to Java (and back). A projection is a defined subset of XML elements or attributes in an XML DOM tree. In contrast to data binding the resulting Java API does not mirror the XML structure, but user defined views to the structure. Requires at least Java6, supports Java8 features and has no further runtime dependencies.</description>
 	<inceptionYear>2012-12-21</inceptionYear>
@@ -89,7 +89,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<configuration>
-				<defaultManifestFile>src/srcbuild/MANIFEST.MF</defaultManifestFile>
+				<defaultManifestFile>target/srcbuild/MANIFEST.MF</defaultManifestFile>
 				<useDefaultManifestFile>true</useDefaultManifestFile>
 				</configuration>
 				<executions>
@@ -147,7 +147,7 @@
 						</goals>
 					</execution>
 					<execution>
-						<id>Patch syntax highlighter css</id>
+						<id>Patch syntax highlighter css, apply version</id>
 						<phase>post-site</phase>
 						<configuration>
 							<tasks>
@@ -156,6 +156,11 @@
 									overwrite="true" />
 								<replaceregexp file="${basedir}/target/site/download.html"
 									match="x.x.x" replace="${project.version}" byline="true" flags="g" />
+								<copy file="src/srcbuild/MANIFEST.MF"
+									tofile="target/srcbuild/MANIFEST.MF"
+									overwrite="true" />	
+								<replaceregexp file="${basedir}/target/srcbuild/MANIFEST.MF"
+									match="x.x.x" replace="${project.version}" byline="true" flags="g" />	
 							</tasks>
 						</configuration>
 						<goals>
