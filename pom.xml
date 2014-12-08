@@ -147,6 +147,22 @@
 						</goals>
 					</execution>
 					<execution>
+					<id> apply version to src manifest</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<tasks>
+								<copy file="src/srcbuild/MANIFEST.MF"
+									tofile="target/srcbuild/MANIFEST.MF"
+									overwrite="true" />	
+								<replaceregexp file="${basedir}/target/srcbuild/MANIFEST.MF"
+									match="x.x.x" replace="${project.version}" byline="true" flags="g" />	
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
 						<id>Patch syntax highlighter css, apply version</id>
 						<phase>post-site</phase>
 						<configuration>
@@ -156,11 +172,6 @@
 									overwrite="true" />
 								<replaceregexp file="${basedir}/target/site/download.html"
 									match="x.x.x" replace="${project.version}" byline="true" flags="g" />
-								<copy file="src/srcbuild/MANIFEST.MF"
-									tofile="target/srcbuild/MANIFEST.MF"
-									overwrite="true" />	
-								<replaceregexp file="${basedir}/target/srcbuild/MANIFEST.MF"
-									match="x.x.x" replace="${project.version}" byline="true" flags="g" />	
 							</tasks>
 						</configuration>
 						<goals>
