@@ -88,6 +88,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<configuration>
+				<defaultManifestFile>src/srcbuild/MANIFEST.MF</defaultManifestFile>
+				<useDefaultManifestFile>true</useDefaultManifestFile>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -108,6 +112,21 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+						<manifestEntries>
+							<Bundle-Version>${project.version}</Bundle-Version>
+							<Bundle-Name>${project.name}</Bundle-Name>
+							<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+							<Export-Package>org.xmlbeam,org.xmlbeam.annotation,org.xmlbeam.config,org.xmlbeam.dom,org.xmlbeam.externalizer,org.xmlbeam.io,org.xmlbeam.types,org.xmlbeam.util</Export-Package>
+						</manifestEntries>
+					</archive>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
