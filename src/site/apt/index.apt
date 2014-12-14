@@ -45,6 +45,7 @@ Welcome to XMLBeam
 ** 2014-12-14
 
  * new release 1.4.4. New Java 8 annotation for easier overriding of toString() or other Object methods. 
+   See the {{{./faq.html#How_do_I_implement_the_toString_method_for_my_projection} FAQ section about toString()}}.
 
 ** 2014-12-08
 
