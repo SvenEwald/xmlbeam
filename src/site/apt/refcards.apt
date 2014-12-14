@@ -165,6 +165,13 @@ API Reference
  Again this annotation takes a XPath expression as parameter.
  Again only XPath expressions selecting Nodes or NodeSets are valid here.  
 
+** @XBOverride
+
+ It's not possible for Java 8 default methods to override a method inherited from Object. 
+ This is bad if you want to have your own hashCode or toString method implemented as a default method.
+ With this annotation you can declare a default method with a different name (e.g. "toString_") and declare it to be used when Object.toString() is called.
+ (@XBOverride("toString"))
+
 ** Annotation on method parameters
 
 *** @XBValue
@@ -172,4 +179,4 @@ API Reference
   A setter must have at least one parameter.
   If you choose to declare more than one parameter (because you use them as MessageFormat parameters) then you should mark the parameter to be set in the document with this annotation.
   If you don't, the first parameter will be the "setting parameter".
- 
+   
