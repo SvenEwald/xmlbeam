@@ -32,7 +32,6 @@ import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
-import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
@@ -195,5 +194,13 @@ public class FAQSnippets {
         assertEquals("John Doe", departmentUsers.get(0));
         assertEquals("Tommy Atkins", departmentUsers.get(1));
     }
-
+//START SNIPPET: NO_FORMATTING
+/*
+//START SNIPPET:Java8OverrideToString
+        @XBOverride("toString")
+        default String toString_() {
+            return "String from overriden toString() method";
+        }
+//END SNIPPET:Java8OverrideToString
+*/
 }
