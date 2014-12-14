@@ -29,10 +29,14 @@ import javax.xml.xpath.XPathVariableResolver;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.config.XMLFactoriesConfig;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
 @SuppressWarnings({ "serial", "javadoc" })
@@ -94,10 +98,31 @@ public class FAQSnippets {
     }
 
     XBProjector projector = new XBProjector();
-
     {
-
     }
+
+    //START SNIPPET: DOMProjection
+    public interface ProjectionWithDomAccess {
+        // Just declare Node as return type
+        @XBRead("/some/path/to/element/or/@attribute")
+        org.w3c.dom.Node getSomeValue();
+    }
+
+    public interface ProjectionExtendingDOMAccess extends DOMAccess {
+
+        // add your projections here
+
+        //you inherit some useful methods
+        @Override
+        Node getDOMNode();
+
+        @Override
+        Element getDOMBaseElement();
+
+        @Override
+        String asString(); // returns XML String for this projection
+    }
+    //END SNIPPET:
 
     //START SNIPPET: MixinOverridingToString
     public interface MixinOverridingToString {
