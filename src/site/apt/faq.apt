@@ -62,7 +62,11 @@ FAQ / HowTo
 * How do I implement the toString() method for my projection?
 
  You can easily implement your own toString() method which can access your projection getter methods.
- With Java 8, just define a default method with the toString() signature in your projection interface.
+ With Java 8,  just define a default mehtod with the same signature as the Object.toString() signature in your projection interface, but a different name.
+ For example you can choose "String asString()" or "String toString_()".
+ Then add a @XBOverride annotation with the name of the method this default method should override.
+ 
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Java8OverrideToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
  
  For Java 6 & 7 you need to create a mixin: 
 

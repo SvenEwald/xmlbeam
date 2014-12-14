@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Eclipse-SourceBundle: org.xmlbeam.xmlprojector;version="x.x.x";roots="."
+Bundle-Name: XMLBeam
+Bundle-SymbolicName: org.xmlbeam.xmlprojector.source
+Bundle-Version: x.x.x
+Bunlde-Vendor:XMLBeam.org
