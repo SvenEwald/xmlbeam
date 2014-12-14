@@ -49,6 +49,7 @@ import org.xmlbeam.XBProjector.IOBuilder;
 import org.xmlbeam.XBProjector.InternalProjection;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.annotation.XBOverride;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBUpdate;
 import org.xmlbeam.annotation.XBValue;
@@ -356,7 +357,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 if (XBDataNotFoundException.class.equals(exceptionType)) {
                     throw dataNotFoundException;
                 }
-                ReflectionHelper.throwThrowable(exceptionType, args,dataNotFoundException);
+                ReflectionHelper.throwThrowable(exceptionType, args, dataNotFoundException);
             }
             return result;
         }
@@ -743,6 +744,20 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return ReflectionHelper.invokeDefaultMethod(method, args, proxy);
         }
     };
+
+    private static final class OverrideByDefaultMethodInvocationHandler implements InvocationHandler {
+        private final Method defaultMethod;
+
+        OverrideByDefaultMethodInvocationHandler(final Method defaultMethod) {
+            this.defaultMethod = defaultMethod;
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            return DEFAULT_METHOD_INVOCATION_HANDLER.invoke(proxy, defaultMethod, args);
+        }
+    }
+
     private final Map<MethodSignature, InvocationHandler> handlers = new HashMap<MethodSignature, InvocationHandler>();
     private final Map<MethodSignature, InvocationHandler> mixinHandlers = new HashMap<MethodSignature, InvocationHandler>();
 
@@ -764,6 +779,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 final MethodSignature methodSignature = MethodSignature.forMethod(m);
                 if (ReflectionHelper.isDefaultMethod(m)) {
                     handlers.put(methodSignature, DEFAULT_METHOD_INVOCATION_HANDLER);
+                    final XBOverride xbOverride = m.getAnnotation(XBOverride.class);
+                    if (xbOverride != null) {
+                        handlers.put(methodSignature.overridenBy(xbOverride.value()), new OverrideByDefaultMethodInvocationHandler(m));
+                    }
                     continue;
                 }
                 if (defaultInvocationHandlers.containsKey(methodSignature)) {

@@ -100,4 +100,16 @@ class MethodSignature implements Serializable {
         return new MethodSignature(m);
     }
 
+    /**
+     * Creates a copy of this signature with a different name. Use this to override another method
+     * with same parameters.
+     *
+     * @param name
+     *            Name of method that is overriden.
+     * @return Method signature with different name.
+     */
+    public MethodSignature overridenBy(final String name) {
+        return new MethodSignature(name, this.paramTypes);
+    }
+
 }
