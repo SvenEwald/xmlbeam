@@ -8,7 +8,11 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.3 current release
+* 1.4.4 current release
+
+ * New annotation @XBOverride fixes issues of default methods not able to override methods from Object.
+
+* 1.4.3
  
  * XMLBeam jars are now OSGI bundles, directly usable in eclipse target platform.
  

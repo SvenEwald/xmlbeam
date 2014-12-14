@@ -42,6 +42,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2014-12-14
+
+ * new release 1.4.4. New Java 8 annotation for easier overriding of toString() or other Object methods. 
+
 ** 2014-12-08
 
  * New release 1.4.3. XMLBeam jars are now OSGI Bundles. 
