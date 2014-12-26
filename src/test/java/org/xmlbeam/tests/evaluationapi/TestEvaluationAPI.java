@@ -27,6 +27,7 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.dom.DOMAccess;
 
 /**
  * @author sven
@@ -57,7 +58,7 @@ public class TestEvaluationAPI {
     }
 
     @Test
-    public void testEvaluateOnXMLString() {
+    public void testSimpleEvaluateOnXMLString() {
         String stringResult = new XBProjector().onXMLString("<foo><bar>value</bar></foo>").evalXPath("//bar").as(String.class);
         assertEquals("value", stringResult);
 
@@ -72,5 +73,14 @@ public class TestEvaluationAPI {
 
         Date date = new XBProjector().onXMLString("<foo><bar>1.4.2004</bar></foo> ").evalXPath("//bar using dd.MM.yyyy").as(Date.class);
         assertEquals("04", new SimpleDateFormat("MM").format(date));
+    }
+
+    public interface Projection extends DOMAccess {
+    };
+
+    @Test
+    public void testProjectionCreation() {
+        Projection projection = new XBProjector().onXMLString("<foo><bar>value</bar></foo>").evalXPath("//bar").as(Projection.class);
+        assertEquals("<bar>value</bar>", projection.asString().trim());
     }
 }

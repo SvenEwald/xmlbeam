@@ -1,5 +1,6 @@
 package org.xmlbeam.evaluation;
 
+import java.awt.geom.IllegalPathStateException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -83,10 +84,20 @@ public final class XPathEvaluator {
                 final Object result = projector.config().getTypeConverter().convertTo(returnType, data, duplexExpression.getExpressionFormatPattern());
                 return (T) result;
             }
+
+            if (Node.class.isAssignableFrom(returnType)) {
+                final Object result = expression.evaluate(document, XPathConstants.NODE);
+                return (T) result;
+            }
+
+            if (returnType.isInterface()) {
+                final Node node = (Node) expression.evaluate(document, XPathConstants.NODE);
+                return projector.projectDOMNode(node, returnType);
+            }
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        throw new IllegalPathStateException();
     }
 
     private <T> void validateEvaluationType(final Class<T> returnType) {
