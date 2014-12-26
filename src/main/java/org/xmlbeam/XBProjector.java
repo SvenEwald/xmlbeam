@@ -56,6 +56,7 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.evaluation.CanEvaluateOrProject;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
@@ -484,17 +485,28 @@ public class XBProjector implements Serializable, ProjectionFactory {
     }
 
     /**
-     * @param xpath
      * @param xmlContent
      * @return {@link XPathEvaluator}
      */
-    public XPathEvaluator evalXPathOnXMLString(final String xpath, final String xmlContent) {
-        try {
-            final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
-            return new XPathEvaluator(this, inputStream, xpath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public CanEvaluateOrProject onXMLString(final String xmlContent) {
+        return new CanEvaluateOrProject() {
+
+            @Override
+            public XPathEvaluator evalXPath(final String xpath) {
+                try {
+                    final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+                    return new XPathEvaluator(XBProjector.this, inputStream, xpath);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public <T> T createProjection(final Class<T> projectionInterface) {
+                return projectXMLString(xmlContent, projectionInterface);
+            }
+        };
+
     }
 
     /**

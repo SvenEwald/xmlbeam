@@ -15,19 +15,21 @@
  */
 package org.xmlbeam.evaluation;
 
-import java.io.IOException;
-
 /**
  * @author sven
  */
-public interface CanEvaluate {
+public interface CanEvaluateOrProject {
 
     /**
      * @param xpath
      *            to be evaluated on input
      * @return EvaluationBuilder to choose target type
-     * @throws IOException
      */
-    XPathEvaluator evalXPath(String xpath) throws IOException;
+    XPathEvaluator evalXPath(String xpath);
 
+    /**
+     * @param type
+     * @return a projection
+     */
+    <T> T createProjection(Class<T> type);
 }

@@ -43,6 +43,9 @@ public class TestEvaluationAPI {
 //
 //        new XBProjector().io().stream(stream).read(Agent.class);
 
+        //new XBProjector().onXMLString("asfafd").evalXPath("//foo").as(Projection.class);
+        //new XBProjector().onXMLString("sdfsf").createProjection(Foo.class);
+
         String as = new XBProjector().io().file(new File("")).evalXPath("//foo").as(String.class);
         List<String> asListOf = new XBProjector().io().file(new File("")).evalXPath("//foo").asListOf(String.class);
         String[] asArrayOf = new XBProjector().io().file(new File("")).evalXPath("//foo").asArrayOf(String.class);
@@ -55,19 +58,19 @@ public class TestEvaluationAPI {
 
     @Test
     public void testEvaluateOnXMLString() {
-        String stringResult = new XBProjector().evalXPathOnXMLString("//bar", "<foo><bar>value</bar></foo>").as(String.class);
+        String stringResult = new XBProjector().onXMLString("<foo><bar>value</bar></foo>").evalXPath("//bar").as(String.class);
         assertEquals("value", stringResult);
 
-        int intResult = new XBProjector().evalXPathOnXMLString("//bar", "<foo><bar>13</bar></foo>").as(Integer.TYPE);
+        int intResult = new XBProjector().onXMLString("<foo><bar>13</bar></foo>").evalXPath("//bar").as(Integer.TYPE);
         assertEquals(13, intResult);
 
-        Integer integerResult = new XBProjector().evalXPathOnXMLString("//bar", "<foo><bar>-113</bar></foo>").as(Integer.TYPE);
+        Integer integerResult = new XBProjector().onXMLString("<foo><bar>-113</bar></foo>").evalXPath("//bar").as(Integer.TYPE);
         assertEquals(-113, integerResult.intValue());
 
-        boolean boolResult = new XBProjector().evalXPathOnXMLString("//bar", "<foo><bar>true</bar></foo>").as(Boolean.TYPE);
+        boolean boolResult = new XBProjector().onXMLString("<foo><bar>true</bar></foo>").evalXPath("//bar").as(Boolean.TYPE);
         assertTrue(boolResult);
 
-        Date date = new XBProjector().evalXPathOnXMLString("//bar using dd.MM.yyyy", "<foo><bar>1.4.2004</bar></foo> ").as(Date.class);
+        Date date = new XBProjector().onXMLString("<foo><bar>1.4.2004</bar></foo> ").evalXPath("//bar using dd.MM.yyyy").as(Date.class);
         assertEquals("04", new SimpleDateFormat("MM").format(date));
     }
 }
