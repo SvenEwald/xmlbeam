@@ -249,12 +249,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
 
         /**
-         * @return StringRenderer used to convert objects into strings 
+         * @return StringRenderer used to convert objects into strings
          */
         public StringRenderer getStringRenderer() {
             return XBProjector.this.stringRenderer;
         }
-        
+
         /**
          * Cast the type StringRenderer to the current type.
          *
@@ -264,13 +264,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
         public <T extends StringRenderer> T getStringRendererAs(final Class<T> clazz) {
             return clazz.cast(getTypeConverter());
         }
-        
+
         /**
-         * @param renderer to be used to convert objects into strings
+         * @param renderer
+         *            to be used to convert objects into strings
          * @return this for convenience
          */
         public ConfigBuilder setStringRenderer(final StringRenderer renderer) {
-            XBProjector.this.stringRenderer= renderer;
+            XBProjector.this.stringRenderer = renderer;
             return this;
         }
     }
@@ -480,6 +481,19 @@ public class XBProjector implements Serializable, ProjectionFactory {
             throw new RuntimeException(e);
         }
     }
+
+    public ProjectionBuilder evaluate(final String xpath) {
+        return new ProjectionBuilder(xpath);
+    }
+
+//    public EvaluationBuilder evaluateXMLString(final String xmlContent, final String xpath) {
+//        try {
+//            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+//            return new EvaluationBuilder(inputStream, xpath);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     /**
      * Marker interface to determine if a Projection instance was created by a Projector. This will

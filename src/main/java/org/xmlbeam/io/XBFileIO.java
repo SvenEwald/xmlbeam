@@ -16,17 +16,20 @@
 package org.xmlbeam.io;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.evaluation.CanEvaluate;
+import org.xmlbeam.evaluation.EvaluationBuilder;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBFileIO {
+public class XBFileIO implements CanEvaluate {
 
     private final XBProjector projector;
     private boolean append = false;
@@ -99,6 +102,11 @@ public class XBFileIO {
     public XBFileIO setAppend(final boolean append) {
         this.append = append;
         return this;
+    }
+
+    @Override
+    public EvaluationBuilder evaluate(final String xpath) throws IOException {
+        return new EvaluationBuilder(projector, new FileInputStream(file), xpath);
     }
 
 }

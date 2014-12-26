@@ -95,7 +95,8 @@ public final class DOMHelper {
         try {
             for (String resProto : RESOURCE_PROTO_NAMES) {
                 if (url.startsWith(resProto)) {
-                    InputStream is = resourceAwareClass.getResourceAsStream(url.substring(resProto.length()));
+                    final String resourceName = url.substring(resProto.length());
+                    InputStream is = resourceAwareClass == null ? ClassLoader.getSystemResourceAsStream(resourceName) : resourceAwareClass.getResourceAsStream(resourceName);
                     InputSource source = new InputSource(is);
                     // source.setEncoding("MacRoman");
                     return documentBuilder.parse(source);
