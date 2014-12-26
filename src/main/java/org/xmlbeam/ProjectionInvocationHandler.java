@@ -364,13 +364,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         private Object invokeReadProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Node node = getNodeForMethod(method, args);
-            // Automatic propagation of parameters as XPath variables
-            // disabled so far...
-//            try {
-//            if (ReflectionHelper.mayProvideParameterNames()) {
-//                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
-//            }
-
             final ExpressionType expressionType = invocationContext.getDuplexExpression().getExpressionType();
             final XPathExpression expression = invocationContext.getxPathExpression();
 
@@ -416,12 +409,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
             }
             throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
-            // Automatic propagation of parameters as XPath variables
-            // disabled so far...
-//            } finally {
-//                xPath.reset();
-//            }
-
         }
     }
 
