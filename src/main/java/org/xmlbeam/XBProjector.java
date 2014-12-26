@@ -56,6 +56,7 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 import org.xmlbeam.io.XBFileIO;
@@ -475,25 +476,26 @@ public class XBProjector implements Serializable, ProjectionFactory {
     @Override
     public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface) {
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+            final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
             return new XBStreamInput(this, inputStream).read(projectionInterface);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ProjectionBuilder evaluate(final String xpath) {
-        return new ProjectionBuilder(xpath);
+    /**
+     * @param xpath
+     * @param xmlContent
+     * @return {@link XPathEvaluator}
+     */
+    public XPathEvaluator evalXPathOnXMLString(final String xpath, final String xmlContent) {
+        try {
+            final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+            return new XPathEvaluator(this, inputStream, xpath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-
-//    public EvaluationBuilder evaluateXMLString(final String xmlContent, final String xpath) {
-//        try {
-//            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
-//            return new EvaluationBuilder(inputStream, xpath);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     /**
      * Marker interface to determine if a Projection instance was created by a Projector. This will
@@ -508,11 +510,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
     private StringRenderer stringRenderer = (StringRenderer) typeConverter;
-
-// private XBProjector(Set<Flags>flags,XMLFactoriesConfig xMLFactoriesConfig) {
-// this.xMLFactoriesConfig = xMLFactoriesConfig;
-// this.isSynchronizeOnDocuments = flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS);
-// }
 
     /**
      * Global projector configuration options.
@@ -696,4 +693,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
         final DOMAccess domAccess = (DOMAccess) projection;
         return domAccess.asString();
     }
+
+    /**
+     * read only access to flags. Use constructor to set.
+     *
+     * @return flags.
+     */
+    public Set<Flags> getFlags() {
+        return Collections.unmodifiableSet(flags);
+    }
+
 }

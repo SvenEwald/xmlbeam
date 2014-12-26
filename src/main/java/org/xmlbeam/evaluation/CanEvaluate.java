@@ -28,6 +28,6 @@ public interface CanEvaluate {
      * @return EvaluationBuilder to choose target type
      * @throws IOException
      */
-    public abstract EvaluationBuilder evaluate(String xpath) throws IOException;
+    public abstract XPathEvaluator evalXPath(String xpath) throws IOException;
 
 }

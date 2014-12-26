@@ -22,7 +22,7 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.evaluation.CanEvaluate;
-import org.xmlbeam.evaluation.EvaluationBuilder;
+import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 
@@ -98,9 +98,9 @@ public class XBUrlIO implements CanEvaluate {
     }
 
     @Override
-    public EvaluationBuilder evaluate(final String xpath) throws IOException {
+    public XPathEvaluator evalXPath(final String xpath) throws IOException {
         final Document document = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, null);
-        return new EvaluationBuilder(projector, document, xpath);
+        return new XPathEvaluator(projector, document, xpath);
     }
 
 }
