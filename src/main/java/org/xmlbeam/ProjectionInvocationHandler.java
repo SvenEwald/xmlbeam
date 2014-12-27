@@ -289,6 +289,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
             this.isEvaluateAsList = List.class.equals(returnType);
             this.isEvaluateAsArray = returnType.isArray();
+            if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList)) {
+                throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of list or array. Lists and arrays may be empty but will never be null.");
+            }
             this.targetComponentType = isEvaluateAsList || isEvaluateAsArray ? findTargetComponentType(method) : null;
             this.isEvaluateAsSubProjection = returnType.isInterface();
             this.isThrowIfAbsent = exceptionType != null;
@@ -400,10 +403,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsList) {
+                assert !wrappedInOptional : "Projection methods returning list will never return null";
                 final Object result = evaluateAsList(expression, node, method, invocationContext);
-                return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
+                return result;
             }
             if (isEvaluateAsArray) {
+                assert !wrappedInOptional : "Projection methods returning array will never return null";
                 final List<?> list = evaluateAsList(expression, node, method, invocationContext);
                 return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
             }
