@@ -57,7 +57,7 @@ FAQ / HowTo
   
  You may change the DOM any time, projections will reflect the changes automatically.  
     
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}    
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#DOMProjection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}    
    
 * How do I implement the toString() method for my projection?
 
