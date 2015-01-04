@@ -127,7 +127,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private static abstract class ProjectionMethodInvocationHandler implements InvocationHandler, Serializable {
 
-        private static final InvocationContext EMPTY_INVOCATION_CONTEXT = new InvocationContext(null, null, null, null);
+        private static final InvocationContext EMPTY_INVOCATION_CONTEXT = new InvocationContext(null, null, null, null, null);
 
         static class InvocationContext {
             public String getResolvedXPath() {
@@ -146,17 +146,19 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return duplexExpression;
             }
 
-            public InvocationContext(final String resolvedXPath, final XPath xPath, final XPathExpression xPathExpression, final DuplexExpression duplexExpression) {
+            public InvocationContext(final String resolvedXPath, final XPath xPath, final XPathExpression xPathExpression, final DuplexExpression duplexExpression, final MethodParamVariableResolver resolver) {
                 this.resolvedXPath = resolvedXPath;
                 this.xPath = xPath;
                 this.xPathExpression = xPathExpression;
                 this.duplexExpression = duplexExpression;
+                this.resolver = resolver;
             }
 
             final String resolvedXPath;
             final XPath xPath;
             final XPathExpression xPathExpression;
             final DuplexExpression duplexExpression;
+            final MethodParamVariableResolver resolver;
 
             /**
              * @param resolvedXpath
@@ -171,6 +173,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
              */
             public String getExpressionFormatPattern() {
                 return duplexExpression.getExpressionFormatPattern();
+            }
+
+            public void updateMethodArgs(final Object[] args) {
+                if (resolver != null) {
+                    resolver.updateArgs(args);
+                }
             }
         }
 
@@ -252,14 +260,17 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                 final DuplexExpression duplexExpression = new DuplexXPathParser().compile(resolvedXpath);
                 String strippedXPath = duplexExpression.getExpressionAsStringWithoutFormatPatterns();
+                MethodParamVariableResolver resolver = null;
                 if (duplexExpression.isUsingVariables()) {
                     XPathVariableResolver peviousResolver = xPath.getXPathVariableResolver();
-                    xPath.setXPathVariableResolver(new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), peviousResolver));
+                    resolver = new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), peviousResolver);
+                    xPath.setXPathVariableResolver(resolver);
 
                 }
                 final XPathExpression xPathExpression = xPath.compile(strippedXPath);
-                lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression);
+                lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression, resolver);
             }
+            lastInvocationContext.updateMethodArgs(args);
             return invokeXpathProjection(lastInvocationContext, proxy, args);
         }
 
@@ -622,6 +633,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         @Override
         public Object invokeProjection(final String resolvedXpath, final Object proxy, final Object[] args) throws Throwable {
             //   final String pathToElement = resolvedXpath.replaceAll("\\[@", "[attribute::").replaceAll("/?@.*", "").replaceAll("\\[attribute::", "[@");
+            lastInvocationContext.updateMethodArgs(args);
             final Document document = DOMHelper.getOwnerDocumentFor(node);
             assert document != null;
             final Object valueToSet = args[findIndexOfValue];
@@ -638,11 +650,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             try {
                 if (!lastInvocationContext.isStillValid(resolvedXpath)) {
                     final DuplexExpression duplexExpression = wildCardTarget ? new DuplexXPathParser().compile(resolvedXpath.substring(0, resolvedXpath.length() - 2)) : new DuplexXPathParser().compile(resolvedXpath);
-                    lastInvocationContext = new InvocationContext(resolvedXpath, null, null, duplexExpression);
+                    MethodParamVariableResolver resolver = null;
                     if (duplexExpression.isUsingVariables()) {
-                        final MethodParamVariableResolver resolver = new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), null);
+                        resolver = new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), null);
                         duplexExpression.setXPathVariableResolver(resolver);
                     }
+                    lastInvocationContext = new InvocationContext(resolvedXpath, null, null, duplexExpression, resolver);
                 }
                 final DuplexExpression duplexExpression = lastInvocationContext.getDuplexExpression();
                 if (duplexExpression.getExpressionType().isMustEvalAsString()) {
