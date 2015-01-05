@@ -80,7 +80,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final ReflectionInvoker reflectionInvoker = new ReflectionInvoker(defaultInvokerObject);
         final Map<MethodSignature, InvocationHandler> invokers = new HashMap<MethodSignature, InvocationHandler>();
         for (Method m : DOMAccess.class.getMethods()) {
-            invokers.put(MethodSignature.forMethod(m), reflectionInvoker);
+            if (m.getAnnotation(XBWrite.class) == null) {
+                invokers.put(MethodSignature.forMethod(m), reflectionInvoker);
+            }
         }
 
         invokers.put(MethodSignature.forVoidMethod("toString"), reflectionInvoker);
@@ -608,7 +610,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             assert document != null;
             final Object valueToSet = args[findIndexOfValue];
             final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
-
             // ROOT element update
             if ("/*".equals(resolvedXpath)) { // Setting a new root element.
                 if (isMultiValue) {

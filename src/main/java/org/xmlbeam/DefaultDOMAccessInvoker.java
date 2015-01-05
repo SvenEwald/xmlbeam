@@ -136,4 +136,10 @@ class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
     public static DefaultDOMAccessInvoker create(final Class<?> projectionInterface, final Node node, final XBProjector projector, final boolean toStringRendersXML) {
         return toStringRendersXML ? new XMLRenderingObjectInvoker(projectionInterface, node, projector) : new DefaultObjectInvoker(projectionInterface, node, projector);
     }
+
+    @Override
+    public DOMAccess create(String path, Object value) {        
+        throw new IllegalStateException("This method should not be called");
+    }
+    
 }

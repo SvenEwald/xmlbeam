@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -82,5 +83,16 @@ public class TestEvaluationAPI {
     public void testProjectionCreation() {
         Projection projection = new XBProjector().onXMLString("<foo><bar>value</bar></foo>").evalXPath("//bar").as(Projection.class);
         assertEquals("<bar>value</bar>", projection.asString().trim());
+    }
+    
+    @Test
+    public void testMultiEvaluationOnXMLString() {
+        List<String> strings  = new XBProjector().onXMLString("<foo><bar>value1</bar><bar>value2</bar></foo>").evalXPath("//bar").asListOf(String.class);
+        assertEquals(Arrays.asList("value1","value2"), strings);
+    }
+    @Test
+    public void testMultiEvaluationOnXMLString2() {
+        String[] strings  = new XBProjector().onXMLString("<foo><bar>value1</bar><bar>value2</bar></foo>").evalXPath("//bar").asArrayOf(String.class);
+        assertEquals(new String[]{"value1","value2"}, strings);
     }
 }

@@ -20,6 +20,8 @@ import java.io.Serializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmlbeam.annotation.XBValue;
+import org.xmlbeam.annotation.XBWrite;
 
 /**
  * Every Projection will be automatically implementing this interface.
@@ -63,4 +65,14 @@ public interface DOMAccess extends Serializable {
      * @return DOM node as XML string.
      */
     String asString();
+    
+    /**
+     * Create an element or attribute with given path and value.
+     * @param path
+     * @param value
+     * @return this for convenience
+     */
+    @XBWrite("{0}")
+    DOMAccess create(final String path,@XBValue Object value);
+    
 }
