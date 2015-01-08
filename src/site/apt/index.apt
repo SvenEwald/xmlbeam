@@ -42,6 +42,12 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2015-01-03
+
+ * There is now a {{{http://leanpub.com/javaxml}book covering XMLBeam}}.
+ 
+ * new release 1.4.5 with {{{./release-notes.html} a bug fixed}}.
+
 ** 2014-12-14
 
  * new release 1.4.4. New Java 8 annotation for easier overriding of toString() or other Object methods. 

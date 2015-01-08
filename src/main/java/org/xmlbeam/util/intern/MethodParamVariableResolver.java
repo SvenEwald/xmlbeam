@@ -30,7 +30,7 @@ import org.xmlbeam.util.intern.duplex.DuplexExpression;
 public class MethodParamVariableResolver implements XPathVariableResolver {
 
     private final XPathVariableResolver originalResolver;
-    private final Object[] args;
+    private Object[] args;
     private final Method method;
     private final DuplexExpression expression;
     private final StringRenderer stringRenderer;
@@ -67,5 +67,12 @@ public class MethodParamVariableResolver implements XPathVariableResolver {
             return null;
         }
         return originalResolver.resolveVariable(variableName);
+    }
+
+    /**
+     * @param args
+     */
+    public void updateArgs(final Object[] args) {
+        this.args = args;
     }
 }
