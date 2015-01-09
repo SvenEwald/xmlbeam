@@ -3,6 +3,8 @@ package org.xmlbeam.evaluation;
 import java.awt.geom.IllegalPathStateException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -12,9 +14,11 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
@@ -108,11 +112,47 @@ public final class XPathEvaluator {
 
     public <T> T[] asArrayOf(final Class<T> returnType) {
         validateEvaluationType(returnType);
-        return null;
+        List<T> list = asListOf(returnType);
+        return (T[]) list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType, list.size()));
     }
 
     public <T> List<T> asListOf(final Class<T> returnType) {
         validateEvaluationType(returnType);
-        return null;
+        InvocationContext invocationContext = new InvocationContext(null, null, this.expression, duplexExpression, null, returnType, projector);
+        try {
+            return (List<T>) evaluateAsList(expression, document, null, invocationContext);
+        } catch (XPathExpressionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method, final InvocationContext invocationContext) throws XPathExpressionException {
+        //assert targetComponentType != null;
+        final Class<?> targetComponentType = invocationContext.getTargetComponentType();
+        final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+        final List<Object> linkedList = new LinkedList<Object>();
+
+        final TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
+        if (typeConverter.isConvertable(targetComponentType)) {
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                linkedList.add(typeConverter.convertTo(targetComponentType, nodes.item(i).getTextContent(), invocationContext.getExpressionFormatPattern()));
+            }
+            return linkedList;
+        }
+        if (Node.class.equals(targetComponentType)) {
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                linkedList.add(nodes.item(i));
+            }
+            return linkedList;
+        }
+        if (targetComponentType.isInterface()) {
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                Object subprojection = invocationContext.getProjector().projectDOMNode(nodes.item(i), targetComponentType);
+                linkedList.add(subprojection);
+            }
+            return linkedList;
+        }
+        throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
+                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
     }
 }
