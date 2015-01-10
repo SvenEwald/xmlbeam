@@ -97,6 +97,11 @@ public final class DOMHelper {
                 if (url.startsWith(resProto)) {
                     final String resourceName = url.substring(resProto.length());
                     InputStream is = resourceAwareClass == null ? ClassLoader.getSystemResourceAsStream(resourceName) : resourceAwareClass.getResourceAsStream(resourceName);
+                    if (is == null) {
+
+                        throw new IOException("The resource '" + url + "' could not be found using "
+                                + (resourceAwareClass == null ? "the system class loader. Maybe you need to add a package declaration to the url?" : "the classloader of " + resourceAwareClass.getSimpleName() + ". Ensure the resource is visible in for this class."));
+                    }
                     InputSource source = new InputSource(is);
                     // source.setEncoding("MacRoman");
                     return documentBuilder.parse(source);

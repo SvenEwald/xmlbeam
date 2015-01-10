@@ -57,6 +57,7 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.CanEvaluateOrProject;
+import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
@@ -67,6 +68,7 @@ import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
@@ -495,7 +497,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
             public XPathEvaluator evalXPath(final String xpath) {
                 try {
                     final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
-                    return new XPathEvaluator(XBProjector.this, inputStream, xpath);
+
+                    return new XPathEvaluator(XBProjector.this, new DocumentResolver() {
+
+                        @Override
+                        public Document resolve(final Class<?> resourceAwareClass) {
+                            return IOHelper.loadDocument(XBProjector.this, inputStream);
+                        }
+                    }, xpath);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

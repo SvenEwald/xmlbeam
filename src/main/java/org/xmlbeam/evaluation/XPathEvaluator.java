@@ -2,12 +2,10 @@ package org.xmlbeam.evaluation;
 
 import java.awt.geom.IllegalPathStateException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -15,7 +13,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.types.TypeConverter;
@@ -31,48 +28,30 @@ import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
  */
 public final class XPathEvaluator {
 
-    private final XPathExpression expression;
-    private final Document document;
-    private DuplexExpression duplexExpression;
+//    private final XPathExpression expression;
+    private final DocumentResolver documentProvider;
+    private final DuplexExpression duplexExpression;
     private final XBProjector projector;
-
-    public XPathEvaluator(final XBProjector projector, final InputStream is, final String xpath) {
-        this(projector, loadDocument(projector, is), xpath);
-    }
+    private final String xpathString;
 
     /**
-     * @param is
-     * @return
-     */
-    private static Document loadDocument(final XBProjector projector, final InputStream is) {
-        final DocumentBuilder documentBuilder = projector.config().createDocumentBuilder();
-        try {
-            return documentBuilder.parse(is, "");
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @param document
+     * @param documentProvider
      * @param xpath
      */
-    public XPathEvaluator(final XBProjector projector, final Document document, final String xpath) {
+    public XPathEvaluator(final XBProjector projector, final DocumentResolver documentProvider, final String xpath) {
         this.projector = projector;
-        this.document = document;
-        try {
-            this.duplexExpression = new DuplexXPathParser().compile(xpath);
-            this.expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
-        } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
-        }
+        this.documentProvider = documentProvider;
+        this.xpathString = xpath;
+        this.duplexExpression = new DuplexXPathParser().compile(xpath);
     }
 
     public <T> T as(final Class<T> returnType) {
         validateEvaluationType(returnType);
         try {
+            Document document = documentProvider.resolve(returnType);
+
+            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+
             if (projector.config().getTypeConverter().isConvertable(returnType)) {
                 String data;
                 if (duplexExpression.getExpressionType().isMustEvalAsString()) {
@@ -100,6 +79,8 @@ public final class XPathEvaluator {
             }
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         throw new IllegalPathStateException();
     }
@@ -118,10 +99,15 @@ public final class XPathEvaluator {
 
     public <T> List<T> asListOf(final Class<T> returnType) {
         validateEvaluationType(returnType);
-        InvocationContext invocationContext = new InvocationContext(null, null, this.expression, duplexExpression, null, returnType, projector);
         try {
+            Document document = documentProvider.resolve(returnType);
+            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+            InvocationContext invocationContext = new InvocationContext(null, null, expression, duplexExpression, null, returnType, projector);
+
             return (List<T>) evaluateAsList(expression, document, null, invocationContext);
         } catch (XPathExpressionException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

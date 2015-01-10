@@ -28,6 +28,11 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.parsers.DocumentBuilder;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import org.xmlbeam.XBProjector;
 
 /**
  * A set of tiny helper methods used in the projection framework and free to use for framework
@@ -137,7 +142,7 @@ public final class IOHelper {
 
     /**
      * Silently drop UTF8 BOM
-     * 
+     *
      * @param source
      * @return data without UTF8 BOM
      */
@@ -154,4 +159,19 @@ public final class IOHelper {
         return source;
     }
 
+    /**
+     * @param is
+     *            anonymous input stream
+     * @return Document
+     */
+    public static Document loadDocument(final XBProjector projector, final InputStream is) {
+        final DocumentBuilder documentBuilder = projector.config().createDocumentBuilder();
+        try {
+            return documentBuilder.parse(is, "");
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Sven Ewald
+ *  Copyright 2015 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,17 +15,23 @@
  */
 package org.xmlbeam.evaluation;
 
+import java.io.IOException;
+
+import org.w3c.dom.Document;
 
 /**
  * @author sven
  */
-public interface CanEvaluate {
+public interface DocumentResolver {
 
     /**
-     * @param xpath
-     *            to be evaluated on input
-     * @return EvaluationBuilder to choose target type
+     * Resolve document, possibly using the given class.
+     *
+     * @param resourceAwareClass
+     *            may provide a class loader, may be null.
+     * @return a dom Document
+     * @throws IOException
      */
-    XPathEvaluator evalXPath(String xpath);
+    Document resolve(Class<?> resourceAwareClass) throws IOException;
 
 }
