@@ -528,11 +528,11 @@ public final class ReflectionHelper {
         return classes;
     }
 
-    private static class FindCallerClass extends SecurityManager {
-        private static final ThreadLocal<FindCallerClass> findCallerClassLoader = new ThreadLocal<ReflectionHelper.FindCallerClass>() {
+    private static class ClassContextAccess extends SecurityManager {
+        private static final ThreadLocal<ClassContextAccess> classContextAccess = new ThreadLocal<ReflectionHelper.ClassContextAccess>() {
             @Override
-            protected FindCallerClass initialValue() {
-                return new FindCallerClass();
+            protected ClassContextAccess initialValue() {
+                return new ClassContextAccess();
             }
         };
 
@@ -549,12 +549,16 @@ public final class ReflectionHelper {
      * @return Class of calling method
      */
     public static Class<?> getCallerClass(final int level) {
-        return FindCallerClass.findCallerClassLoader.get().getCallerClass(level + 1);
+        return ClassContextAccess.classContextAccess.get().getCallerClass(level + 1);
     }
 
+    /**
+     * @return Class of calling method
+     */
     public static Class<?> getDirectCallerClass() {
-        return FindCallerClass.findCallerClassLoader.get().getCallerClass(3);
+        return ClassContextAccess.classContextAccess.get().getCallerClass(3);
     }
+
 //    /**
 //     * @param m
 //     * @return list of methods overridden by given method

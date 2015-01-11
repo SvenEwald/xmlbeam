@@ -3,6 +3,8 @@ package org.xmlbeam.evaluation;
 import java.awt.geom.IllegalPathStateException;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,10 +47,35 @@ public final class XPathEvaluator {
         this.duplexExpression = new DuplexXPathParser().compile(xpath);
     }
 
+    public boolean asBoolean() {
+        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
+        return evaluateSingeValue(Boolean.TYPE, callerClass);
+    }
+
+    public int asInt() {
+        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
+        return evaluateSingeValue(Integer.TYPE, callerClass);
+    }
+
+    public String asString() {
+        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
+        return evaluateSingeValue(String.class, callerClass);
+    }
+
+    public Date asDate() {
+        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
+        return evaluateSingeValue(Date.class, callerClass);
+    }
+
     public <T> T as(final Class<T> returnType) {
         validateEvaluationType(returnType);
+        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
+        return evaluateSingeValue(returnType, callerClass);
+    }
+
+    private <T> T evaluateSingeValue(final Class<T> returnType, final Class<?> callerClass) {
         try {
-            Document document = documentProvider.resolve(returnType, ReflectionHelper.getDirectCallerClass());
+            Document document = documentProvider.resolve(returnType, callerClass);
 
             XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
 
@@ -87,7 +114,10 @@ public final class XPathEvaluator {
 
     private <T> void validateEvaluationType(final Class<T> returnType) {
         if (ReflectionHelper.isOptional(returnType)) {
-            throw new IllegalArgumentException("Type Optional is only allowed as a method return type");
+            throw new IllegalArgumentException("Type Optional is only allowed as a method return type.");
+        }
+        if (Collection.class.isAssignableFrom(returnType)) {
+            throw new IllegalArgumentException("A collection type can not be component type.");
         }
     }
 
