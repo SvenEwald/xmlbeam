@@ -32,6 +32,6 @@ public interface DocumentResolver {
      * @return a dom Document
      * @throws IOException
      */
-    Document resolve(Class<?> resourceAwareClass) throws IOException;
+    Document resolve(Class<?>... resourceAwareClasses) throws IOException;
 
 }

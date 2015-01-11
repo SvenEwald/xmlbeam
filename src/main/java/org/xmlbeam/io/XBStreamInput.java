@@ -80,7 +80,7 @@ public class XBStreamInput implements CanEvaluate {
     public XPathEvaluator evalXPath(final String xpath) {
         return new XPathEvaluator(projector, new DocumentResolver() {
             @Override
-            public Document resolve(final Class<?> resourceAwareClass) {
+            public Document resolve(final Class<?>... resourceAwareClass) {
                 return IOHelper.loadDocument(projector, is);
             }
         }, xpath);

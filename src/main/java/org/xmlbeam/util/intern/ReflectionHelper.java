@@ -500,10 +500,11 @@ public final class ReflectionHelper {
      *            type of throwable to be thrown
      * @param args
      *            for the throwable construction
-     * @param optionalCause cause to be set, may be null
+     * @param optionalCause
+     *            cause to be set, may be null
      * @throws Throwable
      */
-    public static void throwThrowable(final Class<?> throwableType, final Object[] args,final Throwable optionalCause) throws Throwable {
+    public static void throwThrowable(final Class<?> throwableType, final Object[] args, final Throwable optionalCause) throws Throwable {
         Class<?>[] argsClasses = getClassesOfObjects(args);
         Constructor<?> constructor = ReflectionHelper.getCallableConstructorForParams(throwableType, argsClasses);
         Throwable throwable = null;
@@ -512,7 +513,7 @@ public final class ReflectionHelper {
         } else {
             throwable = (Throwable) throwableType.newInstance();
         }
-        if (optionalCause!=null) {
+        if (optionalCause != null) {
             throwable.initCause(optionalCause);
         }
         throw throwable;
@@ -527,6 +528,33 @@ public final class ReflectionHelper {
         return classes;
     }
 
+    private static class FindCallerClass extends SecurityManager {
+        private static final ThreadLocal<FindCallerClass> findCallerClassLoader = new ThreadLocal<ReflectionHelper.FindCallerClass>() {
+            @Override
+            protected FindCallerClass initialValue() {
+                return new FindCallerClass();
+            }
+        };
+
+        /**
+         * @return class of caller method.
+         */
+        public Class<?> getCallerClass(final int level) {
+            return getClassContext()[level];
+        }
+
+    }
+
+    /**
+     * @return Class of calling method
+     */
+    public static Class<?> getCallerClass(final int level) {
+        return FindCallerClass.findCallerClassLoader.get().getCallerClass(level + 1);
+    }
+
+    public static Class<?> getDirectCallerClass() {
+        return FindCallerClass.findCallerClassLoader.get().getCallerClass(3);
+    }
 //    /**
 //     * @param m
 //     * @return list of methods overridden by given method

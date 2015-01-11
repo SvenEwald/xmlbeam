@@ -501,7 +501,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
                     return new XPathEvaluator(XBProjector.this, new DocumentResolver() {
 
                         @Override
-                        public Document resolve(final Class<?> resourceAwareClass) {
+                        public Document resolve(final Class<?>... resourceAwareClass) {
                             return IOHelper.loadDocument(XBProjector.this, inputStream);
                         }
                     }, xpath);

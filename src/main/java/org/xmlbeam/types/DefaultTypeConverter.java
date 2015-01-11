@@ -75,19 +75,19 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Boolean.class, new Conversion<Boolean>(null) {
             @Override
             public Boolean convert(final String data) {
-                return Boolean.valueOf(data);
+                return Boolean.valueOf(data.trim());
             }
         });
         CONVERSIONS.put(Boolean.TYPE, new Conversion<Boolean>(false) {
             @Override
             public Boolean convert(final String data) {
-                return Boolean.valueOf(data);
+                return Boolean.valueOf(data.trim());
             }
         });
         CONVERSIONS.put(Byte.class, new Conversion<Byte>(null) {
             @Override
             public Byte convert(final String data) {
-                return Byte.valueOf(data);
+                return Byte.valueOf(data.trim());
             }
 
             @Override
@@ -98,7 +98,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Byte.TYPE, new Conversion<Byte>((byte) 0) {
             @Override
             public Byte convert(final String data) {
-                return Byte.valueOf(data);
+                return Byte.valueOf(data.trim());
             }
 
             @Override
@@ -109,7 +109,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Float.class, new Conversion<Float>(null) {
             @Override
             public Float convert(final String data) {
-                return Float.valueOf(data);
+                return Float.valueOf(data.trim());
             }
 
             @Override
@@ -120,7 +120,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Float.TYPE, new Conversion<Float>(0F) {
             @Override
             public Float convert(final String data) {
-                return Float.valueOf(data);
+                return Float.valueOf(data.trim());
             }
 
             @Override
@@ -131,7 +131,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Double.class, new Conversion<Double>(null) {
             @Override
             public Double convert(final String data) {
-                return Double.valueOf(data);
+                return Double.valueOf(data.trim());
             }
 
             @Override
@@ -142,7 +142,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Double.TYPE, new Conversion<Double>(0D) {
             @Override
             public Double convert(final String data) {
-                return Double.valueOf(data);
+                return Double.valueOf(data.trim());
             }
 
             @Override
@@ -153,7 +153,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Short.class, new Conversion<Short>(null) {
             @Override
             public Short convert(final String data) {
-                return Short.valueOf(data);
+                return Short.valueOf(data.trim());
             }
 
             @Override
@@ -164,7 +164,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Short.TYPE, new Conversion<Short>((short) 0) {
             @Override
             public Short convert(final String data) {
-                return Short.valueOf(data);
+                return Short.valueOf(data.trim());
             }
 
             @Override
@@ -175,7 +175,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Integer.class, new Conversion<Integer>(null) {
             @Override
             public Integer convert(final String data) {
-                return Integer.valueOf(data);
+                return Integer.valueOf(data.trim());
             }
 
             @Override
@@ -186,7 +186,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Integer.TYPE, new Conversion<Integer>(0) {
             @Override
             public Integer convert(final String data) {
-                return Integer.valueOf(data);
+                return Integer.valueOf(data.trim());
             }
 
             @Override
@@ -197,7 +197,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Long.class, new Conversion<Long>(null) {
             @Override
             public Long convert(final String data) {
-                return Long.valueOf(data);
+                return Long.valueOf(data.trim());
             }
 
             @Override
@@ -208,7 +208,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         CONVERSIONS.put(Long.TYPE, new Conversion<Long>(0L) {
             @Override
             public Long convert(final String data) {
-                return Long.valueOf(data);
+                return Long.valueOf(data.trim());
             }
 
             @Override

@@ -111,7 +111,7 @@ public class XBFileIO implements CanEvaluate {
         return new XPathEvaluator(projector, new DocumentResolver() {
 
             @Override
-            public Document resolve(final Class<?> resourceAwareClass) throws IOException {
+            public Document resolve(final Class<?>... resourceAwareClass) throws IOException {
                 return IOHelper.loadDocument(projector, new FileInputStream(file));
             }
         }, xpath);

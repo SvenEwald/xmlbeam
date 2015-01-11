@@ -25,7 +25,7 @@ import org.xmlbeam.evaluation.CanEvaluate;
 import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.util.IOHelper;
-import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -59,7 +59,11 @@ public class XBUrlIO implements CanEvaluate {
      * @throws IOException
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
-        Document document = DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, projectionInterface);
+        Class<?> callerClass = null;
+        if (IOHelper.isResourceProtocol(url)) {
+            callerClass = ReflectionHelper.getDirectCallerClass();
+        }
+        Document document = IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, projectionInterface, callerClass);
         return projector.projectDOMNode(document, projectionInterface);
     }
 
@@ -102,8 +106,8 @@ public class XBUrlIO implements CanEvaluate {
     public XPathEvaluator evalXPath(final String xpath) {
         return new XPathEvaluator(projector, new DocumentResolver() {
             @Override
-            public Document resolve(final Class<?> resourceAwareClass) throws IOException {
-                return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, resourceAwareClass);
+            public Document resolve(final Class<?>... resourceAwareClasses) throws IOException {
+                return IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, resourceAwareClasses);
             }
         }, xpath);
     }

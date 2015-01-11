@@ -48,7 +48,7 @@ public final class XPathEvaluator {
     public <T> T as(final Class<T> returnType) {
         validateEvaluationType(returnType);
         try {
-            Document document = documentProvider.resolve(returnType);
+            Document document = documentProvider.resolve(returnType, ReflectionHelper.getDirectCallerClass());
 
             XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
 

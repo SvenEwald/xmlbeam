@@ -56,6 +56,7 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
 import org.xmlbeam.util.intern.Preprocessor;
@@ -156,7 +157,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 String uri = projector.config().getExternalizer().resolveURL(docAnnotationValue, method, args);
                 final Map<String, String> requestParams = ((IOBuilder) projector.io()).filterRequestParamsFromParams(uri, args);
                 uri = Preprocessor.applyParams(uri, methodParameterIndexes, args);
-                return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass());
+                Class<?> callerClass = null;
+                if (IOHelper.isResourceProtocol(uri)) {
+                    callerClass = ReflectionHelper.getCallerClass(8);
+                }
+                return IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass(), callerClass);
             }
             return node;
         }

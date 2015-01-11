@@ -31,6 +31,7 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 
@@ -42,6 +43,8 @@ import org.xmlbeam.XBProjector;
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public final class IOHelper {
+
+    private static final String[] RESOURCE_PROTO_NAMES = new String[] { "resource://", "res://" };
 
     /**
      * Copies request properties to a connection.
@@ -173,5 +176,76 @@ public final class IOHelper {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param documentBuilder
+     * @param url
+     * @param requestProperties
+     * @param resourceAwareClasses
+     *            Try useing this classes to load resource with resource protocol.
+     * @return new document instance
+     * @throws IOException
+     */
+    @SuppressWarnings({ "unchecked", "resource" })
+    public static Document getDocumentFromURL(final DocumentBuilder documentBuilder, final String url, final Map<String, String> requestProperties, final Class<?>... resourceAwareClasses) throws IOException {
+        try {
+            for (String resProto : RESOURCE_PROTO_NAMES) {
+                if (url.startsWith(resProto)) {
+                    final String resourceName = url.substring(resProto.length());
+                    InputStream is = null;
+                    // If possible use class loader of given classes.
+                    if (resourceAwareClasses != null) {
+                        for (Class<?> clazz : resourceAwareClasses) {
+                            if (clazz == null) {
+                                continue;
+                            }
+                            is = clazz.getResourceAsStream(resourceName);
+                            if (is != null) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // Fallback to context class loader
+                    if (is == null) {
+                        is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
+                    }
+
+                    if (is == null) {
+                        throw new IOException("The resource '" + url + "' could not be found");
+                    }
+                    InputSource source = new InputSource(is);
+                    // source.setEncoding("MacRoman");
+                    return documentBuilder.parse(source);
+                }
+            }
+            if (url.startsWith("http:") || url.startsWith("https:")) {
+                return documentBuilder.parse(IOHelper.httpGet(url, requestProperties), url);
+            }
+            Document document = documentBuilder.parse(url);
+            if (document == null) {
+                throw new IOException("Document could not be created form uri " + url);
+            }
+            return document;
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param url
+     * @return true if the protocol needs a class loader
+     */
+    public static boolean isResourceProtocol(final String url) {
+        if (url == null) {
+            return false;
+        }
+        for (String proto : RESOURCE_PROTO_NAMES) {
+            if (url.startsWith(proto)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
