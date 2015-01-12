@@ -27,7 +27,6 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -55,7 +54,9 @@ import org.xmlbeam.annotation.XBUpdate;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.evaluation.DefaultXPathEvaluator;
+import org.xmlbeam.evaluation.InvocationContext;
+import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
 import org.xmlbeam.util.intern.Preprocessor;
@@ -80,7 +81,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final ReflectionInvoker reflectionInvoker = new ReflectionInvoker(defaultInvokerObject);
         final Map<MethodSignature, InvocationHandler> invokers = new HashMap<MethodSignature, InvocationHandler>();
         for (Method m : DOMAccess.class.getMethods()) {
-            invokers.put(MethodSignature.forMethod(m), reflectionInvoker);
+            if (m.getAnnotation(XBWrite.class) == null) {
+                invokers.put(MethodSignature.forMethod(m), reflectionInvoker);
+            }
         }
 
         invokers.put(MethodSignature.forVoidMethod("toString"), reflectionInvoker);
@@ -127,60 +130,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private static abstract class ProjectionMethodInvocationHandler implements InvocationHandler, Serializable {
 
-        private static final InvocationContext EMPTY_INVOCATION_CONTEXT = new InvocationContext(null, null, null, null, null);
-
-        static class InvocationContext {
-            public String getResolvedXPath() {
-                return resolvedXPath;
-            }
-
-            public XPath getxPath() {
-                return xPath;
-            }
-
-            public XPathExpression getxPathExpression() {
-                return xPathExpression;
-            }
-
-            public DuplexExpression getDuplexExpression() {
-                return duplexExpression;
-            }
-
-            public InvocationContext(final String resolvedXPath, final XPath xPath, final XPathExpression xPathExpression, final DuplexExpression duplexExpression, final MethodParamVariableResolver resolver) {
-                this.resolvedXPath = resolvedXPath;
-                this.xPath = xPath;
-                this.xPathExpression = xPathExpression;
-                this.duplexExpression = duplexExpression;
-                this.resolver = resolver;
-            }
-
-            final String resolvedXPath;
-            final XPath xPath;
-            final XPathExpression xPathExpression;
-            final DuplexExpression duplexExpression;
-            final MethodParamVariableResolver resolver;
-
-            /**
-             * @param resolvedXpath
-             * @return true if this invocation context may be reused for given path
-             */
-            public boolean isStillValid(final String resolvedXpath) {
-                return resolvedXpath.equals(this.resolvedXPath);
-            }
-
-            /**
-             * @return Format pattern for the expression within with this context.
-             */
-            public String getExpressionFormatPattern() {
-                return duplexExpression.getExpressionFormatPattern();
-            }
-
-            public void updateMethodArgs(final Object[] args) {
-                if (resolver != null) {
-                    resolver.updateArgs(args);
-                }
-            }
-        }
+        private static final InvocationContext EMPTY_INVOCATION_CONTEXT = new InvocationContext(null, null, null, null, null, null, null);
 
         protected final Method method;
         protected final String annotationValue;
@@ -207,7 +157,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 String uri = projector.config().getExternalizer().resolveURL(docAnnotationValue, method, args);
                 final Map<String, String> requestParams = ((IOBuilder) projector.io()).filterRequestParamsFromParams(uri, args);
                 uri = Preprocessor.applyParams(uri, methodParameterIndexes, args);
-                return DOMHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass());
+                Class<?> callerClass = null;
+                if (IOHelper.isResourceProtocol(uri)) {
+                    callerClass = ReflectionHelper.getCallerClass(8);
+                }
+                return IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), uri, requestParams, method.getDeclaringClass(), callerClass);
             }
             return node;
         }
@@ -268,7 +222,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
                 }
                 final XPathExpression xPathExpression = xPath.compile(strippedXPath);
-                lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression, resolver);
+                final Class<?> targetComponentType = findTargetComponentType(method);
+                lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression, resolver, targetComponentType, projector);
             }
             lastInvocationContext.updateMethodArgs(args);
             return invokeXpathProjection(lastInvocationContext, proxy, args);
@@ -281,7 +236,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final boolean absentIsEmpty;
         private final boolean wrappedInOptional;
         private final Class<?> returnType;
-        private final Class<?> targetComponentType;
         private final Class<?> exceptionType;
         private final boolean isConvertable;
         private final boolean isReturnAsNode;
@@ -303,7 +257,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList)) {
                 throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of list or array. Lists and arrays may be empty but will never be null.");
             }
-            this.targetComponentType = isEvaluateAsList || isEvaluateAsArray ? findTargetComponentType(method) : null;
             this.isEvaluateAsSubProjection = returnType.isInterface();
             this.isThrowIfAbsent = exceptionType != null;
 
@@ -311,63 +264,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             this.absentIsEmpty = absentIsEmpty && (!isThrowIfAbsent);
         }
 
-        /**
-         * When reading collections, determine the collection component type.
-         *
-         * @param method
-         * @return
-         */
-        private static Class<?> findTargetComponentType(final Method method) {
-            if (method.getReturnType().isArray()) {
-                return method.getReturnType().getComponentType();
-            }
-            assert List.class.equals(method.getReturnType());
-            final Type type = method.getGenericReturnType();
-            if (!(type instanceof ParameterizedType) || (((ParameterizedType) type).getActualTypeArguments() == null) || (((ParameterizedType) type).getActualTypeArguments().length < 1)) {
-                throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify a generic type for the List. Otherwise I do not know which type I should fill the List with.");
-            }
-            assert ((ParameterizedType) type).getActualTypeArguments().length == 1 : "";
-            Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
-            if (!(componentType instanceof Class)) {
-                throw new IllegalArgumentException("I don't know how to instantiate the generic type for the return type of method " + method);
-            }
-            return (Class<?>) componentType;
-        }
-
-        private List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method, final InvocationContext invocationContext) throws XPathExpressionException {
-            assert targetComponentType != null;
-            final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-            final List<Object> linkedList = new LinkedList<Object>();
-
-            final TypeConverter typeConverter = projector.config().getTypeConverter();
-            if (typeConverter.isConvertable(targetComponentType)) {
-                for (int i = 0; i < nodes.getLength(); ++i) {
-                    linkedList.add(typeConverter.convertTo(targetComponentType, nodes.item(i).getTextContent(), invocationContext.getExpressionFormatPattern()));
-                }
-                return linkedList;
-            }
-            if (Node.class.equals(targetComponentType)) {
-                for (int i = 0; i < nodes.getLength(); ++i) {
-                    linkedList.add(nodes.item(i));
-                }
-                return linkedList;
-            }
-            if (targetComponentType.isInterface()) {
-                for (int i = 0; i < nodes.getLength(); ++i) {
-                    InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(nodes.item(i), targetComponentType);
-                    linkedList.add(subprojection);
-                }
-                return linkedList;
-            }
-            throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + projector.config().getTypeConverter()
-                    + ". Please change the return type to a sub projection or add a conversion to the type converter.");
-        }
-
         @Override
         public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Object result = invokeReadProjection(invocationContext, proxy, args);
             if ((result == null) && (isThrowIfAbsent)) {
-                XBDataNotFoundException dataNotFoundException = new XBDataNotFoundException(invocationContext.resolvedXPath);
+                XBDataNotFoundException dataNotFoundException = new XBDataNotFoundException(invocationContext.getResolvedXPath());
                 if (XBDataNotFoundException.class.equals(exceptionType)) {
                     throw dataNotFoundException;
                 }
@@ -378,13 +279,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         private Object invokeReadProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Node node = getNodeForMethod(method, args);
-            // Automatic propagation of parameters as XPath variables
-            // disabled so far...
-//            try {
-//            if (ReflectionHelper.mayProvideParameterNames()) {
-//                xPath.setXPathVariableResolver(new MethodParamVariableResolver(method,args,xPath.getXPathVariableResolver()));
-//            }
-
             final ExpressionType expressionType = invocationContext.getDuplexExpression().getExpressionType();
             final XPathExpression expression = invocationContext.getxPathExpression();
 
@@ -415,12 +309,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
-                final Object result = evaluateAsList(expression, node, method, invocationContext);
+                final Object result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
                 return result;
             }
             if (isEvaluateAsArray) {
                 assert !wrappedInOptional : "Projection methods returning array will never return null";
-                final List<?> list = evaluateAsList(expression, node, method, invocationContext);
+                final List<?> list = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
                 return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
             }
             if (isEvaluateAsSubProjection) {
@@ -432,12 +326,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
             }
             throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
-            // Automatic propagation of parameters as XPath variables
-            // disabled so far...
-//            } finally {
-//                xPath.reset();
-//            }
-
         }
     }
 
@@ -638,7 +526,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             assert document != null;
             final Object valueToSet = args[findIndexOfValue];
             final boolean isMultiValue = isMultiValue(method.getParameterTypes()[findIndexOfValue]);
-
             // ROOT element update
             if ("/*".equals(resolvedXpath)) { // Setting a new root element.
                 if (isMultiValue) {
@@ -655,7 +542,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                         resolver = new MethodParamVariableResolver(method, args, duplexExpression, projector.config().getStringRenderer(), null);
                         duplexExpression.setXPathVariableResolver(resolver);
                     }
-                    lastInvocationContext = new InvocationContext(resolvedXpath, null, null, duplexExpression, resolver);
+                    Class<?> targetComponentType = findTargetComponentType(method);
+                    lastInvocationContext = new InvocationContext(resolvedXpath, null, null, duplexExpression, resolver, targetComponentType, projector);
                 }
                 final DuplexExpression duplexExpression = lastInvocationContext.getDuplexExpression();
                 if (duplexExpression.getExpressionType().isMustEvalAsString()) {
@@ -965,28 +853,29 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         return type.isArray() || Collection.class.isAssignableFrom(type);
     }
 
+    /**
+     * When reading collections, determine the collection component type.
+     *
+     * @param method
+     * @return
+     */
+    private static Class<?> findTargetComponentType(final Method method) {
+        if (method.getReturnType().isArray()) {
+            return method.getReturnType().getComponentType();
+        }
+        if (!List.class.equals(method.getReturnType())) {
+            return null;
+        }
+        final Type type = method.getGenericReturnType();
+        if (!(type instanceof ParameterizedType) || (((ParameterizedType) type).getActualTypeArguments() == null) || (((ParameterizedType) type).getActualTypeArguments().length < 1)) {
+            throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify a generic type for the List. Otherwise I do not know which type I should fill the List with.");
+        }
+        assert ((ParameterizedType) type).getActualTypeArguments().length == 1 : "";
+        Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
+        if (!(componentType instanceof Class)) {
+            throw new IllegalArgumentException("I don't know how to instantiate the generic type for the return type of method " + method);
+        }
+        return (Class<?>) componentType;
+    }
+
 }
-//
-//        assert string != null;
-//        if (args != null) {
-//            int c = 0;
-//            for (String param : ReflectionHelper.getMethodParameterNames(method)) {
-//                if (args[c] == null) {
-//                    continue;
-//                }
-//                string = replaceAllIfNotQuoted(string, "{" + param + "}", args[c++].toString());
-//                //string = string.replaceAll("[^\\{]\\{" + Pattern.quote(param) + "\\}", "" + args[c++]);
-//            }
-//            for (c = 0; c < args.length; ++c) {
-//                if (args[c] == null) {
-//                    continue;
-////                }
-//                //string = string.replaceAll("[^\\{]\\{" + c + "\\}", "" + args[c]);
-//                string = replaceAllIfNotQuoted(string, "{" + c + "}", args[c].toString());
-//            }
-//        }
-//        string = DOUBLE_LBRACES.matcher(string).replaceAll("{");
-//        string = DOUBLE_RBRACES.matcher(string).replaceAll("}");
-//        return string;
-//    }
-//}

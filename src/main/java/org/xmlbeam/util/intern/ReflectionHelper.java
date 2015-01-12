@@ -500,10 +500,11 @@ public final class ReflectionHelper {
      *            type of throwable to be thrown
      * @param args
      *            for the throwable construction
-     * @param optionalCause cause to be set, may be null
+     * @param optionalCause
+     *            cause to be set, may be null
      * @throws Throwable
      */
-    public static void throwThrowable(final Class<?> throwableType, final Object[] args,final Throwable optionalCause) throws Throwable {
+    public static void throwThrowable(final Class<?> throwableType, final Object[] args, final Throwable optionalCause) throws Throwable {
         Class<?>[] argsClasses = getClassesOfObjects(args);
         Constructor<?> constructor = ReflectionHelper.getCallableConstructorForParams(throwableType, argsClasses);
         Throwable throwable = null;
@@ -512,7 +513,7 @@ public final class ReflectionHelper {
         } else {
             throwable = (Throwable) throwableType.newInstance();
         }
-        if (optionalCause!=null) {
+        if (optionalCause != null) {
             throwable.initCause(optionalCause);
         }
         throw throwable;
@@ -525,6 +526,39 @@ public final class ReflectionHelper {
             classes[i] = objects[i].getClass();
         }
         return classes;
+    }
+
+    private static class ClassContextAccess extends SecurityManager {
+        private static final ThreadLocal<ClassContextAccess> classContextAccess = new ThreadLocal<ReflectionHelper.ClassContextAccess>() {
+            @Override
+            protected ClassContextAccess initialValue() {
+                return new ClassContextAccess();
+            }
+        };
+
+        /**
+         * @param level 
+         * @return class of caller method.
+         */
+        public Class<?> getCallerClass(final int level) {
+            return getClassContext()[level];
+        }
+
+    }
+
+    /**
+     * @param level 
+     * @return Class of calling method
+     */
+    public static Class<?> getCallerClass(final int level) {
+        return ClassContextAccess.classContextAccess.get().getCallerClass(level + 1);
+    }
+
+    /**
+     * @return Class of calling method
+     */
+    public static Class<?> getDirectCallerClass() {
+        return ClassContextAccess.classContextAccess.get().getCallerClass(3);
     }
 
 //    /**
