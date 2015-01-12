@@ -43,7 +43,7 @@ public class TestXPathVariables {
         long duration2 = System.nanoTime() - before2;
         System.out.println("Duration1:" + duration1);
         System.out.println("Duration2:" + duration2);
-        System.out.println(duration1 / duration2);
+        System.out.println(((double) duration1) / duration2);
 
         // Assert caching the invocation context has some effect.
         //assertTrue(duration1> 2*duration2);
