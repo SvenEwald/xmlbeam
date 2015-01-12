@@ -39,7 +39,6 @@ public class SpecifyProjectorUsage {
         {
             DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig();
             config.setPrettyPrinting(true);
-            @SuppressWarnings("unused")
             XBProjector projector = new XBProjector(config);
             projector.hashCode();
         }

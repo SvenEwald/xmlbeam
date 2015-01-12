@@ -139,7 +139,7 @@ class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
 
     @Override
     public DOMAccess create(String path, Object value) {        
-        throw new IllegalStateException("This method should not be called");
+        throw new IllegalStateException("This method should not be called.");
     }
     
 }

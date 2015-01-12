@@ -1,5 +1,5 @@
 /**
- *  Copyright 2015 Sven Ewald
+ *  Copyright 2013 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,25 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
-
-import java.io.IOException;
-
-import org.w3c.dom.Document;
-
 /**
- * @author sven
+ * Package for test cases that ensure the function of XPath variables.
  */
-public interface DocumentResolver {
-
-    /**
-     * Resolve document, possibly using the given class.
-     *
-     * @param resourceAwareClasses
-     *            may provide a class loader, may be null.
-     * @return a dom Document
-     * @throws IOException
-     */
-    Document resolve(Class<?>... resourceAwareClasses) throws IOException;
-   
-}
+package org.xmlbeam.tests.xpath.variables;

@@ -23,6 +23,7 @@ import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.evaluation.CanEvaluate;
 import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -104,7 +105,7 @@ public class XBUrlIO implements CanEvaluate {
 
     @Override
     public XPathEvaluator evalXPath(final String xpath) {
-        return new XPathEvaluator(projector, new DocumentResolver() {
+        return new DefaultXPathEvaluator(projector, new DocumentResolver() {
             @Override
             public Document resolve(final Class<?>... resourceAwareClasses) throws IOException {
                 return IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, resourceAwareClasses);

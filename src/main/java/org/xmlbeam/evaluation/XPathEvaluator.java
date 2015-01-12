@@ -1,174 +1,87 @@
+/**
+ *  Copyright 2015 Sven Ewald
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.xmlbeam.evaluation;
 
-import java.awt.geom.IllegalPathStateException;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xmlbeam.XBProjector;
-import org.xmlbeam.XBProjector.Flags;
-import org.xmlbeam.types.TypeConverter;
-import org.xmlbeam.util.intern.ReflectionHelper;
-import org.xmlbeam.util.intern.duplex.DuplexExpression;
-import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
-
 /**
- * This class is used to provide an alternative fluid interface for direct evaluation of XPath
- * expressions.
+ * Interface to build fluent API for the evaluation API.
  *
- * @author sven
  */
-public final class XPathEvaluator {
-
-//    private final XPathExpression expression;
-    private final DocumentResolver documentProvider;
-    private final DuplexExpression duplexExpression;
-    private final XBProjector projector;
-    private final String xpathString;
+public interface XPathEvaluator {
 
     /**
-     * @param documentProvider
-     * @param xpath
+     * Evaluates the XPath as a boolean value. This method is just a shortcut for as(Boolean.TYPE);
+     * 
+     * @return true when the selected value equals (ignoring case) 'true'
      */
-    public XPathEvaluator(final XBProjector projector, final DocumentResolver documentProvider, final String xpath) {
-        this.projector = projector;
-        this.documentProvider = documentProvider;
-        this.xpathString = xpath;
-        this.duplexExpression = new DuplexXPathParser().compile(xpath);
-    }
+    boolean asBoolean();
 
-    public boolean asBoolean() {
-        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return evaluateSingeValue(Boolean.TYPE, callerClass);
-    }
+    /**
+     * Evaluates the XPath as a int value. This method is just a shortcut for as(Integer.TYPE);
+     * 
+     * @return int value of evaluation result.
+     */
+    int asInt();
 
-    public int asInt() {
-        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return evaluateSingeValue(Integer.TYPE, callerClass);
-    }
+    /**
+     * Evaluates the XPath as a String value. This method is just a shortcut for as(String.class);
+     * 
+     * @return String value of evaluation result.
+     */
+    String asString();
 
-    public String asString() {
-        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return evaluateSingeValue(String.class, callerClass);
-    }
+    /**
+     * Evaluates the XPath as a Date value. This method is just a shortcut for as(Date.class); You
+     * probably want to specify ' using ' followed by some formatting pattern consecutive to the
+     * XPAth.
+     * 
+     * @return Date value of evaluation result.
+     */
+    Date asDate();
 
-    public Date asDate() {
-        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return evaluateSingeValue(Date.class, callerClass);
-    }
+    /**
+     * Evaluate the XPath as a value of the given type.
+     * 
+     * @param returnType
+     *            Possible values: primitive types (e.g. Short.Type), Projection interfaces, any
+     *            class with a String constructor or a String factory method, and org.w3c.Node
+     * @return a value of return type that reflects the evaluation result.
+     */
+    <T> T as(Class<T> returnType);
 
-    public <T> T as(final Class<T> returnType) {
-        validateEvaluationType(returnType);
-        final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return evaluateSingeValue(returnType, callerClass);
-    }
+    /**
+     * Evaluate the XPath as an array of the given type.
+     * 
+     * @param componentType
+     *            Possible values: primitive types (e.g. Short.Type), Projection interfaces, any
+     *            class with a String constructor or a String factory method, and org.w3c.Node
+     * @return an array of return type that reflects the evaluation result.
+     */
+    <T> T[] asArrayOf(Class<T> componentType);
 
-    private <T> T evaluateSingeValue(final Class<T> returnType, final Class<?> callerClass) {
-        try {
-            Document document = documentProvider.resolve(returnType, callerClass);
+    /**
+     * Evaluate the XPath as a list of the given type.
+     * 
+     * @param componentType
+     *            Possible values: primitive types (e.g. Short.Type), Projection interfaces, any
+     *            class with a String constructor or a String factory method, and org.w3c.Node
+     * @return List of return type that reflects the evaluation result.
+     */
+    <T> List<T> asListOf(Class<T> componentType);
 
-            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
-
-            if (projector.config().getTypeConverter().isConvertable(returnType)) {
-                String data;
-                if (duplexExpression.getExpressionType().isMustEvalAsString()) {
-                    data = (String) expression.evaluate(document, XPathConstants.STRING);
-                } else {
-                    Node dataNode = (Node) expression.evaluate(document, XPathConstants.NODE);
-                    data = dataNode == null ? null : dataNode.getTextContent();
-                }
-                if ((data == null) && (projector.getFlags().contains(Flags.ABSENT_IS_EMPTY))) {
-                    data = "";
-                }
-
-                final Object result = projector.config().getTypeConverter().convertTo(returnType, data, duplexExpression.getExpressionFormatPattern());
-                return (T) result;
-            }
-
-            if (Node.class.isAssignableFrom(returnType)) {
-                final Object result = expression.evaluate(document, XPathConstants.NODE);
-                return (T) result;
-            }
-
-            if (returnType.isInterface()) {
-                final Node node = (Node) expression.evaluate(document, XPathConstants.NODE);
-                return projector.projectDOMNode(node, returnType);
-            }
-        } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        throw new IllegalPathStateException();
-    }
-
-    private <T> void validateEvaluationType(final Class<T> returnType) {
-        if (ReflectionHelper.isOptional(returnType)) {
-            throw new IllegalArgumentException("Type Optional is only allowed as a method return type.");
-        }
-        if (Collection.class.isAssignableFrom(returnType)) {
-            throw new IllegalArgumentException("A collection type can not be component type.");
-        }
-    }
-
-    public <T> T[] asArrayOf(final Class<T> returnType) {
-        validateEvaluationType(returnType);
-        List<T> list = asListOf(returnType);
-        return (T[]) list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType, list.size()));
-    }
-
-    public <T> List<T> asListOf(final Class<T> returnType) {
-        validateEvaluationType(returnType);
-        try {
-            Document document = documentProvider.resolve(returnType);
-            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
-            InvocationContext invocationContext = new InvocationContext(null, null, expression, duplexExpression, null, returnType, projector);
-
-            return (List<T>) evaluateAsList(expression, document, null, invocationContext);
-        } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static List<?> evaluateAsList(final XPathExpression expression, final Node node, final Method method, final InvocationContext invocationContext) throws XPathExpressionException {
-        //assert targetComponentType != null;
-        final Class<?> targetComponentType = invocationContext.getTargetComponentType();
-        final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-        final List<Object> linkedList = new LinkedList<Object>();
-
-        final TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
-        if (typeConverter.isConvertable(targetComponentType)) {
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                linkedList.add(typeConverter.convertTo(targetComponentType, nodes.item(i).getTextContent(), invocationContext.getExpressionFormatPattern()));
-            }
-            return linkedList;
-        }
-        if (Node.class.equals(targetComponentType)) {
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                linkedList.add(nodes.item(i));
-            }
-            return linkedList;
-        }
-        if (targetComponentType.isInterface()) {
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                Object subprojection = invocationContext.getProjector().projectDOMNode(nodes.item(i), targetComponentType);
-                linkedList.add(subprojection);
-            }
-            return linkedList;
-        }
-        throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
-                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
-    }
 }

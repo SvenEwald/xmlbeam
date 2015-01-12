@@ -163,6 +163,7 @@ public final class IOHelper {
     }
 
     /**
+     * @param projector 
      * @param is
      *            anonymous input stream
      * @return Document

@@ -537,6 +537,7 @@ public final class ReflectionHelper {
         };
 
         /**
+         * @param level 
          * @return class of caller method.
          */
         public Class<?> getCallerClass(final int level) {
@@ -546,6 +547,7 @@ public final class ReflectionHelper {
     }
 
     /**
+     * @param level 
      * @return Class of calling method
      */
     public static Class<?> getCallerClass(final int level) {

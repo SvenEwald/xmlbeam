@@ -58,6 +58,7 @@ import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.CanEvaluateOrProject;
 import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
@@ -488,7 +489,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * @param xmlContent
-     * @return {@link XPathEvaluator}
+     * @return {@link DefaultXPathEvaluator}
      */
     public CanEvaluateOrProject onXMLString(final String xmlContent) {
         return new CanEvaluateOrProject() {
@@ -498,7 +499,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 try {
                     final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
 
-                    return new XPathEvaluator(XBProjector.this, new DocumentResolver() {
+                    return new DefaultXPathEvaluator(XBProjector.this, new DocumentResolver() {
 
                         @Override
                         public Document resolve(final Class<?>... resourceAwareClass) {

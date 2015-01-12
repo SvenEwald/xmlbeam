@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.dom.DOMAccess;
 
+@SuppressWarnings("javadoc")
 public class TestSimpleCreateAPI {       
 
     @Test

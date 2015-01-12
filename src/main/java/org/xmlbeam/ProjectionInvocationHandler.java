@@ -54,8 +54,8 @@ import org.xmlbeam.annotation.XBUpdate;
 import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
-import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
@@ -236,7 +236,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final boolean absentIsEmpty;
         private final boolean wrappedInOptional;
         private final Class<?> returnType;
-        private final Class<?> targetComponentType;
         private final Class<?> exceptionType;
         private final boolean isConvertable;
         private final boolean isReturnAsNode;
@@ -258,7 +257,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList)) {
                 throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of list or array. Lists and arrays may be empty but will never be null.");
             }
-            this.targetComponentType = isEvaluateAsList || isEvaluateAsArray ? findTargetComponentType(method) : null;
             this.isEvaluateAsSubProjection = returnType.isInterface();
             this.isThrowIfAbsent = exceptionType != null;
 
@@ -311,12 +309,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
-                final Object result = XPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
+                final Object result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
                 return result;
             }
             if (isEvaluateAsArray) {
                 assert !wrappedInOptional : "Projection methods returning array will never return null";
-                final List<?> list = XPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
+                final List<?> list = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
                 return list.toArray((Object[]) java.lang.reflect.Array.newInstance(returnType.getComponentType(), list.size()));
             }
             if (isEvaluateAsSubProjection) {

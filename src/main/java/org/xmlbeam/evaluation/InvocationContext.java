@@ -22,23 +22,48 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 
+/**
+ * Context of an projection method invocation. May be cached if the the same method is called again.
+ */
 public class InvocationContext {
+    /**
+     * @return resolved XPath string. 
+     */
     public String getResolvedXPath() {
         return resolvedXPath;
     }
 
+    /**
+     * @return currently used XPath instance
+     */
     public XPath getxPath() {
         return xPath;
     }
 
+    /**
+     * @return compiled XPath expression
+     */
     public XPathExpression getxPathExpression() {
         return xPathExpression;
     }
 
+    /**
+     * @return compiled duplex expression
+     */
     public DuplexExpression getDuplexExpression() {
         return duplexExpression;
     }
 
+    /**
+     * Constructor.
+     * @param resolvedXPath
+     * @param xPath
+     * @param xPathExpression
+     * @param duplexExpression
+     * @param resolver
+     * @param targetComponentType
+     * @param projector
+     */
     public InvocationContext(final String resolvedXPath, final XPath xPath, final XPathExpression xPathExpression, final DuplexExpression duplexExpression, final MethodParamVariableResolver resolver, final Class<?> targetComponentType, final XBProjector projector) {
         this.resolvedXPath = resolvedXPath;
         this.xPath = xPath;
@@ -72,16 +97,27 @@ public class InvocationContext {
         return duplexExpression.getExpressionFormatPattern();
     }
 
+    /**
+     * A context may be reused even when method parameters change. But the change needs to be reflected to XPath variable bindings.
+     * @param args
+     */
     public void updateMethodArgs(final Object[] args) {
         if (resolver != null) {
             resolver.updateArgs(args);
         }
     }
 
+    /**
+     * @return target type of evaluation
+     */
     public Class<?> getTargetComponentType() {
         return targetComponentType;
     }
 
+    /**
+     * Projector used when the projection was created.
+     * @return the projector instance.
+     */
     public XBProjector getProjector() {
         return projector;
     }

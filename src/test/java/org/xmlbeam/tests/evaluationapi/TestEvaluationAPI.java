@@ -25,14 +25,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.dom.DOMAccess;
 
-/**
- * @author sven
- */
+@SuppressWarnings("javadoc")
 public class TestEvaluationAPI {
 
     @Ignore
@@ -94,7 +93,7 @@ public class TestEvaluationAPI {
     @Test
     public void testMultiEvaluationOnXMLString2() {
         String[] strings = new XBProjector().onXMLString("<foo><bar>value1</bar><bar>value2</bar></foo>").evalXPath("//bar").asArrayOf(String.class);
-        assertEquals(new String[] { "value1", "value2" }, strings);
+        Assert.assertArrayEquals(new String[] { "value1", "value2" }, strings);
     }
 
     @Test
@@ -102,4 +101,5 @@ public class TestEvaluationAPI {
         int i = new XBProjector().io().url("res://data.xml").evalXPath("//bar").as(Integer.TYPE);
         assertEquals(123, i);
     }
+        
 }
