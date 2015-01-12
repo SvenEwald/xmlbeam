@@ -23,28 +23,33 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.evaluation.CanEvaluate;
+import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.DefaultXPathEvaluator;
+import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.util.IOHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBStreamInput {
+public class XBStreamInput implements CanEvaluate {
 
     private final XBProjector projector;
-    private final  InputStream is;
+    private final InputStream is;
     private String systemID;
-    
+
     /**
      * @param xmlProjector
-     * @param is 
+     * @param is
      */
-    public XBStreamInput(XBProjector xmlProjector,InputStream is) {
+    public XBStreamInput(final XBProjector xmlProjector, final InputStream is) {
         this.projector = xmlProjector;
-        this.is=is;
+        this.is = is;
     }
 
     /**
      * Create a new projection by parsing the data provided by the input stream.
-     * 
+     *
      * @param projectionInterface
      *            A Java interface to project the data on.
      * @return a new projection instance pointing to the stream content.
@@ -53,21 +58,33 @@ public class XBStreamInput {
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         try {
             DocumentBuilder documentBuilder = projector.config().createDocumentBuilder();
-            Document document = systemID==null ? documentBuilder.parse(is) : documentBuilder.parse(is,systemID);
+            Document document = systemID == null ? documentBuilder.parse(is) : documentBuilder.parse(is, systemID);
             return projector.projectDOMNode(document, projectionInterface);
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
     }
-   
+
     /**
-     * As the system id usually cannot be determined by looking at the stream,
-     * this method allows it to be set.
+     * As the system id usually cannot be determined by looking at the stream, this method allows it
+     * to be set.
+     *
      * @param systemID
      * @return this for convenience.
      */
-    public XBStreamInput setSystemID(String systemID) {
-        this.systemID=systemID;
+    public XBStreamInput setSystemID(final String systemID) {
+        this.systemID = systemID;
         return this;
     }
+
+    @Override
+    public XPathEvaluator evalXPath(final String xpath) {
+        return new DefaultXPathEvaluator(projector, new DocumentResolver() {
+            @Override
+            public Document resolve(final Class<?>... resourceAwareClass) {
+                return IOHelper.loadDocument(projector, is);
+            }
+        }, xpath);
+    }
+
 }

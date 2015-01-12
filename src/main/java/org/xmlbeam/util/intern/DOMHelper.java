@@ -15,8 +15,6 @@
  */
 package org.xmlbeam.util.intern;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -37,9 +34,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xmlbeam.util.IOHelper;
 
 /**
  * A set of tiny helper methods internally used in the projection framework. This methods are
@@ -52,7 +46,6 @@ public final class DOMHelper {
     /**
      *
      */
-    private static final String[] RESOURCE_PROTO_NAMES = new String[] { "resource://", "res://" };
     private static final Comparator<? super Node> ATTRIBUTE_NODE_COMPARATOR = new Comparator<Node>() {
         private int compareMaybeNull(final Comparable<Object> a, final Object b) {
             if (a == b) {
@@ -81,38 +74,6 @@ public final class DOMHelper {
             return 0;
         }
     };
-
-    /**
-     * @param documentBuilder
-     * @param url
-     * @param requestProperties
-     * @param resourceAwareClass
-     * @return new document instance
-     * @throws IOException
-     */
-    @SuppressWarnings({ "unchecked", "resource" })
-    public static Document getDocumentFromURL(final DocumentBuilder documentBuilder, final String url, final Map<String, String> requestProperties, final Class<?> resourceAwareClass) throws IOException {
-        try {
-            for (String resProto : RESOURCE_PROTO_NAMES) {
-                if (url.startsWith(resProto)) {
-                    InputStream is = resourceAwareClass.getResourceAsStream(url.substring(resProto.length()));
-                    InputSource source = new InputSource(is);
-                    // source.setEncoding("MacRoman");
-                    return documentBuilder.parse(source);
-                }
-            }
-            if (url.startsWith("http:") || url.startsWith("https:")) {
-                return documentBuilder.parse(IOHelper.httpGet(url, requestProperties), url);
-            }
-            Document document = documentBuilder.parse(url);
-            if (document == null) {
-                throw new IOException("Document could not be created form uri " + url);
-            }
-            return document;
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Parse namespace prefixes defined in the documents root element.

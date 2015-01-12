@@ -56,6 +56,10 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.evaluation.CanEvaluateOrProject;
+import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.DefaultXPathEvaluator;
+import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 import org.xmlbeam.io.XBFileIO;
@@ -65,6 +69,7 @@ import org.xmlbeam.io.XBUrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
@@ -249,12 +254,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
 
         /**
-         * @return StringRenderer used to convert objects into strings 
+         * @return StringRenderer used to convert objects into strings
          */
         public StringRenderer getStringRenderer() {
             return XBProjector.this.stringRenderer;
         }
-        
+
         /**
          * Cast the type StringRenderer to the current type.
          *
@@ -264,13 +269,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
         public <T extends StringRenderer> T getStringRendererAs(final Class<T> clazz) {
             return clazz.cast(getTypeConverter());
         }
-        
+
         /**
-         * @param renderer to be used to convert objects into strings
+         * @param renderer
+         *            to be used to convert objects into strings
          * @return this for convenience
          */
         public ConfigBuilder setStringRenderer(final StringRenderer renderer) {
-            XBProjector.this.stringRenderer= renderer;
+            XBProjector.this.stringRenderer = renderer;
             return this;
         }
     }
@@ -474,11 +480,43 @@ public class XBProjector implements Serializable, ProjectionFactory {
     @Override
     public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface) {
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+            final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
             return new XBStreamInput(this, inputStream).read(projectionInterface);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param xmlContent
+     * @return {@link DefaultXPathEvaluator}
+     */
+    public CanEvaluateOrProject onXMLString(final String xmlContent) {
+        return new CanEvaluateOrProject() {
+
+            @Override
+            public XPathEvaluator evalXPath(final String xpath) {
+                try {
+                    final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+
+                    return new DefaultXPathEvaluator(XBProjector.this, new DocumentResolver() {
+
+                        @Override
+                        public Document resolve(final Class<?>... resourceAwareClass) {
+                            return IOHelper.loadDocument(XBProjector.this, inputStream);
+                        }
+                    }, xpath);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public <T> T createProjection(final Class<T> projectionInterface) {
+                return projectXMLString(xmlContent, projectionInterface);
+            }
+        };
+
     }
 
     /**
@@ -494,11 +532,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
     private StringRenderer stringRenderer = (StringRenderer) typeConverter;
-
-// private XBProjector(Set<Flags>flags,XMLFactoriesConfig xMLFactoriesConfig) {
-// this.xMLFactoriesConfig = xMLFactoriesConfig;
-// this.isSynchronizeOnDocuments = flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS);
-// }
 
     /**
      * Global projector configuration options.
@@ -682,4 +715,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
         final DOMAccess domAccess = (DOMAccess) projection;
         return domAccess.asString();
     }
+
+    /**
+     * read only access to flags. Use constructor to set.
+     *
+     * @return flags.
+     */
+    public Set<Flags> getFlags() {
+        return Collections.unmodifiableSet(flags);
+    }
+
 }

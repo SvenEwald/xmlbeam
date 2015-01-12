@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.junit.Test;
-import org.xmlbeam.XBProjector;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.TypeConverter;
 

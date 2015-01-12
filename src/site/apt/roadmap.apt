@@ -1,14 +1,6 @@
 Roadmap
 
-* Version ?.?.? (unplanned)
-  
- * Generator to create projection stubs from existing documents. 
-
- * Additional library with generic DOM access projections. (Not needed anymore? Just use Element as projection type.)
-
- * Integration for application logging  
- 
-* Version 2.0
+* Version 2.0 (not planed yet)
 
  * Move to XPath 2.0
    (Would simplify quite some code, but introduce a dependency)
@@ -19,7 +11,7 @@ Roadmap
 * Version 1.4.x
  
  * Replacing dynamic proxy by asm generated class
-   (Depending on result of performance analysis)
+   (Depending on result of performance analysis) (This seems to be not necessary anymore. Performance with Saxon seems to be quite well.)
  
 * Version 1.4.2
 

@@ -66,7 +66,6 @@ public class XBProjectorReferenceCard {
 XBProjector projector = new XBProjector();
 //END SNIPPET: XBProjectorReferenceCard0
 
-    @SuppressWarnings("unused")
     @Ignore
     // This must compile, but it won't run
     public void ensureFileReading() throws Exception {

@@ -24,9 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xmlbeam.util.intern.Preprocessor;
 
-/**
- * @author sven
- */
+@SuppressWarnings("javadoc")
 public class TestPreprocessor2 {
     private Map<String, Integer> paramNameIndexMap;
     private final Object[] args = new Object[] { "value0", "value1", "value2" };
