@@ -8,6 +8,11 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
+* 1.4.6 current release
+
+ * New feature: Now XPath can be directly evaluated during creation of projections.
+   If you only need a projection to parts of the document, you do not need to create a projection interface for the whole document anymore.
+
 * 1.4.5 current release
 
  * Bug fixed: XPath variables always resolved to the value of the first invocation.
