@@ -256,7 +256,7 @@ public final class DOMHelper {
     }
 
     /**
-     * hashcode() implementation that is compatible with equals().
+     * hashCode() implementation that is compatible with equals().
      *
      * @param node
      * @return hash code for node
@@ -524,7 +524,7 @@ public final class DOMHelper {
     /**
      * @param node
      */
-    public static void removeNode(final Node node) {
+    private static void removeNode(final Node node) {
         if (node == null) {
             return;
         }
@@ -548,7 +548,7 @@ public final class DOMHelper {
     /**
      * @param existingNodes
      */
-    public static void removeNodes(final List<? extends Node> existingNodes) {
+    public static void removeNodes(final Iterable<? extends Node> existingNodes) {
         for (Node e : existingNodes) {
             removeNode(e);
         }
