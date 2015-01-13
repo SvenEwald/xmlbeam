@@ -18,6 +18,7 @@ package org.xmlbeam.tests.xpath;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Before;
@@ -100,6 +101,18 @@ public class TestSetterVariants {
     public void testSetMultipleSubProjectionCollection() {
         List<SubProjection> subs = Arrays.asList(projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3));
         emptyProjection.setMultipleSubProjectionCollection(subs);
+        assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
+    }
+    
+    @Test
+    public void testSetMultipleSubProjectionIterable() {        
+        final List<SubProjection> subs = Arrays.asList(projector.projectEmptyElement("c", SubProjection.class).setValue(1), projector.projectEmptyElement("c", SubProjection.class).setValue(2), projector.projectEmptyElement("c", SubProjection.class).setValue(3));
+        // Ensure there is no hidden cast to a collection in the projection invoker.
+        emptyProjection.setMultipleSubProjectionCollection(new Iterable<SubProjection>(){
+            @Override
+            public Iterator<SubProjection> iterator() { 
+                return subs.iterator();
+            }});
         assertEquals("<a><b><c>1</c><c>2</c><c>3</c></b></a>", projector.asString(emptyProjection));
     }
     

@@ -24,7 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -475,13 +474,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         /**
          * @param typeToSet
-         * @param collection
+         * @param iterable
          * @param parentElement
          * @param duplexExpression
          * @param elementSelector
          */
-        private int applyCollectionSetOnElement(final Collection<?> collection, final Element parentElement, final DuplexExpression duplexExpression) {
-            for (Object o : collection) {
+        private int applyIterableSetOnElement(final Iterable<?> iterable, final Element parentElement, final DuplexExpression duplexExpression) {
+            int changeCount=0;
+            for (Object o : iterable) {
                 if (o == null) {
                     continue;
                 }
@@ -489,6 +489,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     final Node newElement = duplexExpression.createChildWithPredicate(parentElement);
                     final String asString = projector.config().getStringRenderer().render(o.getClass(), o, duplexExpression.getExpressionFormatPattern());
                     newElement.setTextContent(asString);
+                    ++changeCount;
                     continue;
                 }
                 Element elementToAdd;
@@ -513,9 +514,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     }
                 }
                 DOMHelper.replaceElement(childWithPredicate, clone);
-
+                ++changeCount;
             }
-            return collection.size();
+            return changeCount;
         }
 
         @Override
@@ -554,13 +555,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     if (duplexExpression.getExpressionType().equals(ExpressionType.ATTRIBUTE)) {
                         throw new IllegalArgumentException("Method " + method + " was invoked as setter changing some attribute, but was declared to set multiple values. I can not create multiple attributes for one path.");
                     }
-                    final Collection<?> collection2Set = valueToSet == null ? Collections.emptyList() : (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Collection<?>) valueToSet;
+                    final Iterable<?> iterable2Set = valueToSet == null ? Collections.emptyList() : (valueToSet.getClass().isArray()) ? ReflectionHelper.array2ObjectList(valueToSet) : (Iterable<?>) valueToSet;
                     if (wildCardTarget) {
                         // TODO: check support of ParameterizedType e.g. Supplier
                         final Element parentElement = (Element) duplexExpression.ensureExistence(node);
                         DOMHelper.removeAllChildren(parentElement);
                         int count = 0;
-                        for (Object o : collection2Set) {
+                        for (Object o : iterable2Set) {
                             if (o == null) {
                                 continue;
                             }
@@ -579,7 +580,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     }
                     final Element parentElement = duplexExpression.ensureParentExistence(node);
                     duplexExpression.deleteAllMatchingChildren(parentElement);
-                    int count = applyCollectionSetOnElement(collection2Set, parentElement, duplexExpression);
+                    int count = applyIterableSetOnElement(iterable2Set, parentElement, duplexExpression);
                     return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
                 }
 
@@ -850,7 +851,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @return
      */
     private static boolean isMultiValue(final Class<?> type) {
-        return type.isArray() || Collection.class.isAssignableFrom(type);
+       return type.isArray() || Iterable.class.isAssignableFrom(type);
     }
 
     /**

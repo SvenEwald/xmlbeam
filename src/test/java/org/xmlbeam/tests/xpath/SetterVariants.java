@@ -71,12 +71,12 @@ public interface SetterVariants {
     void setMultipleSubProjectionArray(SubProjection[] content);
 
     @XBWrite("/a/b/c")
-    void setMultipleSubProjectionCollection(Collection<SubProjection> content);
+    void setMultipleSubProjectionCollection(Iterable<SubProjection> content);
 
     @XBWrite("/a/b/*")
-    void setMultipleSubProjectionWildcardCollection(Collection<SubProjection> content);
+    void setMultipleSubProjectionWildcardCollection(Iterable<SubProjection> content);
 
     @XBWrite("/a/b/d")
-    void setMultipleSubProjectionRenamingCollection(Collection<SubProjection> content);
+    void setMultipleSubProjectionRenamingCollection(Iterable<SubProjection> content);
 
 }
