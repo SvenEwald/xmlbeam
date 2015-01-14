@@ -32,9 +32,9 @@ public class TestRailRoadDiag {
         //String rootNodeId = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().url("res://XBProjector-Sheet-compact.graphml").evalXPath("").asString();
         GraphML graph = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(GraphML.class);
         Node rootNode = graph.getRootNode();
-        System.out.println(rootNode.getID() + ":" + rootNode.getLabel());
+        System.out.println(rootNode.getID() + ":" + rootNode.getLabel() + " url:" + rootNode.getURL());
         for (String childId : graph.getChildrenOf(rootNode.getID())) {
-            System.out.println(childId + ":" + graph.getNode(childId).getLabel());
+            System.out.println(childId + ":" + graph.getNode(childId).getLabel() + " url:" + graph.getNode(childId).getURL());
         }
     }
 }
