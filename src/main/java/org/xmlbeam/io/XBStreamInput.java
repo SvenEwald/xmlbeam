@@ -24,10 +24,9 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.evaluation.CanEvaluate;
-import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
+import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
-import org.xmlbeam.util.IOHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -56,10 +55,15 @@ public class XBStreamInput implements CanEvaluate {
      * @throws IOException
      */
     public <T> T read(final Class<T> projectionInterface) throws IOException {
+        Document document = readDocument();
+        return projector.projectDOMNode(document, projectionInterface);
+    }
+
+    private Document readDocument() throws IOException {
         try {
             DocumentBuilder documentBuilder = projector.config().createDocumentBuilder();
             Document document = systemID == null ? documentBuilder.parse(is) : documentBuilder.parse(is, systemID);
-            return projector.projectDOMNode(document, projectionInterface);
+            return document;
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }
@@ -82,7 +86,11 @@ public class XBStreamInput implements CanEvaluate {
         return new DefaultXPathEvaluator(projector, new DocumentResolver() {
             @Override
             public Document resolve(final Class<?>... resourceAwareClass) {
-                return IOHelper.loadDocument(projector, is);
+                try {
+                    return XBStreamInput.this.readDocument();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }, xpath);
     }

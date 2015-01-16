@@ -100,6 +100,15 @@ public class TestIOBehavior {
     }
 
     @Test
+    public void ensureStreamParsingRespectsSystemIDWithEvaluationAPI() throws Exception {
+        String systemID = "http://xmlbeam.org/MyFineSystemID";
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("<foo><bar>aä</bar></foo>".getBytes("UTF-8"));
+        DOMAccess domAccess = new XBProjector().io().stream(inputStream).setSystemID(systemID).evalXPath("//bar").as(DOMAccess.class);
+        assertEquals(systemID, domAccess.getDOMOwnerDocument().getBaseURI());
+        assertEquals("aä", domAccess.getDOMNode().getTextContent());
+    }
+
+    @Test
     public void ensureGetDocURLAnnotationWorksWithParams() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
         String host = parrot.getURL().getHost();
@@ -151,6 +160,10 @@ public class TestIOBehavior {
         {
             FooProjection p2 = new XBProjector().io().file(tempFile).read(FooProjection.class);
             assertEquals(p, p2);
+        }
+        {
+            int count = new XBProjector().io().file(tempFile).evalXPath("count(//bar)").asInt();
+            assertEquals(1, count);
         }
         {
             projector.io().file(tempFile).setAppend(true).write(p);
