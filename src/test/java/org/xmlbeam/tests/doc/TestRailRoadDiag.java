@@ -17,6 +17,7 @@ package org.xmlbeam.tests.doc;
 
 import java.io.IOException;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
@@ -32,9 +33,18 @@ public class TestRailRoadDiag {
         //String rootNodeId = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().url("res://XBProjector-Sheet-compact.graphml").evalXPath("").asString();
         GraphML graph = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(GraphML.class);
         Node rootNode = graph.getRootNode();
-        System.out.println(rootNode.getID() + ":" + rootNode.getLabel() + " url:" + rootNode.getURL());
-        for (String childId : graph.getChildrenOf(rootNode.getID())) {
-            System.out.println(childId + ":" + graph.getNode(childId).getLabel() + " url:" + graph.getNode(childId).getURL());
+        dump(graph, rootNode);
+
+    }
+
+    private void dump(GraphML graph, Node node) {
+        Assert.assertNotNull("No URL in node:"+node.getID() + ":" + node.getLabel(), node.getURL());
+        String urlMethodName=node.getURL().replaceAll(".*#", "").replaceAll("-.*", "");
+        //System.out.println(node.getLabel().replaceAll("\\(.*", "")+" "+urlMethodName+" "+node.getURL() );
+        Assert.assertEquals(urlMethodName,node.getLabel().replaceAll("\\(.*", "").replaceAll("new ", ""));
+        for (String childId : graph.getChildrenOf(node.getID())) {
+            dump(graph, graph.getNode(childId));
         }
+
     }
 }
