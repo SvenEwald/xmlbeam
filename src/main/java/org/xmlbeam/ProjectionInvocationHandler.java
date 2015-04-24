@@ -44,7 +44,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector.IOBuilder;
-import org.xmlbeam.XBProjector.InternalProjection;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBOverride;
@@ -118,7 +117,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-            injectMeAttribute((InternalProjection) proxy, obj, projectionInterface);
+            injectMeAttribute((DOMAccess) proxy, obj, projectionInterface);
             try {
                 return super.invoke(proxy, method, args);
             } catch (InvocationTargetException e) {
@@ -321,7 +320,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 if (newNode == null) {
                     return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
                 }
-                final InternalProjection subprojection = (InternalProjection) projector.projectDOMNode(newNode, returnType);
+                final DOMAccess subprojection = (DOMAccess) projector.projectDOMNode(newNode, returnType);
                 return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
             }
             throw new IllegalArgumentException("Return type " + returnType + " of method " + method + " is not supported. Please change to an projection interface, a List, an Array or one of current type converters types:" + projector.config().getTypeConverter());
@@ -462,10 +461,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 document.replaceChild(document.getDocumentElement(), clone);
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             }
-            if (!(valueToSet instanceof InternalProjection)) {
+            if (!(valueToSet instanceof DOMAccess)) {
                 throw new IllegalArgumentException("Method " + method + " was invoked as setter changing the document root element. Expected value type was a projection so I can determine a element name. But you provided a " + valueToSet);
             }
-            InternalProjection projection = (InternalProjection) valueToSet;
+            DOMAccess projection = (DOMAccess) valueToSet;
             Element element = projection.getDOMBaseElement();
             assert element != null;
             DOMHelper.setDocumentElement(document, element);
@@ -498,7 +497,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     final Node n = (Node) o;
                     elementToAdd = (Element) (Node.DOCUMENT_NODE != n.getNodeType() ? n : n.getOwnerDocument() == null ? null : n.getOwnerDocument().getDocumentElement());
                 } else {
-                    final InternalProjection p = (InternalProjection) o;
+                    final DOMAccess p = (DOMAccess) o;
                     elementToAdd = p.getDOMBaseElement();
                 }
                 if (elementToAdd == null) {
@@ -570,8 +569,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                                 DOMHelper.appendClone(parentElement, (Node) o);
                                 continue;
                             }
-                            if (o instanceof InternalProjection) {
-                                DOMHelper.appendClone(parentElement, ((InternalProjection) o).getDOMBaseElement());
+                            if (o instanceof DOMAccess) {
+                                DOMHelper.appendClone(parentElement, ((DOMAccess) o).getDOMBaseElement());
                                 continue;
                             }
                             throw new XBPathException("When using a wildcard target, the type to set must be a DOM Node or another projection. Otherwise I can not determine the element name.", method, resolvedXpath);
@@ -600,7 +599,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                 }
 
-                if ((valueToSet instanceof Node) || (valueToSet instanceof InternalProjection)) {
+                if ((valueToSet instanceof Node) || (valueToSet instanceof DOMAccess)) {
                     if (valueToSet instanceof Attr) {
                         if (wildCardTarget) {
                             throw new XBPathException("Wildcards are not allowed when writing an attribute. I need to know to which Element I should set the attribute", method, resolvedXpath);
@@ -613,7 +612,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                         parentNode.setAttributeNode((Attr) valueToSet);
                         return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                     }
-                    final Element newNodeOrigin = valueToSet instanceof InternalProjection ? ((InternalProjection) valueToSet).getDOMBaseElement() : (Element) valueToSet;
+                    final Element newNodeOrigin = valueToSet instanceof DOMAccess ? ((DOMAccess) valueToSet).getDOMBaseElement() : (Element) valueToSet;
                     final Element newNode = (Element) newNodeOrigin.cloneNode(true);
                     DOMHelper.ensureOwnership(document, newNode);
                     if (wildCardTarget) {
@@ -739,7 +738,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @return
      */
     private static boolean isStructureChangingValue(final Object o) {
-        return (o instanceof InternalProjection) || (o instanceof Node);
+        return (o instanceof DOMAccess) || (o instanceof Node);
     }
 
     /**
@@ -769,7 +768,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @param me
      * @param target
      */
-    private static void injectMeAttribute(final InternalProjection me, final Object target, final Class<?> projectionInterface) {
+    private static void injectMeAttribute(final DOMAccess me, final Object target, final Class<?> projectionInterface) {
         //final Class<?> projectionInterface = me.getProjectionInterface();
         for (Field field : target.getClass().getDeclaredFields()) {
             if (!isValidMeField(field, projectionInterface)) {
