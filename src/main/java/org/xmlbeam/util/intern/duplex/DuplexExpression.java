@@ -88,12 +88,15 @@ public class DuplexExpression {
 
     private final String expressionFormatPattern;
 
+    private final Map<String, String> userDefinedMapping;
+
     /**
      * @param node
      */
-    DuplexExpression(final SimpleNode node, final String xpath) {
+    DuplexExpression(final SimpleNode node, final String xpath, final Map<String, String> userDefinedMapping) {
         this.node = node;
         this.xpath = xpath;
+        this.userDefinedMapping = userDefinedMapping;
         final Deque<Integer> removeStartPositions = new LinkedList<Integer>();
         final Deque<Integer> removeEndPositions = new LinkedList<Integer>();
         node.getFirstChildWithId(XParserTreeConstants.JJTXPATH).eachChild(new VisitorClosure() {
@@ -181,7 +184,8 @@ public class DuplexExpression {
     @SuppressWarnings("unchecked")
     public org.w3c.dom.Node ensureExistence(final org.w3c.dom.Node contextNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
-        final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        final Map<String, String> namespaceMapping = new HashMap<String, String>(userDefinedMapping);
+        namespaceMapping.putAll(DOMHelper.getNamespaceMapping(document));
         //node.dump("");
         return ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(variableResolver, namespaceMapping), contextNode)).get(0);
     }
@@ -194,7 +198,8 @@ public class DuplexExpression {
     // due to JCC-API
     public Element ensureParentExistence(final Node contextNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(contextNode);
-        final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        final Map<String, String> namespaceMapping = new HashMap<String, String>(userDefinedMapping);
+        namespaceMapping.putAll(DOMHelper.getNamespaceMapping(document));
         //node.dump("");
         return (Element) ((List<org.w3c.dom.Node>) node.firstChildAccept(new BuildDocumentVisitor(variableResolver, namespaceMapping, ALL_BUT_LAST, MODE.CREATE_IF_NOT_EXISTS), contextNode)).get(0);
     }
@@ -224,7 +229,9 @@ public class DuplexExpression {
     @SuppressWarnings("unchecked")
     public Node createChildWithPredicate(final Node parentNode) {
         final Document document = DOMHelper.getOwnerDocumentFor(parentNode);
-        final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        //final Map<String, String> namespaceMapping = DOMHelper.getNamespaceMapping(document);
+        final Map<String, String> namespaceMapping = new HashMap<String, String>(userDefinedMapping);
+        namespaceMapping.putAll(DOMHelper.getNamespaceMapping(document));
         BuildDocumentVisitor visitor = new BuildDocumentVisitor(variableResolver, namespaceMapping, ONLY_LAST_STEP, MODE.JUST_CREATE);
         List<Node> nodes = (List<Node>) node.firstChildAccept(visitor, parentNode);
         assert nodes.size() == 1;

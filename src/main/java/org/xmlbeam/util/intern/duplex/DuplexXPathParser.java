@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.util.intern.duplex;
 
+import java.util.Map;
+
 import java.io.StringReader;
 
 import org.xmlbeam.XBException;
@@ -23,6 +25,8 @@ import org.xmlbeam.XBException;
  * @author sven
  */
 public class DuplexXPathParser {
+
+    private final Map<String, String> userDefinedMapping;
 
     /**
      * @param expression
@@ -33,9 +37,13 @@ public class DuplexXPathParser {
         final XParser parser = new XParser(new StringReader(expression));
         try {
             SimpleNode node = parser.START();
-            return new DuplexExpression(node, expression);
+            return new DuplexExpression(node, expression, userDefinedMapping);
         } catch (ParseException e) {
             throw new XBException("Can not parse xpath:'" + expression + "'", e);
         }
+    }
+
+    public DuplexXPathParser(final Map<String, String> userDefinedMapping) {
+        this.userDefinedMapping = userDefinedMapping;
     }
 }

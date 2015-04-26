@@ -1,12 +1,15 @@
 package org.xmlbeam.evaluation;
 
-import java.awt.geom.IllegalPathStateException;
-import java.io.IOException;
 import java.lang.reflect.Method;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import java.awt.geom.IllegalPathStateException;
+
+import java.io.IOException;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -35,7 +38,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Constructor for DefaultXPathEvaluator.
-     * 
+     *
      * @param projector
      * @param documentProvider
      * @param xpath
@@ -43,12 +46,12 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
     public DefaultXPathEvaluator(final XBProjector projector, final DocumentResolver documentProvider, final String xpath) {
         this.projector = projector;
         this.documentProvider = documentProvider;
-        this.duplexExpression = new DuplexXPathParser().compile(xpath);
+        this.duplexExpression = new DuplexXPathParser(projector.config().getUserDefinedNamespaceMapping()).compile(xpath);
     }
 
     /**
      * Evaluates the XPath as a boolean value. This method is just a shortcut for as(Boolean.TYPE);
-     * 
+     *
      * @return true when the selected value equals (ignoring case) 'true'
      */
     @Override
@@ -59,7 +62,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Evaluates the XPath as a int value. This method is just a shortcut for as(Integer.TYPE);
-     * 
+     *
      * @return int value of evaluation result.
      */
     @Override
@@ -70,7 +73,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Evaluates the XPath as a String value. This method is just a shortcut for as(String.class);
-     * 
+     *
      * @return String value of evaluation result.
      */
     @Override
@@ -83,7 +86,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
      * Evaluates the XPath as a Date value. This method is just a shortcut for as(Date.class); You
      * probably want to specify ' using ' followed by some formatting pattern consecutive to the
      * XPAth.
-     * 
+     *
      * @return Date value of evaluation result.
      */
     @Override
@@ -206,7 +209,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Perform an XPath evaluation on an invocation context.
-     * 
+     *
      * @param expression
      * @param node
      * @param method

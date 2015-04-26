@@ -17,6 +17,8 @@ package org.xmlbeam.util.intern.duplex;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -24,8 +26,6 @@ import org.w3c.dom.Element;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.util.intern.duplex.DuplexExpression;
-import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 
 @SuppressWarnings("javadoc")
 public class TestDeletionWithPredicates {
@@ -42,7 +42,7 @@ public class TestDeletionWithPredicates {
 
     @Test
     public void testDelete() {
-        DuplexExpression expression = new DuplexXPathParser().compile("/root/foo/bar[@id='4']");
+        DuplexExpression expression = new DuplexXPathParser(Collections.<String, String> emptyMap()).compile("/root/foo/bar[@id='4']");
         Element parent = expression.ensureParentExistence(document);
         assertEquals("foo", parent.getNodeName());
         assertEquals(2, parent.getChildNodes().getLength());

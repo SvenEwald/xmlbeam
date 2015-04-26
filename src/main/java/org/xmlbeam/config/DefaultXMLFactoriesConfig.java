@@ -15,9 +15,11 @@
  */
 package org.xmlbeam.config;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -32,22 +34,38 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.util.UnionIterator;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * Default configuration for {@link XBProjector} which uses Java default factories to create
  * {@link Transformer} {@link DocumentBuilder} and {@link XPath}. You may want to inherit from this
  * class to change this behavior.
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 @SuppressWarnings("serial")
 public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
+     * A facade to provide user defined namespace mappings. This way a document with namespaces can
+     * be created from scratch.
+     *
+     * @author sven
+     */
+    public interface NSMapping {
+        /**
+         * @param prefix
+         * @param uri
+         * @return the current mapping for convenience.
+         */
+        NSMapping add(String prefix, String uri);
+    }
+
+    /**
      * This configuration can use one of three different ways to configure namespace handling.
-     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings
-     * (AGNOSTIC) or mapped automatically to the document prefixes (HEDONISTIC).
+     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings (AGNOSTIC) or
+     * mapped automatically to the document prefixes (HEDONISTIC).
      */
     public static enum NamespacePhilosophy {
 
@@ -79,6 +97,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     private static final String NON_EXISTING_URL = "http://xmlbeam.org/nonexisting_namespace";
+
+    private final Map<String, String> USER_DEFINED_MAPPING = new TreeMap<String, String>();
 
     private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
     private boolean isPrettyPrinting = true;
@@ -119,7 +139,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
      * {@inheritDoc}
      */
     @Override
-    public Transformer createTransformer(Document... document) {
+    public Transformer createTransformer(final Document... document) {
         try {
             Transformer transformer = createTransformerFactory().newTransformer();
             if (isPrettyPrinting()) {
@@ -157,12 +177,15 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         final Map<String, String> nameSpaceMapping = DOMHelper.getNamespaceMapping(document[0]);
         final NamespaceContext ctx = new NamespaceContext() {
             @Override
-            public String getNamespaceURI(String prefix) {
+            public String getNamespaceURI(final String prefix) {
                 if (prefix == null) {
                     throw new IllegalArgumentException("null not allowed as prefix");
                 }
                 if (nameSpaceMapping.containsKey(prefix)) {
                     return nameSpaceMapping.get(prefix);
+                }
+                if (USER_DEFINED_MAPPING.containsKey(prefix)) {
+                    return USER_DEFINED_MAPPING.get(prefix);
                 }
                 // Default is a global unique string uri to prevent xpath expression exeptions on
                 // nonexisting ns.
@@ -170,8 +193,13 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
             }
 
             @Override
-            public String getPrefix(String uri) {
+            public String getPrefix(final String uri) {
                 for (Entry<String, String> e : nameSpaceMapping.entrySet()) {
+                    if (e.getValue().equals(uri)) {
+                        return e.getKey();
+                    }
+                }
+                for (Entry<String, String> e : USER_DEFINED_MAPPING.entrySet()) {
                     if (e.getValue().equals(uri)) {
                         return e.getKey();
                     }
@@ -180,8 +208,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
             }
 
             @Override
-            public Iterator<String> getPrefixes(String val) {
-                return nameSpaceMapping.keySet().iterator();
+            public Iterator<String> getPrefixes(final String val) {
+                return new UnionIterator<String>(nameSpaceMapping.keySet().iterator(), USER_DEFINED_MAPPING.keySet().iterator());
             }
         };
         xPath.setNamespaceContext(ctx);
@@ -205,6 +233,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
      * Getter for pretty printing option.
+     *
      * @return true if output will be formatted
      */
     public boolean isPrettyPrinting() {
@@ -215,18 +244,19 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
      * @param namespacePhilosophy
      * @return this for convenience
      */
-    public XMLFactoriesConfig setNamespacePhilosophy(NamespacePhilosophy namespacePhilosophy) {
+    public XMLFactoriesConfig setNamespacePhilosophy(final NamespacePhilosophy namespacePhilosophy) {
         this.namespacePhilosophy = namespacePhilosophy;
         return this;
     }
 
-    
     /**
      * Setter for pretty printing option
-     * @param on (true == output will be formatted)
+     *
+     * @param on
+     *            (true == output will be formatted)
      * @return this for convenience
      */
-    public DefaultXMLFactoriesConfig setPrettyPrinting(boolean on) {
+    public DefaultXMLFactoriesConfig setPrettyPrinting(final boolean on) {
         this.isPrettyPrinting = on;
         return this;
     }
@@ -239,12 +269,46 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     /**
-     * @param isOmitXMLDeclaration the isOmitXMLDeclaration to set
+     * @param isOmitXMLDeclaration
+     *            the isOmitXMLDeclaration to set
      * @return this for convenience
      */
-    public DefaultXMLFactoriesConfig setOmitXMLDeclaration(boolean isOmitXMLDeclaration) {
+    public DefaultXMLFactoriesConfig setOmitXMLDeclaration(final boolean isOmitXMLDeclaration) {
         this.isOmitXMLDeclaration = isOmitXMLDeclaration;
         return this;
+    }
+
+    /**
+     * @return A NSMapping that can be used to create documents with namespaces from scratch. Just
+     *         add your prefixes and ns uris.
+     */
+    public NSMapping createNameSpaceMapping() {
+        if (!NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy)) {
+            throw new IllegalStateException("To use a namespace mapping, you need to use the HEDONISTIC NamespacePhilosophy.");
+        }
+        return new NSMapping() {
+
+            @Override
+            public NSMapping add(final String prefix, final String uri) {
+                if ((prefix == null) || (prefix.isEmpty())) {
+                    throw new IllegalArgumentException("prefix must not be empty");
+                }
+                if ((uri == null) || (uri.isEmpty())) {
+                    throw new IllegalArgumentException("uri must not be empty");
+                }
+                if (USER_DEFINED_MAPPING.containsKey(prefix) && (!uri.equals(USER_DEFINED_MAPPING.get(prefix)))) {
+                    throw new IllegalArgumentException("The prefix '" + prefix + "' is bound to namespace '" + USER_DEFINED_MAPPING.get(prefix) + " already.");
+                }
+                USER_DEFINED_MAPPING.put(prefix, uri);
+                return this;
+            }
+        };
+    }
+
+
+    @Override
+    public Map<String, String> getUserDefinedNamespaceMapping() {
+        return Collections.unmodifiableMap(USER_DEFINED_MAPPING);
     }
 
 }
