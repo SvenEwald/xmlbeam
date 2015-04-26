@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -484,7 +485,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), interfaces.toArray(new Class<?>[interfaces.size()]), synchronizedInvocationHandler));
         }
         return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), interfaces.toArray(new Class<?>[interfaces.size()]), projectionInvocationHandler));
-   }
+    }
 
     /**
      * {@inheritDoc}
