@@ -20,15 +20,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -243,6 +242,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final boolean isEvaluateAsArray;
         private final boolean isEvaluateAsSubProjection;
         private final boolean isThrowIfAbsent;
+        private final boolean isReturnAsStream;
 
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
@@ -252,7 +252,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             exceptionType = exceptionTypes.length > 0 ? exceptionTypes[0] : null;
             this.isConvertable = projector.config().getTypeConverter().isConvertable(returnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
-            this.isEvaluateAsList = List.class.equals(returnType);
+            this.isEvaluateAsList = List.class.equals(returnType)||ReflectionHelper.isStreamClass(returnType);
+            this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList)) {
                 throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of list or array. Lists and arrays may be empty but will never be null.");
@@ -309,8 +310,8 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
-                final Object result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
-                return result;
+                final List<?> result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
+                return isReturnAsStream ? ReflectionHelper.toStream(result) : result;
             }
             if (isEvaluateAsArray) {
                 assert !wrappedInOptional : "Projection methods returning array will never return null";
@@ -685,6 +686,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         List<Class<?>> allSuperInterfaces = ReflectionHelper.findAllSuperInterfaces(projectionInterface);
         for (Class<?> i7e : allSuperInterfaces) {
             for (Method m : i7e.getDeclaredMethods()) {
+                if (Modifier.isPrivate(m.getModifiers())) {
+                    // ignore private methods
+                    continue;
+                }
                 final MethodSignature methodSignature = MethodSignature.forMethod(m);
                 if (ReflectionHelper.isDefaultMethod(m)) {
                     handlers.put(methodSignature, DEFAULT_METHOD_INVOCATION_HANDLER);
@@ -693,7 +698,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                         handlers.put(methodSignature.overridenBy(xbOverride.value()), new OverrideByDefaultMethodInvocationHandler(m));
                     }
                     continue;
-                }
+                }                
                 if (defaultInvocationHandlers.containsKey(methodSignature)) {
                     continue;
                 }
@@ -866,7 +871,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (method.getReturnType().isArray()) {
             return method.getReturnType().getComponentType();
         }
-        if (!List.class.equals(method.getReturnType())) {
+        if (!(ReflectionHelper.isStreamClass(method.getReturnType()) ||List.class.equals(method.getReturnType()))) {
             return null;
         }
         final Type type = method.getGenericReturnType();

@@ -346,6 +346,9 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
      */
     @Override
     public <T> boolean isConvertable(final Class<T> targetType) {
+        if (targetType==null) {
+            return false; // That is really bad.
+        }
         if (CONVERSIONS.containsKey(targetType)) {
             return true;
         }

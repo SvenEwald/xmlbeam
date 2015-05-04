@@ -18,6 +18,7 @@ package org.xmlbeam.tests.util.intern;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Before;
@@ -32,9 +33,9 @@ public class TestPreprocessor2 {
     @Before
     public void init() {
         paramNameIndexMap = new HashMap<String, Integer>();
-        paramNameIndexMap.put("huhu0", 0);
-        paramNameIndexMap.put("huhu1", 1);
-        paramNameIndexMap.put("huhu2", 2);
+        paramNameIndexMap.put("huhu0".toUpperCase(Locale.ENGLISH), 0);
+        paramNameIndexMap.put("huhu1".toUpperCase(Locale.ENGLISH), 1);
+        paramNameIndexMap.put("huhu2".toUpperCase(Locale.ENGLISH), 2);
     }
 
     @Test

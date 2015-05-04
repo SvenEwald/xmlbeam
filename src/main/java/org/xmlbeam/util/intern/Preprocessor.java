@@ -101,7 +101,7 @@ public class Preprocessor {
 
     private static String resolveParameter(final String paramName, final Map<String, Integer> paramNameIndexMap, final Object[] args) {
         if (paramNameIndexMap != null) {
-            Integer index = paramNameIndexMap.get(paramName);
+            Integer index = paramNameIndexMap.get(paramName.toUpperCase(Locale.ENGLISH));
             if (index != null) {
                 return args[index.intValue()].toString();
             }
