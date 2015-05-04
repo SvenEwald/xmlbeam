@@ -1,0 +1,18 @@
+Tutorial 18
+
+*E18 Using XMLBeam without a projection interface to resolve a postal code 
+
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e18_postalCodeRetrieval/RetrievePostalCode.java}
+
+* XML Data
+
+ The postal code is stored in one of many address_component elements. 
+ With data binding you would need to iterate over all of these elements to find the one containing the postal code.  
+
+%{include|highlight-theme=eclipse|show-gutter=false|source=src/test/java/org/xmlbeam/tutorial/e18_postalCodeRetrieval/data.xml}
+
+* Example Code
+
+ You only need just one line of code to read the postal code. You do not need even a projection interface in this case.
+
+%{include|highlight-theme=eclipse|show-gutter=false|snippet=#RetrievePostalCode|source=src/test/java/org/xmlbeam/tutorial/e18_postalCodeRetrieval/RetrievePostalCode.java}

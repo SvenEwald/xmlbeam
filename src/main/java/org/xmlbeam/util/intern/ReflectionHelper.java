@@ -45,15 +45,16 @@ import java.util.regex.Pattern;
 public final class ReflectionHelper {
 
     private final static Method ISDEFAULT = findMethodByName(Method.class, "isDefault");
-    private final static Class<?> OPTIONAL_CLASS = findOptionalClass();
-    private final static Method OFNULLABLE = (OPTIONAL_CLASS == null) ? null : findMethodByName(OPTIONAL_CLASS, "ofNullable");
+    private final static Class<?> OPTIONAL_CLASS = findClass("java.util.Optional");
+    private final static Method OFNULLABLE = findMethodByName(OPTIONAL_CLASS, "ofNullable");
     private final static Method GETPARAMETERS = findMethodByName(Method.class, "getParameters");
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
+    private final static Method STREAM = findMethodByName(List.class, "stream");
 
-    private static Class<?> findOptionalClass() {
+    private static Class<?> findClass(String name) {
         try {
-            return Class.forName("java.util.Optional", false, ReflectionHelper.class.getClassLoader());
+            return Class.forName(name, false, ReflectionHelper.class.getClassLoader());
         } catch (ClassNotFoundException e) {
             return null;
         }
@@ -79,6 +80,9 @@ public final class ReflectionHelper {
      * @return method with name "name" or null if it does not exist.
      */
     public static Method findMethodByName(final Class<?> clazz, final String name) {
+        if (clazz == null) {
+            return null;
+        }
         for (final Method m : clazz.getMethods()) {
             if (name.equals(m.getName())) {
                 return m;
@@ -537,7 +541,7 @@ public final class ReflectionHelper {
         };
 
         /**
-         * @param level 
+         * @param level
          * @return class of caller method.
          */
         public Class<?> getCallerClass(final int level) {
@@ -547,7 +551,7 @@ public final class ReflectionHelper {
     }
 
     /**
-     * @param level 
+     * @param level
      * @return Class of calling method
      */
     public static Class<?> getCallerClass(final int level) {
@@ -559,6 +563,33 @@ public final class ReflectionHelper {
      */
     public static Class<?> getDirectCallerClass() {
         return ClassContextAccess.classContextAccess.get().getCallerClass(3);
+    }
+
+    /**
+     * @param returnType
+     * @return true, if (and only if) class is "java.util.stream.Stream"
+     */
+    public static boolean isStreamClass(Class<?> returnType) {
+        return "java.util.stream.Stream".equals(returnType.getName());
+    }
+
+    /**
+     * @param result
+     * @return List.stream()
+     */
+    public static Object toStream(List<?> result) {
+        if (STREAM == null) {
+            throw new IllegalArgumentException("Can not invoke List.stream, you need at least a JDK8 to run this");
+        }
+        try {
+            return STREAM.invoke(result);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 //    /**

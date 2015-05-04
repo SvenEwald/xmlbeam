@@ -15,30 +15,30 @@
  */
 package org.xmlbeam.tutorial.e05_rss;
 
-import static org.junit.Assert.assertEquals;
-
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.io.IOException;
 
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
-import org.xmlbeam.XBProjector;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
+
 /* START SNIPPET: TutorialDescription
-~~
+ ~~
  This example is to demonstrate how to modify a XML document. The Slashdot RSS
  feed is projected to this interface and the stories will be accessible via a
  subprojection. This time there is a setter for a collection of Stories which
- will replace the existing sequence of rss items. 
+ will replace the existing sequence of rss items.
  Instead of just setting an elements value like in the last example, we now change a sequence of elements.
  Notice that there are name spaces in the source XML document and that we work with them intuitively.
-END SNIPPET: TutorialDescription */
+ END SNIPPET: TutorialDescription */
+
+import static org.junit.Assert.assertEquals;
 
 @Category(Tutorial.class)
 @SuppressWarnings("javadoc")
@@ -49,11 +49,11 @@ public class TestFilterRSSFeed extends TutorialTestCase{
 
     @BeforeClass
     public static void readFeed() throws IOException {
-        XBProjector projector = new XBProjector();
-        feed = projector.io().fromURLAnnotation(SlashdotRSSFeed.class);
+       // XBProjector projector = new XBProjector();
+       // feed = projector.io().fromURLAnnotation(SlashdotRSSFeed.class);
     }
 
-    @Test
+    @Ignore
     public void printSomeStats() {
         Set<String> creators = new HashSet<String>(feed.getCreators());
         System.out.println("There are " + feed.getAllItems().size() + " stories by " + creators.size() + " different creators.");
@@ -63,7 +63,7 @@ public class TestFilterRSSFeed extends TutorialTestCase{
      * Remove all but the first three stories from a Slashdot RSS feed. Result
      * is formatted by standard Transformer capabilities.
      */
-    @Test
+    @Ignore //Slashdot changed the rss format recently. TODO: Need to think about a different examle.
     public void filterSomeArticles() throws IOException {
         List<Story> filteredItems = new LinkedList<Story>();
         for (Story item : feed.getAllItems()) {
@@ -78,7 +78,7 @@ public class TestFilterRSSFeed extends TutorialTestCase{
         feed.setAllItems(filteredItems);
 
         assertEquals(3,feed.getItemCount());
-        
+
         // System.out.println(feed.toString());
     }
 }

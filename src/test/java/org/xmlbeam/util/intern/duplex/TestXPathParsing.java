@@ -19,11 +19,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
@@ -47,11 +49,6 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
-import org.xmlbeam.util.intern.duplex.DuplexExpression;
-import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
-import org.xmlbeam.util.intern.duplex.SimpleNode;
-import org.xmlbeam.util.intern.duplex.ParseException;
-import org.xmlbeam.util.intern.duplex.XParser;
 
 /**
  * @author sven
@@ -194,7 +191,7 @@ public class TestXPathParsing {
 
         final Node contextNode = contextPath.isEmpty() ? document : evalViaXPath(contextPath, document);
 
-        final DuplexExpression duplex = new DuplexXPathParser().compile(xpath);
+        final DuplexExpression duplex = new DuplexXPathParser(Collections.<String, String> emptyMap()).compile(xpath);
         final Node newNode = duplex.ensureExistence(contextNode);
 
         assertNotNull(newNode);

@@ -13,3 +13,4 @@ target
 /hs_err_pid*.log
 /bin
 /target-eclipse
+/target/

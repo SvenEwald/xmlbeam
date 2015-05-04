@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.config;
 
+import java.util.Map;
+
 import java.io.Serializable;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -31,28 +33,28 @@ import org.w3c.dom.Document;
  * implementing your own XMLFactoriesConfig you may inject other XPath parsers, DocumentBuilders or
  * Transformers in an {@link org.xmlbeam.XBProjector}. See
  * {@link org.xmlbeam.config.DefaultXMLFactoriesConfig} for further information.
- * 
+ *
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
 public interface XMLFactoriesConfig extends Serializable {
 
     /**
      * Factory method to provide a {@link javax.xml.transform.TransformerFactory}.
-     * 
+     *
      * @return a new instance.
      */
     TransformerFactory createTransformerFactory();
 
     /**
      * Factory method to provide a {@link javax.xml.parsers.DocumentBuilderFactory}.
-     * 
+     *
      * @return a new instance.
      */
     DocumentBuilderFactory createDocumentBuilderFactory();
 
     /**
      * Factory method to provide a {@link javax.xml.xpath.XPathFactory}.
-     * 
+     *
      * @return a new instance.
      */
     XPathFactory createXPathFactory();
@@ -60,7 +62,7 @@ public interface XMLFactoriesConfig extends Serializable {
     /**
      * Factory method to provide a {@link javax.xml.transform.Transformer}. Creation and
      * configuration may depend on the content of a document.
-     * 
+     *
      * @param document
      *            (optional)
      * @return a new instance.
@@ -69,7 +71,7 @@ public interface XMLFactoriesConfig extends Serializable {
 
     /**
      * Factory method to provide a {@link javax.xml.parsers.DocumentBuilder}.
-     * 
+     *
      * @return a new instance.
      */
     DocumentBuilder createDocumentBuilder();
@@ -78,11 +80,19 @@ public interface XMLFactoriesConfig extends Serializable {
      * Factory method to provide a {@link XPath}. Creation and configuration may
      * depend on the content of a document. This may happen when you want to use the namespace
      * mapping of the document in your xpath expresssions.
-     * 
+     *
      * @param document
      *            (optional)
      * @return a new instance.
      */
     XPath createXPath(Document... document);
+
+    /**
+     * Get a prefix to namespace mapping that can be used to access or create documents with
+     * namespaces.
+     * 
+     * @return A map prefix to uri.
+     */
+    Map<String, String> getUserDefinedNamespaceMapping();
 
 }

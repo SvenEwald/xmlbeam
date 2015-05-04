@@ -98,12 +98,14 @@ public class XBFileIO implements CanEvaluate {
 
     /**
      * Set whether output should be append to existing file.
+     * When this method is not invoked, or invoked with 'false',
+     * The file will be replaced on writing operations.
      *
-     * @param append
+     * @param append optional parameter, default is true. 
      * @return this to provide a fluent API.
      */
-    public XBFileIO setAppend(final boolean append) {
-        this.append = append;
+    public XBFileIO setAppend(final boolean... append) {
+        this.append = (append!=null) && (append.length>0) && append[0] ;
         return this;
     }
 

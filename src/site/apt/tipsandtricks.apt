@@ -1,0 +1,33 @@
+Tips & Tricks
+
+* XPath
+
+ * Default NS
+ 
+ * Use XPath variables instead of preprocessor arguments
+
+* Projection Methods
+ 
+ * Return Type Declaration 
+
+  * Optional Return Type
+  
+  * Return "this"
+  
+  * Return int on update projection
+
+ * Declare pojection method throwing an exception
+
+* Type conversion
+
+ * Value types with Constructor
+ 
+ * Value types with Factory
+
+* Formats
+
+ * Use a format for reading and writing 
+
+* Projections
+
+ * Projection uses itself as subprojection 

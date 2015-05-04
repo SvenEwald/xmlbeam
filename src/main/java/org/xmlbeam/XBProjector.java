@@ -15,6 +15,9 @@
  */
 package org.xmlbeam;
 
+import java.net.URISyntaxException;
+import java.text.Format;
+import java.text.MessageFormat;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -26,16 +29,15 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.net.URISyntaxException;
-import java.text.Format;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -57,8 +59,8 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.XMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.CanEvaluateOrProject;
-import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
+import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
@@ -279,6 +281,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
             XBProjector.this.stringRenderer = renderer;
             return this;
         }
+
+        @Override
+        public Map<String, String> getUserDefinedNamespaceMapping() {
+            return xMLFactoriesConfig.getUserDefinedNamespaceMapping();
+        }
+
     }
 
     /**
@@ -459,6 +467,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
         final Map<Class<?>, Object> mixinsForProjection = mixins.containsKey(projectionInterface) ? Collections.unmodifiableMap(mixins.get(projectionInterface)) : Collections.<Class<?>, Object> emptyMap();
         final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, mixinsForProjection, flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
+        final Set<Class<?>> interfaces = new HashSet<Class<?>>();
+        //.toArray() new Class[] { projectionInterface, DOMAccess.class, Serializable.class };
+        interfaces.add(projectionInterface);
+        interfaces.add(DOMAccess.class);
+        interfaces.add(Serializable.class);
         if (flags.contains(Flags.SYNCHRONIZE_ON_DOCUMENTS)) {
             final Document document = DOMHelper.getOwnerDocumentFor(documentOrElement);
             InvocationHandler synchronizedInvocationHandler = new InvocationHandler() {
@@ -469,9 +482,9 @@ public class XBProjector implements Serializable, ProjectionFactory {
                     }
                 }
             };
-            return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, InternalProjection.class, Serializable.class }, synchronizedInvocationHandler));
+            return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), interfaces.toArray(new Class<?>[interfaces.size()]), synchronizedInvocationHandler));
         }
-        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), new Class[] { projectionInterface, InternalProjection.class, Serializable.class }, projectionInvocationHandler));
+        return ((T) Proxy.newProxyInstance(projectionInterface.getClassLoader(), interfaces.toArray(new Class<?>[interfaces.size()]), projectionInvocationHandler));
     }
 
     /**
@@ -517,13 +530,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
             }
         };
 
-    }
-
-    /**
-     * Marker interface to determine if a Projection instance was created by a Projector. This will
-     * be applied automatically to projections.
-     */
-    interface InternalProjection extends DOMAccess {
     }
 
     private final XMLFactoriesConfig xMLFactoriesConfig;
@@ -585,7 +591,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     public XBProjector(final XMLFactoriesConfig xMLFactoriesConfig, final Flags... optionalFlags) {
         this.xMLFactoriesConfig = xMLFactoriesConfig;
-        // isSynchronizeOnDocuments = false;
         this.flags = unfold(optionalFlags);
     }
 
@@ -613,11 +618,16 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @param projection
      * @return
      */
-    private InternalProjection checkProjectionInstance(final Object projection) {
-        if (!(projection instanceof InternalProjection)) {
-            throw new IllegalArgumentException("Given object " + projection + " is not a projection.");
+    private DOMAccess checkProjectionInstance(final Object projection) {
+        if (java.lang.reflect.Proxy.isProxyClass(projection.getClass())) {
+            InvocationHandler invocationHandler = java.lang.reflect.Proxy.getInvocationHandler(projection);
+            if (invocationHandler instanceof ProjectionInvocationHandler) {
+                if (projection instanceof DOMAccess) {
+                    return (DOMAccess) projection;
+                }
+            }
         }
-        return (InternalProjection) projection;
+        throw new IllegalArgumentException("Given object " + projection + " is not a projection.");
     }
 
     /**
@@ -709,7 +719,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     @Override
     public String asString(final Object projection) {
-        if (!(projection instanceof InternalProjection)) {
+        if (!(projection instanceof DOMAccess)) {
             throw new IllegalArgumentException("Argument is not a projection.");
         }
         final DOMAccess domAccess = (DOMAccess) projection;

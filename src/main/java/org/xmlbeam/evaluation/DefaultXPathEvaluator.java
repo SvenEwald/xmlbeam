@@ -1,12 +1,15 @@
 package org.xmlbeam.evaluation;
 
-import java.awt.geom.IllegalPathStateException;
-import java.io.IOException;
 import java.lang.reflect.Method;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import java.awt.geom.IllegalPathStateException;
+
+import java.io.IOException;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -23,8 +26,7 @@ import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 
 /**
- * This class is used to provide an fluid interface for direct evaluation of XPath
- * expressions.
+ * This class is used to provide an fluid interface for direct evaluation of XPath expressions.
  *
  * @author sven
  */
@@ -36,19 +38,20 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Constructor for DefaultXPathEvaluator.
-     * @param projector 
+     *
+     * @param projector
      * @param documentProvider
      * @param xpath
      */
     public DefaultXPathEvaluator(final XBProjector projector, final DocumentResolver documentProvider, final String xpath) {
         this.projector = projector;
         this.documentProvider = documentProvider;
-        this.duplexExpression = new DuplexXPathParser().compile(xpath);
+        this.duplexExpression = new DuplexXPathParser(projector.config().getUserDefinedNamespaceMapping()).compile(xpath);
     }
 
     /**
-     * Evaluates the XPath as a boolean value.
-     * This method is just a shortcut for as(Boolean.TYPE);
+     * Evaluates the XPath as a boolean value. This method is just a shortcut for as(Boolean.TYPE);
+     *
      * @return true when the selected value equals (ignoring case) 'true'
      */
     @Override
@@ -58,8 +61,8 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
     }
 
     /**
-     * Evaluates the XPath as a int value.
-     * This method is just a shortcut for as(Integer.TYPE);
+     * Evaluates the XPath as a int value. This method is just a shortcut for as(Integer.TYPE);
+     *
      * @return int value of evaluation result.
      */
     @Override
@@ -69,8 +72,8 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
     }
 
     /**
-     * Evaluates the XPath as a String value.
-     * This method is just a shortcut for as(String.class);
+     * Evaluates the XPath as a String value. This method is just a shortcut for as(String.class);
+     *
      * @return String value of evaluation result.
      */
     @Override
@@ -80,9 +83,10 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
     }
 
     /**
-     * Evaluates the XPath as a Date value.
-     * This method is just a shortcut for as(Date.class);
-     * You probably want to specify ' using ' followed by some formatting pattern consecutive to the XPAth.
+     * Evaluates the XPath as a Date value. This method is just a shortcut for as(Date.class); You
+     * probably want to specify ' using ' followed by some formatting pattern consecutive to the
+     * XPAth.
+     *
      * @return Date value of evaluation result.
      */
     @Override
@@ -93,8 +97,10 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Evaluate the XPath as a value of the given type.
-     * 
-     * @param returnType Possible values: primitive types (e.g. Short.Type), Projection interfaces, any class with a String constructor or a String factory method, and org.w3c.Node 
+     *
+     * @param returnType
+     *            Possible values: primitive types (e.g. Short.Type), Projection interfaces, any
+     *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return a value of return type that reflects the evaluation result.
      */
     @Override
@@ -134,6 +140,9 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
             if (returnType.isInterface()) {
                 final Node node = (Node) expression.evaluate(document, XPathConstants.NODE);
+                if (node == null) {
+                    return null;
+                }
                 return projector.projectDOMNode(node, returnType);
             }
         } catch (XPathExpressionException e) {
@@ -155,8 +164,10 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Evaluate the XPath as an array of the given type.
-     * 
-     * @param componentType Possible values: primitive types (e.g. Short.Type), Projection interfaces, any class with a String constructor or a String factory method, and org.w3c.Node 
+     *
+     * @param componentType
+     *            Possible values: primitive types (e.g. Short.Type), Projection interfaces, any
+     *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return an array of return type that reflects the evaluation result.
      */
     @SuppressWarnings("unchecked")
@@ -164,23 +175,25 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
     public <T> T[] asArrayOf(final Class<T> componentType) {
         Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         List<T> list = evaluateMultiValues(componentType, callerClass);
-        return (T[]) list.toArray((T[]) java.lang.reflect.Array.newInstance(componentType, list.size()));
+        return list.toArray((T[]) java.lang.reflect.Array.newInstance(componentType, list.size()));
     }
 
     /**
      * Evaluate the XPath as a list of the given type.
-     * 
-     * @param componentType Possible values: primitive types (e.g. Short.Type), Projection interfaces, any class with a String constructor or a String factory method, and org.w3c.Node 
+     *
+     * @param componentType
+     *            Possible values: primitive types (e.g. Short.Type), Projection interfaces, any
+     *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return List of return type that reflects the evaluation result.
      */
     @Override
     public <T> List<T> asListOf(final Class<T> componentType) {
         Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return evaluateMultiValues(componentType,callerClass);
+        return evaluateMultiValues(componentType, callerClass);
     }
-    
+
     @SuppressWarnings("unchecked")
-    private <T> List<T> evaluateMultiValues(final Class<T> componentType,Class<?> callerClass) {
+    private <T> List<T> evaluateMultiValues(final Class<T> componentType, final Class<?> callerClass) {
         validateEvaluationType(componentType);
         try {
             Document document = documentProvider.resolve(componentType, callerClass);
@@ -196,6 +209,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
 
     /**
      * Perform an XPath evaluation on an invocation context.
+     *
      * @param expression
      * @param node
      * @param method

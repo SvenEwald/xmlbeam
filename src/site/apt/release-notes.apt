@@ -8,6 +8,16 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
+* 1.4.7  current release
+
+ * Bug fixed: Projection interfaces could not use lambdas in default methods.
+ 
+ * Bug fixed: XPath parameter names are not case sensitive any more.
+ 
+ * Bug fixed: Fixed class loading issue when using xmlbeam.jar as OSGI bundle.
+ 
+ * Enhancement: Now projection methods may declare Stream as return type. 
+ 
 * 1.4.6 current release
 
  * New feature: Now XPath can be directly evaluated during creation of projections.
