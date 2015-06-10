@@ -138,8 +138,18 @@ class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
     }
 
     @Override
-    public DOMAccess create(String path, Object value) {        
+    public DOMAccess create(final String path, final Object value) {
         throw new IllegalStateException("This method should not be called.");
     }
-    
+
+    @Override
+    public boolean isModified() {
+        return (Boolean) getDOMOwnerDocument().getUserData("org.xmlbeam.domaccess.modification.flag");
+    }
+
+    @Override
+    public void setModified(final boolean b) {
+        getDOMOwnerDocument().setUserData("org.xmlbeam.domaccess.modification.flag", Boolean.valueOf(b), null);
+    }
+
 }

@@ -15,6 +15,14 @@
  */
 package org.xmlbeam;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import java.io.IOException;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -23,13 +31,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.io.IOException;
-import java.io.Serializable;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -252,7 +253,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             exceptionType = exceptionTypes.length > 0 ? exceptionTypes[0] : null;
             this.isConvertable = projector.config().getTypeConverter().isConvertable(returnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
-            this.isEvaluateAsList = List.class.equals(returnType)||ReflectionHelper.isStreamClass(returnType);
+            this.isEvaluateAsList = List.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType);
             this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList)) {
@@ -361,6 +362,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             //     final boolean isMultiValue = isMultiValue(typeToSet);
             NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
             final int count = nodes.getLength();
+            if (count > 0) {
+                ((DOMAccess) proxy).setModified(true);
+            }
             for (int i = 0; i < count; ++i) {
                 final Node n = nodes.item(i);
                 if (n == null) {
@@ -482,7 +486,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
          * @param elementSelector
          */
         private int applyIterableSetOnElement(final Iterable<?> iterable, final Element parentElement, final DuplexExpression duplexExpression) {
-            int changeCount=0;
+            int changeCount = 0;
             for (Object o : iterable) {
                 if (o == null) {
                     continue;
@@ -698,7 +702,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                         handlers.put(methodSignature.overridenBy(xbOverride.value()), new OverrideByDefaultMethodInvocationHandler(m));
                     }
                     continue;
-                }                
+                }
                 if (defaultInvocationHandlers.containsKey(methodSignature)) {
                     continue;
                 }
@@ -858,7 +862,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
      * @return
      */
     private static boolean isMultiValue(final Class<?> type) {
-       return type.isArray() || Iterable.class.isAssignableFrom(type);
+        return type.isArray() || Iterable.class.isAssignableFrom(type);
     }
 
     /**
@@ -871,7 +875,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (method.getReturnType().isArray()) {
             return method.getReturnType().getComponentType();
         }
-        if (!(ReflectionHelper.isStreamClass(method.getReturnType()) ||List.class.equals(method.getReturnType()))) {
+        if (!(ReflectionHelper.isStreamClass(method.getReturnType()) || List.class.equals(method.getReturnType()))) {
             return null;
         }
         final Type type = method.getGenericReturnType();
