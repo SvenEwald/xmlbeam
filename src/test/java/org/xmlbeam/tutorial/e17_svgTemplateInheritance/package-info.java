@@ -16,22 +16,5 @@
  *    You should have received a copy of the GNU General Public License
  *    along with JSONBeam.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.xmlbeam.types;
+package org.xmlbeam.tutorial.e17_svgTemplateInheritance;
 
-import java.io.Serializable;
-
-/**
- * A StringRenderer is used to render values in XML. Optionally a pattern may be used. Default is
- * calling toString().
- *
- * @author sven
- */
-public interface StringRenderer extends Serializable {
-    /**
-     * @param dataType
-     * @param data
-     * @param optionalFormatPattern
-     * @return a string representation of the input data.
-     */
-    <T> String render(Class<? extends T> dataType, T data, String... optionalFormatPattern);
-}

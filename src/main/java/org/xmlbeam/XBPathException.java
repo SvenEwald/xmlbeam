@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Exception to provide error details related to XPath parsing.
  */
-class XBPathException extends XBException {
+public class XBPathException extends XBException {
 
     private static final long serialVersionUID = -2286603725835988440L;
     private final String resolvedXpath;

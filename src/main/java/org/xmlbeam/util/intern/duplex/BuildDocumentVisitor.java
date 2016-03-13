@@ -166,6 +166,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                 if (".".equals(node.getValue())) {
                     this.resolved = true;
                     if (data.getNodeType() == Node.DOCUMENT_NODE) {
+                        if (((Document) data).getDocumentElement()==null) {
+                            throw new XBXPathExprNotAllowedForWriting(node, "There is no root element yet and I can not create one without being given a name");
+                        }
                         return ((Document) data).getDocumentElement();
                     }
                     return data;

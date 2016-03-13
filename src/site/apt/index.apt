@@ -42,6 +42,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2016-03-13
+
+ * New release 1.4.8 with a small error message enhancement. See the {{{./release-notes.html} release notes}}.
+
 ** 2015-05-03
 
  * New release 1.4.7 with some bugfixes and enhanced Java 8 support. See the {{{./release-notes.html} release notes}}.
