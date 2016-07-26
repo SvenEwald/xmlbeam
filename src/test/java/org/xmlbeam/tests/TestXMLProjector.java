@@ -21,8 +21,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+
+import java.io.StringWriter;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -30,8 +33,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.w3c.dom.Document;
 import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
@@ -39,14 +44,23 @@ import org.xmlbeam.tests.XMLBeamTestSuite.InnerStructure;
 import org.xmlbeam.tests.XMLBeamTestSuite.Setting;
 
 @SuppressWarnings("javadoc")
+@RunWith(Parameterized.class)
 public class TestXMLProjector {
 
-    private XMLBeamTestSuite suite;
+    private interface PrivateTestSuite extends XMLBeamTestSuite {
+    };
 
-    @Before
-    public void init() throws Exception {
-        suite = new XBProjector().io().fromURLAnnotation(XMLBeamTestSuite.class);
-        assertNotNull(suite);
+    private final XMLBeamTestSuite suite;
+
+    public TestXMLProjector(final XMLBeamTestSuite suite, final String name) {
+        this.suite = suite;
+    }
+
+    @Parameters(name = "{1}")
+    public static Collection<Object[]> suits() throws Exception {
+        XMLBeamTestSuite publicTestSuite = new XBProjector().io().fromURLAnnotation(XMLBeamTestSuite.class);
+        XMLBeamTestSuite privateTestSuite = new XBProjector().io().fromURLAnnotation(PrivateTestSuite.class);
+        return Arrays.asList(new Object[] { publicTestSuite, "public suite" }, new Object[] { privateTestSuite, "private suite" });
     }
 
     @Test(expected = XBException.class)
@@ -260,23 +274,23 @@ public class TestXMLProjector {
         final Document xmlDocForProjection = emptyDocumentProjection.getDOMOwnerDocument();
         assertNull(xmlDocForProjection.getDocumentElement());
     }
-    
-    @Test(expected=RuntimeException.class)
+
+    @Test(expected = RuntimeException.class)
     public void getNonExistingValueWithThrows() {
         suite.getNonExistingValue();
     }
-    
-    @Test(expected=RuntimeException.class)
+
+    @Test(expected = RuntimeException.class)
     public void getNonExistingInnerStructureWithThrows() {
         suite.getNonExistingInnerStructure();
     }
-    
+
     @Test
     public void getNonExistingDynamicInnerStructureWithThrows() {
         boolean exceptionCaught = false;
         try {
             suite.getNonExistingValue("Value");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             exceptionCaught = true;
             assertEquals("Value", e.getMessage());
         }

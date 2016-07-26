@@ -33,7 +33,6 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.URISyntaxException;
 import java.text.Format;
@@ -642,12 +641,14 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @param projectionInterface
      */
     private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
-        if ((projectionInterface == null) || (!projectionInterface.isInterface()) || ((projectionInterface.getModifiers() & Modifier.PUBLIC) != Modifier.PUBLIC)) {
-            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+
+        if ((projectionInterface == null) || (!projectionInterface.isInterface())) {
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not an interface.");
         }
         if (projectionInterface.isAnnotation()) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is an annotation interface. Remove the @ and try again.");
         }
+
         for (Method method : projectionInterface.getMethods()) {
             final boolean isRead = (method.getAnnotation(XBRead.class) != null);
             final boolean isWrite = (method.getAnnotation(XBWrite.class) != null);

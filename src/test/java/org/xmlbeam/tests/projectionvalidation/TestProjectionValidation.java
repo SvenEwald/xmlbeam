@@ -94,7 +94,7 @@ public class TestProjectionValidation {
         project(B.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testPrivateInterface() {
         project(C.class);
     }
@@ -113,18 +113,18 @@ public class TestProjectionValidation {
     public void testMultipleAnnotationsF() {
         project(F.class);
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void testMultipleAnnotationsG() {
         project(G.class);
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void testMultipleAnnotationsH() {
         project(H.class);
-    }    
+    }
 
-    private void project(Class<?> projectionInterface) {
+    private void project(final Class<?> projectionInterface) {
         new XBProjector().projectEmptyDocument(projectionInterface);
     }
 
