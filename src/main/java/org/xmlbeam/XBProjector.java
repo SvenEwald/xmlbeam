@@ -386,7 +386,15 @@ public class XBProjector implements Serializable, ProjectionFactory {
         public <T> T fromURLAnnotation(final Class<T> projectionInterface, final Object... optionalParams) throws IOException {
             org.xmlbeam.annotation.XBDocURL doc = projectionInterface.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
             if (doc == null) {
-                throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
+                for (Class<?> sup : ReflectionHelper.findAllSuperInterfaces(projectionInterface)) {
+                    doc = sup.getAnnotation(org.xmlbeam.annotation.XBDocURL.class);
+                    if (doc != null) {
+                        break;
+                    }
+                }
+                if (doc == null) {
+                    throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
+                }
             }
             XBUrlIO urlIO = url(MessageFormat.format(doc.value(), optionalParams));
             urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), optionalParams));
