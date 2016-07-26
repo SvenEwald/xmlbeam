@@ -22,8 +22,8 @@ import org.xmlbeam.dom.DOMAccess;
 
 /**
  * @author sven
- *
  */
+@SuppressWarnings("javadoc")
 public class CreateDocumentWithNSFromScratch {
 
     @Test

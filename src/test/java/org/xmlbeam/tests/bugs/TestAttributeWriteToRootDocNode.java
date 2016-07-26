@@ -16,22 +16,22 @@
 package org.xmlbeam.tests.bugs;
 
 import org.junit.Test;
+import org.xmlbeam.XBPathException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBWrite;
-import org.xmlbeam.XBPathException;
 
 /**
  * @author sven
- *
  */
+@SuppressWarnings("javadoc")
 public class TestAttributeWriteToRootDocNode {
 
     public interface Projection {
         @XBWrite("./@attri")
         void nonExistingAttribute(String x);
     }
-    
-    @Test(expected=XBPathException.class)
+
+    @Test(expected = XBPathException.class)
     public void testWrongWritePath() {
         Projection projection = new XBProjector().projectEmptyDocument(Projection.class);
         projection.nonExistingAttribute("foo");

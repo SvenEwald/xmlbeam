@@ -21,6 +21,8 @@ import java.util.Iterator;
  * A read only Iterator implementation that unions two other iterators.
  *
  * @author sven
+ * @param <T>
+ *            Iterator type
  */
 public class UnionIterator<T> implements Iterator<T> {
 

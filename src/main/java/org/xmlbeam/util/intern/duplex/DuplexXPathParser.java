@@ -43,6 +43,11 @@ public class DuplexXPathParser {
         }
     }
 
+    /**
+     * Constructor with mapping of XPath variables.
+     *
+     * @param userDefinedMapping
+     */
     public DuplexXPathParser(final Map<String, String> userDefinedMapping) {
         this.userDefinedMapping = userDefinedMapping;
     }
