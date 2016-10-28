@@ -634,8 +634,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @param projectionInterface
      */
     private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
-        if ((projectionInterface == null) || (!projectionInterface.isInterface()) || ((projectionInterface.getModifiers() & Modifier.PUBLIC) != Modifier.PUBLIC)) {
-            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not a public interface.");
+        if (projectionInterface == null) {
+            throw new IllegalArgumentException("Parameter projectionInterface must not be null, but is.",new NullPointerException());
+        }
+        if ((!projectionInterface.isInterface())) {
+            throw new IllegalArgumentException("Parameter "+projectionInterface+" is not an interface"); 
         }
         if (projectionInterface.isAnnotation()) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is an annotation interface. Remove the @ and try again.");
@@ -667,7 +670,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
                     throw new IllegalArgumentException("Method " + method + " has an Optional<> return type, but declares to throw an exception. Exception will never be thrown because return value must not be null.");
                 }
             }
-            if ((isWrite || isUpdate || isDelete) && isThrowsException) {
+            if (isWrite && isThrowsException) {
                 throw new IllegalArgumentException("Method " + method + " declares to throw exception " + method.getExceptionTypes()[0].getSimpleName() + " but is not a reading projection method. When should this exception be thrown?");
             }
             if (isWrite) {

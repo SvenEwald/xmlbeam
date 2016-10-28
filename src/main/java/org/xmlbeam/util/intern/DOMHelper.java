@@ -528,6 +528,11 @@ public final class DOMHelper {
         if (node == null) {
             return;
         }
+        
+        while( node.hasChildNodes() ) {
+            removeNode( node.getFirstChild() );
+        }
+        
         final Node parent = node.getParentNode();
         if (parent == null) {
             return;

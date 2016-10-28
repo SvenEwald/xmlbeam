@@ -202,8 +202,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private static abstract class XPathInvocationHandler extends ProjectionMethodInvocationHandler {
 
+        protected final Class<?> exceptionType;
+        protected final boolean isThrowIfAbsent;
+
+        
         private XPathInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
             super(node, method, annotationValue, projector);
+            Class<?>[] exceptionTypes = method.getExceptionTypes();
+            exceptionType = exceptionTypes.length > 0 ? exceptionTypes[0] : null;
+            this.isThrowIfAbsent = exceptionType != null;
         }
 
         @Override
@@ -235,21 +242,18 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final boolean absentIsEmpty;
         private final boolean wrappedInOptional;
         private final Class<?> returnType;
-        private final Class<?> exceptionType;
         private final boolean isConvertable;
         private final boolean isReturnAsNode;
         private final boolean isEvaluateAsList;
         private final boolean isEvaluateAsArray;
         private final boolean isEvaluateAsSubProjection;
-        private final boolean isThrowIfAbsent;
         private final boolean isReturnAsStream;
 
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
             wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
             returnType = wrappedInOptional ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
-            Class<?>[] exceptionTypes = method.getExceptionTypes();
-            exceptionType = exceptionTypes.length > 0 ? exceptionTypes[0] : null;
+          
             this.isConvertable = projector.config().getTypeConverter().isConvertable(returnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
             this.isEvaluateAsList = List.class.equals(returnType)||ReflectionHelper.isStreamClass(returnType);
@@ -259,8 +263,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of list or array. Lists and arrays may be empty but will never be null.");
             }
             this.isEvaluateAsSubProjection = returnType.isInterface();
-            this.isThrowIfAbsent = exceptionType != null;
-
+         
             // Throwing exception overrides empty default value.
             this.absentIsEmpty = absentIsEmpty && (!isThrowIfAbsent);
         }
@@ -269,11 +272,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         public Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Object result = invokeReadProjection(invocationContext, proxy, args);
             if ((result == null) && (isThrowIfAbsent)) {
-                XBDataNotFoundException dataNotFoundException = new XBDataNotFoundException(invocationContext.getResolvedXPath());
-                if (XBDataNotFoundException.class.equals(exceptionType)) {
-                    throw dataNotFoundException;
-                }
-                ReflectionHelper.throwThrowable(exceptionType, args, dataNotFoundException);
+                throwDeclaredException(invocationContext, args,exceptionType);
             }
             return result;
         }
@@ -383,6 +382,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 n.setTextContent(valueToSet == null ? null : valueToSet.toString());
             }
+            if ((count==0)&&(isThrowIfAbsent)){
+                throwDeclaredException(invocationContext, args, exceptionType);
+            }
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
         }
 
@@ -424,6 +426,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 parentNode.removeChild(nodes.item(i));
                 ++count;
+            }
+            if ((count==0) && (isThrowIfAbsent)) {
+                throwDeclaredException(invocationContext, args,exceptionType);
             }
             return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(count));
 //            } finally {
@@ -884,6 +889,19 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             throw new IllegalArgumentException("I don't know how to instantiate the generic type for the return type of method " + method);
         }
         return (Class<?>) componentType;
+    }
+
+    /**
+     * @param invocationContext
+     * @param args
+     * @throws Throwable
+     */
+    protected static void throwDeclaredException(final InvocationContext invocationContext, final Object[] args,final Class<?> exceptionType) throws Throwable {
+        XBDataNotFoundException dataNotFoundException = new XBDataNotFoundException(invocationContext.getResolvedXPath());
+        if (XBDataNotFoundException.class.equals(exceptionType)) {
+            throw dataNotFoundException;
+        }
+        ReflectionHelper.throwThrowable(exceptionType, args, dataNotFoundException);
     }
 
 }

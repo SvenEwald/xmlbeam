@@ -393,7 +393,8 @@ class BuildDocumentVisitor implements XParserVisitor {
                 List<Element> existingNodes = findAlltMatchingChildElements(data, childName, node.getFirstChildWithId(JJTPREDICATELIST), node);
                 if (!existingNodes.isEmpty()) {
                     if (mode.shouldDelete()) {
-                        DOMHelper.removeNodes(existingNodes);
+                        DOMHelper.trim(existingNodes.get(0).getParentNode());                        
+                        DOMHelper.removeNodes(existingNodes);                        
                         return existingNodes;
                     }
                     if (existingNodes.size() > 1) {
