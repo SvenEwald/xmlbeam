@@ -42,6 +42,10 @@ Welcome to XMLBeam
  
 * Project status
 
+** 2016-10-28
+
+ * New release 1.4.9 with {{{./release-notes.html} bugfixes and enhancements}}.
+
 ** 2016-03-13
 
  * New release 1.4.8 with a small error message enhancement. See the {{{./release-notes.html} release notes}}.

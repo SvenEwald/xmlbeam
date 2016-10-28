@@ -8,6 +8,14 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
+* 1.4.9 current release
+
+ * Bug fixed: Check preventing nonpublic interfaces removed.
+ 
+ * Enhancement: Extended existing exception feature to XBDelete & XBUpdate.
+ 
+ * Bug fixed: Restructuring element lists in xml added empty lines in output document.
+
 * 1.4.8 current release
  
  * Enhancement: Error message improved when writing to attributes of nonexisting root element.
