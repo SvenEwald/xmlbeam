@@ -670,7 +670,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
                     throw new IllegalArgumentException("Method " + method + " has an Optional<> return type, but declares to throw an exception. Exception will never be thrown because return value must not be null.");
                 }
             }
-            if ((isWrite || isUpdate || isDelete) && isThrowsException) {
+            if (isWrite && isThrowsException) {
                 throw new IllegalArgumentException("Method " + method + " declares to throw exception " + method.getExceptionTypes()[0].getSimpleName() + " but is not a reading projection method. When should this exception be thrown?");
             }
             if (isWrite) {
