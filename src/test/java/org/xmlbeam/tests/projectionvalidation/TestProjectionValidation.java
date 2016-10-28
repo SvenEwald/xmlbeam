@@ -94,7 +94,7 @@ public class TestProjectionValidation {
         project(B.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testPrivateInterface() {
         project(C.class);
     }

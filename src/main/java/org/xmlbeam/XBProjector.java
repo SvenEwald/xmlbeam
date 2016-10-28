@@ -635,7 +635,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
         if (projectionInterface == null) {
-            throw new NullPointerException("Parameter projectionInterface must not be null, but is.");
+            throw new IllegalArgumentException("Parameter projectionInterface must not be null, but is.",new NullPointerException());
         }
         if ((!projectionInterface.isInterface())) {
             throw new IllegalArgumentException("Parameter "+projectionInterface+" is not an interface"); 
