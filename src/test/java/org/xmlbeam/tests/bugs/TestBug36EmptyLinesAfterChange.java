@@ -30,6 +30,7 @@ import org.xmlbeam.annotation.XBWrite;
  * This test ensures that after changing a list of elements, no empty lines in the result
  * document are created. See bug https://github.com/SvenEwald/xmlbeam/issues/36
  */
+@SuppressWarnings("javadoc")
 public class TestBug36EmptyLinesAfterChange {
 
     private final static XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);

@@ -24,6 +24,7 @@ import org.xmlbeam.XBPathException;
  * @author sven
  *
  */
+@SuppressWarnings("javadoc")
 public class TestAttributeWriteToRootDocNode {
 
     public interface Projection {

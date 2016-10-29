@@ -29,6 +29,11 @@ import org.w3c.dom.Node;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.util.intern.DOMHelper;
 
+/**
+ * 
+ * @author sven
+ *
+ */
 class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
 
     final static class DefaultObjectInvoker extends DefaultDOMAccessInvoker {

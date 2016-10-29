@@ -42,7 +42,10 @@ public class DuplexXPathParser {
             throw new XBException("Can not parse xpath:'" + expression + "'", e);
         }
     }
-
+    /**
+     * 
+     * @param userDefinedMapping
+     */
     public DuplexXPathParser(final Map<String, String> userDefinedMapping) {
         this.userDefinedMapping = userDefinedMapping;
     }
