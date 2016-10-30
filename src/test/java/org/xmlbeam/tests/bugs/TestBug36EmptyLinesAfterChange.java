@@ -65,7 +65,7 @@ public class TestBug36EmptyLinesAfterChange {
         entries.add(projector.projectEmptyElement("entry", TestProjection.Entry.class).setValue("x"));
         projection.setEntries(entries);
        // System.out.println(projection.toString());
-    //    ensureNoEmptyLine(projection.toString());
+        ensureNoEmptyLine(projection.toString());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class TestBug36EmptyLinesAfterChange {
         entries.add("x");
         projection.setStringEntries(entries);
        // System.out.println(projection.toString());
-     //   ensureNoEmptyLine(projection.toString());
+        ensureNoEmptyLine(projection.toString());
     }
    
     private void ensureNoEmptyLine(String string) {

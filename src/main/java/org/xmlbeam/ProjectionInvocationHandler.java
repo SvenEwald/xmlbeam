@@ -55,6 +55,7 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
+import org.xmlbeam.types.ProjectedList;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
@@ -238,7 +239,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         abstract protected Object invokeXpathProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable;
     }
 
-    private static class ReadInvocationHandler extends XPathInvocationHandler {
+    static class ReadInvocationHandler extends XPathInvocationHandler {
         private final boolean absentIsEmpty;
         private final boolean wrappedInOptional;
         private final Class<?> returnType;
@@ -256,7 +257,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
           
             this.isConvertable = projector.config().getTypeConverter().isConvertable(returnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
-            this.isEvaluateAsList = List.class.equals(returnType)||ReflectionHelper.isStreamClass(returnType);
+            this.isEvaluateAsList = List.class.equals(returnType)||ReflectionHelper.isStreamClass(returnType)||ProjectedList.class.equals(returnType);
             this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList)) {
@@ -309,6 +310,9 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
+            if (ProjectedList.class.equals(returnType)){
+                return new XBProjectedList(node,expression,invocationContext);
+            }
                 final List<?> result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
                 return isReturnAsStream ? ReflectionHelper.toStream(result) : result;
             }
@@ -438,7 +442,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     }
 
-    private static class WriteInvocationHandler extends ProjectionMethodInvocationHandler {
+    static class WriteInvocationHandler extends ProjectionMethodInvocationHandler {
 
         private final int findIndexOfValue;
 
