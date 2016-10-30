@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.tests.projectedList;
 
+import static org.junit.Assert.*;
+
 import java.util.List;
 
 import org.junit.Test;
@@ -22,6 +24,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author sven
@@ -32,7 +35,10 @@ public class TestProjectedList {
     private final static String XML = "<root><list><e>1</e><e>2</e><e>3</e></list></root>";
 
     interface Projection {
-
+        
+        @XBRead("/root/list/e")
+        List<String> reference();
+        
         @XBRead("/root/list/e")
         ProjectedList<String> projectList();
 
@@ -45,8 +51,9 @@ public class TestProjectedList {
     public void testAdd() {
         Projection projection = projector.projectXMLString(XML, Projection.class);
         List<String> list = projection.projectList();
-        list.add("4");
-        System.out.println(projection);
+        assertEquals("[1, 2, 3]",projection.reference().toString());
+        list.add("4");      
+        assertEquals("[1, 2, 3, 4]",projection.reference().toString());
     }
     
     @Test
