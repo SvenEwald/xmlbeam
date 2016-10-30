@@ -25,6 +25,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -40,26 +41,31 @@ import org.xmlbeam.util.intern.duplex.DuplexExpression;
 class XBProjectedList<E> implements ProjectedList<E> {
 
     final Element parent;
-    List<Node> content=new LinkedList<Node>();
-    private InvocationContext invocationContext;
-    
+    List<Node> content = new LinkedList<Node>();
+    private final InvocationContext invocationContext;
+    private final XPathExpression expression;
+    private Node baseNode;
+
     /**
-     * @param expression 
-     * @param node 
-     * @param invocationContext 
-     * @throws XPathExpressionException 
+     * @param expression
+     * @param node
+     * @param invocationContext
+     * @throws XPathExpressionException
      */
     public XBProjectedList(Node node, XPathExpression expression, InvocationContext invocationContext) throws XPathExpressionException {
-        this.invocationContext=invocationContext;
+        this.invocationContext = invocationContext;
         final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
-        if (nodes.getLength()==0) {
+        if (nodes.getLength() == 0) {
             parent = invocationContext.getDuplexExpression().ensureParentExistence(node);
         } else {
-            parent = (Element)nodes.item(0).getParentNode();
+            parent = (Element) nodes.item(0).getParentNode();
             for (int i = 0; i < nodes.getLength(); ++i) {
                 content.add(nodes.item(i));
             }
         }
+        this.expression = expression;
+        this.baseNode = node;
+
     }
 
     /*
@@ -82,9 +88,16 @@ class XBProjectedList<E> implements ProjectedList<E> {
      * @see java.util.List#add(int, java.lang.Object)
      */
     @Override
-    public void add(int arg0, E arg1) {
-        // TODO Auto-generated method stub
-
+    public void add(int index, E o) {
+        try {
+            Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
+            final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
+            newElement.setTextContent(asString);
+            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
+            parent.insertBefore(newElement, nodes.item(index));
+        } catch (XPathExpressionException e) {
+            throw new XBException("Unexcpeted evaluation error", e);
+        }
     }
 
     /*
@@ -171,8 +184,12 @@ class XBProjectedList<E> implements ProjectedList<E> {
      */
     @Override
     public boolean isEmpty() {
-        // TODO Auto-generated method stub
-        return false;
+        try {
+            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
+            return (nodes.getLength() == 0);
+        } catch (XPathExpressionException e) {
+            throw new XBException("Unexpexted evaluation error", e);
+        }
     }
 
     /*

@@ -29,6 +29,7 @@ import org.xmlbeam.util.intern.DOMHelper;
 /**
  * @author sven
  */
+@SuppressWarnings("javadoc")
 public class TestProjectedList {
 
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
@@ -43,25 +44,37 @@ public class TestProjectedList {
         ProjectedList<String> projectList();
 
         @XBRead("/root/list2/e2")
+        List<String> reference2();
+        
+        @XBRead("/root/list2/e2")
         ProjectedList<String> projectList2();
 
     }
 
+   
     @Test
-    public void testAdd() {
+    public void testSimpleAdd() {
         Projection projection = projector.projectXMLString(XML, Projection.class);
         List<String> list = projection.projectList();
         assertEquals("[1, 2, 3]",projection.reference().toString());
         list.add("4");      
         assertEquals("[1, 2, 3, 4]",projection.reference().toString());
+        list.add(0, "0");
+        assertEquals("[0, 1, 2, 3, 4]",projection.reference().toString());
+        list.add(4, "x");
+        assertEquals("[0, 1, 2, 3, x, 4]",projection.reference().toString());
+        list.add(99,"z");
+        assertEquals("[0, 1, 2, 3, x, 4, z]",projection.reference().toString());
     }
     
     @Test
-    public void testAdd2() {
+    public void testAddForNonExistingParent() {
         Projection projection = projector.projectXMLString(XML, Projection.class);
         List<String> list = projection.projectList2();
+        assertTrue(projection.reference2().isEmpty());
+        assertTrue(list.isEmpty());
         list.add("4");
-        System.out.println(projection);
+        assertEquals("[4]",projection.reference2().toString());
     }
 
 }
