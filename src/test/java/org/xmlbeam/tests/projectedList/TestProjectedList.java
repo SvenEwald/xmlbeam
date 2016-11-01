@@ -17,6 +17,8 @@ package org.xmlbeam.tests.projectedList;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
@@ -24,7 +26,6 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.types.ProjectedList;
-import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author sven
@@ -34,7 +35,8 @@ public class TestProjectedList {
 
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
     private final static String XML = "<root><list><e>1</e><e>2</e><e>3</e></list></root>";
-
+    private final Projection projection = projector.projectXMLString(XML, Projection.class);
+    
     interface Projection {
         
         @XBRead("/root/list/e")
@@ -54,8 +56,8 @@ public class TestProjectedList {
    
     @Test
     public void testSimpleAdd() {
-        Projection projection = projector.projectXMLString(XML, Projection.class);
         List<String> list = projection.projectList();
+        assertFalse(list.isEmpty());
         assertEquals("[1, 2, 3]",projection.reference().toString());
         list.add("4");      
         assertEquals("[1, 2, 3, 4]",projection.reference().toString());
@@ -65,11 +67,17 @@ public class TestProjectedList {
         assertEquals("[0, 1, 2, 3, x, 4]",projection.reference().toString());
         list.add(99,"z");
         assertEquals("[0, 1, 2, 3, x, 4, z]",projection.reference().toString());
+        list.clear();
+        assertTrue(projection.reference().isEmpty());
+        assertTrue(list.isEmpty());
+        list.addAll(Arrays.asList("a","b","c"));
+        assertEquals("[a, b, c]",projection.reference().toString());
+        list.addAll(1,Arrays.asList("a2","b2","c2"));
+        assertEquals("[a, a2, b2, c2, b, c]",projection.reference().toString());
     }
     
     @Test
     public void testAddForNonExistingParent() {
-        Projection projection = projector.projectXMLString(XML, Projection.class);
         List<String> list = projection.projectList2();
         assertTrue(projection.reference2().isEmpty());
         assertTrue(list.isEmpty());
@@ -77,4 +85,66 @@ public class TestProjectedList {
         assertEquals("[4]",projection.reference2().toString());
     }
 
+    @Test
+    public void testContains() {
+        assertFalse(projection.projectList().contains(null));
+        assertTrue(projection.projectList().contains("1"));
+        assertTrue(projection.projectList().contains("2"));
+        assertTrue(projection.projectList().contains("3"));
+        assertFalse(projection.projectList().contains("Y"));
+        assertTrue(projection.projectList().containsAll(Arrays.asList("1","2","3")));
+        assertFalse(projection.projectList().containsAll(Arrays.asList("1","T","3")));
+    }
+    
+    @Test
+    public void testIndexOf() {
+        assertEquals(0,projection.projectList().indexOf("1"));
+        assertEquals(1,projection.projectList().indexOf("2"));
+        assertEquals(2,projection.projectList().indexOf("3"));
+        assertEquals(-1,projection.projectList().indexOf("X"));
+    }
+    
+    @Test
+    public void testGet() {
+        assertEquals("1",projection.projectList().get(0));
+        assertEquals("2",projection.projectList().get(1));
+        assertEquals("3",projection.projectList().get(2));
+    }
+    
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void testGetFail() {
+        projection.projectList().get(4);
+    }
+        
+    @Test
+    public void testIterator() {
+        Iterator<String> iterator = projection.projectList().iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals("1", iterator.next());
+        assertTrue(iterator.hasNext());
+        assertEquals("2", iterator.next());
+        assertTrue(iterator.hasNext());
+        assertEquals("3", iterator.next());
+        assertFalse(iterator.hasNext());       
+    }
+    
+    @Test
+    public void testIteratorRemove() {
+        Iterator<String> iterator = projection.projectList().iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals("1", iterator.next());
+        iterator.remove();
+        assertEquals("[2, 3]",projection.reference().toString());
+    }
+    
+    @Test
+    public void testRemove() {
+        assertEquals("2",projection.projectList().remove(1));
+        assertEquals("[1, 3]",projection.reference().toString());
+        assertEquals("1",projection.projectList().remove(0));
+        assertEquals("[3]",projection.reference().toString());
+        assertEquals("3",projection.projectList().remove(0));
+        assertTrue(projection.reference().isEmpty());
+    }
+    
 }

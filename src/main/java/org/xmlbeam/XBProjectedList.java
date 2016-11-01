@@ -15,80 +15,128 @@
  */
 package org.xmlbeam;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.AbstractList;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.types.ProjectedList;
-import org.xmlbeam.util.intern.duplex.DuplexExpression;
+import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
- * @author sven
- * @param <E>
- *            Component type
+ *
  */
-class XBProjectedList<E> implements ProjectedList<E> {
+public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList<E> {
 
-    final Element parent;
-    List<Node> content = new LinkedList<Node>();
-    private final InvocationContext invocationContext;
-    private final XPathExpression expression;
+    private InvocationContext invocationContext;
+    private Element parent;
+    private XPathExpression expression;
     private Node baseNode;
 
-    /**
-     * @param expression
-     * @param node
-     * @param invocationContext
-     * @throws XPathExpressionException
-     */
-    public XBProjectedList(Node node, XPathExpression expression, InvocationContext invocationContext) throws XPathExpressionException {
+    public XBProjectedList(Node node, XPathExpression expression, InvocationContext invocationContext) {
         this.invocationContext = invocationContext;
-        final NodeList nodes = (NodeList) expression.evaluate(node, XPathConstants.NODESET);
+        this.expression = expression;
+        this.baseNode = node;
+        final NodeList nodes = getNodes();
         if (nodes.getLength() == 0) {
             parent = invocationContext.getDuplexExpression().ensureParentExistence(node);
         } else {
             parent = (Element) nodes.item(0).getParentNode();
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                content.add(nodes.item(i));
-            }
         }
-        this.expression = expression;
-        this.baseNode = node;
-
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#add(java.lang.Object)
-     */
     @Override
-    public boolean add(E o) {
+    public E get(int index) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        NodeList nodes = getNodes();
+        if (index >= nodes.getLength()) {
+            throw new IndexOutOfBoundsException();
+        }
+        return convertToComponentType(nodes.item(index), invocationContext.getTargetComponentType());
+    }
+
+    @Override
+    public int size() {
+        return getNodes().getLength();
+    }
+
+    @Override
+    public E set(int index, E element) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        NodeList nodes = getNodes();
+        if (index >= nodes.getLength()) {
+            throw new IndexOutOfBoundsException();
+        }
+        E result = convertToComponentType(nodes.item(index), invocationContext.getTargetComponentType());
+        Node oldNode=nodes.item(index);
+        if (element instanceof Node) {
+          
+            Node newNode=((Node)element).cloneNode(true);
+            oldNode.getParentNode().replaceChild(oldNode, newNode);
+            return result;
+        }
+        if (element instanceof DOMAccess) {
+            Node newNode=((DOMAccess)element).getDOMBaseElement().cloneNode(true);
+            oldNode.getParentNode().replaceChild(oldNode, newNode);
+            return result;
+        }
+        
+        final String asString = invocationContext.getProjector().config().getStringRenderer().render(element.getClass(), element, invocationContext.getDuplexExpression().getExpressionFormatPattern());
+        oldNode.setTextContent(asString);
+        
+        return result;
+    }
+
+    @Override
+    public boolean add(E e) {
+        if (e==null) {
+            return false;
+        }
+        if (e instanceof Node) {
+            DOMHelper.appendClone(parent, (Node) e);
+            return true;
+        }
+        if (e instanceof DOMAccess) {
+            DOMHelper.appendClone(parent, ((DOMAccess)e).getDOMBaseElement());
+            return true;
+        }
+        
         Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
-        final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
+        final String asString = invocationContext.getProjector().config().getStringRenderer().render(e.getClass(), e, invocationContext.getDuplexExpression().getExpressionFormatPattern());
         newElement.setTextContent(asString);
         parent.appendChild(newElement);
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#add(int, java.lang.Object)
-     */
     @Override
     public void add(int index, E o) {
+        if (o==null) {
+            throw new IllegalArgumentException("Can not add null to a ProjectedList. I don't know how to render that.");
+        }
+        NodeList nodes = getNodes();
+        if (o instanceof Node) {
+            Node newValue=((Node)o).cloneNode(true);
+            
+            DOMHelper.appendClone(parent, (Node) e);
+            return ;
+        }
+        if (o instanceof DOMAccess) {
+            DOMHelper.appendClone(parent, ((DOMAccess)e).getDOMBaseElement());
+            return ;
+        }
+        
+        
         try {
             Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
             final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
@@ -99,79 +147,29 @@ class XBProjectedList<E> implements ProjectedList<E> {
             throw new XBException("Unexcpeted evaluation error", e);
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#addAll(java.util.Collection)
-     */
+    
+    
     @Override
-    public boolean addAll(Collection<? extends E> arg0) {
-        if (arg0.isEmpty()) {
-            return false;
-        }
-        for (E o : arg0) {
-            Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
-            final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
-            newElement.setTextContent(asString);
-            parent.appendChild(newElement);
-        }
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#addAll(int, java.util.Collection)
-     */
-    @Override
-    public boolean addAll(int index, Collection<? extends E> arg1) {
-        if (arg1.isEmpty()) {
-            return false;
-        }
-        try {
-            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
-            Node refNode = nodes.item(index);
-            for (E o : arg1) {
-                Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
-                final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
-                newElement.setTextContent(asString);
-                parent.insertBefore(newElement, refNode);
-            }
-        } catch (XPathExpressionException e) {
-            throw new XBException("Unexcpeted evaluation error", e);
-        }
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#clear()
-     */
-    @Override
-    public void clear() {
-        invocationContext.getDuplexExpression().deleteAllMatchingChildren(parent);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#contains(java.lang.Object)
-     */
-    @Override
-    public boolean contains(Object o) {
+    public boolean remove(Object o) {
         if (o == null) {
             return false;
         }
+
         final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
-
+        if (asString == null) {
+            return false;
+        }
         try {
             NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
+
             for (int i = 0; i < nodes.getLength(); ++i) {
-                if (asString.equals(nodes.item(i).getTextContent())) {
-                    return true;
+                Node item = nodes.item(i);
+                if (asString.equals(item.getTextContent())) {
+                    continue;
                 }
+                DOMHelper.trim(item.getParentNode());
+                item.getParentNode().removeChild(item);
+                return true;
             }
         } catch (XPathExpressionException e) {
             throw new XBException("Unexpexted evaluation error", e);
@@ -179,232 +177,35 @@ class XBProjectedList<E> implements ProjectedList<E> {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#containsAll(java.util.Collection)
+    /**
+     * @param item
+     * @param targetComponentType
+     * @return
      */
-    @Override
-    public boolean containsAll(Collection<?> arg0) {
+    private E convertToComponentType(Node item, Class<?> targetComponentType) {
+        TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
+        if (typeConverter.isConvertable(invocationContext.getTargetComponentType())) {
+            return (E) typeConverter.convertTo(targetComponentType, item.getTextContent(), invocationContext.getExpressionFormatPattern());
+        }
+        if (Node.class.equals(targetComponentType)) {
+            return (E) item;
+        }
+        if (targetComponentType.isInterface()) {
+            Object subprojection = invocationContext.getProjector().projectDOMNode(item, targetComponentType);
+            return (E) subprojection;
+        }
+        throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for a ProjectedList using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
+                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
+    }
+
+    /**
+     * @return a fresh view to the current list content
+     */
+    private NodeList getNodes() {
         try {
-            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
-            nextObj: for (Object o : arg0) {
-                final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
-                for (int i = 0; i < nodes.getLength(); ++i) {
-                    if (asString.equals(nodes.item(i).getTextContent())) {
-                        continue nextObj;
-                    }
-                }
-                return false;
-            }
-            return true;
+            return (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
-            throw new XBException("Unexpexted evaluation error", e);
+            throw new XBException("Unexpected error during evaluation.", e);
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#get(int)
-     */
-    @Override
-    public E get(int index) {
-        if (index<0) {
-            throw new IndexOutOfBoundsException();
-        }
-        try {
-            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
-           if (index>=nodes.getLength()) {
-               throw new IndexOutOfBoundsException();
-           }
-           return null;//FIXME
-        } catch (XPathExpressionException e) {
-            throw new XBException("Unexpexted evaluation error", e);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#indexOf(java.lang.Object)
-     */
-    @Override
-    public int indexOf(Object o) {
-        if (o == null) {
-            return -1;
-        }
-        final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
-
-        try {
-            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                if (asString.equals(nodes.item(i).getTextContent())) {
-                    return i;
-                }
-            }
-        } catch (XPathExpressionException e) {
-            throw new XBException("Unexpexted evaluation error", e);
-        }
-        return -1;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#isEmpty()
-     */
-    @Override
-    public boolean isEmpty() {
-        try {
-            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
-            return (nodes.getLength() == 0);
-        } catch (XPathExpressionException e) {
-            throw new XBException("Unexpexted evaluation error", e);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#iterator()
-     */
-    @Override
-    public Iterator<E> iterator() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#lastIndexOf(java.lang.Object)
-     */
-    @Override
-    public int lastIndexOf(Object arg0) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#listIterator()
-     */
-    @Override
-    public ListIterator<E> listIterator() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#listIterator(int)
-     */
-    @Override
-    public ListIterator<E> listIterator(int arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#remove(java.lang.Object)
-     */
-    @Override
-    public boolean remove(Object arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#remove(int)
-     */
-    @Override
-    public E remove(int arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#removeAll(java.util.Collection)
-     */
-    @Override
-    public boolean removeAll(Collection<?> arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#retainAll(java.util.Collection)
-     */
-    @Override
-    public boolean retainAll(Collection<?> arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#set(int, java.lang.Object)
-     */
-    @Override
-    public E set(int arg0, E arg1) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#size()
-     */
-    @Override
-    public int size() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#subList(int, int)
-     */
-    @Override
-    public List<E> subList(int arg0, int arg1) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#toArray()
-     */
-    @Override
-    public Object[] toArray() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.List#toArray(java.lang.Object[])
-     */
-    @Override
-    public <T> T[] toArray(T[] arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

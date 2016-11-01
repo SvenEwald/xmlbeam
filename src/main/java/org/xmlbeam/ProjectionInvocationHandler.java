@@ -880,7 +880,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (method.getReturnType().isArray()) {
             return method.getReturnType().getComponentType();
         }
-        if (!(ReflectionHelper.isStreamClass(method.getReturnType()) ||List.class.equals(method.getReturnType()))) {
+        if (!(ReflectionHelper.isStreamClass(method.getReturnType()) ||List.class.equals(method.getReturnType())||ProjectedList.class.equals(method.getReturnType()))) {
             return null;
         }
         final Type type = method.getGenericReturnType();
