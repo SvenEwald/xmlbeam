@@ -141,6 +141,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         protected InvocationContext lastInvocationContext = EMPTY_INVOCATION_CONTEXT;
         protected final Map<String, Integer> methodParameterIndexes;
 
+
         ProjectionMethodInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector) {
             this.method = method;
             this.annotationValue = annotationValue;
@@ -196,7 +197,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final String xPath = resolveXPath(args);
             final String resolvedXpath = Preprocessor.applyParams(xPath, methodParameterIndexes, args);
+            try {
             return invokeProjection(resolvedXpath, proxy, args);
+            } finally {
+                if (!(this instanceof ReadInvocationHandler)) {
+                    projector.notifyDOMChangeListeners();
+                }
+            }
         }
 
     }

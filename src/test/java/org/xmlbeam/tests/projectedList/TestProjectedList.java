@@ -65,7 +65,7 @@ public class TestProjectedList {
         assertEquals("[0, 1, 2, 3, 4]",projection.reference().toString());
         list.add(4, "x");
         assertEquals("[0, 1, 2, 3, x, 4]",projection.reference().toString());
-        list.add(99,"z");
+        list.add(list.size(),"z");
         assertEquals("[0, 1, 2, 3, x, 4, z]",projection.reference().toString());
         list.clear();
         assertTrue(projection.reference().isEmpty());

@@ -544,10 +544,11 @@ public final class DOMHelper {
      * @param parentElement
      * @param o
      */
-    public static void appendClone(final Element parentElement, final Node o) {
+    public static Node appendClone(final Element parentElement, final Node o) {
         Node clone = o.cloneNode(true);
         ensureOwnership(DOMHelper.getOwnerDocumentFor(parentElement), clone);
         parentElement.appendChild(clone);
+        return clone;
     }
 
     /**

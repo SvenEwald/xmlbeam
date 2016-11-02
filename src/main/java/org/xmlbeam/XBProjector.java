@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -32,6 +33,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +65,7 @@ import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
+import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.io.XBFileIO;
 import org.xmlbeam.io.XBStreamInput;
 import org.xmlbeam.io.XBStreamOutput;
@@ -537,6 +541,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
     private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
     private StringRenderer stringRenderer = (StringRenderer) typeConverter;
 
+    private List<WeakReference<DOMChangeListener>> domChangeListeners = new LinkedList<WeakReference<DOMChangeListener>>();
+
     /**
      * Global projector configuration options.
      */
@@ -633,10 +639,10 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
         if (projectionInterface == null) {
-            throw new IllegalArgumentException("Parameter projectionInterface must not be null, but is.",new NullPointerException());
+            throw new IllegalArgumentException("Parameter projectionInterface must not be null, but is.", new NullPointerException());
         }
         if ((!projectionInterface.isInterface())) {
-            throw new IllegalArgumentException("Parameter "+projectionInterface+" is not an interface"); 
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not an interface");
         }
         if (projectionInterface.isAnnotation()) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is an annotation interface. Remove the @ and try again.");
@@ -734,6 +740,23 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     public Set<Flags> getFlags() {
         return Collections.unmodifiableSet(flags);
+    }
+
+    void addDOMChangeListener(DOMChangeListener listener) {
+        domChangeListeners.add(new WeakReference<DOMChangeListener>(listener));
+    }
+
+    /**
+     * 
+     */
+    void notifyDOMChangeListeners() {
+        for (WeakReference<DOMChangeListener> wr:domChangeListeners) {
+            DOMChangeListener listener = wr.get();
+            if (listener!=null) {
+                listener.domChanged();
+            }
+        }
+        
     }
 
 }

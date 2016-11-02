@@ -16,6 +16,8 @@
 package org.xmlbeam;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -26,6 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.InvocationContext;
+import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.types.ProjectedList;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
@@ -33,23 +36,21 @@ import org.xmlbeam.util.intern.DOMHelper;
 /**
  *
  */
-public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList<E> {
+public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList<E>, DOMChangeListener {
 
     private InvocationContext invocationContext;
     private Element parent;
     private XPathExpression expression;
     private Node baseNode;
+    private boolean needRefresh;
+    private final List<Node> content = new ArrayList<Node>();
 
-    public XBProjectedList(Node node, XPathExpression expression, InvocationContext invocationContext) {
+    public XBProjectedList(Node baseNode, XPathExpression expression, InvocationContext invocationContext) {
         this.invocationContext = invocationContext;
         this.expression = expression;
-        this.baseNode = node;
-        final NodeList nodes = getNodes();
-        if (nodes.getLength() == 0) {
-            parent = invocationContext.getDuplexExpression().ensureParentExistence(node);
-        } else {
-            parent = (Element) nodes.item(0).getParentNode();
-        }
+        this.baseNode = baseNode;
+        this.needRefresh = true;
+        this.invocationContext.getProjector().addDOMChangeListener(this);
     }
 
     @Override
@@ -57,16 +58,17 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
         if (index < 0) {
             throw new IndexOutOfBoundsException();
         }
-        NodeList nodes = getNodes();
-        if (index >= nodes.getLength()) {
+        refreshForReadIfNeeded();
+        if (index >= content.size()) {
             throw new IndexOutOfBoundsException();
         }
-        return convertToComponentType(nodes.item(index), invocationContext.getTargetComponentType());
+        return convertToComponentType(content.get(index), invocationContext.getTargetComponentType());
     }
 
     @Override
     public int size() {
-        return getNodes().getLength();
+        refreshForReadIfNeeded();
+        return content.size();
     }
 
     @Override
@@ -74,105 +76,146 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
         if (index < 0) {
             throw new IndexOutOfBoundsException();
         }
-        NodeList nodes = getNodes();
-        if (index >= nodes.getLength()) {
+        refreshForReadIfNeeded();
+        if (index >= content.size()) {
             throw new IndexOutOfBoundsException();
         }
-        E result = convertToComponentType(nodes.item(index), invocationContext.getTargetComponentType());
-        Node oldNode=nodes.item(index);
+        Node oldNode = content.get(index);
+        E result = convertToComponentType(oldNode, invocationContext.getTargetComponentType());
         if (element instanceof Node) {
-          
-            Node newNode=((Node)element).cloneNode(true);
+            Node newNode = ((Node) element).cloneNode(true);
             oldNode.getParentNode().replaceChild(oldNode, newNode);
+            content.set(index, newNode);
             return result;
         }
         if (element instanceof DOMAccess) {
-            Node newNode=((DOMAccess)element).getDOMBaseElement().cloneNode(true);
+            Node newNode = ((DOMAccess) element).getDOMBaseElement().cloneNode(true);
             oldNode.getParentNode().replaceChild(oldNode, newNode);
+            content.set(index, newNode);
             return result;
         }
-        
+
         final String asString = invocationContext.getProjector().config().getStringRenderer().render(element.getClass(), element, invocationContext.getDuplexExpression().getExpressionFormatPattern());
         oldNode.setTextContent(asString);
-        
         return result;
     }
 
     @Override
     public boolean add(E e) {
-        if (e==null) {
+        if (e == null) {
             return false;
         }
+        refreshForWriteIfNeeded();
         if (e instanceof Node) {
-            DOMHelper.appendClone(parent, (Node) e);
+            content.add(DOMHelper.appendClone(parent, (Node) e));
             return true;
         }
         if (e instanceof DOMAccess) {
-            DOMHelper.appendClone(parent, ((DOMAccess)e).getDOMBaseElement());
+            content.add(DOMHelper.appendClone(parent, ((DOMAccess) e).getDOMBaseElement()));
             return true;
         }
-        
+
         Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
         final String asString = invocationContext.getProjector().config().getStringRenderer().render(e.getClass(), e, invocationContext.getDuplexExpression().getExpressionFormatPattern());
         newElement.setTextContent(asString);
         parent.appendChild(newElement);
+        content.add(newElement);
         return true;
     }
 
     @Override
     public void add(int index, E o) {
-        if (o==null) {
+        if (o == null) {
             throw new IllegalArgumentException("Can not add null to a ProjectedList. I don't know how to render that.");
         }
-        NodeList nodes = getNodes();
+
+        refreshForWriteIfNeeded();
+
+        if ((index < 0) || (index > content.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (index == content.size()) {
+            add(o);
+            return;
+        }
+
+        Node previousNode = content.get(index);
+
         if (o instanceof Node) {
-            Node newValue=((Node)o).cloneNode(true);
-            
-            DOMHelper.appendClone(parent, (Node) e);
-            return ;
+            Node newValue = ((Node) o).cloneNode(true);
+            previousNode.getParentNode().insertBefore(newValue, previousNode);
+            content.add(index, newValue);
+            return;
         }
         if (o instanceof DOMAccess) {
-            DOMHelper.appendClone(parent, ((DOMAccess)e).getDOMBaseElement());
-            return ;
+            Node newValue = ((DOMAccess) o).getDOMBaseElement().cloneNode(true);
+            previousNode.getParentNode().insertBefore(newValue, previousNode);
+            content.add(index, newValue);
+            return;
         }
-        
-        
-        try {
-            Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
-            final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
-            newElement.setTextContent(asString);
-            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
-            parent.insertBefore(newElement, nodes.item(index));
-        } catch (XPathExpressionException e) {
-            throw new XBException("Unexcpeted evaluation error", e);
-        }
+
+        Node newElement = invocationContext.getDuplexExpression().createChildWithPredicate(parent);
+        final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
+        newElement.setTextContent(asString);
+        parent.insertBefore(newElement, previousNode);
+        content.add(index, newElement);
     }
-    
-    
+
+    @Override
+    public E remove(int index) {
+        E result = get(index);
+        Node remove = content.remove(index);
+        Node p = remove.getParentNode();
+        if (p != null) {
+            p.removeChild(remove);
+            DOMHelper.trim(p);
+        }
+        return result;
+
+    };
+
     @Override
     public boolean remove(Object o) {
         if (o == null) {
             return false;
         }
 
+        refreshForReadIfNeeded(); // No creation of parent wanted
+
+        if (content.isEmpty()) {
+            return false;
+        }
+
+        if (o instanceof DOMAccess) {
+            o = ((DOMAccess) o).getDOMBaseElement();
+        }
+        if (o instanceof Node) {
+            boolean changed = content.remove(o);
+            if (changed) {
+                Node p = ((Node) o).getParentNode();
+                if (p != null) {
+                    p.removeChild((Node) o);
+                }
+                DOMHelper.trim(p);
+            }
+
+            return changed;
+        }
+
         final String asString = invocationContext.getProjector().config().getStringRenderer().render(o.getClass(), o, invocationContext.getDuplexExpression().getExpressionFormatPattern());
         if (asString == null) {
             return false;
         }
-        try {
-            NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
 
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                Node item = nodes.item(i);
-                if (asString.equals(item.getTextContent())) {
-                    continue;
-                }
-                DOMHelper.trim(item.getParentNode());
-                item.getParentNode().removeChild(item);
-                return true;
+        for (Node item : content) {
+            if (!asString.equals(item.getTextContent())) {
+                continue;
             }
-        } catch (XPathExpressionException e) {
-            throw new XBException("Unexpexted evaluation error", e);
+            DOMHelper.trim(item.getParentNode());
+            item.getParentNode().removeChild(item);
+            content.remove(item);//TODO: increase performance by using list iterator
+            return true;
         }
         return false;
     }
@@ -198,14 +241,40 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
                 + ". Please change the return type to a sub projection or add a conversion to the type converter.");
     }
 
-    /**
-     * @return a fresh view to the current list content
-     */
-    private NodeList getNodes() {
+    private void refresh(boolean forWrite) {
         try {
-            return (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);
+            final NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);;
+            if (nodes.getLength() == 0) {
+                parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
+            } else {
+                parent = (Element) nodes.item(0).getParentNode();
+            }
+            content.clear();
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                content.add(nodes.item(i));
+            }
+            needRefresh = false;
         } catch (XPathExpressionException e) {
+            needRefresh = true;
             throw new XBException("Unexpected error during evaluation.", e);
         }
     }
+
+    private void refreshForReadIfNeeded() {
+        if (needRefresh) {
+            refresh(false);
+        }
+    }
+
+    private void refreshForWriteIfNeeded() {
+        if (needRefresh) {
+            refresh(true);
+        }
+    }
+
+    @Override
+    public void domChanged() {
+        needRefresh = true;
+    }
+
 }
