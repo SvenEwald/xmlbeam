@@ -18,6 +18,7 @@ package org.xmlbeam;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -27,6 +28,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.types.ProjectedList;
@@ -40,16 +42,31 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
 
     private InvocationContext invocationContext;
     private Element parent;
-    private XPathExpression expression;
     private Node baseNode;
-    private boolean needRefresh;
     private final List<Node> content = new ArrayList<Node>();
+    private final XBDomChangeTracker domChangeTracker = new XBDomChangeTracker() {
+        @Override
+        void refresh(boolean forWrite) throws XPathExpressionException {
+            final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
+            if (nodes.getLength() == 0 && forWrite) {
+                parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
+            } else {
+                parent = nodes.getLength() == 0 ? null : (Element) nodes.item(0).getParentNode();
+            }
+            content.clear();
+            for (int i = 0; i < nodes.getLength(); ++i) {
+                content.add(nodes.item(i));
+            }
+        }
+    };
 
-    public XBProjectedList(Node baseNode, XPathExpression expression, InvocationContext invocationContext) {
+    /**
+     * @param baseNode
+     * @param invocationContext
+     */
+    public XBProjectedList(Node baseNode, InvocationContext invocationContext) {
         this.invocationContext = invocationContext;
-        this.expression = expression;
         this.baseNode = baseNode;
-        this.needRefresh = true;
         this.invocationContext.getProjector().addDOMChangeListener(this);
     }
 
@@ -58,16 +75,16 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
         if (index < 0) {
             throw new IndexOutOfBoundsException();
         }
-        refreshForReadIfNeeded();
+        domChangeTracker.refreshForReadIfNeeded();
         if (index >= content.size()) {
             throw new IndexOutOfBoundsException();
         }
-        return convertToComponentType(content.get(index), invocationContext.getTargetComponentType());
+        return DefaultXPathEvaluator.convertToComponentType(invocationContext,content.get(index), invocationContext.getTargetComponentType());
     }
 
     @Override
     public int size() {
-        refreshForReadIfNeeded();
+        domChangeTracker.refreshForReadIfNeeded();
         return content.size();
     }
 
@@ -76,12 +93,12 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
         if (index < 0) {
             throw new IndexOutOfBoundsException();
         }
-        refreshForReadIfNeeded();
+        domChangeTracker.refreshForReadIfNeeded();
         if (index >= content.size()) {
             throw new IndexOutOfBoundsException();
         }
         Node oldNode = content.get(index);
-        E result = convertToComponentType(oldNode, invocationContext.getTargetComponentType());
+        E result = DefaultXPathEvaluator.convertToComponentType(invocationContext,oldNode, invocationContext.getTargetComponentType());
         if (element instanceof Node) {
             Node newNode = ((Node) element).cloneNode(true);
             oldNode.getParentNode().replaceChild(oldNode, newNode);
@@ -105,7 +122,7 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
         if (e == null) {
             return false;
         }
-        refreshForWriteIfNeeded();
+        domChangeTracker.refreshForWriteIfNeeded();
         if (e instanceof Node) {
             content.add(DOMHelper.appendClone(parent, (Node) e));
             return true;
@@ -129,7 +146,7 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
             throw new IllegalArgumentException("Can not add null to a ProjectedList. I don't know how to render that.");
         }
 
-        refreshForWriteIfNeeded();
+        domChangeTracker.refreshForWriteIfNeeded();
 
         if ((index < 0) || (index > content.size())) {
             throw new IndexOutOfBoundsException();
@@ -181,7 +198,7 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
             return false;
         }
 
-        refreshForReadIfNeeded(); // No creation of parent wanted
+        domChangeTracker.refreshForReadIfNeeded(); // No creation of parent wanted
 
         if (content.isEmpty()) {
             return false;
@@ -191,6 +208,13 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
             o = ((DOMAccess) o).getDOMBaseElement();
         }
         if (o instanceof Node) {
+            for (Node contentNode : content) {
+                if (DOMHelper.nodesAreEqual(contentNode, ((Node) o))) {
+                    o = contentNode;
+                    break;
+                }
+            }
+
             boolean changed = content.remove(o);
             if (changed) {
                 Node p = ((Node) o).getParentNode();
@@ -220,61 +244,26 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
         return false;
     }
 
-    /**
-     * @param item
-     * @param targetComponentType
-     * @return
-     */
-    private E convertToComponentType(Node item, Class<?> targetComponentType) {
-        TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
-        if (typeConverter.isConvertable(invocationContext.getTargetComponentType())) {
-            return (E) typeConverter.convertTo(targetComponentType, item.getTextContent(), invocationContext.getExpressionFormatPattern());
-        }
-        if (Node.class.equals(targetComponentType)) {
-            return (E) item;
-        }
-        if (targetComponentType.isInterface()) {
-            Object subprojection = invocationContext.getProjector().projectDOMNode(item, targetComponentType);
-            return (E) subprojection;
-        }
-        throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for a ProjectedList using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
-                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
-    }
+  
 
-    private void refresh(boolean forWrite) {
-        try {
-            final NodeList nodes = (NodeList) expression.evaluate(baseNode, XPathConstants.NODESET);;
-            if (nodes.getLength() == 0) {
-                parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
-            } else {
-                parent = (Element) nodes.item(0).getParentNode();
+    @Override
+    public int indexOf(Object o) {
+        if (!(o instanceof Node)) {
+            return super.indexOf(o);
+        }
+        Node oNode = (Node) o;
+        ListIterator<Node> e = content.listIterator();
+        while (e.hasNext()) {
+            if (DOMHelper.nodesAreEqual(oNode, e.next())) {
+                return e.previousIndex();
             }
-            content.clear();
-            for (int i = 0; i < nodes.getLength(); ++i) {
-                content.add(nodes.item(i));
-            }
-            needRefresh = false;
-        } catch (XPathExpressionException e) {
-            needRefresh = true;
-            throw new XBException("Unexpected error during evaluation.", e);
         }
-    }
-
-    private void refreshForReadIfNeeded() {
-        if (needRefresh) {
-            refresh(false);
-        }
-    }
-
-    private void refreshForWriteIfNeeded() {
-        if (needRefresh) {
-            refresh(true);
-        }
+        return -1;
     }
 
     @Override
     public void domChanged() {
-        needRefresh = true;
+        domChangeTracker.domChanged();
     }
 
 }
