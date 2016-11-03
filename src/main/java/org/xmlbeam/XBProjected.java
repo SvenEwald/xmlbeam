@@ -20,6 +20,7 @@ import java.util.Iterator;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -28,6 +29,7 @@ import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.types.Projected;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  *
@@ -44,11 +46,11 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
         void refresh(boolean forWrite) throws XPathExpressionException {
             final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
             if (nodes.getLength() == 0 && forWrite) {
-              //  parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
-               dataNode = invocationContext.getDuplexExpression().ensureExistence(baseNode);
-               return;
+                //  parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
+                dataNode = invocationContext.getDuplexExpression().ensureExistence(baseNode);
+                return;
             } else {
-               // parent = nodes.getLength() == 0 ? null : (Element) nodes.item(0).getParentNode();
+                // parent = nodes.getLength() == 0 ? null : (Element) nodes.item(0).getParentNode();
             }
             dataNode = nodes.getLength() == 0 ? null : nodes.item(0);
         }
@@ -74,7 +76,7 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
 
     @Override
     public E set(E element) {
-        if (dataNode==null) {
+        if (dataNode == null) {
             domChangeTracker.domChanged();
         }
         domChangeTracker.refreshForWriteIfNeeded();
@@ -101,13 +103,22 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
     @Override
     public E remove() {
         //domChangeTracker.refreshForReadIfNeeded();
-        E oldValue=get();
-        if (dataNode==null) {
+        E oldValue = get();
+        if (dataNode == null) {
             return oldValue;
         }
-        if (dataNode.getParentNode()!=null) {
-            dataNode.getParentNode().removeChild(dataNode);
+        if (dataNode.getNodeType() == Node.ATTRIBUTE_NODE) {
+            DOMHelper.removeAttribute((Attr) dataNode);
+            dataNode = null;
+            return oldValue;
         }
+
+        if (dataNode.getParentNode() == null) {
+            return oldValue;
+        }
+        DOMHelper.trim(dataNode);
+        dataNode.getParentNode().removeChild(dataNode);
+        dataNode = null;
         return oldValue;
     }
 

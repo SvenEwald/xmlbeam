@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.tests.projectedList;
 
+import static org.junit.Assert.*;
+
 import java.util.Map;
 
 import org.junit.Test;
@@ -29,32 +31,31 @@ import org.xmlbeam.types.ProjectedList;
  *
  */
 public class TestProjectedValues {
-    private final XBProjector projector=new XBProjector(Flags.TO_STRING_RENDERS_XML);
+    private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
     interface Projection {
-        interface Entry{
-            @XBRead("./@key") 
+        interface Entry {
+            @XBRead("./@key")
             Projected<String> key();
-            
-            @XBRead("./@value") 
-            Projected<String> value();                       
-      }
-        
+
+            @XBRead("./@value")
+            Projected<String> value();
+        }
+
         @XBRead("/root/mid/entry")
         ProjectedList<Entry> mapRootList();
-               
+
     }
-    
+
     @Test
-    public void testSubProjections() {        
-        Projection projection = projector.projectEmptyDocument(Projection.class);
+    public void testSubProjectionElements() {
         Entry entry = projector.projectEmptyElement("entry", Entry.class);
+        assertEquals("<entry/>", entry.toString().trim());
         entry.key().set("key");
+        assertEquals("<entry key=\"key\"/>", entry.toString().trim());
         entry.value().set("value");
+        assertEquals("<entry key=\"key\" value=\"value\"/>", entry.toString().trim());
         entry.value().remove();
-        
-        
-        
-        System.out.println(projection);
+        assertEquals("<entry key=\"key\"/>", entry.toString().trim());
     }
 }
