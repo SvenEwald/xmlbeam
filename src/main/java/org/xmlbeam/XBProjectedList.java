@@ -122,7 +122,11 @@ public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList
         if (e == null) {
             return false;
         }
+        if (parent==null) {
+            domChangeTracker.domChanged();
+        }
         domChangeTracker.refreshForWriteIfNeeded();
+        
         if (e instanceof Node) {
             content.add(DOMHelper.appendClone(parent, (Node) e));
             return true;

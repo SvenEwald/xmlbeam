@@ -37,16 +37,18 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
     private final InvocationContext invocationContext;
     private Node dataNode;
     private Node baseNode;
-    private Element parent;
+//    private Element parent;
 
     private final XBDomChangeTracker domChangeTracker = new XBDomChangeTracker() {
         @Override
         void refresh(boolean forWrite) throws XPathExpressionException {
             final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
             if (nodes.getLength() == 0 && forWrite) {
-                parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
+              //  parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
+               dataNode = invocationContext.getDuplexExpression().ensureExistence(baseNode);
+               return;
             } else {
-                parent = nodes.getLength() == 0 ? null : (Element) nodes.item(0).getParentNode();
+               // parent = nodes.getLength() == 0 ? null : (Element) nodes.item(0).getParentNode();
             }
             dataNode = nodes.getLength() == 0 ? null : nodes.item(0);
         }
@@ -72,6 +74,9 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
 
     @Override
     public E set(E element) {
+        if (dataNode==null) {
+            domChangeTracker.domChanged();
+        }
         domChangeTracker.refreshForWriteIfNeeded();
         E result = DefaultXPathEvaluator.convertToComponentType(invocationContext, dataNode, invocationContext.getTargetComponentType());
         Node oldNode = dataNode;
@@ -97,8 +102,11 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
     public E remove() {
         //domChangeTracker.refreshForReadIfNeeded();
         E oldValue=get();
-        if (parent!=null) {
-            parent.removeChild(dataNode);
+        if (dataNode==null) {
+            return oldValue;
+        }
+        if (dataNode.getParentNode()!=null) {
+            dataNode.getParentNode().removeChild(dataNode);
         }
         return oldValue;
     }
