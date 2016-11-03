@@ -264,4 +264,27 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
         throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
                 + ". Please change the return type to a sub projection or add a conversion to the type converter.");
     }
+    
+    /**
+     * @param invocationContext invocation context
+     * @param item
+     * @param targetComponentType
+     * @return node content as target type
+     */
+    public static <E> E convertToComponentType(InvocationContext invocationContext,Node item, Class<?> targetComponentType) {
+        TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
+        if (typeConverter.isConvertable(invocationContext.getTargetComponentType())) {
+            return (E) typeConverter.convertTo(targetComponentType, item.getTextContent(), invocationContext.getExpressionFormatPattern());
+        }
+        if (Node.class.equals(targetComponentType)) {
+            return (E) item;
+        }
+        if (targetComponentType.isInterface()) {
+            Object subprojection = invocationContext.getProjector().projectDOMNode(item, targetComponentType);
+            return (E) subprojection;
+        }
+        throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for a ProjectedList using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
+                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
+    }
+    
 }
