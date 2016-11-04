@@ -274,7 +274,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
     public static <E> E convertToComponentType(InvocationContext invocationContext,Node item, Class<?> targetComponentType) {
         TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
         if (typeConverter.isConvertable(invocationContext.getTargetComponentType())) {
-            return (E) typeConverter.convertTo(targetComponentType, item.getTextContent(), invocationContext.getExpressionFormatPattern());
+            return (E) typeConverter.convertTo(targetComponentType, item!=null? item.getTextContent():null, invocationContext.getExpressionFormatPattern());
         }
         if (Node.class.equals(targetComponentType)) {
             return (E) item;

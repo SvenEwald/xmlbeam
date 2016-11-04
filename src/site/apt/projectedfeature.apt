@@ -1,0 +1,14 @@
+
+Projected Data
+
+ There are two special types allowing bidirectional projections to values and lists.
+ 
+%{toc|section=1|fromDepth=2|toDepth=2}
+
+* Projected<T>
+ 
+ 
+
+* ProjectedList<T>
+
+

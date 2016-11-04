@@ -294,24 +294,46 @@ public final class DOMHelper {
     }
 
     /**
-     * @param element
+     * @param node
      * @param newName
      * @return a new Element instance with desired name and content.
      */
-    public static Element renameElement(final Element element, final String newName) {
-        Document document = element.getOwnerDocument();
-        // Element newElement = document.createElement(newName);
-        final Element newElement = createElement(document, newName);
-        NodeList nodeList = element.getChildNodes();
-        List<Node> toBeMoved = new LinkedList<Node>();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            toBeMoved.add(nodeList.item(i));
+    public static <T extends Node> T renameNode(final T node, final String newName) {
+        if (node instanceof Attr) {
+            Attr attributeNode = (Attr) node;
+            final Element owner = attributeNode.getOwnerElement();
+            if (owner == null) {
+                throw new IllegalArgumentException("Attribute has no owner " + node);
+            }
+            owner.removeAttributeNode(attributeNode);
+            owner.setAttribute(newName, attributeNode.getValue());
+            return (T) owner.getAttributeNode(newName);
         }
-        for (Node e : toBeMoved) {
-            element.removeChild(e);
-            newElement.appendChild(e);
+        if (node instanceof Element) {
+            Element element = (Element) node;
+            Node parent = element.getParentNode();
+            Document document = element.getOwnerDocument();
+            // Element newElement = document.createElement(newName);
+            final Element newElement = createElement(document, newName);
+            NodeList nodeList = element.getChildNodes();
+            List<Node> toBeMoved = new LinkedList<Node>();
+            for (int i = 0; i < nodeList.getLength(); ++i) {
+                toBeMoved.add(nodeList.item(i));
+            }
+            for (Node e : toBeMoved) {
+                element.removeChild(e);
+                newElement.appendChild(e);
+            }
+            NamedNodeMap attributes = element.getAttributes();
+            for (int i = 0; i < attributes.getLength(); ++i) {
+                newElement.setAttributeNode((Attr) attributes.item(i));
+            }
+            if (parent != null) {
+                parent.replaceChild(newElement, element);
+            }
+            return (T) newElement;
         }
-        return newElement;
+        throw new IllegalArgumentException("Can not rename node " + node);
     }
 
     /**
@@ -528,11 +550,11 @@ public final class DOMHelper {
         if (node == null) {
             return;
         }
-        
-        while( node.hasChildNodes() ) {
-            removeNode( node.getFirstChild() );
+
+        while (node.hasChildNodes()) {
+            removeNode(node.getFirstChild());
         }
-        
+
         final Node parent = node.getParentNode();
         if (parent == null) {
             return;

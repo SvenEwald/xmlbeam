@@ -545,7 +545,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 final String elementName = childWithPredicate.getNodeName();
                 if (!elementName.equals(clone.getNodeName())) {
                     if (!"*".equals(elementName)) {
-                        clone = DOMHelper.renameElement(clone, elementName);
+                        clone = DOMHelper.renameNode(clone, elementName);
                     }
                 }
                 DOMHelper.replaceElement(childWithPredicate, clone);

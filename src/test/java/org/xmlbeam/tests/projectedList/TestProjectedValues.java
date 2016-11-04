@@ -15,41 +15,45 @@
  */
 package org.xmlbeam.tests.projectedList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Map;
+import java.util.Iterator;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.tests.projectedList.TestProjectedValues.Projection.Entry;
 import org.xmlbeam.types.Projected;
-import org.xmlbeam.types.ProjectedList;
 
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestProjectedValues {
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
-    interface Projection {
-        interface Entry {
-            @XBRead("./@key")
-            Projected<String> key();
+    interface EntryWithAttributes {
+        @XBRead("./@key")
+        Projected<String> key();
 
-            @XBRead("./@value")
-            Projected<String> value();
-        }
-
-        @XBRead("/root/mid/entry")
-        ProjectedList<Entry> mapRootList();
-
+        @XBRead("./@value")
+        Projected<String> value();
     }
 
+    interface EntryWithSubelements {
+        @XBRead("./key")
+        Projected<String> key();
+
+        @XBRead("./value")
+        Projected<String> value();
+    }
+
+    
     @Test
-    public void testSubProjectionElements() {
-        Entry entry = projector.projectEmptyElement("entry", Entry.class);
+    public void testProjecetedAttributes() {
+        EntryWithAttributes entry = projector.projectEmptyElement("entry", EntryWithAttributes.class);
         assertEquals("<entry/>", entry.toString().trim());
         entry.key().set("key");
         assertEquals("<entry key=\"key\"/>", entry.toString().trim());
@@ -57,5 +61,40 @@ public class TestProjectedValues {
         assertEquals("<entry key=\"key\" value=\"value\"/>", entry.toString().trim());
         entry.value().remove();
         assertEquals("<entry key=\"key\"/>", entry.toString().trim());
+        assertTrue(entry.key().isPresent());
+        entry.key().rename("huhu");
+        assertEquals("<entry huhu=\"key\"/>", entry.toString().trim());
+        assertFalse(entry.value().isPresent());
+        assertFalse(entry.key().isPresent());
     }
+
+    @Test
+    public void testProjecetedElements() {
+        EntryWithSubelements entry = projector.projectEmptyElement("entry", EntryWithSubelements.class);
+        assertEquals("<entry/>", entry.toString().trim());
+        entry.key().set("key");
+        assertEquals("<entry><key>key</key></entry>", entry.toString().replaceAll("\\s", ""));
+        entry.value().set("value");
+        assertEquals("<entry><key>key</key><value>value</value></entry>", entry.toString().replaceAll("\\s", ""));
+        entry.value().remove();
+        assertEquals("<entry><key>key</key></entry>", entry.toString().replaceAll("\\s", ""));
+        assertTrue(entry.key().isPresent());
+        entry.key().rename("huhu");
+        assertEquals("<entry><huhu>key</huhu></entry>", entry.toString().replaceAll("\\s", ""));
+        assertFalse(entry.value().isPresent());
+        assertFalse(entry.key().isPresent());
+    }
+    
+    @Test public void testIterator() {
+        EntryWithSubelements entry = projector.projectEmptyElement("entry", EntryWithSubelements.class);
+        for (String s:entry.key()) {
+            s.toString();
+            assertTrue(false);
+        }
+        Iterator<String> iterator = entry.key().iterator();
+        iterator.next();
+        assertFalse(iterator.hasNext());
+        
+    }
+
 }

@@ -21,7 +21,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.dom.DOMAccess;
@@ -71,6 +70,9 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
     @Override
     public E get() {
         domChangeTracker.refreshForReadIfNeeded();
+        if (dataNode==null) {
+           return null;
+        }
         return DefaultXPathEvaluator.convertToComponentType(invocationContext, dataNode, invocationContext.getTargetComponentType());
     }
 
@@ -79,8 +81,9 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
         if (dataNode == null) {
             domChangeTracker.domChanged();
         }
+        Node prevNode=dataNode;
         domChangeTracker.refreshForWriteIfNeeded();
-        E result = DefaultXPathEvaluator.convertToComponentType(invocationContext, dataNode, invocationContext.getTargetComponentType());
+        E result = DefaultXPathEvaluator.convertToComponentType(invocationContext, prevNode, invocationContext.getTargetComponentType());
         Node oldNode = dataNode;
         if (element instanceof Node) {
             Node newNode = ((Node) element).cloneNode(true);
@@ -125,17 +128,55 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
     @Override
     public boolean isPresent() {
         domChangeTracker.refreshForReadIfNeeded();
-        return false;
+        return dataNode!=null;
     }
 
     @Override
-    public Iterator<E> iterator() {
-        // TODO Auto-generated method stub
-        return null;
+    public Iterator<E> iterator() {        
+        return new Iterator<E>() {
+            boolean read=false;
+            
+            @Override
+            public boolean hasNext() {
+                return (!read) && (isPresent()); 
+            }
+
+            @Override
+            public E next() {
+                if (read) {
+                    throw new IllegalStateException();
+                }
+                read=true;                
+                return get();
+            }
+
+            @Override
+            public void remove() {
+                remove();
+            }
+        };
     }
 
     @Override
     public void domChanged() {
         domChangeTracker.domChanged();
+    }
+
+    @Override
+    public Projected<E> rename(String newName) {
+        if (dataNode==null) {
+            throw new IllegalStateException("Can not rename when no value is present.");
+        }
+        dataNode=DOMHelper.renameNode(dataNode, newName);
+        domChangeTracker.domChanged();
+        return this;
+    }
+
+    @Override
+    public String getName() {
+        if (dataNode==null) {
+            throw new IllegalStateException("No value is present.");
+        }
+        return dataNode.getNodeName();
     }
 }

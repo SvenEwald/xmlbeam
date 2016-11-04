@@ -15,10 +15,78 @@
  */
 package org.xmlbeam.tests.projectedList;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+import org.omg.Messaging.SyncScopeHelper;
+import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.tests.projectedList.TestProjectedStingList.Projection;
+import org.xmlbeam.tests.projectionvalidation.TestProjectionValidation.E;
+import org.xmlbeam.types.Projected;
+import org.xmlbeam.types.ProjectedList;
+
 /**
  * @author sven
  *
  */
 public class TestProjectedSubProjectionList {
+    private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+    private final static String XML = "<root><list><e>1</e><e>2</e><e>3</e></list></root>";
+    private final Projection projection = projector.projectXMLString(XML, Projection.class);
+    
+    interface Projection {
+        
+        interface E {
+            @XBRead("./value/int")
+            Projected<Integer> value();
+        }
+        
+        @XBRead("/root/list/e")
+        List<E> reference();
+        
+        @XBRead("/root/list/e")
+        ProjectedList<E> projectList();
 
+        @XBRead("/root/list2/e2")
+        List<E> reference2();
+        
+        @XBRead("/root/list2/e2")
+        ProjectedList<E> projectList2();
+
+    }
+
+   
+    @Test
+    public void testSimpleAdd() {
+        List<Projection.E> list = projection.projectList();
+        assertFalse(list.isEmpty());
+        assertEquals("[<e>1</e>,<e>2</e>,<e>3</e>]",projection.reference().toString().replaceAll("\\s", ""));
+       Projection.E e = projector.projectEmptyElement("e",Projection.E.class);
+       e.value().set(17);
+        list.add(e);
+        System.out.println(list);
+//        list.add("4");      
+//        assertEquals("[1, 2, 3, 4]",projection.reference().toString());
+//        list.add(0, "0");
+//        assertEquals("[0, 1, 2, 3, 4]",projection.reference().toString());
+//        list.add(4, "x");
+//        assertEquals("[0, 1, 2, 3, x, 4]",projection.reference().toString());
+//        list.add(list.size(),"z");
+//        assertEquals("[0, 1, 2, 3, x, 4, z]",projection.reference().toString());
+//        list.clear();
+//        assertTrue(projection.reference().isEmpty());
+//        assertTrue(list.isEmpty());
+//        list.addAll(Arrays.asList("a","b","c"));
+//        assertEquals("[a, b, c]",projection.reference().toString());
+//        list.addAll(1,Arrays.asList("a2","b2","c2"));
+//        assertEquals("[a, a2, b2, c2, b, c]",projection.reference().toString());
+    }
+    
 }

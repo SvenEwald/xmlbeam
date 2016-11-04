@@ -13,30 +13,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.types;
+package org.xmlbeam.refcards;
 
-import java.util.Iterator;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.types.ProjectedList;
 
 /**
  *
  */
-public interface Projected<E> extends Iterable<E> {
+@SuppressWarnings({ "javadoc", "null" })
+public class ProjectedListRefCard {
 
-    E get();
-    
-    E set(E value);
-    
-    E remove();
-    
-    boolean isPresent();
-    
-    Iterator<E> iterator();
+    //START SNIPPET: ProjectedListRefCardExample
+    public interface Example {
 
-    /**
-     * @param string
-     * @return this for convenience
-     */
-    Projected<E> rename(String string);
-    
-    String getName();
+        @XBRead("/xml/list/entry")
+        ProjectedList<String> entries();
+
+    }
+    //END SNIPPET: ProjectedListRefCardExample
+  
+    {
+        Example example=null;
+    //START SNIPPET: ProjectedListRefCardExample2
+       example.entries().add("New Entry");
+    //END SNIPPET: ProjectedListRefCardExample2
+    }
 }
