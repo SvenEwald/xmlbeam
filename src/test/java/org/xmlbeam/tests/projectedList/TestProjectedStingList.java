@@ -17,6 +17,7 @@ package org.xmlbeam.tests.projectedList;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.types.Bound;
 import org.xmlbeam.types.Projected;
 import org.xmlbeam.types.ProjectedList;
 
@@ -148,13 +150,13 @@ public class TestProjectedStingList {
     }
 
     @Test
-    public void testEvaluationAPI() {
+    public void testEvaluationAPI() throws IOException {
         List<String> elements = projector.onXMLString(XML).evalXPath("/root/list/e").asListOf(String.class);
         projector.io().file("").bindXPath("/root/list/e").asListOf(String.class);
 
-        try (Projected<Integer> value = projector.io().url("").bindXPath("").asValueOf(Integer.class)) {
+        Bound<Integer> value = projector.io().file("").bindXPath("").as(Integer.class);
             value.set(15);
-        }
+        value.close();
 
         projector.asString(elements);
     }

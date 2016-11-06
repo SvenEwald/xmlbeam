@@ -24,8 +24,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.evaluation.CanEvaluate;
-import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.DefaultXPathBinder;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
+import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.util.IOHelper;
 
@@ -109,9 +111,33 @@ public class XBFileIO implements CanEvaluate {
         return this;
     }
 
+    /**
+     * 
+     * @param xpath
+     * @return evaluator
+     * @see org.xmlbeam.evaluation.CanEvaluate#evalXPath(java.lang.String)
+     */
     @Override
     public XPathEvaluator evalXPath(final String xpath) {
         return new DefaultXPathEvaluator(projector, new DocumentResolver() {
+
+            @Override
+            public Document resolve(final Class<?>... resourceAwareClass) throws IOException {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                Document doc = IOHelper.loadDocument(projector, fileInputStream);
+                fileInputStream.close();
+                return doc;
+                }
+            
+        }, xpath);
+    }
+
+    /**
+     * @param xpath
+     * @return binder
+     */
+    public XPathBinder bindXPath(String xpath) {
+        return new DefaultXPathBinder(projector, new DocumentResolver() {
 
             @Override
             public Document resolve(final Class<?>... resourceAwareClass) throws IOException {
