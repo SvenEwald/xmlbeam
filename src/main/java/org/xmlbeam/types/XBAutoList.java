@@ -15,12 +15,12 @@
  */
 package org.xmlbeam.types;
 
-import java.io.Closeable;
+import java.util.List;
 
 /**
  * @author sven
  *
  */
-public interface Bound<E> extends Projected<E>,Closeable {
+public interface XBAutoList<E> extends List<E> {
 
 }

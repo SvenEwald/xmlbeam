@@ -55,8 +55,8 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
-import org.xmlbeam.types.Projected;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoValue;
+import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
@@ -261,11 +261,11 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
             this.wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
-            this.isEvaluateAsProjected = Projected.class.equals(method.getReturnType());
+            this.isEvaluateAsProjected = XBAutoValue.class.equals(method.getReturnType());
             this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
             this.isConvertable = projector.config().getTypeConverter().isConvertable(returnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
-            this.isEvaluateAsList = List.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType) || ProjectedList.class.equals(returnType);
+            this.isEvaluateAsList = List.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType) || XBAutoList.class.equals(returnType);
             this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList || isEvaluateAsProjected)) {
@@ -328,7 +328,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
-                if (ProjectedList.class.equals(returnType)) {
+                if (XBAutoList.class.equals(returnType)) {
                     return new XBProjectedList(node, invocationContext);
                 }
                 final List<?> result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
@@ -905,7 +905,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         if (returnType.isArray()) {
             return method.getReturnType().getComponentType();
         }
-        if (!(List.class.equals(returnType) || ProjectedList.class.equals(returnType) || Projected.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType))) {
+        if (!(List.class.equals(returnType) || XBAutoList.class.equals(returnType) || XBAutoValue.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType))) {
             return null;
         }
         final Type type = method.getGenericReturnType();

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.projectedList;
+package org.xmlbeam.tests.autovalues;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,16 +27,16 @@ import org.omg.Messaging.SyncScopeHelper;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.tests.projectedList.TestProjectedStingList.Projection;
+import org.xmlbeam.tests.autovalues.TestAutoStingList.Projection;
 import org.xmlbeam.tests.projectionvalidation.TestProjectionValidation.E;
-import org.xmlbeam.types.Projected;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoValue;
+import org.xmlbeam.types.XBAutoList;
 
 /**
  * @author sven
  *
  */
-public class TestProjectedSubProjectionList {
+public class TestAutoSubProjectionList {
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
     private final static String XML = "<root><list><e>1</e><e>2</e><e>3</e></list></root>";
     private final Projection projection = projector.projectXMLString(XML, Projection.class);
@@ -45,20 +45,20 @@ public class TestProjectedSubProjectionList {
         
         interface E {
             @XBRead("./value/int")
-            Projected<Integer> value();
+            XBAutoValue<Integer> value();
         }
         
         @XBRead("/root/list/e")
         List<E> reference();
         
         @XBRead("/root/list/e")
-        ProjectedList<E> projectList();
+        XBAutoList<E> projectList();
 
         @XBRead("/root/list2/e2")
         List<E> reference2();
         
         @XBRead("/root/list2/e2")
-        ProjectedList<E> projectList2();
+        XBAutoList<E> projectList2();
 
     }
 

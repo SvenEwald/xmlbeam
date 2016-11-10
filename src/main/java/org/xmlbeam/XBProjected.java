@@ -27,13 +27,13 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.intern.DOMChangeListener;
-import org.xmlbeam.types.Projected;
+import org.xmlbeam.types.XBAutoValue;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  *
  */
-class XBProjected<E> implements Projected<E>, DOMChangeListener {
+class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
 
     private final InvocationContext invocationContext;
     private Node dataNode;
@@ -163,7 +163,7 @@ class XBProjected<E> implements Projected<E>, DOMChangeListener {
     }
 
     @Override
-    public Projected<E> rename(String newName) {
+    public XBAutoValue<E> rename(String newName) {
         if (dataNode==null) {
             throw new IllegalStateException("Can not rename when no value is present.");
         }

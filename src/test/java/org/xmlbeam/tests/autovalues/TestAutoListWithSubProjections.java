@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.projectedList;
+package org.xmlbeam.tests.autovalues;
 
 import java.util.Map;
 
@@ -22,14 +22,14 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
-import org.xmlbeam.tests.projectedList.TestProjectedListWithSubProjections.Projection.Entry;
-import org.xmlbeam.types.Projected;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.tests.autovalues.TestAutoListWithSubProjections.Projection.Entry;
+import org.xmlbeam.types.XBAutoValue;
+import org.xmlbeam.types.XBAutoList;
 
 /**
  *
  */
-public class TestProjectedListWithSubProjections {
+public class TestAutoListWithSubProjections {
     private final XBProjector projector=new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
     interface Projection {
@@ -48,7 +48,7 @@ public class TestProjectedListWithSubProjections {
         }
         
         @XBRead("/root/mid/entry")
-        ProjectedList<Entry> mapRootList();
+        XBAutoList<Entry> mapRootList();
                
     }
     

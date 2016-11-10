@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.projectedList;
+package org.xmlbeam.tests.autovalues;
 
 import static org.junit.Assert.*;
 
@@ -26,15 +26,15 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.types.Bound;
-import org.xmlbeam.types.Projected;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoFileValue;
+import org.xmlbeam.types.XBAutoValue;
+import org.xmlbeam.types.XBAutoList;
 
 /**
  * @author sven
  */
 @SuppressWarnings("javadoc")
-public class TestProjectedStingList {
+public class TestAutoStingList {
 
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
     private final static String XML = "<root><list><e>1</e><e>2</e><e>3</e></list></root>";
@@ -46,13 +46,13 @@ public class TestProjectedStingList {
         List<String> reference();
 
         @XBRead("/root/list/e")
-        ProjectedList<String> projectList();
+        XBAutoList<String> projectList();
 
         @XBRead("/root/list2/e2")
         List<String> reference2();
 
         @XBRead("/root/list2/e2")
-        ProjectedList<String> projectList2();
+        XBAutoList<String> projectList2();
 
     }
 
@@ -154,7 +154,7 @@ public class TestProjectedStingList {
         List<String> elements = projector.onXMLString(XML).evalXPath("/root/list/e").asListOf(String.class);
         projector.io().file("").bindXPath("/root/list/e").asListOf(String.class);
 
-        Bound<Integer> value = projector.io().file("").bindXPath("").as(Integer.class);
+        XBAutoFileValue<Integer> value = projector.io().file("").bindXPath("").as(Integer.class);
             value.set(15);
         value.close();
 

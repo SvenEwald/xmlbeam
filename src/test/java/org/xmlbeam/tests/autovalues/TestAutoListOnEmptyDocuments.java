@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.projectedList;
+package org.xmlbeam.tests.autovalues;
 
 import static org.junit.Assert.*;
 
@@ -25,18 +25,18 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoList;
 
 /**
  *
  */
-public class TestProjectedListOnEmptyDocuments {
+public class TestAutoListOnEmptyDocuments {
 
     private final XBProjector projector=new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
     interface Projection {
         @XBRead("/root/entry")
-        ProjectedList<String> mapRootList();
+        XBAutoList<String> mapRootList();
         
         @XBDelete("/root/entry[text()='{0}']")    
         Projection deleteEntry(String entry);

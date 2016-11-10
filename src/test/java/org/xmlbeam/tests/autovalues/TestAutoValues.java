@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.tests.projectedList;
+package org.xmlbeam.tests.autovalues;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,29 +25,29 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.types.Projected;
+import org.xmlbeam.types.XBAutoValue;
 
 /**
  *
  */
 @SuppressWarnings("javadoc")
-public class TestProjectedValues {
+public class TestAutoValues {
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
     interface EntryWithAttributes {
         @XBRead("./@key")
-        Projected<String> key();
+        XBAutoValue<String> key();
 
         @XBRead("./@value")
-        Projected<String> value();
+        XBAutoValue<String> value();
     }
 
     interface EntryWithSubelements {
         @XBRead("./key")
-        Projected<String> key();
+        XBAutoValue<String> key();
 
         @XBRead("./value")
-        Projected<String> value();
+        XBAutoValue<String> value();
     }
 
     

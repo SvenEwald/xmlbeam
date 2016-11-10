@@ -16,28 +16,11 @@
 package org.xmlbeam.types;
 
 import java.io.Closeable;
-import java.util.Iterator;
 
 /**
+ * @author sven
  *
  */
-public interface Projected<E> extends Iterable<E> {
+public interface XBAutoFileValue<E> extends XBAutoValue<E>,Closeable {
 
-    E get();
-    
-    E set(E value);
-    
-    E remove();
-    
-    boolean isPresent();
-    
-    Iterator<E> iterator();
-
-    /**
-     * @param string
-     * @return this for convenience
-     */
-    Projected<E> rename(String string);
-    
-    String getName();
 }

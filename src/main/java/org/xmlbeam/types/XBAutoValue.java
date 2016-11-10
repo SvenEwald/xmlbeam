@@ -15,12 +15,29 @@
  */
 package org.xmlbeam.types;
 
-import java.util.List;
+import java.io.Closeable;
+import java.util.Iterator;
 
 /**
- * @author sven
  *
  */
-public interface ProjectedList<E> extends List<E> {
+public interface XBAutoValue<E> extends Iterable<E> {
 
+    E get();
+    
+    E set(E value);
+    
+    E remove();
+    
+    boolean isPresent();
+    
+    Iterator<E> iterator();
+
+    /**
+     * @param string
+     * @return this for convenience
+     */
+    XBAutoValue<E> rename(String string);
+    
+    String getName();
 }

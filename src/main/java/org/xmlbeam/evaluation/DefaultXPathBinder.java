@@ -35,10 +35,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
-import org.xmlbeam.types.Bound;
-import org.xmlbeam.types.BoundList;
-import org.xmlbeam.types.Projected;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoFileValue;
+import org.xmlbeam.types.XBAutoFileList;
+import org.xmlbeam.types.XBAutoValue;
+import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
@@ -74,7 +74,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return true when the selected value equals (ignoring case) 'true'
      */
     @Override
-    public Bound<Boolean> asBoolean() {
+    public XBAutoFileValue<Boolean> asBoolean() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(Boolean.TYPE, callerClass);
     }
@@ -85,7 +85,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return int value of evaluation result.
      */
     @Override
-    public Bound<Integer> asInt() {
+    public XBAutoFileValue<Integer> asInt() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(Integer.TYPE, callerClass);
     }
@@ -96,7 +96,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return String value of evaluation result.
      */
     @Override
-    public Bound<String> asString() {
+    public XBAutoFileValue<String> asString() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(String.class, callerClass);
     }
@@ -109,7 +109,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return Date value of evaluation result.
      */
     @Override
-    public Bound<Date> asDate() {
+    public XBAutoFileValue<Date> asDate() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(Date.class, callerClass);
     }
@@ -123,14 +123,14 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return a value of return type that reflects the evaluation result.
      */
     @Override
-    public <T> Bound<T> as(final Class<T> returnType) {
+    public <T> XBAutoFileValue<T> as(final Class<T> returnType) {
         validateEvaluationType(returnType);
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(returnType, callerClass);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Bound<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
+    private <T> XBAutoFileValue<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
 //        try {
 //            Document document = documentProvider.resolve(returnType, callerClass);
 //
@@ -191,13 +191,13 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return List of return type that reflects the evaluation result.
      */
     @Override
-    public <T> BoundList<T> asListOf(final Class<T> componentType) {
+    public <T> XBAutoFileList<T> asListOf(final Class<T> componentType) {
         Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindMultiValues(componentType, callerClass);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> BoundList<T> bindMultiValues(final Class<T> componentType, final Class<?> callerClass) {
+    private <T> XBAutoFileList<T> bindMultiValues(final Class<T> componentType, final Class<?> callerClass) {
         validateEvaluationType(componentType);
 //        try {
 //            Document document = documentProvider.resolve(componentType, callerClass);

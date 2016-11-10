@@ -32,14 +32,14 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.intern.DOMChangeListener;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  *
  */
-public class XBProjectedList<E> extends AbstractList<E> implements ProjectedList<E>, DOMChangeListener {
+public class XBProjectedList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeListener {
 
     private InvocationContext invocationContext;
     private Element parent;

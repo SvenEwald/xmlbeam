@@ -18,10 +18,10 @@ package org.xmlbeam.evaluation;
 import java.util.Date;
 import java.util.List;
 
-import org.xmlbeam.types.Bound;
-import org.xmlbeam.types.BoundList;
-import org.xmlbeam.types.Projected;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoFileValue;
+import org.xmlbeam.types.XBAutoFileList;
+import org.xmlbeam.types.XBAutoValue;
+import org.xmlbeam.types.XBAutoList;
 
 /**
  * Interface to build fluent API for the evaluation API.
@@ -34,21 +34,21 @@ public interface XPathBinder {
      * 
      * @return true when the selected value equals (ignoring case) 'true'
      */
-    Bound<Boolean> asBoolean();
+    XBAutoFileValue<Boolean> asBoolean();
 
     /**
      * Evaluates the XPath as a int value. This method is just a shortcut for as(Integer.TYPE);
      * 
      * @return int value of evaluation result.
      */
-    Bound<Integer> asInt();
+    XBAutoFileValue<Integer> asInt();
 
     /**
      * Evaluates the XPath as a String value. This method is just a shortcut for as(String.class);
      * 
      * @return String value of evaluation result.
      */
-    Bound<String> asString();
+    XBAutoFileValue<String> asString();
 
     /**
      * Evaluates the XPath as a Date value. This method is just a shortcut for as(Date.class); You
@@ -57,7 +57,7 @@ public interface XPathBinder {
      * 
      * @return Date value of evaluation result.
      */
-    Bound<Date> asDate();
+    XBAutoFileValue<Date> asDate();
 
     /**
      * Evaluate the XPath as a value of the given type.
@@ -67,7 +67,7 @@ public interface XPathBinder {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return a value of return type that reflects the evaluation result.
      */
-    <T> Bound<T> as(Class<T> returnType);
+    <T> XBAutoFileValue<T> as(Class<T> returnType);
 
     /**
      * Evaluate the XPath as a list of the given type.
@@ -77,6 +77,6 @@ public interface XPathBinder {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return List of return type that reflects the evaluation result.
      */
-    <T> BoundList<T> asListOf(Class<T> componentType);
+    <T> XBAutoFileList<T> asListOf(Class<T> componentType);
 
 }

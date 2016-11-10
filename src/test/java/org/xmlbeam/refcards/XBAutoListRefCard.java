@@ -16,19 +16,19 @@
 package org.xmlbeam.refcards;
 
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.types.ProjectedList;
+import org.xmlbeam.types.XBAutoList;
 
 /**
  *
  */
 @SuppressWarnings({ "javadoc", "null" })
-public class ProjectedListRefCard {
+public class XBAutoListRefCard {
 
     //START SNIPPET: ProjectedListRefCardExample
     public interface Example {
 
         @XBRead("/xml/list/entry")
-        ProjectedList<String> entries();
+        XBAutoList<String> entries();
 
     }
     //END SNIPPET: ProjectedListRefCardExample

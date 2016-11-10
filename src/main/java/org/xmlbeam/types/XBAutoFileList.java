@@ -21,6 +21,6 @@ import java.io.Closeable;
  * @author sven
  *
  */
-public interface BoundList<E> extends ProjectedList<E>,Closeable {
+public interface XBAutoFileList<E> extends XBAutoList<E>,Closeable {
 
 }
