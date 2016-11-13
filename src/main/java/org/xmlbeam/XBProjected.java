@@ -33,11 +33,11 @@ import org.xmlbeam.util.intern.DOMHelper;
 /**
  *
  */
-class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
+public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
 
     private final InvocationContext invocationContext;
     private Node dataNode;
-    private Node baseNode;
+    private Node baseNode =null;
 //    private Element parent;
 
     private final XBDomChangeTracker domChangeTracker = new XBDomChangeTracker() {
@@ -57,12 +57,10 @@ class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
 
     /**
      * @param baseNode
-     * @param dataNode
      * @param invocationContext
      */
-    public XBProjected(Node baseNode, Node dataNode, InvocationContext invocationContext) {
+    public XBProjected(Node baseNode, InvocationContext invocationContext) {
         this.baseNode = baseNode;
-        this.dataNode = dataNode;
         this.invocationContext = invocationContext;
 
     }

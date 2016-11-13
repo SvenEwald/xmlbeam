@@ -18,29 +18,19 @@
  */
 package org.xmlbeam.evaluation;
 
-import java.awt.geom.IllegalPathStateException;
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
-import org.xmlbeam.XBProjector.Flags;
-import org.xmlbeam.types.XBAutoFileValue;
 import org.xmlbeam.types.XBAutoFileList;
-import org.xmlbeam.types.XBAutoValue;
-import org.xmlbeam.types.XBAutoList;
-import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.types.XBAutoFileValue;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
@@ -63,12 +53,13 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @param projector
      * @param documentProvider
      * @param xpath
+     * @param documentWriter 
      */
-    public DefaultXPathBinder(final XBProjector projector, final DocumentResolver documentProvider, final String xpath,final Closeable documentWriter) {
+    public DefaultXPathBinder(final XBProjector projector, final DocumentResolver documentProvider, final String xpath, final Closeable documentWriter) {
         this.projector = projector;
         this.documentProvider = documentProvider;
         this.duplexExpression = new DuplexXPathParser(projector.config().getUserDefinedNamespaceMapping()).compile(xpath);
-        this.documentWriter=documentWriter;
+        this.documentWriter = documentWriter;
     }
 
     /**
@@ -132,50 +123,23 @@ public final class DefaultXPathBinder implements XPathBinder {
         return bindSingeValue(returnType, callerClass);
     }
 
-    @SuppressWarnings("unchecked")
-    private  <T> XBAutoFileValue<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
-   
-        
-//        try {
-//            Document document = documentProvider.resolve(returnType, callerClass);
-//
-//            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
-//
-//            if (projector.config().getTypeConverter().isConvertable(returnType)) {
-//                String data;
-//                if (duplexExpression.getExpressionType().isMustEvalAsString()) {
-//                    data = (String) expression.evaluate(document, XPathConstants.STRING);
-//                } else {
-//                    Node dataNode = (Node) expression.evaluate(document, XPathConstants.NODE);
-//                    data = dataNode == null ? null : dataNode.getTextContent();
-//                }
-//                if ((data == null) && (projector.getFlags().contains(Flags.ABSENT_IS_EMPTY))) {
-//                    data = "";
-//                }
-//
-//                final Object result = projector.config().getTypeConverter().convertTo(returnType, data, duplexExpression.getExpressionFormatPattern());
-//                return (T) result;
-//            }
-//
-//            if (Node.class.isAssignableFrom(returnType)) {
-//                final Object result = expression.evaluate(document, XPathConstants.NODE);
-//                return (T) result;
-//            }
-//
-//            if (returnType.isInterface()) {
-//                final Node node = (Node) expression.evaluate(document, XPathConstants.NODE);
-//                if (node == null) {
-//                    return null;
-//                }
-//                return projector.projectDOMNode(node, returnType);
-//            }
-//        } catch (XPathExpressionException e) {
-//            throw new RuntimeException(e);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        throw new IllegalPathStateException();
-        return null;
+    private <T> XBAutoFileValue<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
+        validateEvaluationType(returnType);
+        try {
+            Document document = documentProvider.resolve(returnType, callerClass);
+
+            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+
+            InvocationContext invocationContext = new InvocationContext(duplexExpression.getExpressionAsStringWithoutFormatPatterns(), //
+                    null, expression, duplexExpression, null, returnType, projector);
+
+            return new DefaultFileValue<T>(document, null, invocationContext, documentWriter);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (XPathExpressionException e) {
+            throw new XBException("Error during binding", e);
+        }
+
     }
 
     private <T> void validateEvaluationType(final Class<T> returnType) {
@@ -201,9 +165,23 @@ public final class DefaultXPathBinder implements XPathBinder {
         return bindMultiValues(componentType, callerClass);
     }
 
-    @SuppressWarnings("unchecked")
     private <T> XBAutoFileList<T> bindMultiValues(final Class<T> componentType, final Class<?> callerClass) {
         validateEvaluationType(componentType);
+        try{
+        Document document = documentProvider.resolve(componentType, callerClass);
+
+        XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+
+        InvocationContext invocationContext = new InvocationContext(duplexExpression.getExpressionAsStringWithoutFormatPatterns(), //
+                null, expression, duplexExpression, null, componentType, projector);
+
+        return new DefaultFileList<T>(document,invocationContext,documentWriter);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (XPathExpressionException e) {
+           throw new XBException("Error during evaluation", e);
+        }
+        
 //        try {
 //            Document document = documentProvider.resolve(componentType, callerClass);
 //            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
@@ -214,8 +192,6 @@ public final class DefaultXPathBinder implements XPathBinder {
 //        } catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
-        return null;
     }
 
-   
 }

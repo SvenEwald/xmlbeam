@@ -291,6 +291,10 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final ExpressionType expressionType = invocationContext.getDuplexExpression().getExpressionType();
             final XPathExpression expression = invocationContext.getxPathExpression();
 
+            if (isEvaluateAsProjected) {
+                return new XBProjected(node,invocationContext);
+            }
+            
             if (isConvertable) {
                 String data;
                 Node dataNode=null;
@@ -309,9 +313,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
                 try {
                     final Object result = projector.config().getTypeConverter().convertTo(returnType, data, invocationContext.getExpressionFormatPattern());
-                    if (isEvaluateAsProjected) {
-                        return new XBProjected(node,dataNode,invocationContext);
-                    }
+                   
                     return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
                 } catch (NumberFormatException e) {
                     throw new NumberFormatException(e.getMessage() + " XPath was:" + invocationContext.getResolvedXPath());
@@ -321,9 +323,6 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 // Try to evaluate as node
                 // if evaluated type does not match return type, ClassCastException will follow
                 final Object result = expression.evaluate(node, XPathConstants.NODE);
-                if (isEvaluateAsProjected) {
-                    return new XBProjected(node,(Node)result,invocationContext);
-                }
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsList) {
@@ -342,13 +341,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (isEvaluateAsSubProjection) {
                 final Node newNode = (Node) expression.evaluate(node, XPathConstants.NODE);
                 if (newNode == null) {
-                    if (isEvaluateAsProjected) {
-                        return new XBProjected(node,null,invocationContext);
-                    }
                     return wrappedInOptional ? ReflectionHelper.createOptional(null) : null;
-                }
-                if (isEvaluateAsProjected) {
-                    return new XBProjected(node,newNode,invocationContext);
                 }
                 final DOMAccess subprojection = (DOMAccess) projector.projectDOMNode(newNode, returnType);
                 return wrappedInOptional ? ReflectionHelper.createOptional(subprojection) : subprojection;
