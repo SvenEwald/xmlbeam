@@ -19,6 +19,7 @@
 package org.xmlbeam.evaluation;
 
 import java.awt.geom.IllegalPathStateException;
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -54,6 +55,7 @@ public final class DefaultXPathBinder implements XPathBinder {
     private final DocumentResolver documentProvider;
     private final DuplexExpression duplexExpression;
     private final XBProjector projector;
+    private final Closeable documentWriter;
 
     /**
      * Constructor for DefaultXPathEvaluator.
@@ -62,10 +64,11 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @param documentProvider
      * @param xpath
      */
-    public DefaultXPathBinder(final XBProjector projector, final DocumentResolver documentProvider, final String xpath) {
+    public DefaultXPathBinder(final XBProjector projector, final DocumentResolver documentProvider, final String xpath,final Closeable documentWriter) {
         this.projector = projector;
         this.documentProvider = documentProvider;
         this.duplexExpression = new DuplexXPathParser(projector.config().getUserDefinedNamespaceMapping()).compile(xpath);
+        this.documentWriter=documentWriter;
     }
 
     /**
@@ -130,7 +133,9 @@ public final class DefaultXPathBinder implements XPathBinder {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> XBAutoFileValue<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
+    private  <T> XBAutoFileValue<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
+   
+        
 //        try {
 //            Document document = documentProvider.resolve(returnType, callerClass);
 //

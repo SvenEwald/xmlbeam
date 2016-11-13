@@ -15,6 +15,7 @@
  */
 package org.xmlbeam.io;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -147,6 +148,12 @@ public class XBFileIO implements CanEvaluate {
                 return doc;
                 }
             
-        }, xpath);
+        }, xpath, new Closeable() {
+            
+            @Override
+            public void close() throws IOException {
+                
+            }
+        });
     }
 }
