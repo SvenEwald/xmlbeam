@@ -15,7 +15,6 @@
  */
 package org.xmlbeam.types;
 
-import java.io.Closeable;
 import java.util.Iterator;
 
 /**

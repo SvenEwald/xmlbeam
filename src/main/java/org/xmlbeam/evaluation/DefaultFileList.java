@@ -24,39 +24,34 @@ import org.xmlbeam.XBProjected;
 import org.xmlbeam.XBProjectedList;
 import org.xmlbeam.refcards.XBAutoListRefCard;
 import org.xmlbeam.types.XBAutoFileList;
-import org.xmlbeam.types.XBAutoFileValue;
+import org.xmlbeam.types.CloseableList;
+import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.types.XBAutoValue;
 
 /**
  * @author sven
- *
  */
-public class DefaultFileList<E> extends XBProjectedList<E> implements XBAutoFileList<E> {
+public class DefaultFileList<E> extends XBProjectedList<E> implements CloseableList<E> {
 
-    
+    private final Closeable documentWriter;
+
     /**
      * @param baseNode
      * @param invocationContext
+     * @param documentWriter
      */
-    public DefaultFileList(Node baseNode, InvocationContext invocationContext,Closeable documentWriter) {
+    public DefaultFileList(Node baseNode, InvocationContext invocationContext, Closeable documentWriter) {
         super(baseNode, invocationContext);
-        this.documentWriter=documentWriter;
+        this.documentWriter = documentWriter;
     }
 
-
-    private final Closeable documentWriter;
-    
- 
     /**
      * @throws IOException
      * @see java.io.Closeable#close()
      */
     @Override
     public void close() throws IOException {
-        // TODO Auto-generated method stub
-
+        documentWriter.close();
     }
 
-
-   
 }

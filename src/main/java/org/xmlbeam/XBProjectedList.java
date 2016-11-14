@@ -271,4 +271,12 @@ public class XBProjectedList<E> extends AbstractList<E> implements XBAutoList<E>
         domChangeTracker.domChanged();
     }
 
+    /**
+     * @return parent node holding the data nodes 
+     */
+    public Node getNode() {
+        domChangeTracker.refreshForReadIfNeeded();
+        return this.parent;
+    }
+
 }

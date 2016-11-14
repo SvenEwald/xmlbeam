@@ -119,16 +119,7 @@ class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
 
     @Override
     public String asString() {
-        try {
-            final StringWriter writer = new StringWriter();
-            projector.config().createTransformer().transform(new DOMSource(getDOMNode()), new StreamResult(writer));
-            final String output = writer.getBuffer().toString();
-            return output;
-        } catch (TransformerConfigurationException e) {
-            throw new RuntimeException(e);
-        } catch (TransformerException e) {
-            throw new RuntimeException(e);
-        }
+        return DOMHelper.toXMLString(projector,getDOMNode());
     }
 
     /**

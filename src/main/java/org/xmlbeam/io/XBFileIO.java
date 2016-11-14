@@ -21,9 +21,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.CanEvaluate;
 import org.xmlbeam.evaluation.DefaultXPathBinder;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
@@ -31,6 +37,7 @@ import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.util.IOHelper;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -100,20 +107,19 @@ public class XBFileIO implements CanEvaluate {
     }
 
     /**
-     * Set whether output should be append to existing file.
-     * When this method is not invoked, or invoked with 'false',
-     * The file will be replaced on writing operations.
+     * Set whether output should be append to existing file. When this method is not invoked, or
+     * invoked with 'false', The file will be replaced on writing operations.
      *
-     * @param append optional parameter, default is true. 
+     * @param append
+     *            optional parameter, default is true.
      * @return this to provide a fluent API.
      */
     public XBFileIO setAppend(final boolean... append) {
-        this.append = (append!=null) && (append.length>0) && append[0] ;
+        this.append = (append != null) && (append.length > 0) && append[0];
         return this;
     }
 
     /**
-     * 
      * @param xpath
      * @return evaluator
      * @see org.xmlbeam.evaluation.CanEvaluate#evalXPath(java.lang.String)
@@ -128,8 +134,8 @@ public class XBFileIO implements CanEvaluate {
                 Document doc = IOHelper.loadDocument(projector, fileInputStream);
                 fileInputStream.close();
                 return doc;
-                }
-            
+            }
+
         }, xpath);
     }
 
@@ -137,22 +143,37 @@ public class XBFileIO implements CanEvaluate {
      * @param xpath
      * @return binder
      */
+    @SuppressWarnings("resource")
     public XPathBinder bindXPath(String xpath) {
+        final Document[] doc = new Document[1];
         return new DefaultXPathBinder(projector, new DocumentResolver() {
 
             @Override
             public Document resolve(final Class<?>... resourceAwareClass) throws IOException {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                Document doc = IOHelper.loadDocument(projector, fileInputStream);
-                fileInputStream.close();
-                return doc;
+                //Document doc;
+                if (file.isFile()) {
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    doc[0] = IOHelper.loadDocument(projector, fileInputStream);
+                    fileInputStream.close();
+                } else {
+                    doc[0] = projector.config().createDocumentBuilder().newDocument();
                 }
-            
+
+                return doc[0];
+            }
+
         }, xpath, new Closeable() {
-            
+
             @Override
             public void close() throws IOException {
-                
+                try {
+                    FileOutputStream fileOutPutStream = new FileOutputStream(file);
+                    DOMHelper.trim(doc[0]);
+                    projector.config().createTransformer().transform(new DOMSource(doc[0]), new StreamResult(fileOutPutStream));
+                    fileOutPutStream.close();
+                } catch (TransformerException e) {
+                    throw new XBException("Could not write to file "+file.getAbsolutePath(), e);
+                }
             }
         });
     }

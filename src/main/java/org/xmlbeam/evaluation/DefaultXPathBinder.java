@@ -30,7 +30,8 @@ import org.w3c.dom.Document;
 import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.types.XBAutoFileList;
-import org.xmlbeam.types.XBAutoFileValue;
+import org.xmlbeam.types.CloseableList;
+import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
@@ -68,7 +69,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return true when the selected value equals (ignoring case) 'true'
      */
     @Override
-    public XBAutoFileValue<Boolean> asBoolean() {
+    public CloseableValue<Boolean> asBoolean() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(Boolean.TYPE, callerClass);
     }
@@ -79,7 +80,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return int value of evaluation result.
      */
     @Override
-    public XBAutoFileValue<Integer> asInt() {
+    public CloseableValue<Integer> asInt() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(Integer.TYPE, callerClass);
     }
@@ -90,7 +91,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return String value of evaluation result.
      */
     @Override
-    public XBAutoFileValue<String> asString() {
+    public CloseableValue<String> asString() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(String.class, callerClass);
     }
@@ -103,7 +104,7 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return Date value of evaluation result.
      */
     @Override
-    public XBAutoFileValue<Date> asDate() {
+    public CloseableValue<Date> asDate() {
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(Date.class, callerClass);
     }
@@ -117,13 +118,13 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return a value of return type that reflects the evaluation result.
      */
     @Override
-    public <T> XBAutoFileValue<T> as(final Class<T> returnType) {
+    public <T> CloseableValue<T> as(final Class<T> returnType) {
         validateEvaluationType(returnType);
         final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindSingeValue(returnType, callerClass);
     }
 
-    private <T> XBAutoFileValue<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
+    private <T> CloseableValue<T> bindSingeValue(final Class<T> returnType, final Class<?> callerClass) {
         validateEvaluationType(returnType);
         try {
             Document document = documentProvider.resolve(returnType, callerClass);
@@ -133,7 +134,7 @@ public final class DefaultXPathBinder implements XPathBinder {
             InvocationContext invocationContext = new InvocationContext(duplexExpression.getExpressionAsStringWithoutFormatPatterns(), //
                     null, expression, duplexExpression, null, returnType, projector);
 
-            return new DefaultFileValue<T>(document, null, invocationContext, documentWriter);
+            return new DefaultFileValue<T>(document, invocationContext, documentWriter);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (XPathExpressionException e) {
@@ -160,12 +161,12 @@ public final class DefaultXPathBinder implements XPathBinder {
      * @return List of return type that reflects the evaluation result.
      */
     @Override
-    public <T> XBAutoFileList<T> asListOf(final Class<T> componentType) {
+    public <T> CloseableList<T> asListOf(final Class<T> componentType) {
         Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
         return bindMultiValues(componentType, callerClass);
     }
 
-    private <T> XBAutoFileList<T> bindMultiValues(final Class<T> componentType, final Class<?> callerClass) {
+    private <T> CloseableList<T> bindMultiValues(final Class<T> componentType, final Class<?> callerClass) {
         validateEvaluationType(componentType);
         try{
         Document document = documentProvider.resolve(componentType, callerClass);

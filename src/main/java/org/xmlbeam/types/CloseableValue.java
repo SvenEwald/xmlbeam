@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Sven Ewald
+ *  Copyright 2016 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,23 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
+package org.xmlbeam.types;
+
+import java.io.Closeable;
 
 /**
  * @author sven
+ *
  */
-public interface CanEvaluateOrProject extends CanEvaluate {
+public interface CloseableValue<E> extends XBAutoValue<E>,Closeable {
 
-//    /**
-//     * @param xpath
-//     *            to be evaluated on input
-//     * @return EvaluationBuilder to choose target type
-//     */
-//    XPathEvaluator evalXPath(String xpath);
-
-    /**
-     * @param type
-     * @return a projection
-     */
-    <T> T createProjection(Class<T> type);
 }

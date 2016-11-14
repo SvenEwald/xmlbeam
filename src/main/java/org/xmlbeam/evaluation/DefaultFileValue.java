@@ -22,22 +22,21 @@ import java.util.Iterator;
 import org.w3c.dom.Node;
 import org.xmlbeam.XBProjected;
 import org.xmlbeam.refcards.XBAutoListRefCard;
-import org.xmlbeam.types.XBAutoFileValue;
+import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.types.XBAutoValue;
 
 /**
  * @author sven
  *
  */
-public class DefaultFileValue<E> extends XBProjected<E> implements XBAutoFileValue<E> {
+public class DefaultFileValue<E> extends XBProjected<E> implements CloseableValue<E> {
 
     
     /**
      * @param baseNode
-     * @param dataNode
      * @param invocationContext
      */
-    public DefaultFileValue(Node baseNode, Node dataNode, InvocationContext invocationContext,Closeable documentWriter) {
+    public DefaultFileValue(Node baseNode, InvocationContext invocationContext,Closeable documentWriter) {
         super(baseNode, invocationContext);
         this.documentWriter=documentWriter;
     }
@@ -52,8 +51,7 @@ public class DefaultFileValue<E> extends XBProjected<E> implements XBAutoFileVal
      */
     @Override
     public void close() throws IOException {
-        // TODO Auto-generated method stub
-
+       documentWriter.close();
     }
 
 

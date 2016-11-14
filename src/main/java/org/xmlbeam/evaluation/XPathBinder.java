@@ -18,7 +18,8 @@ package org.xmlbeam.evaluation;
 import java.util.Date;
 import java.util.List;
 
-import org.xmlbeam.types.XBAutoFileValue;
+import org.xmlbeam.types.CloseableValue;
+import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.XBAutoFileList;
 import org.xmlbeam.types.XBAutoValue;
 import org.xmlbeam.types.XBAutoList;
@@ -34,21 +35,21 @@ public interface XPathBinder {
      * 
      * @return true when the selected value equals (ignoring case) 'true'
      */
-    XBAutoFileValue<Boolean> asBoolean();
+    CloseableValue<Boolean> asBoolean();
 
     /**
      * Evaluates the XPath as a int value. This method is just a shortcut for as(Integer.TYPE);
      * 
      * @return int value of evaluation result.
      */
-    XBAutoFileValue<Integer> asInt();
+    CloseableValue<Integer> asInt();
 
     /**
      * Evaluates the XPath as a String value. This method is just a shortcut for as(String.class);
      * 
      * @return String value of evaluation result.
      */
-    XBAutoFileValue<String> asString();
+    CloseableValue<String> asString();
 
     /**
      * Evaluates the XPath as a Date value. This method is just a shortcut for as(Date.class); You
@@ -57,7 +58,7 @@ public interface XPathBinder {
      * 
      * @return Date value of evaluation result.
      */
-    XBAutoFileValue<Date> asDate();
+    CloseableValue<Date> asDate();
 
     /**
      * Evaluate the XPath as a value of the given type.
@@ -67,7 +68,7 @@ public interface XPathBinder {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return a value of return type that reflects the evaluation result.
      */
-    <T> XBAutoFileValue<T> as(Class<T> returnType);
+    <T> CloseableValue<T> as(Class<T> returnType);
 
     /**
      * Evaluate the XPath as a list of the given type.
@@ -77,6 +78,6 @@ public interface XPathBinder {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return List of return type that reflects the evaluation result.
      */
-    <T> XBAutoFileList<T> asListOf(Class<T> componentType);
+    <T> CloseableList<T> asListOf(Class<T> componentType);
 
 }

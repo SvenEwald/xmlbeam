@@ -726,6 +726,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     @Override
     public String asString(final Object projection) {
+        if (projection instanceof XBProjected) {
+            return DOMHelper.toXMLString(this, ((XBProjected)projection).getNode());           
+        }
+        if (projection instanceof XBProjectedList) {
+            return DOMHelper.toXMLString(this, ((XBProjectedList)projection).getNode());
+        }        
         if (!(projection instanceof DOMAccess)) {
             throw new IllegalArgumentException("Argument is not a projection.");
         }

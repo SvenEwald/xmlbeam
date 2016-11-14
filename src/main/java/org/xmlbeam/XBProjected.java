@@ -37,7 +37,7 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
 
     private final InvocationContext invocationContext;
     private Node dataNode;
-    private Node baseNode =null;
+    private Node baseNode = null;
 //    private Element parent;
 
     private final XBDomChangeTracker domChangeTracker = new XBDomChangeTracker() {
@@ -68,8 +68,8 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
     @Override
     public E get() {
         domChangeTracker.refreshForReadIfNeeded();
-        if (dataNode==null) {
-           return null;
+        if (dataNode == null) {
+            return null;
         }
         return DefaultXPathEvaluator.convertToComponentType(invocationContext, dataNode, invocationContext.getTargetComponentType());
     }
@@ -79,10 +79,13 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
         if (dataNode == null) {
             domChangeTracker.domChanged();
         }
-        Node prevNode=dataNode;
-        domChangeTracker.refreshForWriteIfNeeded();
+        domChangeTracker.refreshForReadIfNeeded();
+        Node prevNode = dataNode;
+//        domChangeTracker.refreshForWriteIfNeeded();
         E result = DefaultXPathEvaluator.convertToComponentType(invocationContext, prevNode, invocationContext.getTargetComponentType());
         Node oldNode = dataNode;
+        domChangeTracker.domChanged();
+        domChangeTracker.refreshForWriteIfNeeded();
         if (element instanceof Node) {
             Node newNode = ((Node) element).cloneNode(true);
             oldNode.getParentNode().replaceChild(oldNode, newNode);
@@ -97,12 +100,13 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
         }
 
         final String asString = invocationContext.getProjector().config().getStringRenderer().render(element.getClass(), element, invocationContext.getDuplexExpression().getExpressionFormatPattern());
-        oldNode.setTextContent(asString);
+        dataNode.setTextContent(asString);
         return result;
     }
 
     @Override
     public E remove() {
+        // refresh done in get()
         //domChangeTracker.refreshForReadIfNeeded();
         E oldValue = get();
         if (dataNode == null) {
@@ -126,17 +130,17 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
     @Override
     public boolean isPresent() {
         domChangeTracker.refreshForReadIfNeeded();
-        return dataNode!=null;
+        return dataNode != null;
     }
 
     @Override
-    public Iterator<E> iterator() {        
+    public Iterator<E> iterator() {
         return new Iterator<E>() {
-            boolean read=false;
-            
+            boolean read = false;
+
             @Override
             public boolean hasNext() {
-                return (!read) && (isPresent()); 
+                return (!read) && (isPresent());
             }
 
             @Override
@@ -144,7 +148,7 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
                 if (read) {
                     throw new IllegalStateException();
                 }
-                read=true;                
+                read = true;
                 return get();
             }
 
@@ -162,19 +166,26 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
 
     @Override
     public XBAutoValue<E> rename(String newName) {
-        if (dataNode==null) {
+        domChangeTracker.refreshForReadIfNeeded();
+        if (dataNode == null) {
             throw new IllegalStateException("Can not rename when no value is present.");
         }
-        dataNode=DOMHelper.renameNode(dataNode, newName);
+        dataNode = DOMHelper.renameNode(dataNode, newName);
         domChangeTracker.domChanged();
         return this;
     }
 
     @Override
     public String getName() {
-        if (dataNode==null) {
+        domChangeTracker.refreshForReadIfNeeded();
+        if (dataNode == null) {
             throw new IllegalStateException("No value is present.");
         }
         return dataNode.getNodeName();
+    }
+
+    Node getNode() {
+        domChangeTracker.refreshForReadIfNeeded();
+        return dataNode;
     }
 }

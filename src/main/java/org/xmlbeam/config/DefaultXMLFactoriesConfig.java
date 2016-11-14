@@ -143,6 +143,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         try {
             Transformer transformer = createTransformerFactory().newTransformer();
             if (isPrettyPrinting()) {
+                
                 // Enable some pretty printing of the resulting xml.
                 transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");

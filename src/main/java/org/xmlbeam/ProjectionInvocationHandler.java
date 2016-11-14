@@ -45,6 +45,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector.IOBuilder;
+import org.xmlbeam.annotation.XBAutoBind;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBOverride;
@@ -260,16 +261,17 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
+            final Class<?> methodReturnType = method.getReturnType();
             this.wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
-            this.isEvaluateAsProjected = XBAutoValue.class.equals(method.getReturnType());
-            this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : method.getReturnType();
-            this.isConvertable = projector.config().getTypeConverter().isConvertable(returnType);
+            this.isEvaluateAsProjected = XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAutoBind.class)!=null);
+            this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : methodReturnType;
+            this.isConvertable = projector.config().getTypeConverter().isConvertable(methodReturnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
-            this.isEvaluateAsList = List.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType) || XBAutoList.class.equals(returnType);
+            this.isEvaluateAsList = List.class.equals(methodReturnType) || ReflectionHelper.isStreamClass(methodReturnType) || XBAutoList.class.equals(methodReturnType);
             this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList || isEvaluateAsProjected)) {
-                throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of Projected, List or Array. Projecteds, Lists, and arrays may be empty but will never be null.");
+                throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of AutoValue, List or Array. Lists, and arrays may be empty but will never be null.");
             }
             this.isEvaluateAsSubProjection = returnType.isInterface();
 
@@ -291,7 +293,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final ExpressionType expressionType = invocationContext.getDuplexExpression().getExpressionType();
             final XPathExpression expression = invocationContext.getxPathExpression();
 
-            if (isEvaluateAsProjected) {
+            if (isEvaluateAsProjected && (!isEvaluateAsList)) {
                 return new XBProjected(node,invocationContext);
             }
             
@@ -327,7 +329,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
-                if (XBAutoList.class.equals(returnType)) {
+                if (XBAutoList.class.equals(returnType)||(isEvaluateAsProjected)) {
                     return new XBProjectedList(node, invocationContext);
                 }
                 final List<?> result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
@@ -732,6 +734,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     final XBRead readAnnotation = m.getAnnotation(XBRead.class);
                     if (readAnnotation != null) {
                         handlers.put(methodSignature, new ReadInvocationHandler(node, m, readAnnotation.value(), projector, absentIsEmpty));
+                        continue;
+                    }
+                }
+                {
+                    final XBAutoBind bindAnnotation = m.getAnnotation(XBAutoBind.class);
+                    if (bindAnnotation !=null) {                        
+                        handlers.put(methodSignature, new ReadInvocationHandler(node, m, bindAnnotation.value(), projector, absentIsEmpty));
                         continue;
                     }
                 }

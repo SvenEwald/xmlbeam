@@ -16,11 +16,11 @@
 package org.xmlbeam.types;
 
 import java.io.Closeable;
+import java.util.List;
 
 /**
- * @author sven
  *
  */
-public interface XBAutoFileValue<E> extends XBAutoValue<E>,Closeable {
+public interface CloseableList<E> extends List<E>, Closeable {
 
 }
