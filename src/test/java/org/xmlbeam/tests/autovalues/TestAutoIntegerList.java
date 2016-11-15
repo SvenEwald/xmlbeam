@@ -87,6 +87,7 @@ public class TestAutoIntegerList {
         assertEquals("[4]",projection.reference2().toString());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testContains() {
         assertFalse(projection.projectList().contains(null));

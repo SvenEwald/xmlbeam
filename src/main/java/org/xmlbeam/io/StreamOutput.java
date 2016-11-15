@@ -27,7 +27,7 @@ import org.xmlbeam.XBProjector;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBStreamOutput {
+public class StreamOutput {
 
     private final XBProjector projector;
     private final  OutputStream os;
@@ -36,7 +36,7 @@ public class XBStreamOutput {
      * @param xmlProjector
      * @param os 
      */
-    public XBStreamOutput(XBProjector xmlProjector,OutputStream os) {
+    public StreamOutput(XBProjector xmlProjector,OutputStream os) {
         this.projector = xmlProjector;
         this.os=os;
     }

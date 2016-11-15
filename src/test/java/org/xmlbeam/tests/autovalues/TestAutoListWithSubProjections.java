@@ -15,20 +15,18 @@
  */
 package org.xmlbeam.tests.autovalues;
 
-import java.util.Map;
-
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.tests.autovalues.TestAutoListWithSubProjections.Projection.Entry;
-import org.xmlbeam.types.XBAutoValue;
 import org.xmlbeam.types.XBAutoList;
 
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestAutoListWithSubProjections {
     private final XBProjector projector=new XBProjector(Flags.TO_STRING_RENDERS_XML);
 

@@ -17,12 +17,13 @@ package org.xmlbeam;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.intern.DOMChangeListener;
 
 /**
  *
  */
-abstract class XBDomChangeTracker implements DOMChangeListener {
+abstract class DomChangeTracker implements DOMChangeListener {
 
     private boolean needRefresh = true;
 

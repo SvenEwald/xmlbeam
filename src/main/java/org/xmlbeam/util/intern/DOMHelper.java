@@ -39,7 +39,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import org.xmlbeam.XBProjected;
 import org.xmlbeam.XBProjector;
 
 /**
@@ -305,6 +304,7 @@ public final class DOMHelper {
      * @param newName
      * @return a new Element instance with desired name and content.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Node> T renameNode(final T node, final String newName) {
         if (node instanceof Attr) {
             Attr attributeNode = (Attr) node;
@@ -572,6 +572,7 @@ public final class DOMHelper {
     /**
      * @param parentElement
      * @param o
+     * @return the new clone
      */
     public static Node appendClone(final Element parentElement, final Node o) {
         Node clone = o.cloneNode(true);
@@ -591,7 +592,9 @@ public final class DOMHelper {
     }
 
     /**
+     * @param projector 
      * @param domNode
+     * @return rendered XML as String
      */
     public static String toXMLString(XBProjector projector,Node domNode) {
         try {

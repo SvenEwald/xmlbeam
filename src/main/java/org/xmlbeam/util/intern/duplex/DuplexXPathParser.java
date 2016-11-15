@@ -17,9 +17,9 @@ package org.xmlbeam.util.intern.duplex;
 
 import java.util.Map;
 
-import java.io.StringReader;
+import org.xmlbeam.exceptions.XBException;
 
-import org.xmlbeam.XBException;
+import java.io.StringReader;
 
 /**
  * @author sven

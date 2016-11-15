@@ -15,6 +15,8 @@
  */
 package org.xmlbeam;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -28,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.io.IOException;
-import java.io.Serializable;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -56,8 +56,10 @@ import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
-import org.xmlbeam.types.XBAutoValue;
+import org.xmlbeam.exceptions.XBDataNotFoundException;
+import org.xmlbeam.exceptions.XBPathException;
 import org.xmlbeam.types.XBAutoList;
+import org.xmlbeam.types.XBAutoValue;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.MethodParamVariableResolver;
@@ -67,7 +69,6 @@ import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 import org.xmlbeam.util.intern.duplex.ExpressionType;
 import org.xmlbeam.util.intern.duplex.XBPathParsingException;
-import org.xmlbeam.util.intern.duplex.XBXPathExprNotAllowedForWriting;
 
 /**
  * This class implements the "magic" behind projection methods. Each projection is linked with a
@@ -288,13 +289,14 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return result;
         }
 
+        @SuppressWarnings("rawtypes")
         private Object invokeReadProjection(final InvocationContext invocationContext, final Object proxy, final Object[] args) throws Throwable {
             final Node node = getNodeForMethod(method, args);
             final ExpressionType expressionType = invocationContext.getDuplexExpression().getExpressionType();
             final XPathExpression expression = invocationContext.getxPathExpression();
 
             if (isEvaluateAsProjected && (!isEvaluateAsList)) {
-                return new XBProjected(node,invocationContext);
+                return new AutoValue(node,invocationContext);
             }
             
             if (isConvertable) {
@@ -330,7 +332,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
                 if (XBAutoList.class.equals(returnType)||(isEvaluateAsProjected)) {
-                    return new XBProjectedList(node, invocationContext);
+                    return new AutoList(node, invocationContext);
                 }
                 final List<?> result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
                 return isReturnAsStream ? ReflectionHelper.toStream(result) : result;

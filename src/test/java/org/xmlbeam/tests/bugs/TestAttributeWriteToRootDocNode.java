@@ -18,7 +18,7 @@ package org.xmlbeam.tests.bugs;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.annotation.XBWrite;
-import org.xmlbeam.XBPathException;
+import org.xmlbeam.exceptions.XBPathException;
 
 /**
  * @author sven

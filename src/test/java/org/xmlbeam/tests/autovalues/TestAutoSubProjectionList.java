@@ -17,25 +17,21 @@ package org.xmlbeam.tests.autovalues;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.omg.Messaging.SyncScopeHelper;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.tests.autovalues.TestAutoStingList.Projection;
-import org.xmlbeam.tests.projectionvalidation.TestProjectionValidation.E;
-import org.xmlbeam.types.XBAutoValue;
 import org.xmlbeam.types.XBAutoList;
+import org.xmlbeam.types.XBAutoValue;
 
 /**
  * @author sven
  *
  */
+@SuppressWarnings("javadoc")
 public class TestAutoSubProjectionList {
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
     private final static String XML = "<root><list><e>1</e><e>2</e><e>3</e></list></root>";

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam;
+package org.xmlbeam.exceptions;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -22,19 +22,33 @@ import java.util.List;
 
 /**
  * Exception to provide error details related to XPath parsing.
+ * 
+ * @author Sven
  */
 public class XBPathException extends XBException {
 
     private static final long serialVersionUID = -2286603725835988440L;
     private final String resolvedXpath;
 
-    XBPathException(final String msg,final Method method, final String xpath){
+    /**
+     * Constructor.
+     * @param msg
+     * @param method
+     * @param xpath
+     */
+    public XBPathException(final String msg,final Method method, final String xpath){
         super(msg+" when invoking "+shortDesc(method)+" [Resolved XPath:'"+xpath+"']");
         this.resolvedXpath = xpath;
         stripStackTrace();
     }
     
-    XBPathException(final Throwable cause, final Method method, final String xpath) {        
+    /**
+     * Constructor.
+     * @param cause
+     * @param method
+     * @param xpath
+     */
+    public XBPathException(final Throwable cause, final Method method, final String xpath) {        
         super("Exception invocating "+shortDesc(method)+" [Resolved XPath:'"+xpath+"']",cause);
         this.resolvedXpath = xpath;
         stripStackTrace();

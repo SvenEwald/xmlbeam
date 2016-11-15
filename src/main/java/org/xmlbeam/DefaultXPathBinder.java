@@ -16,7 +16,7 @@
  *    You should have received a copy of the GNU General Public License
  *    along with JSONBeam.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.xmlbeam.evaluation;
+package org.xmlbeam;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -27,9 +27,10 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
-import org.xmlbeam.XBException;
-import org.xmlbeam.XBProjector;
-import org.xmlbeam.types.XBAutoFileList;
+import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.InvocationContext;
+import org.xmlbeam.evaluation.XPathBinder;
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -41,7 +42,7 @@ import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
  *
  * @author sven
  */
-public final class DefaultXPathBinder implements XPathBinder {
+final class DefaultXPathBinder implements XPathBinder {
 
     private final DocumentResolver documentProvider;
     private final DuplexExpression duplexExpression;

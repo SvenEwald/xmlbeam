@@ -22,7 +22,7 @@ import org.xmlbeam.types.TypeConverter;
 
 /**
  */
-public interface ProjectionFactoryConfig extends XMLFactoriesConfig {
+interface ProjectionFactoryConfig extends XMLFactoriesConfig {
 
     /**
      * Getter for the current type converter.

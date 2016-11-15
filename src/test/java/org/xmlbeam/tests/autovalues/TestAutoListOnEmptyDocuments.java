@@ -30,6 +30,7 @@ import org.xmlbeam.types.XBAutoList;
 /**
  *
  */
+@SuppressWarnings("javadoc")
 public class TestAutoListOnEmptyDocuments {
 
     private final XBProjector projector=new XBProjector(Flags.TO_STRING_RENDERS_XML);

@@ -271,6 +271,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
      * @param targetComponentType
      * @return node content as target type
      */
+    @SuppressWarnings("unchecked")
     public static <E> E convertToComponentType(InvocationContext invocationContext,Node item, Class<?> targetComponentType) {
         TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
         if (typeConverter.isConvertable(invocationContext.getTargetComponentType())) {

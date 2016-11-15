@@ -16,13 +16,9 @@
 package org.xmlbeam.evaluation;
 
 import java.util.Date;
-import java.util.List;
 
-import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.types.CloseableList;
-import org.xmlbeam.types.XBAutoFileList;
-import org.xmlbeam.types.XBAutoValue;
-import org.xmlbeam.types.XBAutoList;
+import org.xmlbeam.types.CloseableValue;
 
 /**
  * Interface to build fluent API for the evaluation API.

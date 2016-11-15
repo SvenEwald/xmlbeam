@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -33,19 +31,18 @@ import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.types.XBAutoList;
-import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  *
  */
-public class XBProjectedList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeListener {
+class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeListener {
 
     private InvocationContext invocationContext;
     private Element parent;
     private Node baseNode;
     private final List<Node> content = new ArrayList<Node>();
-    private final XBDomChangeTracker domChangeTracker = new XBDomChangeTracker() {
+    private final DomChangeTracker domChangeTracker = new DomChangeTracker() {
         @Override
         void refresh(boolean forWrite) throws XPathExpressionException {
             final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
@@ -65,7 +62,7 @@ public class XBProjectedList<E> extends AbstractList<E> implements XBAutoList<E>
      * @param baseNode
      * @param invocationContext
      */
-    public XBProjectedList(Node baseNode, InvocationContext invocationContext) {
+    public AutoList(Node baseNode, InvocationContext invocationContext) {
         this.invocationContext = invocationContext;
         this.baseNode = baseNode;
         this.invocationContext.getProjector().addDOMChangeListener(this);

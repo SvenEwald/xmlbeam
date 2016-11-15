@@ -33,14 +33,14 @@ import org.xmlbeam.util.intern.DOMHelper;
 /**
  *
  */
-public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
+class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
 
     private final InvocationContext invocationContext;
     private Node dataNode;
     private Node baseNode = null;
 //    private Element parent;
 
-    private final XBDomChangeTracker domChangeTracker = new XBDomChangeTracker() {
+    private final DomChangeTracker domChangeTracker = new DomChangeTracker() {
         @Override
         void refresh(boolean forWrite) throws XPathExpressionException {
             final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
@@ -59,7 +59,7 @@ public class XBProjected<E> implements XBAutoValue<E>, DOMChangeListener {
      * @param baseNode
      * @param invocationContext
      */
-    public XBProjected(Node baseNode, InvocationContext invocationContext) {
+    public AutoValue(Node baseNode, InvocationContext invocationContext) {
         this.baseNode = baseNode;
         this.invocationContext = invocationContext;
 

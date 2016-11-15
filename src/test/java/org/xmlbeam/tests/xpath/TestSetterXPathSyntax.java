@@ -21,13 +21,13 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.xmlbeam.XBException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.tests.GenericXPathProjection;
 
 @SuppressWarnings("javadoc")

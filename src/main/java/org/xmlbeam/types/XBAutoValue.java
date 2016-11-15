@@ -18,18 +18,59 @@ package org.xmlbeam.types;
 import java.util.Iterator;
 
 /**
- *
+ * Instances of this type provide direct access to the DOM. A value may be present, or not. Changes
+ * are directly applied to the DOM. This value implements Iterable to provide a convenient way to
+ * handle nonexisting values like this:
+ * <pre>
+ * XBAutoValue<String> autoValue;
+ * for (String string : autoValue) {     
+ *     System.out.println(string);
+ * } </pre>  instead of <pre>
+ * XBAutoValue<String> autoValue;
+ * if (autoValue.isPresent) {
+ *    String string = autoValue.get();
+ *    System.out.println(string);
+ * }
+ * </pre>
+ * 
+ * @param <E>
+ *            Any type XMLBeam can work with.
+ *            
+ * @author sven           
  */
 public interface XBAutoValue<E> extends Iterable<E> {
 
+    /**
+     * Getter for value of bound element.
+     * 
+     * @return value
+     */
     E get();
-    
+
+    /**
+     * Setter for value of bound
+     * 
+     * @param value
+     * @return previous value
+     */
     E set(E value);
-    
+
+    /**
+     * Deletes value
+     * 
+     * @return removed value
+     */
     E remove();
-    
+
+    /**
+     * @return true if value exists
+     */
     boolean isPresent();
-    
+
+    /**
+     * @return iterator for this value
+     * @see java.lang.Iterable#iterator()
+     */
     Iterator<E> iterator();
 
     /**
@@ -37,6 +78,11 @@ public interface XBAutoValue<E> extends Iterable<E> {
      * @return this for convenience
      */
     XBAutoValue<E> rename(String string);
-    
+
+    /**
+     * Getter for name of element or attribute this value is bound to
+     * 
+     * @return name of element or attribute
+     */
     String getName();
 }

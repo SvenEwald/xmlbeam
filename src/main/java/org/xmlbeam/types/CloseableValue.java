@@ -18,9 +18,12 @@ package org.xmlbeam.types;
 import java.io.Closeable;
 
 /**
+ * Instances of this interface will change the DOM just like an XBAutoValue, but persist the changes
+ * when close() is invoked.
+ * 
  * @author sven
- *
+ * @param <E> Component type
  */
-public interface CloseableValue<E> extends XBAutoValue<E>,Closeable {
+public interface CloseableValue<E> extends XBAutoValue<E>, Closeable {
 
 }

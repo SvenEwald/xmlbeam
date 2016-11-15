@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.io;
+package org.xmlbeam;
 
 import java.io.Closeable;
 import java.io.File;
@@ -27,22 +27,21 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xmlbeam.XBException;
-import org.xmlbeam.XBProjector;
-import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.CanEvaluate;
-import org.xmlbeam.evaluation.DefaultXPathBinder;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.io.FileIO;
+import org.xmlbeam.io.StreamOutput;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBFileIO implements CanEvaluate {
+class DefaultFileIO implements CanEvaluate, FileIO {
 
     private final XBProjector projector;
     private boolean append = false;
@@ -54,7 +53,7 @@ public class XBFileIO implements CanEvaluate {
      * @param xmlProjector
      * @param file
      */
-    public XBFileIO(final XBProjector xmlProjector, final File file) {
+    public DefaultFileIO(final XBProjector xmlProjector, final File file) {
         if (xmlProjector == null) {
             throw new NullPointerException("Parameter xmlProjector must not be null.");
         }
@@ -74,7 +73,7 @@ public class XBFileIO implements CanEvaluate {
      * @param xmlProjector
      * @param fileName
      */
-    public XBFileIO(final XBProjector xmlProjector, final String fileName) {
+    public DefaultFileIO(final XBProjector xmlProjector, final String fileName) {
         this(xmlProjector, new File(fileName));
     }
 
@@ -85,6 +84,7 @@ public class XBFileIO implements CanEvaluate {
      * @return a new projection pointing to the content of the file.
      * @throws IOException
      */
+    @Override
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         try {
             Document document = projector.config().createDocumentBuilder().parse(file);
@@ -99,9 +99,10 @@ public class XBFileIO implements CanEvaluate {
      * @throws IOException
      * @return this to provide a fluent API.
      */
-    public XBFileIO write(final Object projection) throws IOException {
+    @Override
+    public FileIO write(final Object projection) throws IOException {
         FileOutputStream os = new FileOutputStream(file, append);
-        new XBStreamOutput(projector, os).write(projection);
+        new StreamOutput(projector, os).write(projection);
         os.close();
         return this;
     }
@@ -114,7 +115,8 @@ public class XBFileIO implements CanEvaluate {
      *            optional parameter, default is true.
      * @return this to provide a fluent API.
      */
-    public XBFileIO setAppend(final boolean... append) {
+    @Override
+    public FileIO setAppend(final boolean... append) {
         this.append = (append != null) && (append.length > 0) && append[0];
         return this;
     }
@@ -143,6 +145,7 @@ public class XBFileIO implements CanEvaluate {
      * @param xpath
      * @return binder
      */
+    @Override
     @SuppressWarnings("resource")
     public XPathBinder bindXPath(String xpath) {
         final Document[] doc = new Document[1];

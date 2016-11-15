@@ -13,14 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.types;
-
-import java.io.Closeable;
-
 /**
- * @author sven
+ * @author se
  *
  */
-public interface XBAutoFileList<E> extends XBAutoList<E>,Closeable {
-
-}
+package org.xmlbeam.exceptions;

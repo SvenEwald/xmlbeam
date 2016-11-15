@@ -13,25 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
+package org.xmlbeam;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.w3c.dom.Node;
-import org.xmlbeam.XBProjected;
-import org.xmlbeam.XBProjectedList;
-import org.xmlbeam.refcards.XBAutoListRefCard;
-import org.xmlbeam.types.XBAutoFileList;
+import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.types.CloseableList;
-import org.xmlbeam.types.CloseableValue;
-import org.xmlbeam.types.XBAutoValue;
 
 /**
  * @author sven
  */
-public class DefaultFileList<E> extends XBProjectedList<E> implements CloseableList<E> {
+class DefaultFileList<E> extends AutoList<E> implements CloseableList<E> {
 
     private final Closeable documentWriter;
 

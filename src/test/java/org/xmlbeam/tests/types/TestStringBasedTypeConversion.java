@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.junit.Test;
-import org.xmlbeam.XBException;
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.TypeConverter;
 

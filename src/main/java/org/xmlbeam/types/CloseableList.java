@@ -19,7 +19,9 @@ import java.io.Closeable;
 import java.util.List;
 
 /**
- *
+ * Instances of this interface will change the DOM just like an XBAutoList,
+ * but persist the changes when close() is invoked. 
+ * @param <E> component type
  */
 public interface CloseableList<E> extends List<E>, Closeable {
 

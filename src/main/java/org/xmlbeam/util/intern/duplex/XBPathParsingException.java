@@ -15,7 +15,7 @@
  */
 package org.xmlbeam.util.intern.duplex;
 
-import org.xmlbeam.XBException;
+import org.xmlbeam.exceptions.XBException;
 
 /**
  * @author sven

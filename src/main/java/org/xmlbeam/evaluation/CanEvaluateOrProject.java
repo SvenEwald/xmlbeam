@@ -20,13 +20,6 @@ package org.xmlbeam.evaluation;
  */
 public interface CanEvaluateOrProject extends CanEvaluate {
 
-//    /**
-//     * @param xpath
-//     *            to be evaluated on input
-//     * @return EvaluationBuilder to choose target type
-//     */
-//    XPathEvaluator evalXPath(String xpath);
-
     /**
      * @param type
      * @return a projection

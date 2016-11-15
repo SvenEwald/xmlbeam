@@ -17,9 +17,17 @@ package org.xmlbeam.types;
 
 import java.util.List;
 
+import org.xmlbeam.annotation.XBAutoBind;
+
+
 /**
+ * A List implementation that automatically changes the DOM when instances of this type are changed.
+ * It can be used by declaring a reading projection method returning this type.
+ * If the XBAutoBind annotation is used, returning List instances will implement this interface.
+ * @see XBAutoValue
+ * @see XBAutoBind
  * @author sven
- *
+ * @param <E> Component type of this collection
  */
 public interface XBAutoList<E> extends List<E> {
 

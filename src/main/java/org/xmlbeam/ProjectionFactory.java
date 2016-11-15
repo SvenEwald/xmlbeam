@@ -16,10 +16,11 @@
 package org.xmlbeam;
 
 import org.w3c.dom.Node;
+import org.xmlbeam.io.ProjectionIO;
 
 /**
  */
-public interface ProjectionFactory {
+interface ProjectionFactory {
 
     /**
      * Create a new projection for an empty document. Use this to create new documents.
@@ -70,7 +71,7 @@ public interface ProjectionFactory {
 
     /**
      * Access a projection IO factory.
-     * @return a {@link org.xmlbeam.ProjectionIO}
+     * @return a {@link org.xmlbeam.io.ProjectionIO}
      */
     ProjectionIO io();
 }
