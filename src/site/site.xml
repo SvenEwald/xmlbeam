@@ -30,32 +30,14 @@
 		    <meta name="description" content="Java XML library providing XPath projections as alternative to data binding." />
 		    <meta name="keywords" content="xml, java,data binding, data projection,glue code"/>
             <meta name="author" content="Sven Ewald"/>
-            <!-- 
-			<script type="text/javascript">
-				var _gaq = _gaq || [];
-				_gaq.push(['_setAccount', 'UA-37415750-1']);
-				_gaq.push(['_setDomainName', 'xmlbeam.org']);
-				_gaq.push(['_trackPageview']);
-
-				(function() {
-				var ga = document.createElement('script'); ga.type = 'text/javascript';
-				ga.async = true;
-				ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
-				'http://www') + '.google-analytics.com/ga.js';
-				var s = document.getElementsByTagName('script')[0];
-				s.parentNode.insertBefore(ga, s);
-				})();
-			</script>
-			-->
 		</head>
-		<!-- <links> <item name="Apache" href="http://www.apache.org/" /> <item 
-			name="Maven 1.x" href="http://maven.apache.org/maven-1.x/"/> <item name="Maven 
-			2" href="http://maven.apache.org/"/> </links> -->
 		<menu name="XMLBeam">
 			<item name="Welcome" href="index.html" />
 			<item name="Introduction" href="introduction.html" />
 			<item name="Tutorials" href="tutorials.html" />
 			<item name="API Explained" href="refcards.html"/>
+			<item name="Formatting Data" href="formatfeature.html"/>
+			<item name="Data Binding" href="autobinding.html"/>
 			<item name="Javadoc" href="apidocs"/>
 			<item name="FAQ" href="faq.html" />
 			<item name="Further Reading" href="links.html" />
