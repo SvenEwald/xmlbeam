@@ -145,7 +145,7 @@ API Reference
  
  []
  
- or a list or array of any of these types.
+ or a list, array, Stream or Optional of any of these types.
   
 
 ** @XBWrite
@@ -164,6 +164,15 @@ API Reference
  The easiest way to remove something from a document is to declare a deleter method.
  Again this annotation takes a XPath expression as parameter.
  Again only XPath expressions selecting Nodes or NodeSets are valid here.  
+
+** @XBAutoBind
+
+ The return type must be a List or the special type XBAutoValue. 
+ Changes to the List are directly applied to the XML structure.
+ This is a very convenient way of adding or removing elements.
+ Changes to the XBAutoValue object directly change a single element or attribute value.
+ If the return type of the projection method is list, the XPath expression must select a NodeSet.
+ 
 
 ** @XBOverride
 
