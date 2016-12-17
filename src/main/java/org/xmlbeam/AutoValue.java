@@ -188,4 +188,30 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
         domChangeTracker.refreshForReadIfNeeded();
         return dataNode;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (!isPresent()) {
+            return false;
+        }
+        E e = get();
+        if (e==null) {
+            return false;           
+        }
+        return e.equals(o);
+    }
+    
+    @Override
+    public
+    int hashCode() {
+        if (!isPresent()) {
+            return 0;
+        }
+        E e = get();
+        if (e==null) {
+            return 0;           
+        }
+        return get().hashCode();
+    }
+    
 }
