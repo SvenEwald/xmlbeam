@@ -59,13 +59,16 @@ public class TestAutoValues {
         assertEquals("<entry key=\"key\"/>", entry.toString().trim());
         entry.value().set("value");
         assertEquals("<entry key=\"key\" value=\"value\"/>", entry.toString().trim());
+        assertTrue(entry.value().equals("value"));
+        assertFalse(entry.value().equals("value2"));
+        assertEquals("value".hashCode(),entry.value().hashCode());
         entry.value().remove();
         assertEquals("<entry key=\"key\"/>", entry.toString().trim());
         assertTrue(entry.key().isPresent());
         entry.key().rename("huhu");
         assertEquals("<entry huhu=\"key\"/>", entry.toString().trim());
         assertFalse(entry.value().isPresent());
-        assertFalse(entry.key().isPresent());
+        assertFalse(entry.key().isPresent());      
     }
 
     @Test
