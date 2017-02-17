@@ -25,15 +25,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import java.io.StringWriter;
+
 import javax.xml.XMLConstants;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.xmlbeam.XBProjector;
 
 /**
  * A set of tiny helper methods internally used in the projection framework. This methods are
@@ -98,19 +106,31 @@ public final class DOMHelper {
             // No document, no namespaces.
             return map;
         }
-        NamedNodeMap attributes = root.getAttributes();
+
+        fillNSMapWithPrefixesDeclaredInElement(map, root);
+        return map;
+    }
+
+    private static void fillNSMapWithPrefixesDeclaredInElement(final Map<String, String> nsMap, final Element element) throws DOMException {
+        NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
             if ((!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getPrefix())) && (!XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getLocalName()))) {
                 continue;
             }
             if (XMLConstants.XMLNS_ATTRIBUTE.equals(attribute.getLocalName())) {
-                map.put("xbdefaultns", attribute.getNodeValue());
+                nsMap.put("xbdefaultns", attribute.getNodeValue());
                 continue;
             }
-            map.put(attribute.getLocalName(), attribute.getNodeValue());
+            nsMap.put(attribute.getLocalName(), attribute.getNodeValue());
         }
-        return map;
+        NodeList childNodes = element.getChildNodes();
+        for (Node n : nodeListToIterator(childNodes)) {
+            if (n.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            fillNSMapWithPrefixesDeclaredInElement(nsMap, (Element) n);
+        }
     }
 
     /**
@@ -528,11 +548,11 @@ public final class DOMHelper {
         if (node == null) {
             return;
         }
-        
-        while( node.hasChildNodes() ) {
-            removeNode( node.getFirstChild() );
+
+        while (node.hasChildNodes()) {
+            removeNode(node.getFirstChild());
         }
-        
+
         final Node parent = node.getParentNode();
         if (parent == null) {
             return;
@@ -556,6 +576,25 @@ public final class DOMHelper {
     public static void removeNodes(final Iterable<? extends Node> existingNodes) {
         for (Node e : existingNodes) {
             removeNode(e);
+        }
+
+    }
+
+    /**
+     * @param projector
+     * @param domNode
+     * @return rendered XML as String
+     */
+    public static String toXMLString(final XBProjector projector, final Node domNode) {
+        try {
+            final StringWriter writer = new StringWriter();
+            projector.config().createTransformer().transform(new DOMSource(domNode), new StreamResult(writer));
+            final String output = writer.getBuffer().toString();
+            return output;
+        } catch (TransformerConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (TransformerException e) {
+            throw new RuntimeException(e);
         }
 
     }
