@@ -52,7 +52,7 @@ import org.xmlbeam.XBProjector;
 public final class DOMHelper {
 
     /**
-     *
+     * Null safe comparator for DOM nodes.
      */
     private static final Comparator<? super Node> ATTRIBUTE_NODE_COMPARATOR = new Comparator<Node>() {
         private int compareMaybeNull(final Comparable<Object> a, final Object b) {
