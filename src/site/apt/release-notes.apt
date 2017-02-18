@@ -8,6 +8,10 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
+* 1.4.10 current release
+
+ * Bug fixed: Prefixes for namespaces were not found when declared on non root elements.
+
 * 1.4.9 current release
 
  * Bug fixed: Check preventing nonpublic interfaces removed.
