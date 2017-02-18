@@ -84,7 +84,7 @@ public final class DOMHelper {
     };
 
     /**
-     * Parse namespace prefixes defined in the documents root element.
+     * Parse namespace prefixes defined anywhere in the document.
      *
      * @param document
      *            source document.
@@ -111,6 +111,17 @@ public final class DOMHelper {
         return map;
     }
 
+    /**
+     * Search for prefix definitions in element and all children. There still is an issue for
+     * documents that use the same prefix on differen namespaces in disjunct subtrees. This might be
+     * possible but we won't support this. Same is with declaring multiple default namespaces.
+     * XMLBeams behaviour will be undefined in that case. There is a workaround by defining a custom
+     * namespace/prefix mapping, so the effort to support this is not justified.
+     *
+     * @param nsMap
+     * @param element
+     * @throws DOMException
+     */
     private static void fillNSMapWithPrefixesDeclaredInElement(final Map<String, String> nsMap, final Element element) throws DOMException {
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
