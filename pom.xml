@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.xmlbeam</groupId>
 	<artifactId>xmlprojector</artifactId>
-	<version>1.4.10</version>
+	<version>1.4.11</version>
 	<name>XMLBeam Data Projector</name>
 	<description>A java XML CRUD library to create &quot;projections&quot; of XML-Data to Java (and back). A projection is a defined subset of XML elements or attributes in an XML DOM tree. In contrast to data binding the resulting Java API does not mirror the XML structure, but user defined views to the structure. Requires at least Java6, supports Java8 features and has no further runtime dependencies.</description>
 	<inceptionYear>2012-12-21</inceptionYear>
