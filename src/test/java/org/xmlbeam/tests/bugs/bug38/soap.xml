@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+	<soap:Body>
+		<ns1:storeTokenResponse xmlns:ns1="http://recurring.services.adyen.com">
+			<ns1:result>
+				<additionalData xmlns="http://recurring.services.adyen.com"
+					xsi:nil="true" />
+				<alias xmlns="http://recurring.services.adyen.com">B133243153928547</alias>
+				<aliasType xmlns="http://recurring.services.adyen.com">Default</aliasType>
+				<params xmlns="http://recurring.services.adyen.com" xsi:nil="true" />
+				<pspEchoData xmlns="http://recurring.services.adyen.com"
+					xsi:nil="true" />
+				<pspReference xmlns="http://recurring.services.adyen.com">8514873382743402</pspReference>
+				<recurringDetailReference xmlns="http://recurring.services.adyen.com">8414873382748121
+				</recurringDetailReference>
+				<redirectType xmlns="http://recurring.services.adyen.com"
+					xsi:nil="true" />
+				<redirectUrl xmlns="http://recurring.services.adyen.com"
+					xsi:nil="true" />
+				<result xmlns="http://recurring.services.adyen.com">Success</result>
+			</ns1:result>
+		</ns1:storeTokenResponse>
+	</soap:Body>
+</soap:Envelope>
