@@ -38,15 +38,15 @@ import org.xmlbeam.util.intern.DOMHelper;
  */
 class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeListener {
 
-    private InvocationContext invocationContext;
+    private final InvocationContext invocationContext;
     private Element parent;
-    private Node baseNode;
+    private final Node baseNode;
     private final List<Node> content = new ArrayList<Node>();
     private final DomChangeTracker domChangeTracker = new DomChangeTracker() {
         @Override
-        void refresh(boolean forWrite) throws XPathExpressionException {
+        void refresh(final boolean forWrite) throws XPathExpressionException {
             final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
-            if (nodes.getLength() == 0 && forWrite) {
+            if ((nodes.getLength() == 0) && forWrite) {
                 parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
             } else {
                 parent = nodes.getLength() == 0 ? null : (Element) nodes.item(0).getParentNode();
@@ -62,14 +62,14 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
      * @param baseNode
      * @param invocationContext
      */
-    public AutoList(Node baseNode, InvocationContext invocationContext) {
+    public AutoList(final Node baseNode, final InvocationContext invocationContext) {
         this.invocationContext = invocationContext;
         this.baseNode = baseNode;
         this.invocationContext.getProjector().addDOMChangeListener(this);
     }
 
     @Override
-    public E get(int index) {
+    public E get(final int index) {
         if (index < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -77,7 +77,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
         if (index >= content.size()) {
             throw new IndexOutOfBoundsException();
         }
-        return DefaultXPathEvaluator.convertToComponentType(invocationContext,content.get(index), invocationContext.getTargetComponentType());
+        return DefaultXPathEvaluator.convertToComponentType(invocationContext, content.get(index), invocationContext.getTargetComponentType());
     }
 
     @Override
@@ -87,7 +87,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     }
 
     @Override
-    public E set(int index, E element) {
+    public E set(final int index, final E element) {
         if (index < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -96,7 +96,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
             throw new IndexOutOfBoundsException();
         }
         Node oldNode = content.get(index);
-        E result = DefaultXPathEvaluator.convertToComponentType(invocationContext,oldNode, invocationContext.getTargetComponentType());
+        E result = DefaultXPathEvaluator.convertToComponentType(invocationContext, oldNode, invocationContext.getTargetComponentType());
         if (element instanceof Node) {
             Node newNode = ((Node) element).cloneNode(true);
             oldNode.getParentNode().replaceChild(oldNode, newNode);
@@ -116,15 +116,15 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     }
 
     @Override
-    public boolean add(E e) {
+    public boolean add(final E e) {
         if (e == null) {
             return false;
         }
-        if (parent==null) {
+        if (parent == null) {
             domChangeTracker.domChanged();
         }
         domChangeTracker.refreshForWriteIfNeeded();
-        
+
         if (e instanceof Node) {
             content.add(DOMHelper.appendClone(parent, (Node) e));
             return true;
@@ -143,7 +143,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     }
 
     @Override
-    public void add(int index, E o) {
+    public void add(final int index, final E o) {
         if (o == null) {
             throw new IllegalArgumentException("Can not add null to a ProjectedList. I don't know how to render that.");
         }
@@ -182,7 +182,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     }
 
     @Override
-    public E remove(int index) {
+    public E remove(final int index) {
         E result = get(index);
         Node remove = content.remove(index);
         Node p = remove.getParentNode();
@@ -246,10 +246,8 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
         return false;
     }
 
-  
-
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(final Object o) {
         if (!(o instanceof Node)) {
             return super.indexOf(o);
         }
@@ -269,7 +267,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     }
 
     /**
-     * @return parent node holding the data nodes 
+     * @return parent node holding the data nodes
      */
     public Node getNode() {
         domChangeTracker.refreshForReadIfNeeded();

@@ -15,6 +15,12 @@
  */
 package org.xmlbeam;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -25,11 +31,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -59,6 +60,7 @@ import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.exceptions.XBDataNotFoundException;
 import org.xmlbeam.exceptions.XBPathException;
 import org.xmlbeam.types.XBAutoList;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.types.XBAutoValue;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
@@ -258,17 +260,19 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         private final boolean isEvaluateAsList;
         private final boolean isEvaluateAsArray;
         private final boolean isEvaluateAsSubProjection;
+        private final boolean isEvaluateAsMap;
         private final boolean isReturnAsStream;
 
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
             final Class<?> methodReturnType = method.getReturnType();
             this.wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
-            this.isEvaluateAsProjected = XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAutoBind.class)!=null);
+            this.isEvaluateAsProjected = XBAutoMap.class.equals(methodReturnType) || XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAutoBind.class) != null);
             this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : methodReturnType;
             this.isConvertable = projector.config().getTypeConverter().isConvertable(methodReturnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
             this.isEvaluateAsList = List.class.equals(methodReturnType) || ReflectionHelper.isStreamClass(methodReturnType) || XBAutoList.class.equals(methodReturnType);
+            this.isEvaluateAsMap = XBAutoMap.class.equals(methodReturnType);
             this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList || isEvaluateAsProjected)) {
@@ -295,16 +299,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             final ExpressionType expressionType = invocationContext.getDuplexExpression().getExpressionType();
             final XPathExpression expression = invocationContext.getxPathExpression();
 
-            if (isEvaluateAsProjected && (!isEvaluateAsList)) {
-                return new AutoValue(node,invocationContext);
+            if (isEvaluateAsProjected && (!isEvaluateAsList) && (!isEvaluateAsMap)) {
+                return new AutoValue(node, invocationContext);
             }
-            
+
             if (isConvertable) {
                 String data;
-                Node dataNode=null;
+                Node dataNode = null;
                 if (expressionType.isMustEvalAsString()) {
                     if (isEvaluateAsProjected) {
-                        throw new XBPathException("XPath expression is not writeable and can not be mapped to a projected Value.",method,invocationContext.getResolvedXPath());
+                        throw new XBPathException("XPath expression is not writeable and can not be mapped to a projected Value.", method, invocationContext.getResolvedXPath());
                     }
                     data = (String) expression.evaluate(node, XPathConstants.STRING);
                 } else {
@@ -317,7 +321,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
                 try {
                     final Object result = projector.config().getTypeConverter().convertTo(returnType, data, invocationContext.getExpressionFormatPattern());
-                   
+
                     return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
                 } catch (NumberFormatException e) {
                     throw new NumberFormatException(e.getMessage() + " XPath was:" + invocationContext.getResolvedXPath());
@@ -329,11 +333,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 final Object result = expression.evaluate(node, XPathConstants.NODE);
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
+            if (isEvaluateAsMap) {
+                return new AutoMap(node, invocationContext);
+            }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
-                if (XBAutoList.class.equals(returnType)||(isEvaluateAsProjected)) {
+                if (XBAutoList.class.equals(returnType) || (isEvaluateAsProjected)) {
                     return new AutoList(node, invocationContext);
                 }
+
                 final List<?> result = DefaultXPathEvaluator.evaluateAsList(expression, node, method, invocationContext);
                 return isReturnAsStream ? ReflectionHelper.toStream(result) : result;
             }
@@ -741,7 +749,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 {
                     final XBAutoBind bindAnnotation = m.getAnnotation(XBAutoBind.class);
-                    if (bindAnnotation !=null) {                        
+                    if (bindAnnotation != null) {
                         handlers.put(methodSignature, new ReadInvocationHandler(node, m, bindAnnotation.value(), projector, absentIsEmpty));
                         continue;
                     }

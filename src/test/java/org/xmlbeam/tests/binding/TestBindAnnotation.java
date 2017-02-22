@@ -15,7 +15,8 @@
  */
 package org.xmlbeam.tests.binding;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBAutoBind;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.types.XBAutoValue;
 
 /**
@@ -40,6 +42,9 @@ public class TestBindAnnotation {
 
         @XBAutoBind("/root/list/element")
         List<String> list();
+
+        @XBAutoBind("/root/map")
+        XBAutoMap<String> map();
     }
 
     @Test
@@ -54,7 +59,12 @@ public class TestBindAnnotation {
         list.add("foo");
         list.add("bar");
         System.out.println(list.toString());
-        
+
     }
 
+    @Test
+    public void testProjectionBindMapEmpty() {
+        assertTrue(projection.map().isEmpty());
+        projection.map().put("./a/b/c", "someValue);
+    }
 }
