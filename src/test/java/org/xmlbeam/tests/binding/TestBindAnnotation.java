@@ -70,6 +70,7 @@ public class TestBindAnnotation {
 
         //   projection.map().put("./a/b/c", "someValue);
 
-        mapProjection.map().entrySet();
+        System.out.println(mapProjection);
+        System.out.println(mapProjection.map().entrySet());
     }
 }

@@ -241,6 +241,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
                 final XPathExpression xPathExpression = xPath.compile(strippedXPath);
                 final Class<?> targetComponentType = findTargetComponentType(method);
+                
                 lastInvocationContext = new InvocationContext(resolvedXpath, xPath, xPathExpression, duplexExpression, resolver, targetComponentType, projector);
             }
             lastInvocationContext.updateMethodArgs(args);
@@ -916,14 +917,16 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         final Class<?> returnType = method.getReturnType();
         if (returnType.isArray()) {
             return method.getReturnType().getComponentType();
-        }
-        if (!(List.class.equals(returnType) || XBAutoList.class.equals(returnType) || XBAutoValue.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType))) {
+        }       
+        
+        if (!(List.class.equals(returnType)|| XBAutoMap.class.isAssignableFrom(returnType) || XBAutoList.class.equals(returnType) || XBAutoValue.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType))) {
             return null;
         }
         final Type type = method.getGenericReturnType();
         if (!(type instanceof ParameterizedType) || (((ParameterizedType) type).getActualTypeArguments() == null) || (((ParameterizedType) type).getActualTypeArguments().length < 1)) {
             throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify a generic type for the List. Otherwise I do not know which type I should fill the List with.");
-        }
+        }             
+        
         assert ((ParameterizedType) type).getActualTypeArguments().length == 1 : "";
         Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
         if (!(componentType instanceof Class)) {
