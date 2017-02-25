@@ -634,4 +634,24 @@ public final class DOMHelper {
         }
 
     }
+
+    /**
+     * @param item
+     * @return Text content of this node, without child content.
+     */
+    public static String directTextContent(final Node item) {
+        NodeList childNodes = item.getChildNodes();
+        if (childNodes == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < childNodes.getLength(); ++i) {
+            Node child = childNodes.item(i);
+            if (child.getNodeType() != Node.TEXT_NODE) {
+                continue;
+            }
+            sb.append(child.getNodeValue());
+        }
+        return sb.toString();
+    }
 }
