@@ -16,8 +16,10 @@
 package org.xmlbeam.tests.binding;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -47,6 +49,10 @@ public class TestBindAnnotation {
 
         @XBAutoBind("/root/map")
         XBAutoMap<String> map();
+
+        @XBAutoBind("/root/map")
+        XBAutoMap<String> mapSubProjection();
+
     }
 
     @Test
@@ -65,12 +71,23 @@ public class TestBindAnnotation {
     }
 
     @Test
+    public void testProjectionBindMapCreation() {
+        System.out.println(mapProjection);
+        Map<String, String> map = mapProjection.map();
+        map.put("./a/b/c", "newValue");
+        System.out.println(mapProjection);
+    }
+
+    @Test
     public void testProjectionBindMapEmpty() {
         // assertTrue(projection.map().isEmpty());
-
         //   projection.map().put("./a/b/c", "someValue);
+        Map<String, String> map = mapProjection.map();
+        assertFalse(map.isEmpty());
+        assertEquals(3, map.size());
 
         System.out.println(mapProjection);
         System.out.println(mapProjection.map().entrySet());
+        System.out.println(mapProjection.map().values());
     }
 }

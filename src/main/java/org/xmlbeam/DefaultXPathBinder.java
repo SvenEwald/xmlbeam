@@ -18,10 +18,11 @@
  */
 package org.xmlbeam;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+
+import java.io.Closeable;
+import java.io.IOException;
 
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -55,7 +56,7 @@ final class DefaultXPathBinder implements XPathBinder {
      * @param projector
      * @param documentProvider
      * @param xpath
-     * @param documentWriter 
+     * @param documentWriter
      */
     public DefaultXPathBinder(final XBProjector projector, final DocumentResolver documentProvider, final String xpath, final Closeable documentWriter) {
         this.projector = projector;
@@ -144,7 +145,7 @@ final class DefaultXPathBinder implements XPathBinder {
 
     }
 
-    private <T> void validateEvaluationType(final Class<T> returnType) {
+    static private <T> void validateEvaluationType(final Class<T> returnType) {
         if (ReflectionHelper.isOptional(returnType)) {
             throw new IllegalArgumentException("Type Optional is only allowed as a method return type.");
         }
@@ -169,21 +170,21 @@ final class DefaultXPathBinder implements XPathBinder {
 
     private <T> CloseableList<T> bindMultiValues(final Class<T> componentType, final Class<?> callerClass) {
         validateEvaluationType(componentType);
-        try{
-        Document document = documentProvider.resolve(componentType, callerClass);
+        try {
+            Document document = documentProvider.resolve(componentType, callerClass);
 
-        XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
 
-        InvocationContext invocationContext = new InvocationContext(duplexExpression.getExpressionAsStringWithoutFormatPatterns(), //
-                null, expression, duplexExpression, null, componentType, projector);
+            InvocationContext invocationContext = new InvocationContext(duplexExpression.getExpressionAsStringWithoutFormatPatterns(), //
+                    null, expression, duplexExpression, null, componentType, projector);
 
-        return new DefaultFileList<T>(document,invocationContext,documentWriter);
+            return new DefaultFileList<T>(document, invocationContext, documentWriter);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (XPathExpressionException e) {
-           throw new XBException("Error during evaluation", e);
+            throw new XBException("Error during evaluation", e);
         }
-        
+
 //        try {
 //            Document document = documentProvider.resolve(componentType, callerClass);
 //            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
