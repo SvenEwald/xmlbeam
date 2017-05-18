@@ -555,9 +555,28 @@ public final class DOMHelper {
      *
      * @param element
      */
+    @Deprecated
     public static void removeAllChildren(final Element element) {
         for (Node n = element.getFirstChild(); n != null; n = element.getFirstChild()) {
             element.removeChild(n);
+        }
+    }
+
+    /**
+     * Simply removes all child nodes.
+     *
+     * @param node
+     */
+    public static void removeAllChildren(final Node node) {
+        if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
+            Element documentElement = ((Document) node).getDocumentElement();
+            if (documentElement != null) {
+                ((Document) node).removeChild(documentElement);
+            }
+            return;
+        }
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            removeAllChildren((Element) node);
         }
     }
 
@@ -653,5 +672,35 @@ public final class DOMHelper {
             sb.append(child.getNodeValue());
         }
         return sb.toString();
+    }
+
+    /**
+     * @param elementToChange
+     * @param asString
+     */
+    public static void setDirectTextContent(Element elementToChange, String asString) {
+        List<Node> nodes = new LinkedList<Node>();  
+        List<Node> nodes2 = new LinkedList<Node>();   
+        for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
+            if (Node.TEXT_NODE==n.getNodeType()) {
+                continue;
+            }
+            nodes.add(n);
+        }
+        elementToChange.setTextContent(asString);    
+        for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
+            if (Node.TEXT_NODE!=n.getNodeType()) {
+                continue;
+            }
+            nodes.add(n);
+        }
+        removeAllChildren(elementToChange);
+        for (Node n : nodes) {
+            elementToChange.appendChild(n);
+        }
+        for (Node n : nodes2) {
+            elementToChange.appendChild(n);
+        }
+        
     }
 }
