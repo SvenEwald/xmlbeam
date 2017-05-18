@@ -165,13 +165,13 @@ API Reference
  Again this annotation takes a XPath expression as parameter.
  Again only XPath expressions selecting Nodes or NodeSets are valid here.  
 
-** @XBAutoBind
-
- The return type must be a List or the special type XBAutoValue. 
- Changes to the List are directly applied to the XML structure.
- This is a very convenient way of adding or removing elements.
- Changes to the XBAutoValue object directly change a single element or attribute value.
- If the return type of the projection method is list, the XPath expression must select a NodeSet.
+~~** @XBAutoBind
+~~
+~~ The return type must be a List or the special type XBAutoValue. 
+~~ Changes to the List are directly applied to the XML structure.
+~~ This is a very convenient way of adding or removing elements.
+~~ Changes to the XBAutoValue object directly change a single element or attribute value.
+~~ If the return type of the projection method is list, the XPath expression must select a NodeSet.
  
 
 ** @XBOverride
@@ -191,39 +191,39 @@ API Reference
   
 * Projected Values & Lists
 
- By default, projection methods return immutable objects without side effects. But there are two special Types that change the underlying document.
+~~ By default, projection methods return immutable objects without side effects. But there are two special Types that change the underlying document.
+~~ 
+~~** ProjectedList
+~~
+~~----------------------------------------
+~~<xml>
+~~   <list>
+~~      <entry>foo</entry>
+~~      <entry>bar</entry>
+~~   </example>
+~~</xml>
+~~----------------------------------------
+~~
+~~ Defining a projection method returning a ProjectedList 
+~~ 
+~~%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectedListRefCardExample|source=src/test/java/org/xmlbeam/refcards/ProjectedListRefCard.java}
+~~
+~~ allowes to directy change the xml document:
+~~
+~~%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectedListRefCardExample2|source=src/test/java/org/xmlbeam/refcards/ProjectedListRefCard.java}
+~~
+~~ The result will be
  
-** ProjectedList
+~~----------------------------------------
+~~<xml>
+~~   <list>
+~~      <entry>foo</entry>
+~~      <entry>bar</entry>
+~~      <entry>New Entry</entry>
+~~   </example>
+~~</xml>
+~~----------------------------------------
 
-----------------------------------------
-<xml>
-   <list>
-      <entry>foo</entry>
-      <entry>bar</entry>
-   </example>
-</xml>
-----------------------------------------
-
- Defining a projection method returning a ProjectedList 
- 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectedListRefCardExample|source=src/test/java/org/xmlbeam/refcards/ProjectedListRefCard.java}
-
- allowes to directy change the xml document:
-
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectedListRefCardExample2|source=src/test/java/org/xmlbeam/refcards/ProjectedListRefCard.java}
-
- The result will be
- 
-----------------------------------------
-<xml>
-   <list>
-      <entry>foo</entry>
-      <entry>bar</entry>
-      <entry>New Entry</entry>
-   </example>
-</xml>
-----------------------------------------
-
-** Projected<T> 
+~~** Projected<T> 
  
    
