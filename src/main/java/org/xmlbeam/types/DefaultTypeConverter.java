@@ -346,7 +346,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
      */
     @Override
     public <T> boolean isConvertable(final Class<T> targetType) {
-        if (targetType==null) {
+        if (targetType == null) {
             return false; // That is really bad.
         }
         if (CONVERSIONS.containsKey(targetType)) {
@@ -408,7 +408,7 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
     public <T> String render(final Class<? extends T> dataType, final T data, final String... optionalFormatPattern) {
         assert dataType != null;
         if ((optionalFormatPattern == null) || (optionalFormatPattern.length == 0) || (optionalFormatPattern[0] == null)) {
-            return data.toString();
+            return data == null ? null : data.toString();
         }
         if (Date.class.isAssignableFrom(dataType)) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(optionalFormatPattern[0], DateFormatSymbols.getInstance(locale));

@@ -671,13 +671,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
 
                 final Element elementToChange = (Element) duplexExpression.ensureExistence(node);
-                if (valueToSet == null) {
-                    //TODO: This should depend on the parameter type?
-                    // If param type == String, no structural change might be expected.
+                final Class<?> valueType=method.getParameterTypes()[findIndexOfValue];
+                if ((valueToSet == null)&&(ProjectionInvocationHandler.isStructureChangingType(method.getParameterTypes()[findIndexOfValue]))) {
                     DOMHelper.removeAllChildren(elementToChange);
                 } else {
-                    final String asString = projector.config().getStringRenderer().render(valueToSet.getClass(), valueToSet, duplexExpression.getExpressionFormatPattern());
-                    elementToChange.setTextContent(asString);
+                    final String asString = projector.config().getStringRenderer().render(valueType, valueToSet, duplexExpression.getExpressionFormatPattern());
+                    //elementToChange.setTextContent(asString);
+                    DOMHelper.setDirectTextContent(elementToChange,asString);
                 }
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             } catch (XBPathParsingException e) {
@@ -790,9 +790,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     /**
      * @param o
      * @return
+     * @deprecated use isStructureChangingType instead
      */
+    @Deprecated
     static boolean isStructureChangingValue(final Object o) {
         return (o instanceof DOMAccess) || (o instanceof Node);
+    }
+
+    public static boolean isStructureChangingType(final Class<?> c) {
+        return (DOMAccess.class.isAssignableFrom(c)) || (Node.class.isAssignableFrom(c));
     }
 
     /**
