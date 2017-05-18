@@ -1,0 +1,31 @@
+Supported Java Types
+
+ XMLBeam supports reading and writing XML with the following Java types:
+
+* Primitives
+
+ All primitive types (bool, short, int, long, float, double) are supported. 
+ If a default value is needed, 0 and false are used.
+ 
+* Autoboxing types
+ Boolean, Short, Integer, Long, Float and Double are supported.
+ Null indicates nonexisting values.
+ 
+* String
+
+* Date
+
+* Any type with a String constructor
+ You can directly map XML values to your own classes by providing a construtor with a String parameter.
+ Alternatively you can provide a factory method.  
+
+* Collection Types
+ 
+ Collections and Optionals of any of these types are supported.
+ 
+ * List   
+
+ * Stream
+
+ * Optional
+

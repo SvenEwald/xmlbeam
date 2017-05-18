@@ -31,7 +31,7 @@ import org.xmlbeam.evaluation.XPathEvaluator;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBStreamInput implements CanEvaluate {
+public class StreamInput implements CanEvaluate {
 
     private final XBProjector projector;
     private final InputStream is;
@@ -41,7 +41,7 @@ public class XBStreamInput implements CanEvaluate {
      * @param xmlProjector
      * @param is
      */
-    public XBStreamInput(final XBProjector xmlProjector, final InputStream is) {
+    public StreamInput(final XBProjector xmlProjector, final InputStream is) {
         this.projector = xmlProjector;
         this.is = is;
     }
@@ -76,7 +76,7 @@ public class XBStreamInput implements CanEvaluate {
      * @param systemID
      * @return this for convenience.
      */
-    public XBStreamInput setSystemID(final String systemID) {
+    public StreamInput setSystemID(final String systemID) {
         this.systemID = systemID;
         return this;
     }
@@ -87,7 +87,7 @@ public class XBStreamInput implements CanEvaluate {
             @Override
             public Document resolve(final Class<?>... resourceAwareClass) {
                 try {
-                    return XBStreamInput.this.readDocument();
+                    return StreamInput.this.readDocument();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

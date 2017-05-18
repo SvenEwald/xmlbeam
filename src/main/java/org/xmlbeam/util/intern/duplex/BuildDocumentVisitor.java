@@ -37,6 +37,7 @@ import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTRINGLITER
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTVARNAME;
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTXPATH;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -205,6 +206,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                     throw new XBXPathExprNotAllowedForWriting(node, "Operator " + node.getValue() + " leads to non writable predicates.");
                 }
                 Object first = node.firstChildAccept(this, data);
+                if (first instanceof List) {
+                    first=((List)first).get(0);
+                }
                 if (!(first instanceof Node)) {
                     throw new XBXPathExprNotAllowedForWriting(node, "A non writable predicate");
                 }
@@ -228,6 +232,8 @@ class BuildDocumentVisitor implements XParserVisitor {
                 return QName.valueOf(node.getValue());
             case JJTVARNAME:
                 return resolveVariable(node, data);
+            case  JJTPATHEXPR:
+                return node.childrenAcceptWithFilter(this, data, stepListFilter);
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expetced here.");
             }

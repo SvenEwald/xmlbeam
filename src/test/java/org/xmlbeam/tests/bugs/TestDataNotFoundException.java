@@ -16,12 +16,12 @@
 package org.xmlbeam.tests.bugs;
 
 import org.junit.Test;
-import org.xmlbeam.XBDataNotFoundException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBUpdate;
+import org.xmlbeam.exceptions.XBDataNotFoundException;
 
 /**
  *

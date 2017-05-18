@@ -16,12 +16,6 @@
 package org.xmlbeam;
 
 import java.io.Serializable;
-import java.io.StringWriter;
-
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,6 +29,11 @@ import org.xmlbeam.util.intern.DOMHelper;
  *
  */
 class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -405766165734498635L;
 
     final static class DefaultObjectInvoker extends DefaultDOMAccessInvoker {
         private DefaultObjectInvoker(final Class<?> projectionInterface, final Node documentOrElement, final XBProjector projector) {
@@ -119,16 +118,7 @@ class DefaultDOMAccessInvoker implements DOMAccess, Serializable {
 
     @Override
     public String asString() {
-        try {
-            final StringWriter writer = new StringWriter();
-            projector.config().createTransformer().transform(new DOMSource(getDOMNode()), new StreamResult(writer));
-            final String output = writer.getBuffer().toString();
-            return output;
-        } catch (TransformerConfigurationException e) {
-            throw new RuntimeException(e);
-        } catch (TransformerException e) {
-            throw new RuntimeException(e);
-        }
+        return DOMHelper.toXMLString(projector,getDOMNode());
     }
 
     /**

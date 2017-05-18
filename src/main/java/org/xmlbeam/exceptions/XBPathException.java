@@ -13,29 +13,58 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam;
+package org.xmlbeam.exceptions;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import java.lang.reflect.Method;
+
 /**
  * Exception to provide error details related to XPath parsing.
+ *
+ * @author Sven
  */
 public class XBPathException extends XBException {
 
     private static final long serialVersionUID = -2286603725835988440L;
-    private final String resolvedXpath;
+    private final CharSequence resolvedXpath;
 
-    XBPathException(final String msg,final Method method, final String xpath){
-        super(msg+" when invoking "+shortDesc(method)+" [Resolved XPath:'"+xpath+"']");
+    /**
+     * Constructor.
+     *
+     * @param msg
+     * @param method
+     * @param xpath
+     */
+    public XBPathException(final String msg, final Method method, final CharSequence xpath) {
+        super(msg + " when invoking " + shortDesc(method) + " [Resolved XPath:'" + xpath + "']");
         this.resolvedXpath = xpath;
         stripStackTrace();
     }
-    
-    XBPathException(final Throwable cause, final Method method, final String xpath) {        
-        super("Exception invocating "+shortDesc(method)+" [Resolved XPath:'"+xpath+"']",cause);
+
+    /**
+     * Constructor.
+     *
+     * @param cause
+     * @param method
+     * @param xpath
+     */
+    public XBPathException(final Throwable cause, final Method method, final CharSequence xpath) {
+        super("Exception invocating " + shortDesc(method) + " [Resolved XPath:'" + xpath + "']", cause);
+        this.resolvedXpath = xpath;
+        stripStackTrace();
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param cause
+     * @param xpath
+     */
+    public XBPathException(final Throwable cause, final CharSequence xpath) {
+        super("Exception evaluating '" + xpath + "'", cause);
         this.resolvedXpath = xpath;
         stripStackTrace();
     }
@@ -51,21 +80,21 @@ public class XBPathException extends XBException {
      * @param method
      * @return
      */
-    private static String shortDesc(Method method) {
-        String params="";
-        for (Class<?> c:method.getParameterTypes()){
+    private static String shortDesc(final Method method) {
+        String params = "";
+        for (Class<?> c : method.getParameterTypes()) {
             if (!params.isEmpty()) {
-                params=", ";
+                params = ", ";
             }
-            params+=c.getSimpleName();
+            params += c.getSimpleName();
         }
-        return method.getDeclaringClass().getSimpleName()+"."+method.getName()+"("+params+")";
+        return method.getDeclaringClass().getSimpleName() + "." + method.getName() + "(" + params + ")";
     }
 
     /**
      * @return the xpath with all parameters filled in.
      */
     public String getResolvedXpath() {
-        return resolvedXpath;
+        return resolvedXpath.toString();
     }
 }

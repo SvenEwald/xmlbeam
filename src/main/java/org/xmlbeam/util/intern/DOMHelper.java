@@ -52,7 +52,7 @@ import org.xmlbeam.XBProjector;
 public final class DOMHelper {
 
     /**
-     *
+     * Null safe comparator for DOM nodes.
      */
     private static final Comparator<? super Node> ATTRIBUTE_NODE_COMPARATOR = new Comparator<Node>() {
         private int compareMaybeNull(final Comparable<Object> a, final Object b) {
@@ -84,7 +84,7 @@ public final class DOMHelper {
     };
 
     /**
-     * Parse namespace prefixes defined in the documents root element.
+     * Parse namespace prefixes defined anywhere in the document.
      *
      * @param document
      *            source document.
@@ -111,6 +111,17 @@ public final class DOMHelper {
         return map;
     }
 
+    /**
+     * Search for prefix definitions in element and all children. There still is an issue for
+     * documents that use the same prefix on differen namespaces in disjunct subtrees. This might be
+     * possible but we won't support this. Same is with declaring multiple default namespaces.
+     * XMLBeams behaviour will be undefined in that case. There is a workaround by defining a custom
+     * namespace/prefix mapping, so the effort to support this is not justified.
+     *
+     * @param nsMap
+     * @param element
+     * @throws DOMException
+     */
     private static void fillNSMapWithPrefixesDeclaredInElement(final Map<String, String> nsMap, final Element element) throws DOMException {
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
@@ -314,24 +325,47 @@ public final class DOMHelper {
     }
 
     /**
-     * @param element
+     * @param node
      * @param newName
      * @return a new Element instance with desired name and content.
      */
-    public static Element renameElement(final Element element, final String newName) {
-        Document document = element.getOwnerDocument();
-        // Element newElement = document.createElement(newName);
-        final Element newElement = createElement(document, newName);
-        NodeList nodeList = element.getChildNodes();
-        List<Node> toBeMoved = new LinkedList<Node>();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            toBeMoved.add(nodeList.item(i));
+    @SuppressWarnings("unchecked")
+    public static <T extends Node> T renameNode(final T node, final String newName) {
+        if (node instanceof Attr) {
+            Attr attributeNode = (Attr) node;
+            final Element owner = attributeNode.getOwnerElement();
+            if (owner == null) {
+                throw new IllegalArgumentException("Attribute has no owner " + node);
+            }
+            owner.removeAttributeNode(attributeNode);
+            owner.setAttribute(newName, attributeNode.getValue());
+            return (T) owner.getAttributeNode(newName);
         }
-        for (Node e : toBeMoved) {
-            element.removeChild(e);
-            newElement.appendChild(e);
+        if (node instanceof Element) {
+            Element element = (Element) node;
+            Node parent = element.getParentNode();
+            Document document = element.getOwnerDocument();
+            // Element newElement = document.createElement(newName);
+            final Element newElement = createElement(document, newName);
+            NodeList nodeList = element.getChildNodes();
+            List<Node> toBeMoved = new LinkedList<Node>();
+            for (int i = 0; i < nodeList.getLength(); ++i) {
+                toBeMoved.add(nodeList.item(i));
+            }
+            for (Node e : toBeMoved) {
+                element.removeChild(e);
+                newElement.appendChild(e);
+            }
+            NamedNodeMap attributes = element.getAttributes();
+            for (int i = 0; i < attributes.getLength(); ++i) {
+                newElement.setAttributeNode((Attr) attributes.item(i));
+            }
+            if (parent != null) {
+                parent.replaceChild(newElement, element);
+            }
+            return (T) newElement;
         }
-        return newElement;
+        throw new IllegalArgumentException("Can not rename node " + node);
     }
 
     /**
@@ -521,9 +555,28 @@ public final class DOMHelper {
      *
      * @param element
      */
+    @Deprecated
     public static void removeAllChildren(final Element element) {
         for (Node n = element.getFirstChild(); n != null; n = element.getFirstChild()) {
             element.removeChild(n);
+        }
+    }
+
+    /**
+     * Simply removes all child nodes.
+     *
+     * @param node
+     */
+    public static void removeAllChildren(final Node node) {
+        if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
+            Element documentElement = ((Document) node).getDocumentElement();
+            if (documentElement != null) {
+                ((Document) node).removeChild(documentElement);
+            }
+            return;
+        }
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            removeAllChildren((Element) node);
         }
     }
 
@@ -563,11 +616,13 @@ public final class DOMHelper {
     /**
      * @param parentElement
      * @param o
+     * @return the new clone
      */
-    public static void appendClone(final Element parentElement, final Node o) {
+    public static Node appendClone(final Element parentElement, final Node o) {
         Node clone = o.cloneNode(true);
         ensureOwnership(DOMHelper.getOwnerDocumentFor(parentElement), clone);
         parentElement.appendChild(clone);
+        return clone;
     }
 
     /**
@@ -597,5 +652,55 @@ public final class DOMHelper {
             throw new RuntimeException(e);
         }
 
+    }
+
+    /**
+     * @param item
+     * @return Text content of this node, without child content.
+     */
+    public static String directTextContent(final Node item) {
+        NodeList childNodes = item.getChildNodes();
+        if (childNodes == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < childNodes.getLength(); ++i) {
+            Node child = childNodes.item(i);
+            if (child.getNodeType() != Node.TEXT_NODE) {
+                continue;
+            }
+            sb.append(child.getNodeValue());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * @param elementToChange
+     * @param asString
+     */
+    public static void setDirectTextContent(Element elementToChange, String asString) {
+        List<Node> nodes = new LinkedList<Node>();  
+        List<Node> nodes2 = new LinkedList<Node>();   
+        for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
+            if (Node.TEXT_NODE==n.getNodeType()) {
+                continue;
+            }
+            nodes.add(n);
+        }
+        elementToChange.setTextContent(asString);    
+        for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
+            if (Node.TEXT_NODE!=n.getNodeType()) {
+                continue;
+            }
+            nodes.add(n);
+        }
+        removeAllChildren(elementToChange);
+        for (Node n : nodes) {
+            elementToChange.appendChild(n);
+        }
+        for (Node n : nodes2) {
+            elementToChange.appendChild(n);
+        }
+        
     }
 }

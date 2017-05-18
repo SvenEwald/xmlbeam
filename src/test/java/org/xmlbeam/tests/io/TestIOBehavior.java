@@ -33,7 +33,7 @@ import org.xmlbeam.annotation.XBValue;
 import org.xmlbeam.annotation.XBWrite;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.io.XBUrlIO;
+import org.xmlbeam.io.UrlIO;
 import org.xmlbeam.testutils.HTTPParrot;
 import org.xmlbeam.util.IOHelper;
 
@@ -66,7 +66,7 @@ public class TestIOBehavior {
     @Test
     public void ensureHTTPGetRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
-        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL().toString())).read(FooProjection.class);
+        FooProjection projection = addRequestParams(new UrlIO(new XBProjector(), parrot.getURL().toString())).read(FooProjection.class);
         assertEquals("foo", projection.getRootName());
         validateRequest(parrot.getRequest());
     }
@@ -75,14 +75,14 @@ public class TestIOBehavior {
     public void ensureHTTPPostRespectsAdditionalRequestParamsInHeader() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
         FooProjection projection = new XBProjector().projectEmptyDocument(FooProjection.class);
-        addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL().toString())).write(projection);
+        addRequestParams(new UrlIO(new XBProjector(), parrot.getURL().toString())).write(projection);
         validateRequest(parrot.getRequest());
     }
 
     @Test
     public void ensureHTTPGetRespectsSystemID() throws Exception {
         HTTPParrot parrot = HTTPParrot.serve("<foo/>");
-        FooProjection projection = addRequestParams(new XBUrlIO(new XBProjector(), parrot.getURL().toString())).read(FooProjection.class);
+        FooProjection projection = addRequestParams(new UrlIO(new XBProjector(), parrot.getURL().toString())).read(FooProjection.class);
         assertEquals("foo", projection.getRootName());
         assertEquals(parrot.getURL().toString(), projection.getDOMOwnerDocument().getBaseURI());
     }
@@ -176,7 +176,7 @@ public class TestIOBehavior {
         tempFile.delete();
     }
 
-    private XBUrlIO addRequestParams(final XBUrlIO io) {
+    private UrlIO addRequestParams(final UrlIO io) {
         return io.addRequestProperty("testparam", "mustBeInRequest").addRequestProperties(IOHelper.createBasicAuthenticationProperty("user", "password"));
     }
 

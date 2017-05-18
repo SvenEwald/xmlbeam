@@ -93,9 +93,9 @@ public class DuplexExpression {
     /**
      * @param node
      */
-    DuplexExpression(final SimpleNode node, final String xpath, final Map<String, String> userDefinedMapping) {
+    DuplexExpression(final SimpleNode node, final CharSequence xpath, final Map<String, String> userDefinedMapping) {
         this.node = node;
-        this.xpath = xpath;
+        this.xpath = xpath.toString();
         this.userDefinedMapping = userDefinedMapping;
         final Deque<Integer> removeStartPositions = new LinkedList<Integer>();
         final Deque<Integer> removeEndPositions = new LinkedList<Integer>();

@@ -31,7 +31,7 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
-public class XBUrlIO implements CanEvaluate {
+public class UrlIO implements CanEvaluate {
 
     private final XBProjector projector;
     private final Map<String, String> requestProperties = new HashMap<String, String>();
@@ -43,7 +43,7 @@ public class XBUrlIO implements CanEvaluate {
      * @param projector
      * @param url
      */
-    public XBUrlIO(final XBProjector projector, final String url) {
+    public UrlIO(final XBProjector projector, final String url) {
         this.projector = projector;
         this.url = url;
         requestProperties.put("Content-Type", "text/xml");
@@ -86,7 +86,7 @@ public class XBUrlIO implements CanEvaluate {
      * @param params
      * @return this for convenience.
      */
-    public XBUrlIO addRequestProperties(final Map<String, String> params) {
+    public UrlIO addRequestProperties(final Map<String, String> params) {
         requestProperties.putAll(params);
         return this;
     }
@@ -98,7 +98,7 @@ public class XBUrlIO implements CanEvaluate {
      * @param value
      * @return this for convenience.
      */
-    public XBUrlIO addRequestProperty(final String name, final String value) {
+    public UrlIO addRequestProperty(final String name, final String value) {
         requestProperties.put(name, value);
         return this;
     }

@@ -18,7 +18,7 @@ package org.xmlbeam.types;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.xmlbeam.XBException;
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 
 /**
