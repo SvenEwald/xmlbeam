@@ -8,11 +8,16 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.10 current release
+* 1.4.11 current release
+
+ * Bug fixed: Predicates in writing XPath expressions may contain paths now.
+ * Bug fixed: Writing values to elements does not delete existing child elements any more.
+
+* 1.4.10
 
  * Bug fixed: Prefixes for namespaces were not found when declared on non root elements.
 
-* 1.4.9 current release
+* 1.4.9 
 
  * Bug fixed: Check preventing nonpublic interfaces removed.
  
