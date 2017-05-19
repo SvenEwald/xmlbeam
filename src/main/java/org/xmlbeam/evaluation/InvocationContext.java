@@ -94,6 +94,9 @@ public class InvocationContext {
      * @return Format pattern for the expression within with this context.
      */
     public String getExpressionFormatPattern() {
+        if (duplexExpression==null) {
+            return null;
+        }
         return duplexExpression.getExpressionFormatPattern();
     }
 

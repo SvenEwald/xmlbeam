@@ -61,7 +61,11 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
     private final DomChangeTracker domChangeTracker = new DomChangeTracker() {
         @Override
         void refresh(final boolean forWrite) throws XPathExpressionException {
-            final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
+            if (invocationContext.getxPathExpression()==null) {
+                boundNode=baseNode;
+                return;//xPath expression is optional for maps
+            }
+            final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);
             if ((nodes.getLength() == 0) && forWrite) {
                 boundNode = invocationContext.getDuplexExpression().ensureExistence(baseNode);
             } else {
@@ -79,6 +83,17 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         this.baseNode = baseNode;
         this.invocationContext.getProjector().addDOMChangeListener(this);
         this.typeConverter = invocationContext.getProjector().config().getTypeConverter();
+    }
+
+    /**
+     * @see java.util.AbstractMap#clear()
+     */
+    @Override
+    public void clear() {
+        domChangeTracker.refreshForReadIfNeeded();
+        if (boundNode != null) {
+            DOMHelper.removeAllChildren(boundNode);
+        }
     }
 
     /**
@@ -121,6 +136,44 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
             throw new XBPathException(e, path);
         }
     }
+    
+    /**
+     * @deprecated 
+     * @see java.util.AbstractMap#containsKey(java.lang.Object)
+     */
+    @Deprecated
+    @Override
+    public boolean containsKey(Object path) {
+        if (!(path instanceof CharSequence)) {
+            throw new IllegalArgumentException("parameter path must be a CharSequence containing a relative XPath expression.");
+        }
+        return containsKey(CharSequence.class.cast(path));
+    }
+
+    /**
+     * Checks existence of value at given xpath.
+     * 
+     * @param path
+     * @return true if nonnull value exists at given path
+     */
+    public boolean containsKey(CharSequence path) {
+        return get(path) != null;
+    }
+
+    /**
+     * Like map.containsValue, but this map can not store null values.
+     * 
+     * @param value
+     * @return true if value is found in any element or attribute
+     * @see java.util.AbstractMap#containsValue(java.lang.Object)
+     */
+    @Override
+    public boolean containsValue(Object value) {
+        if (value == null) {
+            return false;
+        }
+        return super.containsValue(value);
+    }
 
     /**
      * {@inheritDoc}
@@ -157,7 +210,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
                 }
                 return previousValue;
             }
-
+            assert boundNode != null : "Without bound node, there is no context where something could be created in.";
             Node node = duplexExpression.ensureExistence(boundNode);
             node.setTextContent(value.toString());
 
@@ -225,7 +278,9 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         if (boundNode == null) {
             return Collections.emptySet();
         }
-        final Set<Map.Entry<String, T>> set = new TreeSet<Map.Entry<String, T>>(ENTRY_COMPARATOR);
+        final Set<Map.Entry<String, T>> set = new TreeSet<Map.Entry<String, T>>(ENTRY_COMPARATOR) {
+
+        };
         if ((invocationContext.getTargetComponentType().isInterface()) || (Node.class.isAssignableFrom(invocationContext.getTargetComponentType()))) {
             collectChildren(set, boundNode, ".");
         } else {
@@ -292,6 +347,14 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
             }
             collectChildrenValues(set, child, childPath);
         }
+    }
+
+    /**
+     * @return bound node for this automap
+     */
+    public Node getNode() {
+        domChangeTracker.refreshForReadIfNeeded();
+        return boundNode;
     }
 
 }

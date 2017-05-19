@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +63,7 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.CanEvaluateOrProject;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
@@ -74,9 +76,12 @@ import org.xmlbeam.io.UrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
+import org.xmlbeam.util.intern.duplex.DuplexExpression;
+import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 
 /**
  * <p>
@@ -466,8 +471,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
         if (documentOrElement == null) {
             throw new IllegalArgumentException("Parameter node must not be null");
-        }
-
+        }     
+        
         final Map<Class<?>, Object> mixinsForProjection = mixins.containsKey(projectionInterface) ? Collections.unmodifiableMap(mixins.get(projectionInterface)) : Collections.<Class<?>, Object> emptyMap();
         final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, mixinsForProjection, flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
         final Set<Class<?>> interfaces = new HashSet<Class<?>>();
@@ -728,12 +733,16 @@ public class XBProjector implements Serializable, ProjectionFactory {
     @SuppressWarnings("rawtypes")
     @Override
     public String asString(final Object projection) {
+        // TODO: create interface for getNode, use this instead.
         if (projection instanceof AutoValue) {
             return DOMHelper.toXMLString(this, ((AutoValue)projection).getNode());           
         }
         if (projection instanceof AutoList) {
             return DOMHelper.toXMLString(this, ((AutoList)projection).getNode());
         }        
+        if (projection instanceof AutoMap) {
+            return DOMHelper.toXMLString(this, ((AutoMap)projection).getNode());
+        }
         if (!(projection instanceof DOMAccess)) {
             throw new IllegalArgumentException("Argument is not a projection.");
         }
@@ -757,14 +766,28 @@ public class XBProjector implements Serializable, ProjectionFactory {
     /**
      * 
      */
-    void notifyDOMChangeListeners() {
-        for (WeakReference<DOMChangeListener> wr:domChangeListeners) {
-            DOMChangeListener listener = wr.get();
-            if (listener!=null) {
-                listener.domChanged();
+    void notifyDOMChangeListeners() {        
+        for (ListIterator<WeakReference<DOMChangeListener>> i=domChangeListeners.listIterator();i.hasNext();) {
+            DOMChangeListener listener = i.next().get();
+            if (listener==null) {
+                i.remove();
+                continue;
             }
+            listener.domChanged();
         }
+    }
+
+    /**
+     * Create an empty document and bind an XBAutoMap to it.
+     * @param valueType component type of map
+     * @return an empty Map view to the document
+     */
+    public <T> XBAutoMap<T> automapEmptyDocument(Class<T> valueType) {
+        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+       // DuplexExpression duplexExpression = new DuplexXPathParser(config().getUserDefinedNamespaceMapping()).compile(".");
         
+        InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, this);
+        return new AutoMap<T>(document,invocationContext);
     }
 
 }

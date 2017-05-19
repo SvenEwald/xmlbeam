@@ -213,7 +213,7 @@ class BuildDocumentVisitor implements XParserVisitor {
                     throw new XBXPathExprNotAllowedForWriting(node, "A non writable predicate");
                 }
                 Object second = node.secondChildAccept(this, data);
-                DOMHelper.setStringValue((Node) first, second.toString());
+                DOMHelper.setDirectTextContent((Node) first, second.toString());
                 /*
                  * if (first instanceof Attr) { assert data instanceof Element; ((Element)
                  * data).setAttributeNS(null, ((Attr) first).getNodeName(), second.toString()); //
@@ -263,7 +263,7 @@ class BuildDocumentVisitor implements XParserVisitor {
                 Object first = node.firstChildAccept(this, data);
                 Object second = node.secondChildAccept(this, data);
                 return Boolean.valueOf(compare(node, unList(first), unList(second)));
-            case JJTSTEPEXPR:
+            case JJTSTEPEXPR:               
                 return node.jjtAccept(new EvaluateStepExprVisitor(false), data);
             case JJTSTRINGLITERAL:
             case JJTINTEGERLITERAL:
@@ -274,6 +274,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                 return resolveVariable(node, data);
             case JJTQNAME:
                 return QName.valueOf(node.getValue());
+            //TODO: check if this case is needed or wrong.    
+            case  JJTPATHEXPR:
+                return node.childrenAcceptWithFilter(this, data, stepListFilter);
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
@@ -403,9 +406,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                         DOMHelper.removeNodes(existingNodes);                        
                         return existingNodes;
                     }
-                    if (existingNodes.size() > 1) {
-                        throw new XBXPathExprNotAllowedForWriting(node, "You can not set or get attributes on the document. You need a root element.");
-                    }
+                    // If there are multiple possible hits, take the first one.
+                    // This might have unexpected results when creating paths,
+                    // but should be resolvable by adding more predicates.
                     nextNode = existingNodes.get(0);
                 }
             }

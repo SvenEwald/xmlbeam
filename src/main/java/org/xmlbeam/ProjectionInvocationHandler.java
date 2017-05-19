@@ -637,8 +637,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                         attribute.getOwnerElement().removeAttributeNode(attribute);
                         return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                     }
-
-                    DOMHelper.setStringValue(attribute, valueToSet.toString());
+                    attribute.setTextContent( valueToSet.toString());                    
                     return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                 }
 
