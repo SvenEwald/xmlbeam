@@ -41,6 +41,8 @@ import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
+import org.xmlbeam.util.intern.duplex.ExpressionType;
+import org.xmlbeam.util.intern.duplex.XBXPathExprNotAllowedForWriting;
 
 /**
  * @author sven
@@ -61,8 +63,8 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
     private final DomChangeTracker domChangeTracker = new DomChangeTracker() {
         @Override
         void refresh(final boolean forWrite) throws XPathExpressionException {
-            if (invocationContext.getxPathExpression()==null) {
-                boundNode=baseNode;
+            if (invocationContext.getxPathExpression() == null) {
+                boundNode = baseNode;
                 return;//xPath expression is optional for maps
             }
             final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);
@@ -74,15 +76,19 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         }
     };
 
+    private final  Class<?> valueType;
+
     /**
      * @param baseNode
      * @param invocationContext
+     * @param valueType map value type
      */
-    public AutoMap(final Node baseNode, final InvocationContext invocationContext) {
+    public AutoMap(final Node baseNode, final InvocationContext invocationContext,final Class<?> valueType) {
         this.invocationContext = invocationContext;
         this.baseNode = baseNode;
         this.invocationContext.getProjector().addDOMChangeListener(this);
         this.typeConverter = invocationContext.getProjector().config().getTypeConverter();
+        this.valueType=valueType;
     }
 
     /**
@@ -136,9 +142,9 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
             throw new XBPathException(e, path);
         }
     }
-    
+
     /**
-     * @deprecated 
+     * @deprecated
      * @see java.util.AbstractMap#containsKey(java.lang.Object)
      */
     @Deprecated
@@ -189,6 +195,9 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         domChangeTracker.refreshForWriteIfNeeded();
         final Document document = DOMHelper.getOwnerDocumentFor(baseNode);
         final DuplexExpression duplexExpression = new DuplexXPathParser(invocationContext.getProjector().config().getUserDefinedNamespaceMapping()).compile(path);
+        if ((ExpressionType.ATTRIBUTE==duplexExpression.getExpressionType()) && ProjectionInvocationHandler.isStructureChangingType(valueType)) {
+            throw new IllegalArgumentException("Value of type "+valueType+"can not be written to XML attributes. Choose a different xpath expression or use a different map component type");
+        }
         try {
             final XPathExpression expression = invocationContext.getProjector().config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
             Node prevNode = (Node) expression.evaluate(boundNode, XPathConstants.NODE);
@@ -206,7 +215,9 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
                     if (!(value instanceof DOMAccess)) {
                         throw new IllegalArgumentException("Parameter value is not a subprojection.");
                     }
-                    parent.appendChild(DOMAccess.class.cast(value).getDOMNode());
+                    // Dont't add the value, add a copy.
+                    //parent.appendChild(DOMAccess.class.cast(value).getDOMNode());
+                    DOMHelper.appendClone(parent, DOMAccess.class.cast(value).getDOMNode());
                 }
                 return previousValue;
             }

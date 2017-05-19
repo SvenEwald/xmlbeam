@@ -17,17 +17,18 @@ package org.xmlbeam.tests.binding;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.omg.Messaging.SyncScopeHelper;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBAutoBind;
 import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.types.XBAutoValue;
+import static org.xmlbeam.testutils.DOMDiagnoseHelper.assertXMLStringsEquals;
 
 /**
  *
@@ -133,7 +134,41 @@ public class TestBindAnnotation {
         map.put("someroot/elements[@pos='first']/sub[@pos='first']/element1","value1");
         map.put("someroot/elements[@pos='second']/sub[@pos='second']/element2","value2");
         map.put("someroot/elements[@pos='second']/sub[@pos='second']/element3","value3");
-        System.out.println(projector.asString(map));
+        assertXMLStringsEquals("<someroot>\n" + 
+                "  <elements pos=\"first\">\n" + 
+                "    <sub pos=\"first\">\n" + 
+                "      <element1>value1</element1>\n" + 
+                "    </sub>\n" + 
+                "  </elements>\n" + 
+                "  <elements pos=\"second\">\n" + 
+                "    <sub pos=\"second\">\n" + 
+                "      <element2>value2</element2>\n" + 
+                "      <element3>value3</element3>\n" + 
+                "    </sub>\n" + 
+                "  </elements>\n" + 
+                "</someroot>\n"  
+                ,projector.asString(map));        
     }
     
+    @Test
+    public void testPutSubprojection() {
+        XBAutoMap<Projection> map = projector.automapEmptyDocument(Projection.class);
+        assertTrue(map.isEmpty());
+        map.put("root/a", projector.projectEmptyElement("x", Projection.class));
+        map.put("root/b/y", projector.projectEmptyElement("y", Projection.class));
+        System.out.println(projector.asString(map));
+        assertXMLStringsEquals("<root>\n" + 
+                "  <x/>\n" + 
+                "  <b>\n" + 
+                "    <y/>\n" + 
+                "  </b>\n" + 
+                "</root>", projector.asString(map));
+    }
+    @Test
+    public void testPutSubprojectionToAttribute() {
+        XBAutoMap<Projection> map = projector.automapEmptyDocument(Projection.class);
+        assertTrue(map.isEmpty());
+        map.put("root/@a", projector.projectEmptyElement("x", Projection.class));
+        System.out.println(projector.asString(map));
+    }
 }

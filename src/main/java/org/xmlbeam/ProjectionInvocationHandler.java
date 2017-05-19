@@ -335,7 +335,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsMap) {
-                return new AutoMap(node, invocationContext);
+                return new AutoMap(node, invocationContext,returnType);
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
@@ -797,7 +797,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     public static boolean isStructureChangingType(final Class<?> c) {
-        return (DOMAccess.class.isAssignableFrom(c)) || (Node.class.isAssignableFrom(c));
+        return (DOMAccess.class.isAssignableFrom(c)) || (Node.class.isAssignableFrom(c)) || (c.isInterface());
     }
 
     /**
