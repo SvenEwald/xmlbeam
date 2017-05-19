@@ -675,24 +675,29 @@ public final class DOMHelper {
     }
 
     /**
+     * Set text content of given element without removing existing child nodes. Text nodes are added
+     * after child element nodes always.
+     * 
      * @param elementToChange
      * @param asString
      */
-    public static void setDirectTextContent(Element elementToChange, String asString) {
-        List<Node> nodes = new LinkedList<Node>();  
-        List<Node> nodes2 = new LinkedList<Node>();   
+    public static void setDirectTextContent(final Element elementToChange, final String asString) {
+        final List<Node> nodes = new LinkedList<Node>();
+        final List<Node> nodes2 = new LinkedList<Node>();
         for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
-            if (Node.TEXT_NODE==n.getNodeType()) {
+            if (Node.TEXT_NODE == n.getNodeType()) {
                 continue;
             }
             nodes.add(n);
         }
-        elementToChange.setTextContent(asString);    
-        for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
-            if (Node.TEXT_NODE!=n.getNodeType()) {
-                continue;
+        if ((asString != null) && (!asString.isEmpty())) {
+            elementToChange.setTextContent(asString);
+            for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
+                if (Node.TEXT_NODE != n.getNodeType()) {
+                    continue;
+                }
+                nodes.add(n);
             }
-            nodes.add(n);
         }
         removeAllChildren(elementToChange);
         for (Node n : nodes) {
@@ -701,6 +706,6 @@ public final class DOMHelper {
         for (Node n : nodes2) {
             elementToChange.appendChild(n);
         }
-        
+
     }
 }
