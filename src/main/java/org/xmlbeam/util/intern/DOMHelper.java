@@ -535,6 +535,7 @@ public final class DOMHelper {
      * @param newNode
      * @param value
      */
+    @Deprecated
     public static void setStringValue(final Node newNode, final String value) {
         assert newNode.getNodeType() != Node.DOCUMENT_NODE;
 //        if (newNode.getNodeType() == Node.ATTRIBUTE_NODE) {
@@ -677,13 +678,17 @@ public final class DOMHelper {
     /**
      * Set text content of given element without removing existing child nodes. Text nodes are added
      * after child element nodes always.
-     * 
+     *
      * @param elementToChange
      * @param asString
      */
-    public static void setDirectTextContent(final Element elementToChange, final String asString) {
-        final List<Node> nodes = new LinkedList<Node>();
-        final List<Node> nodes2 = new LinkedList<Node>();
+    public static void setDirectTextContent(final Node elementToChange, final String asString) {
+        if (Node.ATTRIBUTE_NODE == elementToChange.getNodeType()) {
+            elementToChange.setTextContent(asString);
+            return;
+        }
+        List<Node> nodes = new LinkedList<Node>();
+        List<Node> nodes2 = new LinkedList<Node>();
         for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
             if (Node.TEXT_NODE == n.getNodeType()) {
                 continue;

@@ -157,6 +157,10 @@ class SimpleNode implements Node {
                     return newResult;
                 }
                 result = (org.w3c.dom.Node) newResult; // proceed step expression
+                if (result==null) {
+                    break; // nothing can be found any more
+                }
+                    
             }
         }
         return DOMHelper.asList(result);

@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.annotation.XBWrite;
 
 public class NestedPathInPredicateTest {
@@ -43,6 +44,11 @@ public class NestedPathInPredicateTest {
         @XBWrite("Root[X='Passed']")
         void setConditionSingleLevelOnRootNoChild(String value);
         
+        @XBWrite("someroot/elements[with/subelement='oink']/element3")
+        void setPathInPredicate2(String value);
+        
+        @XBRead("someroot/elements[with/subelement='oink']/element3")
+        String getPathInPredicate2();
     }
     
     @Test
@@ -164,4 +170,29 @@ public class NestedPathInPredicateTest {
         // Fails: Doesn't create <X>Passed</X> element
     }
    
+    @Test
+    public void testConditionNestedNoChild2() {
+        XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+        
+        NestedPathInPredicate test = projector.projectEmptyDocument(NestedPathInPredicate.class);
+        test.setPathInPredicate2("Value");
+        
+        assertEquals("Value",test.getPathInPredicate2());
+        
+       // System.out.print(test);
+        
+        assertEquals(
+               ( "<someroot>\n" + 
+                       "  <elements>\n" + 
+                       "    <with>\n" + 
+                       "      <subelement>oink</subelement>\n" + 
+                       "    </with>\n" + 
+                       "    <element3>Value</element3>\n" + 
+                       "  </elements>\n" + 
+                       "</someroot>").replaceAll("\\s", ""), test.toString().replaceAll("\\s", ""));
+        
+    }
+    
+    
+    
 }

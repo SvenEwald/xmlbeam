@@ -197,7 +197,7 @@ public class TestXPathParsing {
         assertNotNull(newNode);
 
         if (!value.isEmpty()) {
-            DOMHelper.setStringValue(newNode, value);
+            DOMHelper.setDirectTextContent(newNode, value);
         }
 
         if (!skipSameValidation) {
