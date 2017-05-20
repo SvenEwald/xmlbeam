@@ -42,7 +42,6 @@ import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
 import org.xmlbeam.util.intern.duplex.ExpressionType;
-import org.xmlbeam.util.intern.duplex.XBXPathExprNotAllowedForWriting;
 
 /**
  * @author sven
@@ -76,19 +75,20 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         }
     };
 
-    private final  Class<?> valueType;
+    private final Class<?> valueType;
 
     /**
      * @param baseNode
      * @param invocationContext
-     * @param valueType map value type
+     * @param valueType
+     *            map value type
      */
-    public AutoMap(final Node baseNode, final InvocationContext invocationContext,final Class<?> valueType) {
+    public AutoMap(final Node baseNode, final InvocationContext invocationContext, final Class<?> valueType) {
         this.invocationContext = invocationContext;
         this.baseNode = baseNode;
         this.invocationContext.getProjector().addDOMChangeListener(this);
         this.typeConverter = invocationContext.getProjector().config().getTypeConverter();
-        this.valueType=valueType;
+        this.valueType = valueType;
     }
 
     /**
@@ -125,6 +125,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
      *            relative xpath
      * @return value in DOM tree. null if no value is present.
      */
+    @Override
     public T get(final CharSequence path) {
         if ((path == null) || (path.length() == 0)) {
             throw new IllegalArgumentException("Parameter path must not be empty or null");
@@ -149,7 +150,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
      */
     @Deprecated
     @Override
-    public boolean containsKey(Object path) {
+    public boolean containsKey(final Object path) {
         if (!(path instanceof CharSequence)) {
             throw new IllegalArgumentException("parameter path must be a CharSequence containing a relative XPath expression.");
         }
@@ -158,23 +159,24 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
 
     /**
      * Checks existence of value at given xpath.
-     * 
+     *
      * @param path
      * @return true if nonnull value exists at given path
      */
-    public boolean containsKey(CharSequence path) {
+    @Override
+    public boolean containsKey(final CharSequence path) {
         return get(path) != null;
     }
 
     /**
      * Like map.containsValue, but this map can not store null values.
-     * 
+     *
      * @param value
      * @return true if value is found in any element or attribute
      * @see java.util.AbstractMap#containsValue(java.lang.Object)
      */
     @Override
-    public boolean containsValue(Object value) {
+    public boolean containsValue(final Object value) {
         if (value == null) {
             return false;
         }
@@ -195,8 +197,8 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         domChangeTracker.refreshForWriteIfNeeded();
         final Document document = DOMHelper.getOwnerDocumentFor(baseNode);
         final DuplexExpression duplexExpression = new DuplexXPathParser(invocationContext.getProjector().config().getUserDefinedNamespaceMapping()).compile(path);
-        if ((ExpressionType.ATTRIBUTE==duplexExpression.getExpressionType()) && ProjectionInvocationHandler.isStructureChangingType(valueType)) {
-            throw new IllegalArgumentException("Value of type "+valueType+"can not be written to XML attributes. Choose a different xpath expression or use a different map component type");
+        if ((ExpressionType.ATTRIBUTE == duplexExpression.getExpressionType()) && ProjectionInvocationHandler.isStructureChangingType(valueType)) {
+            throw new IllegalArgumentException("Value of type " + valueType + "can not be written to XML attributes. Choose a different xpath expression or use a different map component type");
         }
         try {
             final XPathExpression expression = invocationContext.getProjector().config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
@@ -300,7 +302,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         return set;
     }
 
-    private <T> void collectChildren(final Set<Entry<String, T>> set, final Node n, final String path) {
+    private <E> void collectChildren(final Set<Entry<String, E>> set, final Node n, final String path) {
         if (n.getNodeType() != Node.ELEMENT_NODE) {
             return;
         }
@@ -314,15 +316,15 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
                 continue;
             }
             String childPath = path + "/" + child.getNodeName();
-            T value = DefaultXPathEvaluator.convertToComponentType(invocationContext, child, invocationContext.getTargetComponentType());
+            E value = DefaultXPathEvaluator.convertToComponentType(invocationContext, child, invocationContext.getTargetComponentType());
             if (value != null) {
-                set.add(new SimpleEntry<String, T>(childPath, value));
+                set.add(new SimpleEntry<String, E>(childPath, value));
             }
             collectChildren(set, child, childPath);
         }
     }
 
-    private <T> void collectChildrenValues(final Set<Entry<String, T>> set, final Node n, final String path) {
+    private <E> void collectChildrenValues(final Set<Entry<String, E>> set, final Node n, final String path) {
         if (n.getNodeType() == Node.TEXT_NODE) {
             return;
         }
@@ -332,7 +334,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); ++i) {
                     // map.put(path + "/@" + attributes.item(i).getNodeName(), attributes.item(i));
-                    set.add(new SimpleEntry<String, T>(path + "/@" + attributes.item(i).getNodeName(), (T) (attributes.item(i).getNodeValue())));
+                    set.add(new SimpleEntry<String, E>(path + "/@" + attributes.item(i).getNodeName(), (E) (attributes.item(i).getNodeValue())));
                 }
             }
         }
@@ -349,10 +351,10 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
             if (typeConverter.isConvertable(invocationContext.getTargetComponentType())) {
                 final String stringContent = DOMHelper.directTextContent(child);
                 if ((stringContent != null) && (!stringContent.isEmpty())) {
-                    final T value = (T) typeConverter.convertTo(invocationContext.getTargetComponentType(), stringContent, invocationContext.getExpressionFormatPattern());
+                    final E value = (E) typeConverter.convertTo(invocationContext.getTargetComponentType(), stringContent, invocationContext.getExpressionFormatPattern());
                     //T value = DefaultXPathEvaluator.convertToComponentType(invocationContext, child, invocationContext.getTargetComponentType());
                     if (value != null) {
-                        set.add(new SimpleEntry<String, T>(childPath, value));
+                        set.add(new SimpleEntry<String, E>(childPath, value));
                     }
                 }
             }

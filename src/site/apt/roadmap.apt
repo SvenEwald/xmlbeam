@@ -13,6 +13,8 @@ Roadmap
  * Replacing dynamic proxy by asm generated class
    (Depending on result of performance analysis) (This seems to be not necessary anymore. Performance with Saxon seems to be quite well.)
  
+ * Adding new Collection based API.
+ 
 * Version 1.4.2
 
  * New feature: Reading projection methods may throw exception on non existing values. 

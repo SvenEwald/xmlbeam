@@ -556,7 +556,6 @@ public final class DOMHelper {
      *
      * @param element
      */
-    @Deprecated
     public static void removeAllChildren(final Element element) {
         for (Node n = element.getFirstChild(); n != null; n = element.getFirstChild()) {
             element.removeChild(n);
@@ -676,28 +675,33 @@ public final class DOMHelper {
     }
 
     /**
+     * Set text content of given element without removing existing child nodes. Text nodes are added
+     * after child element nodes always.
+     *
      * @param elementToChange
      * @param asString
      */
-    public static void setDirectTextContent(Node elementToChange, String asString) {
-        if (Node.ATTRIBUTE_NODE==elementToChange.getNodeType()) {
+    public static void setDirectTextContent(final Node elementToChange, final String asString) {
+        if (Node.ATTRIBUTE_NODE == elementToChange.getNodeType()) {
             elementToChange.setTextContent(asString);
             return;
         }
-        List<Node> nodes = new LinkedList<Node>();  
-        List<Node> nodes2 = new LinkedList<Node>();   
+        List<Node> nodes = new LinkedList<Node>();
+        List<Node> nodes2 = new LinkedList<Node>();
         for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
-            if (Node.TEXT_NODE==n.getNodeType()) {
+            if (Node.TEXT_NODE == n.getNodeType()) {
                 continue;
             }
             nodes.add(n);
         }
-        elementToChange.setTextContent(asString);    
-        for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
-            if (Node.TEXT_NODE!=n.getNodeType()) {
-                continue;
+        if ((asString != null) && (!asString.isEmpty())) {
+            elementToChange.setTextContent(asString);
+            for (Node n : nodeListToIterator(elementToChange.getChildNodes())) {
+                if (Node.TEXT_NODE != n.getNodeType()) {
+                    continue;
+                }
+                nodes.add(n);
             }
-            nodes.add(n);
         }
         removeAllChildren(elementToChange);
         for (Node n : nodes) {
@@ -706,6 +710,6 @@ public final class DOMHelper {
         for (Node n : nodes2) {
             elementToChange.appendChild(n);
         }
-        
+
     }
 }

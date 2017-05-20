@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.testutils;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +26,6 @@ import java.util.List;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("javadoc")
 public class DOMDiagnoseHelper {
@@ -147,22 +148,22 @@ public class DOMDiagnoseHelper {
             return 0;
         }
     };
-    
-    public static void assertXMLStringsEquals(final String expected,final String result) {
-        if (expected==null) {
-            if (result==null) {
+
+    public static void assertXMLStringsEquals(final String expected, final String result) {
+        if (expected == null) {
+            if (result == null) {
                 return;
             }
-            throw new AssertionError("Null was expected, but got: '"+result+"'");
+            throw new AssertionError("Null was expected, but got: '" + result + "'");
         }
-        if (result==null) {
-            assertEquals(expected,result);
+        if (result == null) {
+            assertEquals(expected, result);
             return;
         }
         if (expected.replaceAll("\\s", "").equals(result.replaceAll("\\s", ""))) {
             return;
         }
-        assertEquals(expected,result);
+        assertEquals(expected, result);
     }
 
 }

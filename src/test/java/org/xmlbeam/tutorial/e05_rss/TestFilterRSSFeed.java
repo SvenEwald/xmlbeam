@@ -15,11 +15,12 @@
  */
 package org.xmlbeam.tutorial.e05_rss;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import java.io.IOException;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -28,17 +29,17 @@ import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e05_rss.SlashdotRSSFeed.Story;
 
+import static org.junit.Assert.assertEquals;
+
 /* START SNIPPET: TutorialDescription
- ~~
+~~
  This example is to demonstrate how to modify a XML document. The Slashdot RSS
  feed is projected to this interface and the stories will be accessible via a
  subprojection. This time there is a setter for a collection of Stories which
  will replace the existing sequence of rss items.
  Instead of just setting an elements value like in the last example, we now change a sequence of elements.
  Notice that there are name spaces in the source XML document and that we work with them intuitively.
- END SNIPPET: TutorialDescription */
-
-import static org.junit.Assert.assertEquals;
+END SNIPPET: TutorialDescription */
 
 @Category(Tutorial.class)
 @SuppressWarnings("javadoc")

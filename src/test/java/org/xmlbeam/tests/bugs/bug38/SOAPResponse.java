@@ -2,6 +2,7 @@ package org.xmlbeam.tests.bugs.bug38;
 
 import org.xmlbeam.annotation.XBRead;
 
+@SuppressWarnings("javadoc")
 public interface SOAPResponse {
 
     @XBRead("/soap:Envelope/soap:Body")
