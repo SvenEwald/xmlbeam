@@ -43,6 +43,10 @@ public class TestBindAnnotation {
     private final static String XMLFORMAP = "<root><map><element1>value1</element1><element2><element3 att1=\"attvalue1\" >value2</element3></element2></map></root>";
     private final Projection mapProjection = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectXMLString(XMLFORMAP, Projection.class);
 
+    interface Subprojection {
+
+    }
+
     interface Projection {
 
         @XBAutoBind("/root/first/second/@attr")
@@ -55,7 +59,7 @@ public class TestBindAnnotation {
         XBAutoMap<String> map();
 
         @XBAutoBind("/root/map")
-        XBAutoMap<String> mapSubProjection();
+        XBAutoMap<Subprojection> mapSubProjection();
 
     }
 
@@ -111,6 +115,8 @@ public class TestBindAnnotation {
     @Test
     public void testProjectionBindMapValues() {
         Map<String, String> map = mapProjection.map();
+        System.out.println(mapProjection);
+        System.out.println(map.keySet());
         assertEquals("[value1, value2, attvalue1]", map.values().toString());
         map.clear();
         assertEquals("[]", map.values().toString());
@@ -155,5 +161,13 @@ public class TestBindAnnotation {
         assertTrue(map.isEmpty());
         map.put("root/@a", projector.projectEmptyElement("x", Projection.class));
         System.out.println(projector.asString(map));
+    }
+
+    @Test
+    public void testSubProjection() {
+        System.out.println(projector.asString(mapProjection));
+        XBAutoMap<Subprojection> map = mapProjection.mapSubProjection();
+        System.out.println(projector.asString(map));
+        System.out.println(projector.asString(map.get("element2/element3")));
     }
 }

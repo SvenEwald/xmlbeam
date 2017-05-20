@@ -784,8 +784,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     public <T> XBAutoMap<T> automapEmptyDocument(final Class<T> valueType) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
-        // DuplexExpression duplexExpression = new DuplexXPathParser(config().getUserDefinedNamespaceMapping()).compile(".");
-
         InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, this);
         return new AutoMap<T>(document, invocationContext, valueType);
     }
