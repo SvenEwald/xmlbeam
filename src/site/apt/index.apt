@@ -42,6 +42,8 @@ Welcome to XMLBeam
  
 * Project status
 
+ [https://codeship.io/projects/346d4460-0dec-0132-bc65-1e51a3033676/status] Codeship Status
+
 ** 2017-05-20
 
  * New bugfix release 1.4.11. See {{{./release-notes.html} the release notes}}.
@@ -158,7 +160,5 @@ Welcome to XMLBeam
  Sources are hosted at Github, continuous integration is done by Jenkins at a private location.
  Snapshot and pre-release artifacts will be located at Sonatype soon.
  Until release of version 1.0, the XMLBeam API could keep changing.
- So the first deployment version to central repository will be 1.0.
- 
-[https://codeship.io/projects/346d4460-0dec-0132-bc65-1e51a3033676/status] Codeship Status 
+ So the first deployment version to central repository will be 1.0. 
  
