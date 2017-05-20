@@ -554,20 +554,11 @@ public final class DOMHelper {
     /**
      * Simply removes all child nodes.
      *
-     * @param element
-     */
-    public static void removeAllChildren(final Element element) {
-        for (Node n = element.getFirstChild(); n != null; n = element.getFirstChild()) {
-            element.removeChild(n);
-        }
-    }
-
-    /**
-     * Simply removes all child nodes.
-     *
      * @param node
      */
     public static void removeAllChildren(final Node node) {
+        assert node != null;
+        assert node.getNodeType() != Node.ATTRIBUTE_NODE;
         if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
             Element documentElement = ((Document) node).getDocumentElement();
             if (documentElement != null) {
@@ -576,7 +567,10 @@ public final class DOMHelper {
             return;
         }
         if (node.getNodeType() == Node.ELEMENT_NODE) {
-            removeAllChildren((Element) node);
+            Element element = (Element) node;
+            for (Node n = element.getFirstChild(); n != null; n = element.getFirstChild()) {
+                element.removeChild(n);
+            }
         }
     }
 
