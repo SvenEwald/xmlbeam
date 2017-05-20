@@ -485,24 +485,6 @@ public final class DOMHelper {
     }
 
     /**
-     * @param nodes
-     * @return true if and only if all nodes have the same parent
-     */
-//    public static boolean haveSameParent(final List<Node> nodes) {
-//        if ((nodes == null) || (nodes.isEmpty())) {
-//            return true;
-//        }
-//        Iterator<Node> i = nodes.iterator();
-//        Node firstParent = i.next().getParentNode();
-//        while (i.hasNext()) {
-//            if (firstParent != i.next().getParentNode()) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-
-    /**
      * @param previous
      * @param newNode
      */
@@ -512,43 +494,6 @@ public final class DOMHelper {
         Document document = DOMHelper.getOwnerDocumentFor(parent);
         DOMHelper.ensureOwnership(document, newNode);
         parent.replaceChild(newNode, previous);
-    }
-
-    /**
-     * @param data
-     * @param name
-     * @return list of children with tag name
-     */
-//    public static List<Node> getChildrendByName(final Node data, final String name) {
-//        if (data.getNodeType() == Node.ELEMENT_NODE) {
-//            return asList(((Element) data).getElementsByTagName(name));
-//        }
-//        if (data.getNodeType() == Node.DOCUMENT_NODE) {
-//            return asList(((Document) data).getElementsByTagName(name));
-//        }
-//        throw new IllegalArgumentException("Only Elements and Documents have child nodes");
-//    }
-
-    /**
-     * Set a text value to a node whether it is an element or an attribute.
-     *
-     * @param newNode
-     * @param value
-     */
-    @Deprecated
-    public static void setStringValue(final Node newNode, final String value) {
-        assert newNode.getNodeType() != Node.DOCUMENT_NODE;
-//        if (newNode.getNodeType() == Node.ATTRIBUTE_NODE) {
-//            if ("xmlns".equals(newNode.getNodeName())) {
-//                ((Attr) newNode).getOwnerElement().setAttribute("xmlns", value);
-//                return;
-//            }
-//        }
-//            ((Attr) newNode).getOwnerElement().
-//             ((Attr) newNode).getOwnerElement().setAttributeNS(newNode.getNamespaceURI(), newNode.getNodeName(), value);
-//            return;
-//        }
-        newNode.setTextContent(value);
     }
 
     /**
@@ -676,6 +621,7 @@ public final class DOMHelper {
      * @param asString
      */
     public static void setDirectTextContent(final Node elementToChange, final String asString) {
+        assert elementToChange.getNodeType() != Node.DOCUMENT_NODE;
         if (Node.ATTRIBUTE_NODE == elementToChange.getNodeType()) {
             elementToChange.setTextContent(asString);
             return;
