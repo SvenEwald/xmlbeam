@@ -11,6 +11,7 @@ Release Notes
 * 1.4.11 current release
 
  * Bug fixed: Predicates in writing XPath expressions may contain paths now.
+ 
  * Bug fixed: Writing values to elements does not delete existing child elements any more.
 
 * 1.4.10
