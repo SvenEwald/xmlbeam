@@ -30,25 +30,24 @@ public class XBAutoListRefCard {
 
     //START SNIPPET: ProjectedListRefCardExample
     public interface Example {
-        
+
         @XBAutoBind("/xml/list/entry")
         List<String> entries();
 
     }
     //END SNIPPET: ProjectedListRefCardExample
-    
-    private static final String XML = "<xml>\n   <list>\n      <entry>foo</entry>\n      <entry>bar</entry>›\n      <entry>something</entry>\n   </list>\n</xml>\n";
-  
+
+    private static final String XML = "<xml>\n  <list>\n    <entry>foo</entry>\n    <entry>bar</entry>›\n    <entry>something</entry>\n  </list>\n</xml>\n";
+
     @Test
-    public void autolistdemo()
-    {
-        Example example=new XBProjector(Flags.TO_STRING_RENDERS_XML).projectXMLString(XML, Example.class);
+    public void autolistdemo() {
+        Example example = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectXMLString(XML, Example.class);
     //START SNIPPET: ProjectedListRefCardExample2
-       // Remove the first two entries 
+       // Remove the first two entries
        example.entries().subList(0, 2).clear();
        // Add a new entry
        example.entries().add("New Entry");
     //END SNIPPET: ProjectedListRefCardExample2
-       System.out.println(example);
+        System.out.println(example);
     }
 }

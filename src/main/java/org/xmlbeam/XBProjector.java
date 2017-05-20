@@ -475,7 +475,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
         final Map<Class<?>, Object> mixinsForProjection = mixins.containsKey(projectionInterface) ? Collections.unmodifiableMap(mixins.get(projectionInterface)) : Collections.<Class<?>, Object> emptyMap();
         final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, mixinsForProjection, flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
         final Set<Class<?>> interfaces = new HashSet<Class<?>>();
-        //.toArray() new Class[] { projectionInterface, DOMAccess.class, Serializable.class };
         interfaces.add(projectionInterface);
         interfaces.add(DOMAccess.class);
         interfaces.add(Serializable.class);
@@ -778,7 +777,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * Create an empty document and bind an XBAutoMap to it.
-     * 
+     *
      * @param valueType
      *            component type of map
      * @return an empty Map view to the document
