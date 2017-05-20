@@ -13,33 +13,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam;
-
+package org.xmlbeam.exceptions;
 
 /**
- * XMLBeam root exception. The base of all exceptions thrown during invoking
- * projection methods. Needs to be a RuntimeException to avoid
- * declaring exceptions on each projection method.
+ * XMLBeam root exception. The base of all exceptions thrown during invoking projection methods.
+ * Needs to be a RuntimeException to avoid declaring exceptions on each projection method.
  */
 public class XBException extends RuntimeException {
 
     private static final long serialVersionUID = 4989019505068594914L;
-    
+
     /**
      * Exception constructor.
+     *
      * @param msg
      * @param e
      */
-    public XBException(String msg, Throwable e) {
-        super(msg,e);
+    public XBException(final String msg, final Throwable e) {
+        super(msg, e);
     }
-    
+
     /**
      * Exception constructor.
+     *
      * @param msg
      */
-    public XBException(final String msg) {
-        super(msg);
-    }  
+    public XBException(final CharSequence msg) {
+        super(msg.toString());
+    }
 
 }

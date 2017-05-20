@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam;
+package org.xmlbeam.exceptions;
 
 /**
  * You may declare your reading projection methods throwing exceptions.
@@ -28,7 +28,7 @@ final public class XBDataNotFoundException extends XBException {
     /**
      * @param xpath resolved XPath.
      */
-    XBDataNotFoundException(String xpath) {
+    public XBDataNotFoundException(String xpath) {
         super("Data that was expected to be found... was not");
         this.resolvedXPath=xpath;
     }

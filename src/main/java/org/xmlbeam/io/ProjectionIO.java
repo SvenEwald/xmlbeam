@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam;
+package org.xmlbeam.io;
 
 import java.net.URISyntaxException;
 
@@ -23,10 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.xmlbeam.annotation.XBDocURL;
-import org.xmlbeam.io.XBFileIO;
-import org.xmlbeam.io.XBStreamInput;
-import org.xmlbeam.io.XBStreamOutput;
-import org.xmlbeam.io.XBUrlIO;
 
 /**
  * A ProjectionIO is responsible for every IO operation related to projections. Before coding your
@@ -39,7 +35,7 @@ public interface ProjectionIO {
      * @param file
      * @return a XBFileIO for this file.
      */
-    XBFileIO file(File file);
+    FileIO file(File file);
 
     
     /**
@@ -47,28 +43,28 @@ public interface ProjectionIO {
      * @param fileName
      * @return a XBFileIO for this filename.
      */
-    XBFileIO file(String fileName);
+    FileIO file(String fileName);
 
     /**
      * Get access to the url IO.
      * @param url
      * @return a XBUrlIO for this url
      */
-    XBUrlIO url(String url);
+    UrlIO url(String url);
     
     /**
      * Get access to the stream IO
      * @param is
      * @return a XBStreamInput for this InputStream
      */
-    XBStreamInput stream(InputStream is);
+    StreamInput stream(InputStream is);
 
     /**
      * Get access to the stream IO
      * @param os
      * @return a XBStreamOutput for this OutputStream
      */
-    XBStreamOutput stream(OutputStream os);
+    StreamOutput stream(OutputStream os);
 
     /**
      * Create a new projection using a {@link XBDocURL} annotation on this interface. When the

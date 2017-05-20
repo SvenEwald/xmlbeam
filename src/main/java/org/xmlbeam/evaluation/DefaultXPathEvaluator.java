@@ -18,16 +18,14 @@
  */
 package org.xmlbeam.evaluation;
 
-import java.lang.reflect.Method;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import java.awt.geom.IllegalPathStateException;
-
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -39,6 +37,7 @@ import org.w3c.dom.NodeList;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
 import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
@@ -264,4 +263,29 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
         throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for list or array component type returning from method " + method + " using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
                 + ". Please change the return type to a sub projection or add a conversion to the type converter.");
     }
+
+    /**
+     * @param invocationContext
+     *            invocation context
+     * @param item
+     * @param targetComponentType
+     * @return node content as target type
+     */
+    @SuppressWarnings("unchecked")
+    public static <E> E convertToComponentType(final InvocationContext invocationContext, final Node item, final Class<?> targetComponentType) {
+        TypeConverter typeConverter = invocationContext.getProjector().config().getTypeConverter();
+        if (typeConverter.isConvertable(invocationContext.getTargetComponentType())) {
+            return (E) typeConverter.convertTo(targetComponentType, item != null ? DOMHelper.directTextContent(item) : null, invocationContext.getExpressionFormatPattern());
+        }
+        if (Node.class.equals(targetComponentType)) {
+            return (E) item;
+        }
+        if (targetComponentType.isInterface()) {
+            Object subprojection = invocationContext.getProjector().projectDOMNode(item, targetComponentType);
+            return (E) subprojection;
+        }
+        throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for a ProjectedList using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
+                + ". Please change the return type to a sub projection or add a conversion to the type converter.");
+    }
+
 }

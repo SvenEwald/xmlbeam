@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -32,6 +33,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -62,10 +65,12 @@ import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
-import org.xmlbeam.io.XBFileIO;
-import org.xmlbeam.io.XBStreamInput;
-import org.xmlbeam.io.XBStreamOutput;
-import org.xmlbeam.io.XBUrlIO;
+import org.xmlbeam.intern.DOMChangeListener;
+import org.xmlbeam.io.ProjectionIO;
+import org.xmlbeam.io.FileIO;
+import org.xmlbeam.io.StreamInput;
+import org.xmlbeam.io.StreamOutput;
+import org.xmlbeam.io.UrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
@@ -341,40 +346,40 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
-        public XBFileIO file(final File file) {
-            return new XBFileIO(XBProjector.this, file);
+        public FileIO file(final File file) {
+            return new DefaultFileIO(XBProjector.this, file);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public XBFileIO file(final String fileName) {
-            return new XBFileIO(XBProjector.this, fileName);
+        public FileIO file(final String fileName) {
+            return new DefaultFileIO(XBProjector.this, fileName);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public XBUrlIO url(final String url) {
-            return new XBUrlIO(XBProjector.this, url);
+        public UrlIO url(final String url) {
+            return new UrlIO(XBProjector.this, url);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public XBStreamInput stream(final InputStream is) {
-            return new XBStreamInput(XBProjector.this, is);
+        public StreamInput stream(final InputStream is) {
+            return new StreamInput(XBProjector.this, is);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public XBStreamOutput stream(final OutputStream os) {
-            return new XBStreamOutput(XBProjector.this, os);
+        public StreamOutput stream(final OutputStream os) {
+            return new StreamOutput(XBProjector.this, os);
         }
 
         /**
@@ -386,7 +391,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
-            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), optionalParams));
+            UrlIO urlIO = url(MessageFormat.format(doc.value(), optionalParams));
             urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), optionalParams));
             return urlIO.read(projectionInterface);
         }
@@ -426,7 +431,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             if (doc == null) {
                 throw new IllegalArgumentException("Class " + projectionInterface.getCanonicalName() + " must have the " + XBDocURL.class.getName() + " annotation linking to the document source.");
             }
-            XBUrlIO urlIO = url(MessageFormat.format(doc.value(), optionalParams));
+            UrlIO urlIO = url(MessageFormat.format(doc.value(), optionalParams));
             urlIO.addRequestProperties(filterRequestParamsFromParams(doc.value(), optionalParams));
             return urlIO.write(projection);
         }
@@ -492,7 +497,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
     public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface) {
         try {
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
-            return new XBStreamInput(this, inputStream).read(projectionInterface);
+            return new StreamInput(this, inputStream).read(projectionInterface);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -536,6 +541,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
     private StringRenderer stringRenderer = (StringRenderer) typeConverter;
+
+    private List<WeakReference<DOMChangeListener>> domChangeListeners = new LinkedList<WeakReference<DOMChangeListener>>();
 
     /**
      * Global projector configuration options.
@@ -633,10 +640,10 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     private void ensureIsValidProjectionInterface(final Class<?> projectionInterface) {
         if (projectionInterface == null) {
-            throw new IllegalArgumentException("Parameter projectionInterface must not be null, but is.",new NullPointerException());
+            throw new IllegalArgumentException("Parameter projectionInterface must not be null, but is.", new NullPointerException());
         }
         if ((!projectionInterface.isInterface())) {
-            throw new IllegalArgumentException("Parameter "+projectionInterface+" is not an interface"); 
+            throw new IllegalArgumentException("Parameter " + projectionInterface + " is not an interface");
         }
         if (projectionInterface.isAnnotation()) {
             throw new IllegalArgumentException("Parameter " + projectionInterface + " is an annotation interface. Remove the @ and try again.");
@@ -718,8 +725,15 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @param projection
      * @return an XML string of the projection target.
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public String asString(final Object projection) {
+        if (projection instanceof AutoValue) {
+            return DOMHelper.toXMLString(this, ((AutoValue)projection).getNode());           
+        }
+        if (projection instanceof AutoList) {
+            return DOMHelper.toXMLString(this, ((AutoList)projection).getNode());
+        }        
         if (!(projection instanceof DOMAccess)) {
             throw new IllegalArgumentException("Argument is not a projection.");
         }
@@ -734,6 +748,23 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     public Set<Flags> getFlags() {
         return Collections.unmodifiableSet(flags);
+    }
+
+    void addDOMChangeListener(DOMChangeListener listener) {
+        domChangeListeners.add(new WeakReference<DOMChangeListener>(listener));
+    }
+
+    /**
+     * 
+     */
+    void notifyDOMChangeListeners() {
+        for (WeakReference<DOMChangeListener> wr:domChangeListeners) {
+            DOMChangeListener listener = wr.get();
+            if (listener!=null) {
+                listener.domChanged();
+            }
+        }
+        
     }
 
 }

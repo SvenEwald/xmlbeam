@@ -37,6 +37,7 @@ import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTSTRINGLITER
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTVARNAME;
 import static org.xmlbeam.util.intern.duplex.XParserTreeConstants.JJTXPATH;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -205,11 +206,14 @@ class BuildDocumentVisitor implements XParserVisitor {
                     throw new XBXPathExprNotAllowedForWriting(node, "Operator " + node.getValue() + " leads to non writable predicates.");
                 }
                 Object first = node.firstChildAccept(this, data);
+                if (first instanceof List) {
+                    first=((List)first).get(0);
+                }
                 if (!(first instanceof Node)) {
                     throw new XBXPathExprNotAllowedForWriting(node, "A non writable predicate");
                 }
                 Object second = node.secondChildAccept(this, data);
-                DOMHelper.setStringValue((Node) first, second.toString());
+                DOMHelper.setDirectTextContent((Node) first, second.toString());
                 /*
                  * if (first instanceof Attr) { assert data instanceof Element; ((Element)
                  * data).setAttributeNS(null, ((Attr) first).getNodeName(), second.toString()); //
@@ -228,6 +232,8 @@ class BuildDocumentVisitor implements XParserVisitor {
                 return QName.valueOf(node.getValue());
             case JJTVARNAME:
                 return resolveVariable(node, data);
+            case  JJTPATHEXPR:
+                return node.childrenAcceptWithFilter(this, data, stepListFilter);
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expetced here.");
             }
@@ -268,6 +274,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                 return resolveVariable(node, data);
             case JJTQNAME:
                 return QName.valueOf(node.getValue());
+            //TODO: check if this case is needed or wrong.    
+            case  JJTPATHEXPR:
+                return node.childrenAcceptWithFilter(this, data, stepListFilter);
             default:
                 throw new XBXPathExprNotAllowedForWriting(node, "Not expeced here.");
             }
@@ -397,9 +406,9 @@ class BuildDocumentVisitor implements XParserVisitor {
                         DOMHelper.removeNodes(existingNodes);                        
                         return existingNodes;
                     }
-                    if (existingNodes.size() > 1) {
-                        throw new XBXPathExprNotAllowedForWriting(node, "You can not set or get attributes on the document. You need a root element.");
-                    }
+                    // If there are multiple possible hits, take the first one.
+                    // This might have unexpected results when creating paths,
+                    // but should be resolvable by adding more predicates.
                     nextNode = existingNodes.get(0);
                 }
             }
