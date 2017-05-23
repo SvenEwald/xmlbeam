@@ -52,6 +52,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmlbeam.annotation.XBAutoBind;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
@@ -656,10 +657,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
             final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
             final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
+            final boolean isBind = (method.getAnnotation(XBAutoBind.class)!=null);
             final boolean isExternal = (method.getAnnotation(XBDocURL.class) != null);
             final boolean isThrowsException = (method.getExceptionTypes().length > 0);
-            if (isRead ? isUpdate || isWrite || isDelete : (isUpdate ? isWrite || isDelete : isWrite && isDelete)) {
-                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName());
+            if (countTrue(isRead,isWrite,isDelete,isUpdate,isBind)>1) {
+                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName()+ ", or @" + XBAutoBind.class.getSimpleName());
             }
             if (isExternal && (isWrite || isUpdate || isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " was declared as writing projection but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining external projections is only possible when reading because there is no DOM attached.");
@@ -677,7 +679,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 if (ReflectionHelper.isOptional(method.getReturnType()) && isThrowsException) {
                     throw new IllegalArgumentException("Method " + method + " has an Optional<> return type, but declares to throw an exception. Exception will never be thrown because return value must not be null.");
                 }
-            }
+                
+            }           
             if (isWrite && isThrowsException) {
                 throw new IllegalArgumentException("Method " + method + " declares to throw exception " + method.getExceptionTypes()[0].getSimpleName() + " but is not a reading projection method. When should this exception be thrown?");
             }
@@ -712,6 +715,23 @@ public class XBProjector implements Serializable, ProjectionFactory {
             }
         }
 
+    }
+
+    /**
+     * Count how many parameters are true.
+     * @return number of true values in parameter list.
+     */
+    private static int countTrue(boolean... b) {
+        if (b==null) {
+            return 0;
+        }
+        int count=0;
+        for (boolean bb:b) {
+            if (bb) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     /**

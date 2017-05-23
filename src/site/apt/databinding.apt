@@ -1,7 +1,10 @@
 Data Binding? 
 
- With the new annotation @XBAutoBind, collections and values may be modified without declaring
- getters and setters.
+ With the new annotation @XBAutoBind, projection methods will return special collection instances.
+ Changes to these instances will be reflected to the XML DOM tree, directly.
+
+
+List
 
 ----------------------------------------
 <xml>
@@ -25,3 +28,7 @@ Data Binding?
    </list>
 </xml>
 ----------------------------------------
+
+Map
+
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectedMapRefCardExample|source=src/test/java/org/xmlbeam/refcards/XBAutoMapRefCard.java}

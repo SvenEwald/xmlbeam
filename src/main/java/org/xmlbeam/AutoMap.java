@@ -243,7 +243,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
     @Override
     public T remove(final Object path) {
         if (!(path instanceof CharSequence)) {
-            throw new IllegalArgumentException("parameter path must be a CharSequence containing a relative XPath expression.");
+            throw new IllegalArgumentException("parameter path must be a CharSequence or String containing a relative XPath expression.");
         }
         return remove(CharSequence.class.cast(path));
     }
@@ -265,6 +265,9 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         try {
             final XPathExpression expression = invocationContext.getProjector().config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
             Node prevNode = (Node) expression.evaluate(boundNode, XPathConstants.NODE);
+            if (prevNode==null) {
+                return null;
+            }
             final T value = DefaultXPathEvaluator.convertToComponentType(invocationContext, prevNode, invocationContext.getTargetComponentType());
             duplexExpression.deleteAllMatchingChildren(prevNode.getParentNode());
             return value;

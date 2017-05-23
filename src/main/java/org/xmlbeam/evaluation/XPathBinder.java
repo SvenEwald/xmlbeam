@@ -18,6 +18,7 @@ package org.xmlbeam.evaluation;
 import java.util.Date;
 
 import org.xmlbeam.types.CloseableList;
+import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.CloseableValue;
 
 /**
@@ -76,4 +77,14 @@ public interface XPathBinder {
      */
     <T> CloseableList<T> asListOf(Class<T> componentType);
 
+    /**
+     * Evaluate the XPath as a map with the given value type.
+     * 
+     * @param valueType
+     *            Possible values: primitive types (e.g. Short.Type), Projection interfaces, any
+     *            class with a String constructor or a String factory method, and org.w3c.Node
+     * @return List of return type that reflects the evaluation result.
+     */
+    <T> CloseableMap<T> asMapOf(Class<T> valueType);
+    
 }

@@ -22,9 +22,6 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBAutoBind;
 
-/**
- *
- */
 @SuppressWarnings({ "javadoc", "null" })
 public class XBAutoListRefCard {
 

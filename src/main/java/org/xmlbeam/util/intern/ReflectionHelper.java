@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
+import org.xmlbeam.exceptions.XBException;
+
 /**
  * A set of tiny helper methods internally used in the projection framework. This methods are
  * <b>not</b> part of the public framework API and might change in minor version updates.
@@ -387,6 +389,14 @@ public final class ReflectionHelper {
 //            return (Class<?>) type;
 //        }
         assert type instanceof ParameterizedType;
+        final Type rawType = ((ParameterizedType) type).getRawType();
+        if (Map.class.equals(rawType)) {
+            if (!(((ParameterizedType) type).getActualTypeArguments()[0].equals(String.class))) {
+                throw new XBException("If Map is used as return type, String must be used as key type.");
+            }
+            return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[1]; 
+        }
+
         assert ((ParameterizedType) type).getActualTypeArguments().length == 1;
         return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
     }

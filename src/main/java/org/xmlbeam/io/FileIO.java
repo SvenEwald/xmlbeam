@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.types.CloseableMap;
 
 /**
  * 
@@ -60,9 +61,26 @@ public interface FileIO {
     XPathEvaluator evalXPath(String xpath);
 
     /**
+     * Evaluate given XPath and bind result to a List or Map.
+     * Use this method to bind parts of documents to a map.
      * @param xpath
      * @return binder
      */
     XPathBinder bindXPath(String xpath);
+
+    /**
+     * Bind complete document to a Map.
+     * @param valueType
+     * @return Closeable map bound to complete document.
+     * @throws IOException 
+     */
+    <T> CloseableMap<T> bindAsMapOf(Class<T> valueType) throws IOException;
+
+    /**
+     * Set whether files should be created if they don't exist. When this method is not invoked, or
+     * invoked with 'false', a FileNotFound exception will be thrown on bind operations.
+     * @return this to provide fluent API.
+     */
+    FileIO failIfNotExists(boolean... create);
 
 }

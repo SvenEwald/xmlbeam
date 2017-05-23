@@ -33,6 +33,7 @@ import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.types.CloseableList;
+import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
@@ -145,7 +146,7 @@ final class DefaultXPathBinder implements XPathBinder {
 
     }
 
-    static private <T> void validateEvaluationType(final Class<T> returnType) {
+    static <T> void validateEvaluationType(final Class<T> returnType) {
         if (ReflectionHelper.isOptional(returnType)) {
             throw new IllegalArgumentException("Type Optional is only allowed as a method return type.");
         }
@@ -154,6 +155,9 @@ final class DefaultXPathBinder implements XPathBinder {
         }
     }
 
+    private enum CollectionType {
+        LIST,MAP;
+    }
     /**
      * Evaluate the XPath as a list of the given type.
      *
@@ -162,13 +166,17 @@ final class DefaultXPathBinder implements XPathBinder {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return List of return type that reflects the evaluation result.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public <T> CloseableList<T> asListOf(final Class<T> componentType) {
         Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return bindMultiValues(componentType, callerClass);
+        return (CloseableList<T>) bindMultiValues(componentType, callerClass,CollectionType.LIST);
     }
 
-    private <T> CloseableList<T> bindMultiValues(final Class<T> componentType, final Class<?> callerClass) {
+ 
+    
+    @SuppressWarnings("resource")
+    private <T> Closeable bindMultiValues(final Class<T> componentType, final Class<?> callerClass,final CollectionType collectionType ) {
         validateEvaluationType(componentType);
         try {
             Document document = documentProvider.resolve(componentType, callerClass);
@@ -178,23 +186,24 @@ final class DefaultXPathBinder implements XPathBinder {
             InvocationContext invocationContext = new InvocationContext(duplexExpression.getExpressionAsStringWithoutFormatPatterns(), //
                     null, expression, duplexExpression, null, componentType, projector);
 
-            return new DefaultFileList<T>(document, invocationContext, documentWriter);
+            return collectionType==CollectionType.LIST ? new DefaultFileList<T>(document, invocationContext, documentWriter) : new DefaultFileMap<T>(document, invocationContext, documentWriter, componentType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (XPathExpressionException e) {
             throw new XBException("Error during evaluation", e);
         }
+    }
 
-//        try {
-//            Document document = documentProvider.resolve(componentType, callerClass);
-//            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
-//            InvocationContext invocationContext = new InvocationContext(null, null, expression, duplexExpression, null, componentType, projector);
-//            return (List<T>) evaluateAsList(expression, document, null, invocationContext);
-//        } catch (XPathExpressionException e) {
-//            throw new RuntimeException(e);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+    /**
+     * @param valueType
+     * @return map with value type
+     * @see org.xmlbeam.evaluation.XPathBinder#asMapOf(java.lang.Class)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> CloseableMap<T> asMapOf(Class<T> valueType) {
+        Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
+        return (CloseableMap<T>) bindMultiValues(valueType, callerClass,CollectionType.MAP);
     }
 
 }

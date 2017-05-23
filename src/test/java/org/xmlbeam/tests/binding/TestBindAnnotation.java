@@ -18,6 +18,7 @@ package org.xmlbeam.tests.binding;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static org.xmlbeam.testutils.DOMDiagnoseHelper.assertXMLStringsEquals;
 
 import java.util.List;
@@ -27,6 +28,8 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBAutoBind;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.types.XBAutoValue;
 
@@ -61,12 +64,20 @@ public class TestBindAnnotation {
         @XBAutoBind("/root/map")
         XBAutoMap<Subprojection> mapSubProjection();
 
+        @XBRead("/root/map")
+        Map<String, String> map2();
+
+    }
+
+    interface InvalidProjection {
+        @XBAutoBind("/root")
+        Map<Integer, Integer> invalidReturnType();
     }
 
     @Test
     public void testProjectionBindMethod() {
         projection.attr().set("foo");
-        assertEquals("<root><first><second attr=\"foo\"/></first></root>", projection.toString().replaceAll(">\\s+", ">"));
+        assertXMLStringsEquals("<root><first><second attr=\"foo\"/></first></root>", projection.toString());
     }
 
     @Test
@@ -74,42 +85,32 @@ public class TestBindAnnotation {
         List<String> list = projection.list();
         list.add("foo");
         list.add("bar");
-        //  System.out.println(list.toString());
         assertEquals("[foo, bar]", list.toString());
     }
 
     @Test
     public void testProjectionBindMapCreation() {
-//        System.out.println(mapProjection);
         Map<String, String> map = mapProjection.map();
         assertEquals(null, map.get("a/b/c"));
         map.put("./a/b/c", "newValue");
-//System.out.println(mapProjection);
-
         assertEquals("value1", map.get("./element1"));
         assertEquals("newValue", map.get("a/b/c"));
-
     }
 
     @Test
     public void testProjectionAutoMapRemove() {
         Map<String, String> map = mapProjection.map();
         assertEquals("value2", map.get("element2/element3"));
-        map.remove("element2");
+        assertEquals("",map.remove("element2"));
+        assertNull(map.remove("nonexisting"));
         assertEquals(null, map.get("element2/element3"));
     }
 
     @Test
-    public void testProjectionBindMapEmpty() {
-        // assertTrue(projection.map().isEmpty());
-        //   projection.map().put("./a/b/c", "someValue);
+    public void testProjectionBindMapEmptyAndSize() {
         Map<String, String> map = mapProjection.map();
         assertFalse(map.isEmpty());
         assertEquals(3, map.size());
-
-//        System.out.println(mapProjection);
-//        System.out.println(mapProjection.map().entrySet());
-//        System.out.println(mapProjection.map().values());
     }
 
     @Test
@@ -123,6 +124,17 @@ public class TestBindAnnotation {
         map.put("ele1/ele2/@att", "someAttValue");
         assertEquals("[./ele1/ele2/@att=someAttValue]", map.entrySet().toString());
     }
+    
+    @Test
+    public void testProjectionBindMapValues2() {
+        Map<String, String> map = mapProjection.map2();
+        assertEquals("[value1, value2, attvalue1]", map.values().toString());
+        map.clear();
+        assertEquals("[]", map.values().toString());
+        map.put("ele1/ele2/@att", "someAttValue");
+        assertEquals("[./ele1/ele2/@att=someAttValue]", map.entrySet().toString());
+    }
+    
 
     @Test
     public void testProjectionAutoMapFullDocument() {
@@ -169,5 +181,10 @@ public class TestBindAnnotation {
         XBAutoMap<Subprojection> map = mapProjection.mapSubProjection();
         System.out.println(projector.asString(map));
         System.out.println(projector.asString(map.get("element2/element3")));
+    }
+
+    @Test(expected = XBException.class)
+    public void testInvalidProjectionReturnType() {
+        projector.projectXMLString("<xml></xml>", InvalidProjection.class);
     }
 }
