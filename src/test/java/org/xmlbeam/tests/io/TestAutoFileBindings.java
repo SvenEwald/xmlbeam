@@ -35,9 +35,12 @@ import org.xmlbeam.types.CloseableMap;
 public class TestAutoFileBindings {
     XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
     File file;
+    private String origEOL;
 
     @Before
     public void createFile() throws IOException {
+        origEOL = System.getProperty("line.separator");
+        System.setProperty("line.separator", "\r\n");
         File tempFile = File.createTempFile(this.getClass().getSimpleName(), Long.toBinaryString(System.currentTimeMillis()));
         DOMAccess domAccess = projector.projectXMLString("<root><foo><bar>huhu</bar></foo></root>", DOMAccess.class);
         projector.io().file(tempFile).write(domAccess);
@@ -47,6 +50,7 @@ public class TestAutoFileBindings {
     @After
     public void deleteFile() {
         file.delete();
+        System.setProperty("line.separator", origEOL);
     }
 
     @Test
@@ -58,7 +62,7 @@ public class TestAutoFileBindings {
         map.close();
         assertEquals(102, file.length());
     }
-    
+
     @Test
     public void testMapExistingFileWithXpath() throws IOException {
         assertEquals(57, file.length());
@@ -81,24 +85,21 @@ public class TestAutoFileBindings {
         assertEquals(62, file.length());
         file.delete();
     }
-    
-    @Test(expected=FileNotFoundException.class)
+
+    @Test(expected = FileNotFoundException.class)
     public void testMapNonExistingFileFails() throws IOException {
         projector.io().file("doesNot.Exist").failIfNotExists().bindAsMapOf(String.class);
     }
-    
-    
+
     @Test
     public void testListExistingFile() throws IOException {
         assertEquals(57, file.length());
         CloseableList<String> list = projector.io().file(file).bindXPath("/root/foo/bar").asListOf(String.class);
-        assertEquals(1,list.size());
+        assertEquals(1, list.size());
         assertEquals("huhu", list.get(0));
         list.add("huhu2");
         list.close();
         assertEquals(79, file.length());
     }
-    
-    
-    
+
 }
