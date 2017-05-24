@@ -125,19 +125,30 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
      *            relative xpath
      * @return value in DOM tree. null if no value is present.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public T get(final CharSequence path) {
+        return (T) get(path, invocationContext.getTargetComponentType());
+    }
+
+    @Override
+    public <E> E get(final CharSequence path, final Class<E> asType) {
         if ((path == null) || (path.length() == 0)) {
             throw new IllegalArgumentException("Parameter path must not be empty or null");
         }
         domChangeTracker.refreshForReadIfNeeded();
+        if (boundNode == null) {
+            // we need not to evaluate, because our context node does not even exist.
+            return null;
+        }
 
         final Document document = DOMHelper.getOwnerDocumentFor(baseNode);
         final DuplexExpression duplexExpression = new DuplexXPathParser(invocationContext.getProjector().config().getUserDefinedNamespaceMapping()).compile(path);
         try {
             final XPathExpression expression = invocationContext.getProjector().config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
             Node prevNode = (Node) expression.evaluate(boundNode, XPathConstants.NODE);
-            final T value = DefaultXPathEvaluator.convertToComponentType(invocationContext, prevNode, invocationContext.getTargetComponentType());
+            InvocationContext tempContext = new InvocationContext(invocationContext.getResolvedXPath(), invocationContext.getxPath(), expression, duplexExpression, null, asType, invocationContext.getProjector());
+            final E value = DefaultXPathEvaluator.convertToComponentType(tempContext, prevNode, asType);
             return value;
         } catch (XPathExpressionException e) {
             throw new XBPathException(e, path);
@@ -194,7 +205,13 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         if (value == null) {
             return remove(path);
         }
+        if (boundNode == null) {
+            // If there is no context node yet, ignore if
+            // we had read the dom before. We need to create it now.
+            domChangeTracker.domChanged();
+        }
         domChangeTracker.refreshForWriteIfNeeded();
+        assert boundNode != null : "Bound node does not exist. No evaluation possible";
         final Document document = DOMHelper.getOwnerDocumentFor(baseNode);
         final DuplexExpression duplexExpression = new DuplexXPathParser(invocationContext.getProjector().config().getUserDefinedNamespaceMapping()).compile(path);
         if ((ExpressionType.ATTRIBUTE == duplexExpression.getExpressionType()) && ProjectionInvocationHandler.isStructureChangingType(valueType)) {
@@ -265,7 +282,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         try {
             final XPathExpression expression = invocationContext.getProjector().config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
             Node prevNode = (Node) expression.evaluate(boundNode, XPathConstants.NODE);
-            if (prevNode==null) {
+            if (prevNode == null) {
                 return null;
             }
             final T value = DefaultXPathEvaluator.convertToComponentType(invocationContext, prevNode, invocationContext.getTargetComponentType());

@@ -37,7 +37,8 @@
 			<item name="Tutorials" href="tutorials.html" />
 			<item name="API Explained" href="refcards.html"/>
 			<item name="Formatting Data" href="formatfeature.html"/>
-			<item name="Data Binding" href="autobinding.html"/>
+			<item name="Auto Types" href="autotypes.html"/>
+			<item name="Evaluation API" href="evaluationapi.html"/>
 			<item name="Javadoc" href="apidocs"/>
 			<item name="FAQ" href="faq.html" />
 			<item name="Further Reading" href="links.html" />

@@ -281,7 +281,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
             return (E) item;
         }
         if (targetComponentType.isInterface()) {
-            if (item==null) {
+            if (item == null) {
                 return null;
             }
             Object subprojection = invocationContext.getProjector().projectDOMNode(item, targetComponentType);

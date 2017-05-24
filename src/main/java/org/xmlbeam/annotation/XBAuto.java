@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface XBAutoBind {
+public @interface XBAuto {
     /**
      * XPath to select element or attribute to be bind.
      *

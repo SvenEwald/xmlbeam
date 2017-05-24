@@ -52,7 +52,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.xmlbeam.annotation.XBAutoBind;
+import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
@@ -657,11 +657,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
             final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
             final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
-            final boolean isBind = (method.getAnnotation(XBAutoBind.class)!=null);
+            final boolean isBind = (method.getAnnotation(XBAuto.class)!=null);
             final boolean isExternal = (method.getAnnotation(XBDocURL.class) != null);
             final boolean isThrowsException = (method.getExceptionTypes().length > 0);
             if (countTrue(isRead,isWrite,isDelete,isUpdate,isBind)>1) {
-                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName()+ ", or @" + XBAutoBind.class.getSimpleName());
+                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName()+ ", or @" + XBAuto.class.getSimpleName());
             }
             if (isExternal && (isWrite || isUpdate || isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " was declared as writing projection but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining external projections is only possible when reading because there is no DOM attached.");
@@ -802,7 +802,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      *            component type of map
      * @return an empty Map view to the document
      */
-    public <T> XBAutoMap<T> automapEmptyDocument(final Class<T> valueType) {
+    public <T> XBAutoMap<T> autoMapEmptyDocument(final Class<T> valueType) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
         InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, this);
         return new AutoMap<T>(document, invocationContext, valueType);

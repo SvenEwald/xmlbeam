@@ -20,9 +20,10 @@ import java.io.IOException;
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.types.CloseableMap;
+import org.xmlbeam.types.XBAutoMap;
 
 /**
- * 
+ *
  *
  */
 public interface FileIO {
@@ -61,24 +62,41 @@ public interface FileIO {
     XPathEvaluator evalXPath(String xpath);
 
     /**
-     * Evaluate given XPath and bind result to a List or Map.
-     * Use this method to bind parts of documents to a map.
+     * Read complete document to a Map. The document must exist.
+     *
+     * @param valueType
+     * @return XBAutoMap map for the complete document.
+     * @throws IOException
+     */
+    <T> XBAutoMap<T> asMapOf(Class<T> valueType) throws IOException;
+
+    /**
+     * Evaluate given XPath and bind result to a List or Map. Use this method to bind parts of
+     * documents to a map. If failIfNotExists() was not called before, the file does not need to
+     * exist. If it does not exist, it will be created when calling close().
+     *
      * @param xpath
      * @return binder
      */
     XPathBinder bindXPath(String xpath);
 
     /**
-     * Bind complete document to a Map.
+     * Bind complete document to a Map. The returned value will be a Closeable map. Calling close()
+     * on this map will write back the changes to the file. If failIfNotExists() was not called
+     * before, the file does not need to exist. If it does not exist, it will be created when
+     * calling close().
+     *
      * @param valueType
      * @return Closeable map bound to complete document.
-     * @throws IOException 
+     * @throws IOException
      */
     <T> CloseableMap<T> bindAsMapOf(Class<T> valueType) throws IOException;
 
     /**
      * Set whether files should be created if they don't exist. When this method is not invoked, or
-     * invoked with 'false', a FileNotFound exception will be thrown on bind operations.
+     * invoked with 'false', a FileNotFound exception will be thrown on bind operations. Calling
+     * this method has effect on bind operations only.
+     *
      * @return this to provide fluent API.
      */
     FileIO failIfNotExists(boolean... create);

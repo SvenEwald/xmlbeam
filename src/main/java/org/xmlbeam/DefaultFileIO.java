@@ -38,6 +38,7 @@ import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.io.FileIO;
 import org.xmlbeam.io.StreamOutput;
 import org.xmlbeam.types.CloseableMap;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 
@@ -163,7 +164,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
      */
     @Override
     @SuppressWarnings("resource")
-    public XPathBinder bindXPath(String xpath) {
+    public XPathBinder bindXPath(final String xpath) {
         final Document[] doc = new Document[1];
         return new DefaultXPathBinder(projector, new DocumentResolver() {
 
@@ -204,21 +205,21 @@ class DefaultFileIO implements CanEvaluate, FileIO {
     /**
      * @param valueType
      * @return Map bound to file
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      * @see org.xmlbeam.io.FileIO#bindAsMapOf(java.lang.Class)
      */
     @SuppressWarnings("resource")
     @Override
-    public <T> CloseableMap<T> bindAsMapOf(Class<T> valueType) throws IOException {
+    public <T> CloseableMap<T> bindAsMapOf(final Class<T> valueType) throws IOException {
         DefaultXPathBinder.validateEvaluationType(valueType);
-        if ((failIfNotExists)&&(!file.exists())) {
+        if ((failIfNotExists) && (!file.exists())) {
             throw new FileNotFoundException(file.getAbsolutePath());
         }
         final Document[] document = new Document[1];
         try {
             if (file.exists()) {
                 document[0] = projector.config().createDocumentBuilder().parse(file);
-            } else {              
+            } else {
                 document[0] = projector.config().createDocumentBuilder().newDocument();
             }
             InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, projector);
@@ -237,7 +238,25 @@ class DefaultFileIO implements CanEvaluate, FileIO {
                         throw new XBException("Could not write to file " + file.getAbsolutePath(), e);
                     }
                 }
-            }, valueType);       
+            }, valueType);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param valueType
+     * @return XBAutoMap for the complete document
+     * @throws IOException
+     * @see org.xmlbeam.io.FileIO#asMapOf(java.lang.Class)
+     */
+    @Override
+    public <T> XBAutoMap<T> asMapOf(final Class<T> valueType) throws IOException {
+        DefaultXPathBinder.validateEvaluationType(valueType);
+        try {
+            Document document = projector.config().createDocumentBuilder().parse(file);
+            InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, projector);
+            return new AutoMap<T>(document, invocationContext, valueType);
         } catch (SAXException e) {
             throw new RuntimeException(e);
         }

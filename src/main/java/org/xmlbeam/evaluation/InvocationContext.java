@@ -27,7 +27,7 @@ import org.xmlbeam.util.intern.duplex.DuplexExpression;
  */
 public class InvocationContext {
     /**
-     * @return resolved XPath string. 
+     * @return resolved XPath string.
      */
     public String getResolvedXPath() {
         return resolvedXPath;
@@ -56,6 +56,7 @@ public class InvocationContext {
 
     /**
      * Constructor.
+     * 
      * @param resolvedXPath
      * @param xPath
      * @param xPathExpression
@@ -94,14 +95,16 @@ public class InvocationContext {
      * @return Format pattern for the expression within with this context.
      */
     public String getExpressionFormatPattern() {
-        if (duplexExpression==null) {
+        if (duplexExpression == null) {
             return null;
         }
         return duplexExpression.getExpressionFormatPattern();
     }
 
     /**
-     * A context may be reused even when method parameters change. But the change needs to be reflected to XPath variable bindings.
+     * A context may be reused even when method parameters change. But the change needs to be
+     * reflected to XPath variable bindings.
+     * 
      * @param args
      */
     public void updateMethodArgs(final Object[] args) {
@@ -119,9 +122,18 @@ public class InvocationContext {
 
     /**
      * Projector used when the projection was created.
+     * 
      * @return the projector instance.
      */
     public XBProjector getProjector() {
         return projector;
+    }
+
+    /**
+     * @param duplexExpression2
+     */
+    public void useDuplexExpression(final DuplexExpression duplexExpression2) {
+        // TODO Auto-generated method stub
+
     }
 }

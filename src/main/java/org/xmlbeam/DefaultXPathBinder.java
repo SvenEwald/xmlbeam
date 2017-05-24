@@ -44,7 +44,8 @@ import org.xmlbeam.util.intern.duplex.DuplexXPathParser;
  *
  * @author sven
  */
-final class DefaultXPathBinder implements XPathBinder {
+// FIXME: refactor and reduce visibility to default again
+public final class DefaultXPathBinder implements XPathBinder {
 
     private final DocumentResolver documentProvider;
     private final DuplexExpression duplexExpression;
@@ -146,7 +147,7 @@ final class DefaultXPathBinder implements XPathBinder {
 
     }
 
-    static <T> void validateEvaluationType(final Class<T> returnType) {
+    public static <T> void validateEvaluationType(final Class<T> returnType) {
         if (ReflectionHelper.isOptional(returnType)) {
             throw new IllegalArgumentException("Type Optional is only allowed as a method return type.");
         }
@@ -156,8 +157,9 @@ final class DefaultXPathBinder implements XPathBinder {
     }
 
     private enum CollectionType {
-        LIST,MAP;
+        LIST, MAP;
     }
+
     /**
      * Evaluate the XPath as a list of the given type.
      *
@@ -170,13 +172,11 @@ final class DefaultXPathBinder implements XPathBinder {
     @Override
     public <T> CloseableList<T> asListOf(final Class<T> componentType) {
         Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return (CloseableList<T>) bindMultiValues(componentType, callerClass,CollectionType.LIST);
+        return (CloseableList<T>) bindMultiValues(componentType, callerClass, CollectionType.LIST);
     }
 
- 
-    
     @SuppressWarnings("resource")
-    private <T> Closeable bindMultiValues(final Class<T> componentType, final Class<?> callerClass,final CollectionType collectionType ) {
+    private <T> Closeable bindMultiValues(final Class<T> componentType, final Class<?> callerClass, final CollectionType collectionType) {
         validateEvaluationType(componentType);
         try {
             Document document = documentProvider.resolve(componentType, callerClass);
@@ -186,7 +186,7 @@ final class DefaultXPathBinder implements XPathBinder {
             InvocationContext invocationContext = new InvocationContext(duplexExpression.getExpressionAsStringWithoutFormatPatterns(), //
                     null, expression, duplexExpression, null, componentType, projector);
 
-            return collectionType==CollectionType.LIST ? new DefaultFileList<T>(document, invocationContext, documentWriter) : new DefaultFileMap<T>(document, invocationContext, documentWriter, componentType);
+            return collectionType == CollectionType.LIST ? new DefaultFileList<T>(document, invocationContext, documentWriter) : new DefaultFileMap<T>(document, invocationContext, documentWriter, componentType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (XPathExpressionException e) {
@@ -201,9 +201,9 @@ final class DefaultXPathBinder implements XPathBinder {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> CloseableMap<T> asMapOf(Class<T> valueType) {
+    public <T> CloseableMap<T> asMapOf(final Class<T> valueType) {
         Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
-        return (CloseableMap<T>) bindMultiValues(valueType, callerClass,CollectionType.MAP);
+        return (CloseableMap<T>) bindMultiValues(valueType, callerClass, CollectionType.MAP);
     }
 
 }

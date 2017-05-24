@@ -17,8 +17,8 @@ package org.xmlbeam.tests.binding;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.xmlbeam.testutils.DOMDiagnoseHelper.assertXMLStringsEquals;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
-import org.xmlbeam.annotation.XBAutoBind;
+import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.types.XBAutoMap;
@@ -52,16 +52,16 @@ public class TestBindAnnotation {
 
     interface Projection {
 
-        @XBAutoBind("/root/first/second/@attr")
+        @XBAuto("/root/first/second/@attr")
         XBAutoValue<String> attr();
 
-        @XBAutoBind("/root/list/element")
+        @XBAuto("/root/list/element")
         List<String> list();
 
-        @XBAutoBind("/root/map")
+        @XBAuto("/root/map")
         XBAutoMap<String> map();
 
-        @XBAutoBind("/root/map")
+        @XBAuto("/root/map")
         XBAutoMap<Subprojection> mapSubProjection();
 
         @XBRead("/root/map")
@@ -70,7 +70,7 @@ public class TestBindAnnotation {
     }
 
     interface InvalidProjection {
-        @XBAutoBind("/root")
+        @XBAuto("/root")
         Map<Integer, Integer> invalidReturnType();
     }
 
@@ -101,7 +101,7 @@ public class TestBindAnnotation {
     public void testProjectionAutoMapRemove() {
         Map<String, String> map = mapProjection.map();
         assertEquals("value2", map.get("element2/element3"));
-        assertEquals("",map.remove("element2"));
+        assertEquals("", map.remove("element2"));
         assertNull(map.remove("nonexisting"));
         assertEquals(null, map.get("element2/element3"));
     }
@@ -124,7 +124,7 @@ public class TestBindAnnotation {
         map.put("ele1/ele2/@att", "someAttValue");
         assertEquals("[./ele1/ele2/@att=someAttValue]", map.entrySet().toString());
     }
-    
+
     @Test
     public void testProjectionBindMapValues2() {
         Map<String, String> map = mapProjection.map2();
@@ -134,11 +134,10 @@ public class TestBindAnnotation {
         map.put("ele1/ele2/@att", "someAttValue");
         assertEquals("[./ele1/ele2/@att=someAttValue]", map.entrySet().toString());
     }
-    
 
     @Test
     public void testProjectionAutoMapFullDocument() {
-        XBAutoMap<String> map = projector.automapEmptyDocument(String.class);
+        XBAutoMap<String> map = projector.autoMapEmptyDocument(String.class);
         map.put("someroot/elements/element1", "value1");
         map.put("someroot/elements/element2", "value2");
         map.put("someroot/elements[with/subelement='oink']/element3", "value3");
@@ -149,7 +148,7 @@ public class TestBindAnnotation {
 
     @Test
     public void testAmbigousPaths() {
-        XBAutoMap<String> map = projector.automapEmptyDocument(String.class);
+        XBAutoMap<String> map = projector.autoMapEmptyDocument(String.class);
         map.put("someroot/elements[@pos='first']/sub[@pos='first']/element1", "value1");
         map.put("someroot/elements[@pos='second']/sub[@pos='second']/element2", "value2");
         map.put("someroot/elements[@pos='second']/sub[@pos='second']/element3", "value3");
@@ -159,7 +158,7 @@ public class TestBindAnnotation {
 
     @Test
     public void testPutSubprojection() {
-        XBAutoMap<Projection> map = projector.automapEmptyDocument(Projection.class);
+        XBAutoMap<Projection> map = projector.autoMapEmptyDocument(Projection.class);
         assertTrue(map.isEmpty());
         map.put("root/a", projector.projectEmptyElement("x", Projection.class));
         map.put("root/b/y", projector.projectEmptyElement("y", Projection.class));
@@ -169,7 +168,7 @@ public class TestBindAnnotation {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutSubprojectionToAttribute() {
-        XBAutoMap<Projection> map = projector.automapEmptyDocument(Projection.class);
+        XBAutoMap<Projection> map = projector.autoMapEmptyDocument(Projection.class);
         assertTrue(map.isEmpty());
         map.put("root/@a", projector.projectEmptyElement("x", Projection.class));
         System.out.println(projector.asString(map));
@@ -187,4 +186,5 @@ public class TestBindAnnotation {
     public void testInvalidProjectionReturnType() {
         projector.projectXMLString("<xml></xml>", InvalidProjection.class);
     }
+
 }

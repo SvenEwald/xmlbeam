@@ -15,7 +15,6 @@
  */
 package org.xmlbeam.evaluation;
 
-
 /**
  * @author sven
  */

@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector.IOBuilder;
-import org.xmlbeam.annotation.XBAutoBind;
+import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBOverride;
@@ -268,7 +268,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             super(node, method, annotationValue, projector);
             final Class<?> methodReturnType = method.getReturnType();
             this.wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
-            this.isEvaluateAsProjected = Map.class.equals(methodReturnType)||XBAutoMap.class.equals(methodReturnType) || XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAutoBind.class) != null);
+            this.isEvaluateAsProjected = Map.class.equals(methodReturnType)||XBAutoMap.class.equals(methodReturnType) || XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAuto.class) != null);
             this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : methodReturnType;
             this.isConvertable = projector.config().getTypeConverter().isConvertable(methodReturnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
@@ -748,7 +748,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     }
                 }
                 {
-                    final XBAutoBind bindAnnotation = m.getAnnotation(XBAutoBind.class);
+                    final XBAuto bindAnnotation = m.getAnnotation(XBAuto.class);
                     if (bindAnnotation != null) {
                         handlers.put(methodSignature, new ReadInvocationHandler(node, m, bindAnnotation.value(), projector, absentIsEmpty));
                         continue;
