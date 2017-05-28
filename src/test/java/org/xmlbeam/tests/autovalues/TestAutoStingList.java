@@ -215,6 +215,11 @@ public class TestAutoStingList {
         assertEquals(915235260000L, valueA.set(new Date(0)).getTime());
         valueA.close();
         assertXMLStringsEquals("<root><list><a>19700001</a></list></root>", TestIOUtils.file2String(file));
+    }
 
+    @Test
+    public void testEvaluationAPIWithDateAndFormatInEvalAPI() throws IOException {
+        Date valueA = projector.onXMLString("<root><list><a>19990102</a></list></root>").evalXPath("/root/list/a using yyyymmdd").asDate();
+        assertEquals(915235260000L, valueA.getTime());
     }
 }

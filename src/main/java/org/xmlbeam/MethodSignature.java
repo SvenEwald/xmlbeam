@@ -15,9 +15,10 @@
  */
 package org.xmlbeam;
 
+import java.util.Arrays;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * Temporary class to map between method calls and invocation handlers. TODO: Replace with better
@@ -43,9 +44,9 @@ class MethodSignature implements Serializable {
         return new MethodSignature(name, new Class<?>[] { singleParam });
     }
 
-    public static MethodSignature forMultipleParams(final String name, final Class<?>[] params) {
-        return new MethodSignature(name, params);
-    }
+//    public static MethodSignature forMultipleParams(final String name, final Class<?>[] params) {
+//        return new MethodSignature(name, params);
+//    }
 
     /**
      * @param method
