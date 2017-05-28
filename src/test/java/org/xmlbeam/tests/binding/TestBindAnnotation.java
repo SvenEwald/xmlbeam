@@ -30,6 +30,7 @@ import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.types.XBAutoValue;
 
@@ -187,6 +188,12 @@ public class TestBindAnnotation {
     @Test(expected = XBException.class)
     public void testInvalidProjectionReturnType() {
         projector.projectXMLString("<xml></xml>", InvalidProjection.class);
+    }
+
+    @Test
+    public void testMapNoNeedToEvaluate() {
+        CloseableMap<String> map = projector.io().file("test.xml").bindXPath("/does/not/Exist").asMapOf(String.class);
+        assertNull(map.get("another/nonexistend/path"));
     }
 
 }
