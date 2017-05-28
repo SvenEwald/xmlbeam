@@ -162,6 +162,8 @@ public class TestBindAnnotation {
         assertTrue(map.isEmpty());
         map.put("root/a", projector.projectEmptyElement("x", Projection.class));
         map.put("root/b/y", projector.projectEmptyElement("y", Projection.class));
+        assertFalse(map.isEmpty());
+        assertEquals(4, map.size());
         System.out.println(projector.asString(map));
         assertXMLStringsEquals("<root>\n" + "  <x/>\n" + "  <b>\n" + "    <y/>\n" + "  </b>\n" + "</root>", projector.asString(map));
     }

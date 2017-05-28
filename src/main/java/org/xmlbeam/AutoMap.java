@@ -323,9 +323,11 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
     }
 
     private <E> void collectChildren(final Set<Entry<String, E>> set, final Node n, final String path) {
-        if (n.getNodeType() != Node.ELEMENT_NODE) {
+        if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
             return;
         }
+//        NodeList childNodes = (n.getNodeType()==Node.DOCUMENT_NODE) ? ((Document)n).getd n.getChildNodes();
+
         NodeList childNodes = n.getChildNodes();
         if (childNodes == null) {
             return;
