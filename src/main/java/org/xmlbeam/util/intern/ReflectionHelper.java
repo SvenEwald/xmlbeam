@@ -15,13 +15,6 @@
  */
 package org.xmlbeam.util.intern;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +28,14 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import org.xmlbeam.exceptions.XBException;
 
@@ -54,7 +55,7 @@ public final class ReflectionHelper {
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
     private final static Method STREAM = findMethodByName(List.class, "stream");
 
-    private static Class<?> findClass(String name) {
+    private static Class<?> findClass(final String name) {
         try {
             return Class.forName(name, false, ReflectionHelper.class.getClassLoader());
         } catch (ClassNotFoundException e) {
@@ -93,27 +94,27 @@ public final class ReflectionHelper {
         return null;
     }
 
-    /**
-     * Non exception throwing shortcut to find the first method with a given name and parameter
-     * types.
-     *
-     * @param clazz
-     * @param name
-     * @param paramTypes
-     * @return method with name "name" and parameters or null if it does not exist.
-     */
-    public static Method findMethodByNameAndParams(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
-        for (final Method m : clazz.getMethods()) {
-            if (!name.equals(m.getName())) {
-                continue;
-            }
-            if (!Arrays.equals(m.getParameterTypes(), paramTypes)) {
-                continue;
-            }
-            return m;
-        }
-        return null;
-    }
+//    /**
+//     * Non exception throwing shortcut to find the first method with a given name and parameter
+//     * types.
+//     *
+//     * @param clazz
+//     * @param name
+//     * @param paramTypes
+//     * @return method with name "name" and parameters or null if it does not exist.
+//     */
+//    public static Method findMethodByNameAndParams(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
+//        for (final Method m : clazz.getMethods()) {
+//            if (!name.equals(m.getName())) {
+//                continue;
+//            }
+//            if (!Arrays.equals(m.getParameterTypes(), paramTypes)) {
+//                continue;
+//            }
+//            return m;
+//        }
+//        return null;
+//    }
 
     /**
      * Returns list of super interfaces,sorted from the top (super) to the bottom (extended).
@@ -135,21 +136,21 @@ public final class ReflectionHelper {
         return list;
     };
 
-    /**
-     * @param c
-     * @return list of all extended classes and implemented interfaces
-     */
-    public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
-        if (c == null) {
-            return Collections.emptyList();
-        }
-        if (c.isInterface()) {
-            return new LinkedList<Class<?>>(findAllSuperInterfaces(c));
-        }
-        LinkedList<Class<?>> superclasses = new LinkedList<Class<?>>(findAllSuperClasses(c.getSuperclass()));
-        superclasses.addFirst(c);
-        return superclasses;
-    }
+//    /**
+//     * @param c
+//     * @return list of all extended classes and implemented interfaces
+//     */
+//    public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
+//        if (c == null) {
+//            return Collections.emptyList();
+//        }
+//        if (c.isInterface()) {
+//            return new LinkedList<Class<?>>(findAllSuperInterfaces(c));
+//        }
+//        LinkedList<Class<?>> superclasses = new LinkedList<Class<?>>(findAllSuperClasses(c.getSuperclass()));
+//        superclasses.addFirst(c);
+//        return superclasses;
+//    }
 
     /**
      * Defensive implemented method to determine if method has a return type.
@@ -178,37 +179,37 @@ public final class ReflectionHelper {
         return (method != null) && (method.getParameterTypes().length > 0);
     }
 
-    /**
-     * @param method
-     * @param projectionInterface
-     * @return lowest type in hierarchy that defines the given method
-     */
-    public static Class<?> findDeclaringInterface(final Method method, final Class<?> projectionInterface) {
-        for (final Class<?> interf : findAllSuperInterfaces(projectionInterface)) {
-            if (declaresMethod(interf, method)) {
-                return interf;
-            }
-        }
-        return method.getDeclaringClass();
-    }
+//    /**
+//     * @param method
+//     * @param projectionInterface
+//     * @return lowest type in hierarchy that defines the given method
+//     */
+//    public static Class<?> findDeclaringInterface(final Method method, final Class<?> projectionInterface) {
+//        for (final Class<?> interf : findAllSuperInterfaces(projectionInterface)) {
+//            if (declaresMethod(interf, method)) {
+//                return interf;
+//            }
+//        }
+//        return method.getDeclaringClass();
+//    }
 
-    /**
-     * @param interf
-     * @param method
-     * @return
-     */
-    private static boolean declaresMethod(final Class<?> interf, final Method method) {
-        for (final Method m : interf.getDeclaredMethods()) {
-            if (!m.getName().equals(method.getName())) {
-                continue;
-            }
-            if (!Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
-                continue;
-            }
-            return true;
-        }
-        return false;
-    }
+//    /**
+//     * @param interf
+//     * @param method
+//     * @return
+//     */
+//    private static boolean declaresMethod(final Class<?> interf, final Method method) {
+//        for (final Method m : interf.getDeclaredMethods()) {
+//            if (!m.getName().equals(method.getName())) {
+//                continue;
+//            }
+//            if (!Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
+//                continue;
+//            }
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * Same as Arrays.asList(...), but does automatically conversion of primitive arrays.
@@ -394,7 +395,7 @@ public final class ReflectionHelper {
             if (!(((ParameterizedType) type).getActualTypeArguments()[0].equals(String.class))) {
                 throw new XBException("If Map is used as return type, String must be used as key type.");
             }
-            return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[1]; 
+            return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[1];
         }
 
         assert ((ParameterizedType) type).getActualTypeArguments().length == 1;
@@ -579,7 +580,7 @@ public final class ReflectionHelper {
      * @param returnType
      * @return true, if (and only if) class is "java.util.stream.Stream"
      */
-    public static boolean isStreamClass(Class<?> returnType) {
+    public static boolean isStreamClass(final Class<?> returnType) {
         return "java.util.stream.Stream".equals(returnType.getName());
     }
 
@@ -587,7 +588,7 @@ public final class ReflectionHelper {
      * @param result
      * @return List.stream()
      */
-    public static Object toStream(List<?> result) {
+    public static Object toStream(final List<?> result) {
         if (STREAM == null) {
             throw new IllegalArgumentException("Can not invoke List.stream, you need at least a JDK8 to run this");
         }
