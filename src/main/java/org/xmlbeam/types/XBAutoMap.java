@@ -18,23 +18,86 @@ package org.xmlbeam.types;
 import java.util.Map;
 
 /**
+ * Instances of this type will be bound to an element in the dom tree. Read and write operations on
+ * this map will directly be mapped to the xml document.
+ *
  * @author sven
+ * @param <T>
+ *            Map component type. Key is always String containing a relative xpath.
  */
 public interface XBAutoMap<T> extends Map<String, T> {
 
-//    T get(String xPath);
-//
-//    T getOrDefault(String xPath, T defaultValue);
-//
-//    T put(String xPath, T newValue);
-//
-//    T putIfAbsent(String xPath, T newValue);
-//
-//    boolean isPresent(String xPath);
-//
-//    T remove(String xPath);
-//
-//    XBAutoMap<T> putAll(Map<String, ? extends T> m);
-//
-//    XBAutoMap<T> clear();
+    /**
+     * Removes all elements below the element this map is bound to.
+     *
+     * @see java.util.AbstractMap#clear()
+     */
+    @Override
+    void clear();
+
+    /**
+     * @deprecated Please use stronger typed XBAutoMap#get(CharSequence) instead.
+     * @see java.util.Map#get(java.lang.Object)
+     */
+    @Override
+    @Deprecated
+    T get(final Object path);
+
+    /**
+     * Resolve given xpath and return the result.
+     *
+     * @param path
+     *            xpath relative to the bound element.
+     * @return value at the position of given xpath, or null if no such value exists
+     */
+    T get(final CharSequence path);
+
+    /**
+     * Resolve given path and return the result as the given type.
+     *
+     * @param path
+     * @param asType
+     * @return value at the position of given xpath, or null if no such value exists
+     */
+    <E> E get(final CharSequence path, Class<E> asType);
+
+    /**
+     * @deprecated Please use stronger typed XBAutoMap#get(CharSequence) instead.
+     * @see java.util.Map#containsKey(java.lang.Object)
+     */
+    @Override
+    @Deprecated
+    boolean containsKey(Object path);
+
+    /**
+     * Checks existence of value at given xpath.
+     *
+     * @param path
+     * @return true if non null value exists at given path
+     */
+    boolean containsKey(CharSequence path);
+
+    /**
+     * Just like java.util.Map#containsValue(java.lang.Object). Notice that this map can not hold
+     * null values.
+     *
+     * @param value
+     * @return true if there is an element or attribute with a value equals to the given value.
+     * @see java.util.Map#containsValue(java.lang.Object)
+     */
+    @Override
+    boolean containsValue(Object value);
+
+    /**
+     * Sets the value at the given xpath to a new value.
+     *
+     * @param path
+     *            xpath relative to bound element
+     * @param value
+     *            new value to be set
+     * @return previous value or null if there was none.
+     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
+     */
+    @Override
+    T put(final String path, final T value);
 }

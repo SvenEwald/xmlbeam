@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Sven Ewald
+ *  Copyright 2016 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,18 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
+package org.xmlbeam.types;
+
+import java.io.Closeable;
+import java.util.Map;
 
 /**
- * @author sven
+ * Instances of this interface will change the DOM just like an XBAutoMap,
+ * but persist the changes when close() is invoked. 
+ * @param <E> component type
  */
-public interface CanEvaluate {
-
-    /**
-     * @param xpath
-     *            to be evaluated on input
-     * @return EvaluationBuilder to choose target type
-     */
-    XPathEvaluator evalXPath(String xpath);
+public interface CloseableMap<E> extends Map<String,E>, Closeable {
 
 }

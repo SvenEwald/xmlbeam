@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector.IOBuilder;
-import org.xmlbeam.annotation.XBAutoBind;
+import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBOverride;
@@ -136,7 +136,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
 
     private static abstract class ProjectionMethodInvocationHandler implements InvocationHandler, Serializable {
 
-        private static final InvocationContext EMPTY_INVOCATION_CONTEXT = new InvocationContext(null, null, null, null, null, null, null);
+        private static final InvocationContext EMPTY_INVOCATION_CONTEXT = new InvocationContext(null, null, null, null, null, Object.class, null);
 
         protected final Method method;
         protected final String annotationValue;
@@ -268,12 +268,12 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             super(node, method, annotationValue, projector);
             final Class<?> methodReturnType = method.getReturnType();
             this.wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
-            this.isEvaluateAsProjected = XBAutoMap.class.equals(methodReturnType) || XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAutoBind.class) != null);
+            this.isEvaluateAsProjected = Map.class.equals(methodReturnType)||XBAutoMap.class.equals(methodReturnType) || XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAuto.class) != null);
             this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : methodReturnType;
             this.isConvertable = projector.config().getTypeConverter().isConvertable(methodReturnType);
             this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
             this.isEvaluateAsList = List.class.equals(methodReturnType) || ReflectionHelper.isStreamClass(methodReturnType) || XBAutoList.class.equals(methodReturnType);
-            this.isEvaluateAsMap = XBAutoMap.class.equals(methodReturnType);
+            this.isEvaluateAsMap = XBAutoMap.class.equals(methodReturnType) || Map.class.equals(methodReturnType);
             this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
             this.isEvaluateAsArray = returnType.isArray();
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList || isEvaluateAsProjected)) {
@@ -335,7 +335,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 return wrappedInOptional ? ReflectionHelper.createOptional(result) : result;
             }
             if (isEvaluateAsMap) {
-                return new AutoMap(node, invocationContext);
+                return new AutoMap(node, invocationContext, returnType);
             }
             if (isEvaluateAsList) {
                 assert !wrappedInOptional : "Projection methods returning list will never return null";
@@ -637,8 +637,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                         attribute.getOwnerElement().removeAttributeNode(attribute);
                         return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                     }
-
-                    DOMHelper.setStringValue(attribute, valueToSet.toString());
+                    attribute.setTextContent(valueToSet.toString());
                     return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
                 }
 
@@ -671,13 +670,13 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 }
 
                 final Element elementToChange = (Element) duplexExpression.ensureExistence(node);
-                final Class<?> valueType=method.getParameterTypes()[findIndexOfValue];
-                if ((valueToSet == null)&&(ProjectionInvocationHandler.isStructureChangingType(method.getParameterTypes()[findIndexOfValue]))) {
+                final Class<?> valueType = method.getParameterTypes()[findIndexOfValue];
+                if ((valueToSet == null) && (ProjectionInvocationHandler.isStructureChangingType(method.getParameterTypes()[findIndexOfValue]))) {
                     DOMHelper.removeAllChildren(elementToChange);
                 } else {
                     final String asString = projector.config().getStringRenderer().render(valueType, valueToSet, duplexExpression.getExpressionFormatPattern());
                     //elementToChange.setTextContent(asString);
-                    DOMHelper.setDirectTextContent(elementToChange,asString);
+                    DOMHelper.setDirectTextContent(elementToChange, asString);
                 }
                 return getProxyReturnValueForMethod(proxy, method, Integer.valueOf(1));
             } catch (XBPathParsingException e) {
@@ -749,7 +748,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                     }
                 }
                 {
-                    final XBAutoBind bindAnnotation = m.getAnnotation(XBAutoBind.class);
+                    final XBAuto bindAnnotation = m.getAnnotation(XBAuto.class);
                     if (bindAnnotation != null) {
                         handlers.put(methodSignature, new ReadInvocationHandler(node, m, bindAnnotation.value(), projector, absentIsEmpty));
                         continue;
@@ -798,7 +797,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
     }
 
     public static boolean isStructureChangingType(final Class<?> c) {
-        return (DOMAccess.class.isAssignableFrom(c)) || (Node.class.isAssignableFrom(c));
+        return (DOMAccess.class.isAssignableFrom(c)) || (Node.class.isAssignableFrom(c)) || (c.isInterface());
     }
 
     /**
@@ -925,16 +924,17 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
             return method.getReturnType().getComponentType();
         }
 
-        if (!(List.class.equals(returnType) || XBAutoMap.class.isAssignableFrom(returnType) || XBAutoList.class.equals(returnType) || XBAutoValue.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType))) {
+        if (!(List.class.equals(returnType) || (Map.class.equals(returnType)) || XBAutoMap.class.isAssignableFrom(returnType) || XBAutoList.class.equals(returnType) || XBAutoValue.class.equals(returnType) || ReflectionHelper.isStreamClass(returnType))) {
             return null;
         }
         final Type type = method.getGenericReturnType();
         if (!(type instanceof ParameterizedType) || (((ParameterizedType) type).getActualTypeArguments() == null) || (((ParameterizedType) type).getActualTypeArguments().length < 1)) {
             throw new IllegalArgumentException("When using List as return type for method " + method + ", please specify a generic type for the List. Otherwise I do not know which type I should fill the List with.");
         }
+        int index = Map.class.equals(returnType) ? 1 : 0;
 
-        assert ((ParameterizedType) type).getActualTypeArguments().length == 1 : "";
-        Type componentType = ((ParameterizedType) type).getActualTypeArguments()[0];
+        assert index < ((ParameterizedType) type).getActualTypeArguments().length;
+        Type componentType = ((ParameterizedType) type).getActualTypeArguments()[index];
         if (!(componentType instanceof Class)) {
             throw new IllegalArgumentException("I don't know how to instantiate the generic type for the return type of method " + method);
         }

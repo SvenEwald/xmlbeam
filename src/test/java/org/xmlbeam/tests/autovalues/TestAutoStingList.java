@@ -18,8 +18,9 @@ package org.xmlbeam.tests.autovalues;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
+import static org.xmlbeam.testutils.DOMDiagnoseHelper.assertXMLStringsEquals;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,9 +32,11 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.testutils.TestIOUtils;
 import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.types.XBAutoList;
+import org.xmlbeam.util.IOHelper;
 
 /**
  * @author sven
@@ -166,35 +169,38 @@ public class TestAutoStingList {
         list.add("b");
         list.add("c");
         list.close();
-        assertEquals("<root><list><e>a</e><e>b</e><e>c</e></list></root>", new Scanner(file).useDelimiter("\\A").next().replaceAll("\\s", ""));
+        assertXMLStringsEquals("<root><list><e>a</e><e>b</e><e>c</e></list></root>", TestIOUtils.file2String(file));
+        assertTrue(file.delete());
     }
-    
+
     @Test
     public void testEvaluationAPIForAutoValue() throws IOException {
-        File file = new File("bindTest.xml");
+        final File file = new File("bindTest.xml");
         FileWriter writer = new FileWriter(file);
         writer.write("<root><list><a>1</a><b>2</b><c>true</c></list></root>");
         writer.close();
-        
+
+        FileInputStream fileInputStream = new FileInputStream(file);
+        IOHelper.loadDocument(projector, fileInputStream);
+        fileInputStream.close();
+
         CloseableValue<Integer> valueA = projector.io().file(file).bindXPath("/root/list/a").asInt();
-        assertEquals(Integer.valueOf(1),valueA.set(14) );
+        assertEquals(Integer.valueOf(1), valueA.set(14));
         valueA.close();
-        assertEquals("<root><list><a>14</a><b>2</b><c>true</c></list></root>", new Scanner(file).useDelimiter("\\A").next().replaceAll("\\s", ""));
-        
+        assertXMLStringsEquals("<root><list><a>14</a><b>2</b><c>true</c></list></root>", TestIOUtils.file2String(file));
+
         CloseableValue<String> string = projector.io().file(file).bindXPath("/root/list/b").asString();
         assertEquals("2", string.get());
         string.set("foo");
         string.close();
-        assertEquals("<root><list><a>14</a><b>foo</b><c>true</c></list></root>", new Scanner(file).useDelimiter("\\A").next().replaceAll("\\s", ""));
-        
-        
+        assertXMLStringsEquals("<root><list><a>14</a><b>foo</b><c>true</c></list></root>", TestIOUtils.file2String(file));
+
         CloseableValue<Boolean> bool = projector.io().file(file).bindXPath("/root/list/c").asBoolean();
         assertTrue(bool.get());
         bool.set(false);
         bool.close();
-        assertEquals("<root><list><a>14</a><b>foo</b><c>false</c></list></root>", new Scanner(file).useDelimiter("\\A").next().replaceAll("\\s", ""));
-
+        assertXMLStringsEquals("<root><list><a>14</a><b>foo</b><c>false</c></list></root>", TestIOUtils.file2String(file));
+        assertTrue(file.delete());
     }
-    
-    
+
 }

@@ -18,6 +18,7 @@ package org.xmlbeam;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -30,11 +31,14 @@ import org.xml.sax.SAXException;
 import org.xmlbeam.evaluation.CanEvaluate;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.io.FileIO;
 import org.xmlbeam.io.StreamOutput;
+import org.xmlbeam.types.CloseableMap;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 
@@ -45,6 +49,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
 
     private final XBProjector projector;
     private boolean append = false;
+    private boolean failIfNotExists = false;
     private final File file;
 
     /**
@@ -117,7 +122,19 @@ class DefaultFileIO implements CanEvaluate, FileIO {
      */
     @Override
     public FileIO setAppend(final boolean... append) {
-        this.append = (append != null) && (append.length > 0) && append[0];
+        this.append = (append != null) && ((append.length == 0) || ((append.length > 0) && append[0]));
+        return this;
+    }
+
+    /**
+     * Set whether file should be created if it does not exist. When this method is not invoked, *
+     * bind operations will fail if the file does not exist.
+     *
+     * @return this to provide a fluent API.
+     */
+    @Override
+    public FileIO failIfNotExists(final boolean... failOnFNF) {
+        this.failIfNotExists = (failOnFNF != null) && ((failOnFNF.length == 0) || ((failOnFNF.length > 0) && failOnFNF[0]));
         return this;
     }
 
@@ -147,7 +164,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
      */
     @Override
     @SuppressWarnings("resource")
-    public XPathBinder bindXPath(String xpath) {
+    public XPathBinder bindXPath(final String xpath) {
         final Document[] doc = new Document[1];
         return new DefaultXPathBinder(projector, new DocumentResolver() {
 
@@ -159,6 +176,9 @@ class DefaultFileIO implements CanEvaluate, FileIO {
                     doc[0] = IOHelper.loadDocument(projector, fileInputStream);
                     fileInputStream.close();
                 } else {
+                    if (failIfNotExists) {
+                        throw new FileNotFoundException(file.getAbsolutePath());
+                    }
                     doc[0] = projector.config().createDocumentBuilder().newDocument();
                 }
 
@@ -173,11 +193,72 @@ class DefaultFileIO implements CanEvaluate, FileIO {
                     FileOutputStream fileOutPutStream = new FileOutputStream(file);
                     DOMHelper.trim(doc[0]);
                     projector.config().createTransformer().transform(new DOMSource(doc[0]), new StreamResult(fileOutPutStream));
+                    fileOutPutStream.flush();
                     fileOutPutStream.close();
                 } catch (TransformerException e) {
-                    throw new XBException("Could not write to file "+file.getAbsolutePath(), e);
+                    throw new XBException("Could not write to file " + file.getAbsolutePath(), e);
                 }
             }
         });
+    }
+
+    /**
+     * @param valueType
+     * @return Map bound to file
+     * @throws FileNotFoundException
+     * @see org.xmlbeam.io.FileIO#bindAsMapOf(java.lang.Class)
+     */
+    @SuppressWarnings("resource")
+    @Override
+    public <T> CloseableMap<T> bindAsMapOf(final Class<T> valueType) throws IOException {
+        DefaultXPathBinder.validateEvaluationType(valueType);
+        if ((failIfNotExists) && (!file.exists())) {
+            throw new FileNotFoundException(file.getAbsolutePath());
+        }
+        final Document[] document = new Document[1];
+        try {
+            if (file.exists()) {
+                document[0] = projector.config().createDocumentBuilder().parse(file);
+            } else {
+                document[0] = projector.config().createDocumentBuilder().newDocument();
+            }
+            InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, projector);
+            return new DefaultFileMap<T>(document[0], invocationContext, new Closeable() {
+                final Document doc = document[0];
+
+                @Override
+                public void close() throws IOException {
+                    try {
+                        FileOutputStream fileOutPutStream = new FileOutputStream(file);
+                        DOMHelper.trim(doc);
+                        projector.config().createTransformer().transform(new DOMSource(doc), new StreamResult(fileOutPutStream));
+                        fileOutPutStream.flush();
+                        fileOutPutStream.close();
+                    } catch (TransformerException e) {
+                        throw new XBException("Could not write to file " + file.getAbsolutePath(), e);
+                    }
+                }
+            }, valueType);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param valueType
+     * @return XBAutoMap for the complete document
+     * @throws IOException
+     * @see org.xmlbeam.io.FileIO#asMapOf(java.lang.Class)
+     */
+    @Override
+    public <T> XBAutoMap<T> asMapOf(final Class<T> valueType) throws IOException {
+        DefaultXPathBinder.validateEvaluationType(valueType);
+        try {
+            Document document = projector.config().createDocumentBuilder().parse(file);
+            InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, projector);
+            return new AutoMap<T>(document, invocationContext, valueType);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

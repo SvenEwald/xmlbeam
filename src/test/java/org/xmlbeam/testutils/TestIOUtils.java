@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Sven Ewald
+ *  Copyright 2017 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,18 +13,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
+package org.xmlbeam.testutils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import org.xmlbeam.util.IOHelper;
 
 /**
- * @author sven
+ *
  */
-public interface CanEvaluate {
+public class TestIOUtils {
 
     /**
-     * @param xpath
-     *            to be evaluated on input
-     * @return EvaluationBuilder to choose target type
+     * @param file
+     * @return string content of file
+     * @throws IOException 
      */
-    XPathEvaluator evalXPath(String xpath);
+    public static String file2String(File file) throws IOException {
+        FileInputStream is = new FileInputStream(file);
+        String string = IOHelper.inputStreamToString(is);
+        is.close();
+        return string;
+    }
 
 }

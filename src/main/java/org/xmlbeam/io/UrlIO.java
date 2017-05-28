@@ -15,16 +15,21 @@
  */
 package org.xmlbeam.io;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.IOException;
+
 import org.w3c.dom.Document;
+import org.xmlbeam.AutoMap;
+import org.xmlbeam.DefaultXPathBinder;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.evaluation.CanEvaluate;
-import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
+import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
@@ -103,6 +108,13 @@ public class UrlIO implements CanEvaluate {
         return this;
     }
 
+    /**
+     * Evaluate XPath on the url document.
+     *
+     * @param xpath
+     * @return xpath evaluator
+     * @see org.xmlbeam.evaluation.CanEvaluate#evalXPath(java.lang.String)
+     */
     @Override
     public XPathEvaluator evalXPath(final String xpath) {
         return new DefaultXPathEvaluator(projector, new DocumentResolver() {
@@ -111,6 +123,21 @@ public class UrlIO implements CanEvaluate {
                 return IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, resourceAwareClasses);
             }
         }, xpath);
+    }
+
+    /**
+     * Read complete document to a Map.
+     *
+     * @param valueType
+     * @return Closeable map bound to complete document.
+     * @throws IOException
+     */
+    public <T> XBAutoMap<T> asMapOf(final Class<T> valueType) throws IOException {
+        DefaultXPathBinder.validateEvaluationType(valueType);
+        final Class<?> resourceAwareClass = ReflectionHelper.getDirectCallerClass();
+        Document document = IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, resourceAwareClass);
+        InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, projector);
+        return new AutoMap<T>(document, invocationContext, valueType);
     }
 
 }

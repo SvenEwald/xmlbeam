@@ -21,6 +21,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.tests.bugs.bug38.SOAPResponse.Result;
 
+@SuppressWarnings("javadoc")
 public class TestSoapReading {
 
     private final static XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);

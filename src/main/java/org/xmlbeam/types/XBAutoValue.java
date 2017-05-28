@@ -21,35 +21,40 @@ import java.util.Iterator;
  * Instances of this type provide direct access to the DOM. A value may be present, or not. Changes
  * are directly applied to the DOM. This value implements Iterable to provide a convenient way to
  * handle nonexisting values like this:
+ * 
  * <pre>
  * XBAutoValue<String> autoValue;
- * for (String string : autoValue) {     
+ * for (String string : autoValue) {
  *     System.out.println(string);
- * } </pre>  instead of <pre>
- * XBAutoValue<String> autoValue;
- * if (autoValue.isPresent) {
- *    String string = autoValue.get();
- *    System.out.println(string);
  * }
  * </pre>
  * 
+ * instead of
+ * 
+ * <pre>
+ * XBAutoValue<String> autoValue;
+ * if (autoValue.isPresent) {
+ *     String string = autoValue.get();
+ *     System.out.println(string);
+ * }
+ * </pre>
+ *
  * @param <E>
  *            Any type XMLBeam can work with.
- *            
- * @author sven           
+ * @author sven
  */
 public interface XBAutoValue<E> extends Iterable<E> {
 
     /**
      * Getter for value of bound element.
-     * 
+     *
      * @return value
      */
     E get();
 
     /**
      * Setter for value of bound
-     * 
+     *
      * @param value
      * @return previous value
      */
@@ -57,7 +62,7 @@ public interface XBAutoValue<E> extends Iterable<E> {
 
     /**
      * Deletes value
-     * 
+     *
      * @return removed value
      */
     E remove();
@@ -71,9 +76,12 @@ public interface XBAutoValue<E> extends Iterable<E> {
      * @return iterator for this value
      * @see java.lang.Iterable#iterator()
      */
+    @Override
     Iterator<E> iterator();
 
     /**
+     * Rename the element or attribute containing the value.
+     * 
      * @param string
      * @return this for convenience
      */
@@ -81,7 +89,7 @@ public interface XBAutoValue<E> extends Iterable<E> {
 
     /**
      * Getter for name of element or attribute this value is bound to
-     * 
+     *
      * @return name of element or attribute
      */
     String getName();

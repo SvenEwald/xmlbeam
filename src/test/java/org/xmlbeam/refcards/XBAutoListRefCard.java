@@ -20,35 +20,64 @@ import java.util.List;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
-import org.xmlbeam.annotation.XBAutoBind;
+import org.xmlbeam.annotation.XBAuto;
+import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.types.XBAutoList;
 
-/**
- *
- */
-@SuppressWarnings({ "javadoc", "null" })
+@SuppressWarnings({ "javadoc", "unused" })
 public class XBAutoListRefCard {
+
+    Projection projection = new XBProjector().projectXMLString("<root><entries><entry/><entry/><entry/><entry/><entry/><entry/></entries></root>", Projection.class);
+
+  //START SNIPPET: ProjectedListRefCardExample1
+    public interface Projection {
+        @XBRead("/root/entries/entry")
+        XBAutoList<String> entries();
+    }
+    {
+        XBAutoList<String> entries = projection.entries();
+
+        // get third value of sequence
+        String string = entries.get(2);
+
+        // set third value of sequence;
+        entries.set(2, "entry value");
+
+        // append a new value
+        entries.add("new value");
+
+        //remove first 5 entries
+        entries.subList(0, 5).clear();
+    }
+    //END SNIPPET: ProjectedListRefCardExample1
 
     //START SNIPPET: ProjectedListRefCardExample
     public interface Example {
-        
-        @XBAutoBind("/xml/list/entry")
+
+        @XBAuto("/xml/list/entry")
         List<String> entries();
 
     }
     //END SNIPPET: ProjectedListRefCardExample
-    
-    private static final String XML = "<xml>\n   <list>\n      <entry>foo</entry>\n      <entry>bar</entry>›\n      <entry>something</entry>\n   </list>\n</xml>\n";
-  
+
+    public interface Projection2 {
+        //START SNIPPET: ProjectedListRefCardExample2
+        @XBAuto("/root/entries/entry")
+        List<String> entries();
+        //END SNIPPET: ProjectedListRefCardExample2
+    }
+
+    private static final String XML = "<xml>\n  <list>\n    <entry>foo</entry>\n    <entry>bar</entry>›\n    <entry>something</entry>\n  </list>\n</xml>\n";
+
     @Test
-    public void autolistdemo()
-    {
-        Example example=new XBProjector(Flags.TO_STRING_RENDERS_XML).projectXMLString(XML, Example.class);
-    //START SNIPPET: ProjectedListRefCardExample2
-       // Remove the first two entries 
+    public void autolistdemo() {
+        Example example = new XBProjector(Flags.TO_STRING_RENDERS_XML).projectXMLString(XML, Example.class);
+    //START SNIPPET: ProjectedListRefCardExample3
+       // Remove the first two entries
        example.entries().subList(0, 2).clear();
        // Add a new entry
        example.entries().add("New Entry");
-    //END SNIPPET: ProjectedListRefCardExample2
-       System.out.println(example);
+    //END SNIPPET: ProjectedListRefCardExample3
+        System.out.println(example);
     }
 }

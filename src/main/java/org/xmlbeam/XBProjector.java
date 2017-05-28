@@ -15,6 +15,18 @@
  */
 package org.xmlbeam;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -29,16 +41,6 @@ import java.lang.reflect.Proxy;
 import java.net.URISyntaxException;
 import java.text.Format;
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -50,6 +52,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
@@ -62,18 +65,20 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.CanEvaluateOrProject;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.DocumentResolver;
+import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 import org.xmlbeam.intern.DOMChangeListener;
-import org.xmlbeam.io.ProjectionIO;
 import org.xmlbeam.io.FileIO;
+import org.xmlbeam.io.ProjectionIO;
 import org.xmlbeam.io.StreamInput;
 import org.xmlbeam.io.StreamOutput;
 import org.xmlbeam.io.UrlIO;
 import org.xmlbeam.types.DefaultTypeConverter;
 import org.xmlbeam.types.StringRenderer;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
@@ -471,7 +476,6 @@ public class XBProjector implements Serializable, ProjectionFactory {
         final Map<Class<?>, Object> mixinsForProjection = mixins.containsKey(projectionInterface) ? Collections.unmodifiableMap(mixins.get(projectionInterface)) : Collections.<Class<?>, Object> emptyMap();
         final ProjectionInvocationHandler projectionInvocationHandler = new ProjectionInvocationHandler(XBProjector.this, documentOrElement, projectionInterface, mixinsForProjection, flags.contains(Flags.TO_STRING_RENDERS_XML), flags.contains(Flags.ABSENT_IS_EMPTY));
         final Set<Class<?>> interfaces = new HashSet<Class<?>>();
-        //.toArray() new Class[] { projectionInterface, DOMAccess.class, Serializable.class };
         interfaces.add(projectionInterface);
         interfaces.add(DOMAccess.class);
         interfaces.add(Serializable.class);
@@ -542,7 +546,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
     private TypeConverter typeConverter = new DefaultTypeConverter(Locale.getDefault(), TimeZone.getTimeZone("GMT"));
     private StringRenderer stringRenderer = (StringRenderer) typeConverter;
 
-    private List<WeakReference<DOMChangeListener>> domChangeListeners = new LinkedList<WeakReference<DOMChangeListener>>();
+    private final List<WeakReference<DOMChangeListener>> domChangeListeners = new LinkedList<WeakReference<DOMChangeListener>>();
 
     /**
      * Global projector configuration options.
@@ -653,10 +657,11 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
             final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
             final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
+            final boolean isBind = (method.getAnnotation(XBAuto.class)!=null);
             final boolean isExternal = (method.getAnnotation(XBDocURL.class) != null);
             final boolean isThrowsException = (method.getExceptionTypes().length > 0);
-            if (isRead ? isUpdate || isWrite || isDelete : (isUpdate ? isWrite || isDelete : isWrite && isDelete)) {
-                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName());
+            if (countTrue(isRead,isWrite,isDelete,isUpdate,isBind)>1) {
+                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName()+ ", or @" + XBAuto.class.getSimpleName());
             }
             if (isExternal && (isWrite || isUpdate || isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " was declared as writing projection but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining external projections is only possible when reading because there is no DOM attached.");
@@ -674,7 +679,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 if (ReflectionHelper.isOptional(method.getReturnType()) && isThrowsException) {
                     throw new IllegalArgumentException("Method " + method + " has an Optional<> return type, but declares to throw an exception. Exception will never be thrown because return value must not be null.");
                 }
-            }
+                
+            }           
             if (isWrite && isThrowsException) {
                 throw new IllegalArgumentException("Method " + method + " declares to throw exception " + method.getExceptionTypes()[0].getSimpleName() + " but is not a reading projection method. When should this exception be thrown?");
             }
@@ -712,6 +718,23 @@ public class XBProjector implements Serializable, ProjectionFactory {
     }
 
     /**
+     * Count how many parameters are true.
+     * @return number of true values in parameter list.
+     */
+    private static int countTrue(boolean... b) {
+        if (b==null) {
+            return 0;
+        }
+        int count=0;
+        for (boolean bb:b) {
+            if (bb) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
+    /**
      * Access to the input/output features of this projector.
      *
      * @return A new IOBuilder providing methods to read or write projections.
@@ -728,12 +751,16 @@ public class XBProjector implements Serializable, ProjectionFactory {
     @SuppressWarnings("rawtypes")
     @Override
     public String asString(final Object projection) {
+        // TODO: create interface for getNode, use this instead.
         if (projection instanceof AutoValue) {
-            return DOMHelper.toXMLString(this, ((AutoValue)projection).getNode());           
+            return DOMHelper.toXMLString(this, ((AutoValue) projection).getNode());
         }
         if (projection instanceof AutoList) {
-            return DOMHelper.toXMLString(this, ((AutoList)projection).getNode());
-        }        
+            return DOMHelper.toXMLString(this, ((AutoList) projection).getNode());
+        }
+        if (projection instanceof AutoMap) {
+            return DOMHelper.toXMLString(this, ((AutoMap) projection).getNode());
+        }
         if (!(projection instanceof DOMAccess)) {
             throw new IllegalArgumentException("Argument is not a projection.");
         }
@@ -750,21 +777,35 @@ public class XBProjector implements Serializable, ProjectionFactory {
         return Collections.unmodifiableSet(flags);
     }
 
-    void addDOMChangeListener(DOMChangeListener listener) {
+    void addDOMChangeListener(final DOMChangeListener listener) {
         domChangeListeners.add(new WeakReference<DOMChangeListener>(listener));
     }
 
     /**
-     * 
+     *
      */
     void notifyDOMChangeListeners() {
-        for (WeakReference<DOMChangeListener> wr:domChangeListeners) {
-            DOMChangeListener listener = wr.get();
-            if (listener!=null) {
-                listener.domChanged();
+        for (ListIterator<WeakReference<DOMChangeListener>> i = domChangeListeners.listIterator(); i.hasNext();) {
+            DOMChangeListener listener = i.next().get();
+            if (listener == null) {
+                i.remove();
+                continue;
             }
+            listener.domChanged();
         }
-        
+    }
+
+    /**
+     * Create an empty document and bind an XBAutoMap to it.
+     *
+     * @param valueType
+     *            component type of map
+     * @return an empty Map view to the document
+     */
+    public <T> XBAutoMap<T> autoMapEmptyDocument(final Class<T> valueType) {
+        Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+        InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, this);
+        return new AutoMap<T>(document, invocationContext, valueType);
     }
 
 }
