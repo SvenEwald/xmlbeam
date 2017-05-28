@@ -16,6 +16,7 @@
 package org.xmlbeam.tests.xpath;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 
@@ -46,6 +47,8 @@ public class TestSetterXPathSyntax {
     public void rootElementAccessAllowed() {
         projection.setterXPathProjection("/*", projector.projectEmptyElement("value", GenericXPathProjection.class));
         assertEquals("value", projection.getDOMOwnerDocument().getDocumentElement().getNodeName());
+        projection.setterXPathProjection("/*", null);
+        assertNull(projection.getDOMOwnerDocument().getDocumentElement());
     }
 
     @Test(expected = XBException.class)
