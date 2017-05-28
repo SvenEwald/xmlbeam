@@ -19,14 +19,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.xmlbeam.testutils.DOMDiagnoseHelper.assertXMLStringsEquals;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Scanner;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -203,4 +205,16 @@ public class TestAutoStingList {
         assertTrue(file.delete());
     }
 
+    @Test
+    public void testEvaluationAPIWithDateAndFormat() throws IOException {
+        final File file = new File("bindTest.xml");
+        FileWriter writer = new FileWriter(file);
+        writer.write("<root><list><a>19990102</a></list></root>");
+        writer.close();
+        CloseableValue<Date> valueA = projector.io().file(file).bindXPath("/root/list/a using yyyymmdd").asDate();
+        assertEquals(915235260000L, valueA.set(new Date(0)).getTime());
+        valueA.close();
+        assertXMLStringsEquals("<root><list><a>19700001</a></list></root>", TestIOUtils.file2String(file));
+
+    }
 }
