@@ -46,7 +46,7 @@ import org.xmlbeam.util.intern.duplex.ExpressionType;
 /**
  * @author sven
  */
-public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, DOMChangeListener {
+public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, DOMChangeListener, DOMAccess {
 
     private static final Comparator<Entry<String, ?>> ENTRY_COMPARATOR = new Comparator<Entry<String, ?>>() {
         @Override
@@ -390,6 +390,66 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
     public Node getNode() {
         domChangeTracker.refreshForReadIfNeeded();
         return boundNode;
+    }
+
+    /**
+     * @return XBAutoMap.class
+     * @see org.xmlbeam.dom.DOMAccess#getProjectionInterface()
+     */
+    @Override
+    public Class<?> getProjectionInterface() {
+        return XBAutoMap.class;
+    }
+
+    /**
+     * @return element that this map is bound to.
+     * @see org.xmlbeam.dom.DOMAccess#getDOMNode()
+     */
+    @Override
+    public Node getDOMNode() {
+        return boundNode;
+    }
+
+    /**
+     * @return document for this map
+     * @see org.xmlbeam.dom.DOMAccess#getDOMOwnerDocument()
+     */
+    @Override
+    public Document getDOMOwnerDocument() {
+        return DOMHelper.getOwnerDocumentFor(boundNode);
+    }
+
+    /**
+     * @return base element that was used when this map was created.
+     * @see org.xmlbeam.dom.DOMAccess#getDOMBaseElement()
+     */
+    @Override
+    public Element getDOMBaseElement() {
+        return (Element) baseNode;
+    }
+
+    /**
+     * @return XML String representation for this map.
+     * @see org.xmlbeam.dom.DOMAccess#asString()
+     */
+    @Override
+    public String asString() {
+        return this.invocationContext.getProjector().asString(this);
+    }
+
+    /**
+     * @param path
+     * @param value
+     * @return this
+     * @see org.xmlbeam.dom.DOMAccess#create(java.lang.String, java.lang.Object)
+     */
+    @Override
+    public DOMAccess create(final String path, final Object value) {
+        if (!valueType.isInstance(value)) {
+            throw new IllegalArgumentException("value must be the component type");
+        }
+        put(path, (T) value);
+        return this;
     }
 
 }

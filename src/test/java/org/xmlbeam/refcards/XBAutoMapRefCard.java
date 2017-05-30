@@ -30,6 +30,8 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.testutils.DOMDiagnoseHelper;
 import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.XBAutoMap;
 
@@ -136,7 +138,8 @@ public class XBAutoMapRefCard {
     @Test
     public void testMapXMLFileToAutoMap() throws IOException {
         XBAutoMap<String> map = new XBProjector().onXMLString("<xml/>").createMapOf(String.class);
-        map.put("foo", "bar");
+        map.put("/xml/foo", "bar");
 
+        DOMDiagnoseHelper.assertXMLStringsEquals("<xml><foo>bar</foo></xml>", ((DOMAccess) map).asString());
     }
 }
