@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.evaluation;
 
+import org.xmlbeam.types.XBAutoMap;
+
 /**
  * @author sven
  */
@@ -25,4 +27,10 @@ public interface CanEvaluateOrProject extends CanEvaluate {
      * @return a projection
      */
     <T> T createProjection(Class<T> type);
+
+    /**
+     * @param class1
+     * @return a map bound to the XML document element
+     */
+    XBAutoMap<String> createMapOf(Class<String> class1);
 }

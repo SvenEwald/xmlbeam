@@ -132,4 +132,11 @@ public class XBAutoMapRefCard {
         Date date = map.get("/root/value using yyyymmdd", Date.class);
         assertEquals("19990102", new SimpleDateFormat("yyyymmdd").format(date));
     }
+
+    @Test
+    public void testMapXMLFileToAutoMap() throws IOException {
+        XBAutoMap<String> map = new XBProjector().onXMLString("<xml/>").createMapOf(String.class);
+        map.put("foo", "bar");
+
+    }
 }

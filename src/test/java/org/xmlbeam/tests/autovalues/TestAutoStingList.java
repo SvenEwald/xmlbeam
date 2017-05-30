@@ -215,6 +215,7 @@ public class TestAutoStingList {
         assertEquals(915235260000L, valueA.set(new Date(0)).getTime());
         valueA.close();
         assertXMLStringsEquals("<root><list><a>19700001</a></list></root>", TestIOUtils.file2String(file));
+        assertEquals("a", valueA.getName());
     }
 
     @Test

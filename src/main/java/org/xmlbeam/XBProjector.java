@@ -512,31 +512,33 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @return {@link DefaultXPathEvaluator}
      */
     public CanEvaluateOrProject onXMLString(final String xmlContent) {
-        return new CanEvaluateOrProject() {
-
-            @Override
-            public XPathEvaluator evalXPath(final String xpath) {
-                try {
-                    final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
-
+        try {
+            final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
+            return new CanEvaluateOrProject() {
+                @Override
+                public XPathEvaluator evalXPath(final String xpath) {
                     return new DefaultXPathEvaluator(XBProjector.this, new DocumentResolver() {
-
                         @Override
                         public Document resolve(final Class<?>... resourceAwareClass) {
                             return IOHelper.loadDocument(XBProjector.this, inputStream);
                         }
                     }, xpath);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
-            }
 
-            @Override
-            public <T> T createProjection(final Class<T> projectionInterface) {
-                return projectXMLString(xmlContent, projectionInterface);
-            }
-        };
+                @Override
+                public <T> T createProjection(final Class<T> projectionInterface) {
+                    return projectXMLString(xmlContent, projectionInterface);
+                }
 
+                @Override
+                public XBAutoMap<String> createMapOf(final Class<String> valueType) {
+                    final Document document = IOHelper.loadDocument(XBProjector.this, inputStream);
+                    return createAutoMapForDocument(valueType, document);
+                }
+            };
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private final XMLFactoriesConfig xMLFactoriesConfig;
@@ -657,11 +659,12 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final boolean isWrite = (method.getAnnotation(XBWrite.class) != null);
             final boolean isDelete = (method.getAnnotation(XBDelete.class) != null);
             final boolean isUpdate = (method.getAnnotation(XBUpdate.class) != null);
-            final boolean isBind = (method.getAnnotation(XBAuto.class)!=null);
+            final boolean isBind = (method.getAnnotation(XBAuto.class) != null);
             final boolean isExternal = (method.getAnnotation(XBDocURL.class) != null);
             final boolean isThrowsException = (method.getExceptionTypes().length > 0);
-            if (countTrue(isRead,isWrite,isDelete,isUpdate,isBind)>1) {
-                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName()+ ", or @" + XBAuto.class.getSimpleName());
+            if (countTrue(isRead, isWrite, isDelete, isUpdate, isBind) > 1) {
+                throw new IllegalArgumentException("Method " + method + " has to many annotations. Decide for one of @" + XBRead.class.getSimpleName() + ", @" + XBWrite.class.getSimpleName() + ", @" + XBUpdate.class.getSimpleName() + ", or @" + XBDelete.class.getSimpleName()
+                        + ", or @" + XBAuto.class.getSimpleName());
             }
             if (isExternal && (isWrite || isUpdate || isDelete)) {
                 throw new IllegalArgumentException("Method " + method + " was declared as writing projection but has a @" + XBDocURL.class.getSimpleName() + " annotation. Defining external projections is only possible when reading because there is no DOM attached.");
@@ -679,8 +682,8 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 if (ReflectionHelper.isOptional(method.getReturnType()) && isThrowsException) {
                     throw new IllegalArgumentException("Method " + method + " has an Optional<> return type, but declares to throw an exception. Exception will never be thrown because return value must not be null.");
                 }
-                
-            }           
+
+            }
             if (isWrite && isThrowsException) {
                 throw new IllegalArgumentException("Method " + method + " declares to throw exception " + method.getExceptionTypes()[0].getSimpleName() + " but is not a reading projection method. When should this exception be thrown?");
             }
@@ -719,14 +722,15 @@ public class XBProjector implements Serializable, ProjectionFactory {
 
     /**
      * Count how many parameters are true.
+     *
      * @return number of true values in parameter list.
      */
-    private static int countTrue(boolean... b) {
-        if (b==null) {
+    private static int countTrue(final boolean... b) {
+        if (b == null) {
             return 0;
         }
-        int count=0;
-        for (boolean bb:b) {
+        int count = 0;
+        for (boolean bb : b) {
             if (bb) {
                 ++count;
             }
@@ -804,6 +808,10 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     public <T> XBAutoMap<T> autoMapEmptyDocument(final Class<T> valueType) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
+        return createAutoMapForDocument(valueType, document);
+    }
+
+    private <T> XBAutoMap<T> createAutoMapForDocument(final Class<T> valueType, final Document document) {
         InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, this);
         return new AutoMap<T>(document, invocationContext, valueType);
     }
