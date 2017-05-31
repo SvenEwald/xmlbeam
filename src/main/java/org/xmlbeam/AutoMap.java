@@ -37,6 +37,7 @@ import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.exceptions.XBPathException;
 import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
@@ -150,6 +151,39 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
             InvocationContext tempContext = new InvocationContext(invocationContext.getResolvedXPath(), invocationContext.getxPath(), expression, duplexExpression, null, asType, invocationContext.getProjector());
             final E value = DefaultXPathEvaluator.convertToComponentType(tempContext, prevNode, asType);
             return value;
+        } catch (XPathExpressionException e) {
+            throw new XBPathException(e, path);
+        }
+    }
+
+    /**
+     * Use given relative xpath to resolve the value.
+     *
+     * @param path
+     *            relative xpath
+     * @return value in DOM tree. null if no value is present.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public XBAutoList<T> getList(final CharSequence path) {
+        return (XBAutoList<T>) getList(path, invocationContext.getTargetComponentType());
+    }
+
+    @Override
+    public <E> XBAutoList<E> getList(final CharSequence path, final Class<E> oType) {
+        if ((path == null) || (path.length() == 0)) {
+            throw new IllegalArgumentException("Parameter path must not be empty or null");
+        }
+        domChangeTracker.refreshForReadIfNeeded();
+        if (boundNode == null) {
+            return AutoList.emptyList();
+        }
+        final Document document = DOMHelper.getOwnerDocumentFor(baseNode);
+        final DuplexExpression duplexExpression = new DuplexXPathParser(invocationContext.getProjector().config().getUserDefinedNamespaceMapping()).compile(path);
+        try {
+            final XPathExpression expression = invocationContext.getProjector().config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+            final InvocationContext tempContext = new InvocationContext(invocationContext.getResolvedXPath(), invocationContext.getxPath(), expression, duplexExpression, null, oType, invocationContext.getProjector());
+            return new AutoList<E>(boundNode, tempContext);
         } catch (XPathExpressionException e) {
             throw new XBPathException(e, path);
         }

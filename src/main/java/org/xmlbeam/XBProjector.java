@@ -531,7 +531,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 }
 
                 @Override
-                public XBAutoMap<String> createMapOf(final Class<String> valueType) {
+                public <T> XBAutoMap<T> createMapOf(final Class<T> valueType) {
                     final Document document = IOHelper.loadDocument(XBProjector.this, inputStream);
                     return createAutoMapForDocument(valueType, document);
                 }

@@ -62,6 +62,24 @@ public interface XBAutoMap<T> extends Map<String, T> {
     <E> E get(final CharSequence path, Class<E> asType);
 
     /**
+     * Resolve given path and return the result as list of given type.
+     *
+     * @param path
+     * @return all values matching the path.
+     */
+    XBAutoList<T> getList(final CharSequence path);
+
+    /**
+     * Resolve given path and return the result as list of given type.
+     *
+     * @param path
+     * @param ofType
+     *            list component type
+     * @return value at the position of given xpath, or null if no such value exists
+     */
+    <E> XBAutoList<E> getList(final CharSequence path, Class<E> ofType);
+
+    /**
      * @deprecated Please use stronger typed XBAutoMap#get(CharSequence) instead.
      * @see java.util.Map#containsKey(java.lang.Object)
      */

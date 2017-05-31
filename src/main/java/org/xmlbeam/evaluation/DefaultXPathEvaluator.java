@@ -34,9 +34,13 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xmlbeam.AutoMap;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.exceptions.XBPathException;
 import org.xmlbeam.types.TypeConverter;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.ReflectionHelper;
 import org.xmlbeam.util.intern.duplex.DuplexExpression;
@@ -289,6 +293,30 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
         }
         throw new IllegalArgumentException("Return type " + targetComponentType + " is not valid for a ProjectedList using the current type converter:" + invocationContext.getProjector().config().getTypeConverter()
                 + ". Please change the return type to a sub projection or add a conversion to the type converter.");
+    }
+
+    /**
+     * @param componentType
+     * @return map bound to the element resolved by XPath.
+     * @see org.xmlbeam.evaluation.XPathEvaluator#asMapOf(java.lang.Class)
+     */
+    @Override
+    public <T> XBAutoMap<T> asMapOf(final Class<T> componentType) {
+        try {
+            final Class<?> callerClass = ReflectionHelper.getDirectCallerClass();
+            Document document = documentProvider.resolve(componentType, callerClass);
+            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+            final Node baseNode = (Node) expression.evaluate(document, XPathConstants.NODE);
+            if (baseNode.getNodeType() != Node.ELEMENT_NODE) {
+                throw new XBException("XPath expression does not resolve to an element. Maps can only be created for elements.");
+            }
+            InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, componentType, projector);
+            return new AutoMap<T>(baseNode, invocationContext, componentType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (XPathExpressionException e) {
+            throw new XBPathException(e, duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+        }
     }
 
 }

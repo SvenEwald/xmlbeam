@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Sven Ewald
+ *  Copyright 2017 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,24 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
+package org.xmlbeam.tests.autovalues;
 
-import org.xmlbeam.types.XBAutoMap;
+import org.junit.Test;
 
 /**
  * @author sven
  */
-public interface CanEvaluateOrProject extends CanEvaluate {
+public class TestAutoListOfAutoMaps {
 
-    /**
-     * @param type
-     * @return a projection
-     */
-    <T> T createProjection(Class<T> type);
-
-    /**
-     * @param class1
-     * @return a map bound to the XML document element
-     */
-    <T> XBAutoMap<T> createMapOf(Class<T> class1);
+    @Test
+    public void testCreateListOfMaps() {
+//        List<XBAutoMap<String>> list = new XBProjector().onXMLString("<xml />").evalXPath("/xml/list/entry").asListOf(XBAutoMap.class);
+//        list.toString();
+    }
 }

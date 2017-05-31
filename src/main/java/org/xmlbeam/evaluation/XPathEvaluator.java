@@ -18,6 +18,8 @@ package org.xmlbeam.evaluation;
 import java.util.Date;
 import java.util.List;
 
+import org.xmlbeam.types.XBAutoMap;
+
 /**
  * Interface to build fluent API for the evaluation API.
  */
@@ -82,4 +84,12 @@ public interface XPathEvaluator {
      * @return List of return type that reflects the evaluation result.
      */
     <T> List<T> asListOf(Class<T> componentType);
+
+    /**
+     * Evaluate the XPAth as a map of XPath strings to the given component type.
+     *
+     * @param componentType
+     * @return Map bound to the element resolved by xpath.
+     */
+    <T> XBAutoMap<T> asMapOf(Class<T> componentType);
 }

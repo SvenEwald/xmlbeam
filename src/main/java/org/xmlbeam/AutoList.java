@@ -38,6 +38,22 @@ import org.xmlbeam.util.intern.DOMHelper;
  */
 class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeListener {
 
+    static class EmptyAutoList<F> extends AbstractList<F> implements XBAutoList<F> {
+
+        @Override
+        public F get(final int index) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static final XBAutoList EMPTY = new EmptyAutoList<Object>();
     private final InvocationContext invocationContext;
     private Element parent;
     private final Node baseNode;
@@ -45,7 +61,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     private final DomChangeTracker domChangeTracker = new DomChangeTracker() {
         @Override
         void refresh(final boolean forWrite) throws XPathExpressionException {
-            final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
+            final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);
             if ((nodes.getLength() == 0) && forWrite) {
                 parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
             } else {
@@ -272,6 +288,14 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     public Node getNode() {
         domChangeTracker.refreshForReadIfNeeded();
         return this.parent;
+    }
+
+    /**
+     * @return empty instance
+     */
+    @SuppressWarnings("unchecked")
+    public static <E> XBAutoList<E> emptyList() {
+        return EMPTY;
     }
 
 }

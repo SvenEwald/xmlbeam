@@ -33,6 +33,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.testutils.DOMDiagnoseHelper;
 import org.xmlbeam.types.CloseableMap;
+import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.XBAutoMap;
 
 @SuppressWarnings({ "javadoc", "unused" })
@@ -141,5 +142,35 @@ public class XBAutoMapRefCard {
         map.put("/xml/foo", "bar");
 
         DOMDiagnoseHelper.assertXMLStringsEquals("<xml><foo>bar</foo></xml>", ((DOMAccess) map).asString());
+    }
+
+    @Test
+    public void testMapToListSimpleAccess() {
+        XBAutoMap<Integer> map = new XBProjector(Flags.TO_STRING_RENDERS_XML).onXMLString("<root><list><entry>1</entry><entry>2</entry><entry>3</entry></list></root>").createMapOf(Integer.class);
+        XBAutoList<String> list = map.getList("/root/list/entry", String.class);
+        assertEquals("[1, 2, 3]", list.toString());
+    }
+
+    @Test
+    public void testMapToListSimpleAccessDeep() {
+        XBAutoMap<Integer> map = new XBProjector(Flags.TO_STRING_RENDERS_XML).onXMLString("<root><list><entry>1</entry><entry>2</entry><entry>3</entry></list></root>").evalXPath("/root").asMapOf(Integer.class);
+        XBAutoList<String> list = map.getList("./list/entry", String.class);
+        assertEquals("[1, 2, 3]", list.toString());
+    }
+
+    @Test
+    public void testMapToListAccessTwoLists() {
+        XBAutoMap<Integer> map = new XBProjector(Flags.TO_STRING_RENDERS_XML).onXMLString("<root><list1><entry>1</entry><entry>2</entry><entry>3</entry></list1><list2><entry>4</entry><entry>5</entry><entry>6</entry></list2></root>").evalXPath("/root").asMapOf(Integer.class);
+        XBAutoList<String> list1 = map.getList("/root/list1/entry", String.class);
+        assertEquals("[1, 2, 3]", list1.toString());
+        XBAutoList<String> list2 = map.getList("list2/entry", String.class);
+        assertEquals("[4, 5, 6]", list2.toString());
+    }
+
+    @Test
+    public void testMapToListAccessUnionOfTwoLists() {
+        XBAutoMap<Integer> map = new XBProjector(Flags.TO_STRING_RENDERS_XML).onXMLString("<root><list1><entry>1</entry><entry>2</entry><entry>3</entry></list1><list2><entry>4</entry><entry>5</entry><entry>6</entry></list2></root>").evalXPath("/root").asMapOf(Integer.class);
+        XBAutoList<String> list3 = map.getList("//entry", String.class);
+        assertEquals("[1, 2, 3, 4, 5, 6]", list3.toString());
     }
 }
