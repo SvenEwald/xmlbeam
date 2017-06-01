@@ -25,7 +25,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.types.XBAutoList;
 
 @SuppressWarnings({ "javadoc", "unused" })
-public class XBAutoListRefCard {
+public class XBAutoListRefCardTest {
 
     Projection projection = new XBProjector().projectXMLString("<root><entries><entry/><entry/><entry/><entry/><entry/><entry/></entries></root>", Projection.class);
 

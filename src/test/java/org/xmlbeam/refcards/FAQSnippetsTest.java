@@ -39,7 +39,7 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 
 @SuppressWarnings({ "serial", "javadoc" })
-public class FAQSnippets {
+public class FAQSnippetsTest {
 
     /**
      * @author sven

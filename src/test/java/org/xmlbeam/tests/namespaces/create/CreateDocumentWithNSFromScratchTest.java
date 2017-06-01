@@ -29,7 +29,7 @@ import org.xmlbeam.testutils.DOMDiagnoseHelper;
  * @author sven
  */
 @SuppressWarnings("javadoc")
-public class CreateDocumentWithNSFromScratch {
+public class CreateDocumentWithNSFromScratchTest {
 
     final static String expectedXML = "<p1:root xmlns:p1=\"http://xmlbeam.org/tests/ns1\">\n" + "  <p2:first xmlns:p2=\"http://xmlbeam.org/tests/ns2\">\n" + "    <p1:second>\n" + "      <value>huhu1</value>\n" + "      <p2:first>\n" + "        <value>huhu3</value>\n"
             + "      </p2:first>\n" + "    </p1:second>\n" + "  </p2:first>\n" + "  <p2:first2 xmlns:p2=\"http://xmlbeam.org/tests/ns2\">\n" + "    <p1:second2>\n" + "      <value>huhu2</value>\n" + "    </p1:second2>\n" + "  </p2:first2>\n" + "</p1:root>\n" + "";

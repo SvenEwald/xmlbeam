@@ -37,7 +37,7 @@ import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.XBAutoMap;
 
 @SuppressWarnings({ "javadoc", "unused" })
-public class XBAutoMapRefCard {
+public class XBAutoMapRefCardTest {
 
     Projection projection = new XBProjector().projectXMLString("<root><subelement attribute='' /></root>", Projection.class);
 

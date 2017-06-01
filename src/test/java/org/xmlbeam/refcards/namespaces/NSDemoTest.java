@@ -28,7 +28,7 @@ import org.xmlbeam.config.DefaultXMLFactoriesConfig;
 import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 
 @SuppressWarnings({ "javadoc", "serial" })
-public class NSDemo {
+public class NSDemoTest {
 
     @Test
     public void testNoNamespacedElementAccess() throws IOException {

@@ -71,7 +71,6 @@
 						<excludes>
 							<exclude>**/*Exception.class</exclude>
 							<exclude>**/*Error.class</exclude>
-							<!-- <exclude>**/org/objectweb/asm/*.class</exclude> -->
 							<exclude>**/duplex/JJTXParserState.class</exclude>
 							<exclude>**/duplex/Node.class</exclude>
 							<exclude>**/duplex/XParserTreeConstants.class</exclude>

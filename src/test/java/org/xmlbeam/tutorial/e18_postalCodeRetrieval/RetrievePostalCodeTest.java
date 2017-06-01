@@ -38,7 +38,7 @@ END SNIPPET: TutorialDescription */
 
 @SuppressWarnings("javadoc")
 @Category(Tutorial.class)
-public class RetrievePostalCode extends TutorialTestCase{
+public class RetrievePostalCodeTest extends TutorialTestCase{
     @Test
 // START SNIPPET: RetrievePostalCode    
     public void postalCodeRetrieval() {

@@ -28,7 +28,7 @@ import org.xmlbeam.tutorial.e17_svgTemplateInheritance.SVG.Rect;
 import org.xmlbeam.tutorial.e17_svgTemplateInheritance.SVG.Shape;
 
 @SuppressWarnings("javadoc")
-public class ComposeSVGDoc {
+public class ComposeSVGDocTest {
 
     @Test
     public void testSVGComposition() throws IOException {

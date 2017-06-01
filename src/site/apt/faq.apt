@@ -57,7 +57,7 @@ FAQ / HowTo
   
  You may change the DOM any time, projections will reflect the changes automatically.  
     
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#DOMProjection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}    
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#DOMProjection|source=src/test/java/org/xmlbeam/refcards/FAQSnippetsTest.java}    
    
 * How do I implement the toString() method for my projection?
 
@@ -66,17 +66,17 @@ FAQ / HowTo
  For example you can choose "String asString()" or "String toString_()".
  Then add a @XBOverride annotation with the name of the method this default method should override.
  
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Java8OverrideToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Java8OverrideToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippetsTest.java}
  
  For Java 6 & 7 you need to create a mixin: 
 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#Projection|source=src/test/java/org/xmlbeam/refcards/FAQSnippetsTest.java}
  
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinOverridingToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinOverridingToString|source=src/test/java/org/xmlbeam/refcards/FAQSnippetsTest.java}
 
  And register it in your projector:
 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinRegistration|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#MixinRegistration|source=src/test/java/org/xmlbeam/refcards/FAQSnippetsTest.java}
 
 * Why does the projector not cache values?
 
@@ -98,10 +98,10 @@ FAQ / HowTo
  * If you do not want your implementation be created by the original XPathFactory, 
    you may change the way the projector creates this factory:
 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#OwnXPathFactoriesImplementation|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#OwnXPathFactoriesImplementation|source=src/test/java/org/xmlbeam/refcards/FAQSnippetsTest.java}
 
  * If you do not want any XPathFactory involved, you even may bypass this:
 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#OwnXPathImplementation|source=src/test/java/org/xmlbeam/refcards/FAQSnippets.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#OwnXPathImplementation|source=src/test/java/org/xmlbeam/refcards/FAQSnippetsTest.java}
 
   

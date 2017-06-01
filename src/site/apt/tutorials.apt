@@ -114,6 +114,6 @@ Tutorial Examples
  
 *E18 Using XMLBeam without a projection interface to resolve a postal code
  
-%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e18_postalCodeRetrieval/RetrievePostalCode.java}
+%{include|source-content-type=apt|snippet=#TutorialDescription|source=src/test/java/org/xmlbeam/tutorial/e18_postalCodeRetrieval/RetrievePostalCodeTest.java}
 
  {{{./t18.html}Start tutorial 18}}  
