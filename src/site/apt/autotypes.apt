@@ -12,7 +12,7 @@ Auto Types
  This way you can read a value from XML and write it back to the same place.
  The new type XBAutoValue is made to simplify this use case.
 
-%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectedValueRefCardExample|source=src/test/java/org/xmlbeam/refcards/XBAutoValueRefCard.java}
+%{include|charset=UTF-8|highlight-theme=eclipse|show-gutter=false|snippet=#ProjectedValueRefCardExample|source=src/test/java/org/xmlbeam/refcards/XBAutoValueRefCardTest.java}
  
  All operations are applied to the XML DOM model automatically, hence the name.
 
