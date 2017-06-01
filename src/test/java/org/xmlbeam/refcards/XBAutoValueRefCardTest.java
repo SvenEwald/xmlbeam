@@ -20,7 +20,7 @@ import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.types.XBAutoValue;
 
 @SuppressWarnings({ "javadoc", "unused" })
-public class XBAutoValueRefCard {
+public class XBAutoValueRefCardTest {
 
     Example example = new XBProjector().projectXMLString("<foo @bar='value'/>", Example.class);
 
