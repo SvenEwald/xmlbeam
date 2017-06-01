@@ -15,6 +15,9 @@
  */
 package org.xmlbeam.refcards.namespaces;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,9 +43,12 @@ public class NSDemo {
         projector.config().as(DefaultXMLFactoriesConfig.class).setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC);
 
         NameSpaceProjection projection = projector.io().fromURLAnnotation(NameSpaceProjection.class);
-        System.out.println(projection.getTable());
-        // System.out.println(projection.getNamepsacedTable() +
-// projection.getDefaultNamepsacedTable());
+        assertTrue(projection.getTable().contains("African Coffee Table"));
+        assertNull(projection.getNamepsacedTable());
+        assertNull(projection.getDefaultNamepsacedTable());
+//        System.out.println(projection.getTable());
+//         System.out.println(projection.getNamepsacedTable());
+//System.out.println(projection.getDefaultNamepsacedTable());
     }
 
 }

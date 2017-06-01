@@ -204,7 +204,7 @@ public class FAQSnippets {
     }
 
     @Test
-    public void UnCamelCaseTest() {
+    public void unCamelCaseTest() {
         XBProjector projector = new XBProjector();
         projector.config().setExternalizer(new ExternalizerAdapter() {
             @Override
