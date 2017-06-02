@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Sven Ewald
+ *  Copyright 2017 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,28 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
+package org.xmlbeam.util.intern;
 
-import org.xmlbeam.types.XBAutoMap;
-import org.xmlbeam.util.intern.DocScope;
-import org.xmlbeam.util.intern.Scope;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author sven
+ *
  */
-public interface CanEvaluateOrProject extends CanEvaluate {
-
-    /**
-     * @param type
-     * @return a projection
-     */
-    @Scope(DocScope.IO)
-    <T> T createProjection(Class<T> type);
-
-    /**
-     * @param class1
-     * @return a map bound to the XML document element
-     */
-    @Scope(DocScope.IO)
-    <T> XBAutoMap<T> createMapOf(Class<T> class1);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Scope {
+    DocScope value();
 }

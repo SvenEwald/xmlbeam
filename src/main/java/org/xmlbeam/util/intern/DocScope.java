@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Sven Ewald
+ *  Copyright 2017 Sven Ewald
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,28 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.xmlbeam.evaluation;
-
-import org.xmlbeam.types.XBAutoMap;
-import org.xmlbeam.util.intern.DocScope;
-import org.xmlbeam.util.intern.Scope;
+package org.xmlbeam.util.intern;
 
 /**
- * @author sven
+ *
  */
-public interface CanEvaluateOrProject extends CanEvaluate {
-
-    /**
-     * @param type
-     * @return a projection
-     */
-    @Scope(DocScope.IO)
-    <T> T createProjection(Class<T> type);
-
-    /**
-     * @param class1
-     * @return a map bound to the XML document element
-     */
-    @Scope(DocScope.IO)
-    <T> XBAutoMap<T> createMapOf(Class<T> class1);
+public enum DocScope {
+    IO,CONFIG
 }

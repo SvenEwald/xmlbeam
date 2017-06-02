@@ -81,7 +81,9 @@ import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.DocScope;
 import org.xmlbeam.util.intern.ReflectionHelper;
+import org.xmlbeam.util.intern.Scope;
 
 /**
  * <p>
@@ -446,6 +448,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * {@inheritDoc}
      */
     @Override
+    @Scope(DocScope.IO)
     public <T> T projectEmptyDocument(final Class<T> projectionInterface) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
         return projectDOMNode(document, projectionInterface);
@@ -455,6 +458,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * {@inheritDoc}
      */
     @Override
+    @Scope(DocScope.IO)
     public <T> T projectEmptyElement(final String name, final Class<T> projectionInterface) {
         Document document = xMLFactoriesConfig.createDocumentBuilder().newDocument();
         Element element = document.createElement(name);
@@ -466,6 +470,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      */
     @Override
     @SuppressWarnings("unchecked")
+    @Scope(DocScope.IO)
     public <T> T projectDOMNode(final Node documentOrElement, final Class<T> projectionInterface) {
         ensureIsValidProjectionInterface(projectionInterface);
 
@@ -498,6 +503,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * {@inheritDoc}
      */
     @Override
+    @Scope(DocScope.IO)
     public <T> T projectXMLString(final String xmlContent, final Class<T> projectionInterface) {
         try {
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
@@ -511,6 +517,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @param xmlContent
      * @return {@link DefaultXPathEvaluator}
      */
+    @Scope(DocScope.IO)
     public CanEvaluateOrProject onXMLString(final String xmlContent) {
         try {
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
@@ -744,6 +751,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
      * @return A new IOBuilder providing methods to read or write projections.
      */
     @Override
+    @Scope(DocScope.IO)
     public ProjectionIO io() {
         return new IOBuilder();
     }

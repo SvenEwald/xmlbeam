@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.xmlbeam.annotation.XBDocURL;
+import org.xmlbeam.util.intern.DocScope;
+import org.xmlbeam.util.intern.Scope;
 
 /**
  * A ProjectionIO is responsible for every IO operation related to projections. Before coding your
@@ -35,6 +37,7 @@ public interface ProjectionIO {
      * @param file
      * @return a XBFileIO for this file.
      */
+    @Scope(DocScope.IO)
     FileIO file(File file);
 
     
@@ -43,6 +46,7 @@ public interface ProjectionIO {
      * @param fileName
      * @return a XBFileIO for this filename.
      */
+    @Scope(DocScope.IO)
     FileIO file(String fileName);
 
     /**
@@ -50,6 +54,7 @@ public interface ProjectionIO {
      * @param url
      * @return a XBUrlIO for this url
      */
+    @Scope(DocScope.IO)
     UrlIO url(String url);
     
     /**
@@ -57,6 +62,7 @@ public interface ProjectionIO {
      * @param is
      * @return a XBStreamInput for this InputStream
      */
+    @Scope(DocScope.IO)
     StreamInput stream(InputStream is);
 
     /**
@@ -64,6 +70,7 @@ public interface ProjectionIO {
      * @param os
      * @return a XBStreamOutput for this OutputStream
      */
+    @Scope(DocScope.IO)
     StreamOutput stream(OutputStream os);
 
     /**
@@ -77,6 +84,7 @@ public interface ProjectionIO {
      * @return a new projection instance
      * @throws IOException
      */
+    @Scope(DocScope.IO)
     <T> T fromURLAnnotation(final Class<T> projectionInterface, Object... optionalParams) throws IOException;
 
     /**
@@ -88,6 +96,7 @@ public interface ProjectionIO {
      * @throws IOException
      * @throws URISyntaxException
      */
+    @Scope(DocScope.IO)
     String toURLAnnotationViaPOST(final Object projection, Object... optionalParams) throws IOException, URISyntaxException;
 
 }

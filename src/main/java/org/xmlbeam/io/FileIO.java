@@ -21,6 +21,8 @@ import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.XBAutoMap;
+import org.xmlbeam.util.intern.DocScope;
+import org.xmlbeam.util.intern.Scope;
 
 /**
  *
@@ -35,14 +37,15 @@ public interface FileIO {
      * @return a new projection pointing to the content of the file.
      * @throws IOException
      */
+    @Scope(DocScope.IO)
     <T> T read(Class<T> projectionInterface) throws IOException;
 
     /**
      * @param projection
      * @throws IOException
-     * @return this to provide a fluent API.
      */
-    FileIO write(Object projection) throws IOException;
+    @Scope(DocScope.IO)
+    void write(Object projection) throws IOException;
 
     /**
      * Set whether output should be append to existing file. When this method is not invoked, or
@@ -52,6 +55,7 @@ public interface FileIO {
      *            optional parameter, default is true.
      * @return this to provide a fluent API.
      */
+    @Scope(DocScope.IO)
     FileIO setAppend(boolean... append);
 
     /**
@@ -59,6 +63,7 @@ public interface FileIO {
      * @return evaluator
      * @see org.xmlbeam.evaluation.CanEvaluate#evalXPath(java.lang.String)
      */
+    @Scope(DocScope.IO)
     XPathEvaluator evalXPath(String xpath);
 
     /**
@@ -68,6 +73,7 @@ public interface FileIO {
      * @return XBAutoMap map for the complete document.
      * @throws IOException
      */
+    @Scope(DocScope.IO)
     <T> XBAutoMap<T> asMapOf(Class<T> valueType) throws IOException;
 
     /**
@@ -78,6 +84,7 @@ public interface FileIO {
      * @param xpath
      * @return binder
      */
+    @Scope(DocScope.IO)
     XPathBinder bindXPath(String xpath);
 
     /**
@@ -90,6 +97,7 @@ public interface FileIO {
      * @return Closeable map bound to complete document.
      * @throws IOException
      */
+    @Scope(DocScope.IO)
     <T> CloseableMap<T> bindAsMapOf(Class<T> valueType) throws IOException;
 
     /**
@@ -99,6 +107,7 @@ public interface FileIO {
      *
      * @return this to provide fluent API.
      */
+    @Scope(DocScope.IO)
     FileIO failIfNotExists(boolean... create);
 
 }
