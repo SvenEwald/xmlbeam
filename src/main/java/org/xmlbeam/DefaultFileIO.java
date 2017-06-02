@@ -102,14 +102,13 @@ class DefaultFileIO implements CanEvaluate, FileIO {
     /**
      * @param projection
      * @throws IOException
-     * @return this to provide a fluent API.
      */
     @Override
-    public FileIO write(final Object projection) throws IOException {
+    public
+    void write(final Object projection) throws IOException {
         FileOutputStream os = new FileOutputStream(file, append);
         new StreamOutput(projector, os).write(projection);
         os.close();
-        return this;
     }
 
     /**
