@@ -29,9 +29,11 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.testutils.DOMDiagnoseHelper;
 import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.CloseableValue;
+import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.XBAutoMap;
 
 @SuppressWarnings("javadoc")
@@ -125,6 +127,18 @@ public class TestAutoFileBindings {
         value.set("huhu2");
         value.close();
         assertEquals(58, file.length());
+    }
+
+    @Test
+    public void testMapExistingFileReadOnlyThenToList() throws IOException {
+        assertEquals(57, file.length());
+        XBAutoMap<String> map = projector.io().file(file).readAsMapOf(String.class);
+        assertEquals("huhu", map.get("root/foo/bar"));
+        XBAutoList<String> list = map.getList("root/foo/bar");
+        assertEquals("[huhu]", list.toString());
+        list.add("huhu2");
+        System.out.println(projector.asString(map));
+        DOMDiagnoseHelper.assertXMLStringsEquals("<root><foo><bar>huhu</bar><bar>huhu2</bar></foo></root>", projector.asString(map));
     }
 
 }

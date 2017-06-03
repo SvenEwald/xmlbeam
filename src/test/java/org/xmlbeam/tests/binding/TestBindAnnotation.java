@@ -31,6 +31,7 @@ import org.xmlbeam.annotation.XBAuto;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.types.CloseableMap;
+import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.types.XBAutoValue;
 
@@ -194,6 +195,14 @@ public class TestBindAnnotation {
     public void testMapNoNeedToEvaluate() {
         CloseableMap<String> map = projector.io().file("test.xml").bindXPath("/does/not/Exist").asMapOf(String.class);
         assertNull(map.get("another/nonexistend/path"));
+    }
+
+    @Test
+    public void testMaptoString() {
+        XBAutoMap<String> map = projector.onXMLString("<root><foo><bar>huhu</bar><bar>huhu2</bar></foo></root>").createMapOf(String.class);
+        XBAutoList<String> list = map.getList("root/foo/bar");
+        assertEquals("[huhu, huhu2]", list.toString());
+
     }
 
 }
