@@ -18,6 +18,7 @@ package org.xmlbeam.tests.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.CloseableMap;
+import org.xmlbeam.types.XBAutoMap;
 
 @SuppressWarnings("javadoc")
 public class TestAutoFileBindings {
@@ -100,6 +102,18 @@ public class TestAutoFileBindings {
         list.add("huhu2");
         list.close();
         assertEquals(79, file.length());
+    }
+
+    @Test
+    public void testMapExistingFileReadOnly() throws IOException {
+        assertEquals(57, file.length());
+        XBAutoMap<String> map = projector.io().file(file).readAsMapOf(String.class);
+        assertEquals("huhu", map.get("root/foo/bar"));
+        map.put("root/foo2/bar2", "huhu2");
+        if (map instanceof Closeable) {
+            ((Closeable) map).close();
+        }
+        assertEquals(57, file.length());
     }
 
 }
