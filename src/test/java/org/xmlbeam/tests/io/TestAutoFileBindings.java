@@ -31,6 +31,7 @@ import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.CloseableMap;
+import org.xmlbeam.types.CloseableValue;
 import org.xmlbeam.types.XBAutoMap;
 
 @SuppressWarnings("javadoc")
@@ -114,6 +115,16 @@ public class TestAutoFileBindings {
             ((Closeable) map).close();
         }
         assertEquals(57, file.length());
+    }
+
+    @Test
+    public void testvalueBindToFile() throws IOException {
+        assertEquals(57, file.length());
+        CloseableValue<String> value = projector.io().file(file).bindXPath("/root/foo/bar").as(String.class);
+        assertEquals("huhu", value.get());
+        value.set("huhu2");
+        value.close();
+        assertEquals(58, file.length());
     }
 
 }
