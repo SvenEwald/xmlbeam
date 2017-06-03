@@ -248,10 +248,10 @@ class DefaultFileIO implements CanEvaluate, FileIO {
      * @param valueType
      * @return XBAutoMap for the complete document
      * @throws IOException
-     * @see org.xmlbeam.io.FileIO#asMapOf(java.lang.Class)
+     * @see org.xmlbeam.io.FileIO#readAsMapOf(java.lang.Class)
      */
     @Override
-    public <T> XBAutoMap<T> asMapOf(final Class<T> valueType) throws IOException {
+    public <T> XBAutoMap<T> readAsMapOf(final Class<T> valueType) throws IOException {
         DefaultXPathBinder.validateEvaluationType(valueType);
         try {
             Document document = projector.config().createDocumentBuilder().parse(file);

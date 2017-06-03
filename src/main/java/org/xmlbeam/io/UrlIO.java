@@ -132,7 +132,7 @@ public class UrlIO implements CanEvaluate {
      * @return Closeable map bound to complete document.
      * @throws IOException
      */
-    public <T> XBAutoMap<T> asMapOf(final Class<T> valueType) throws IOException {
+    public <T> XBAutoMap<T> readAsMapOf(final Class<T> valueType) throws IOException {
         DefaultXPathBinder.validateEvaluationType(valueType);
         final Class<?> resourceAwareClass = ReflectionHelper.getDirectCallerClass();
         Document document = IOHelper.getDocumentFromURL(projector.config().createDocumentBuilder(), url, requestProperties, resourceAwareClass);

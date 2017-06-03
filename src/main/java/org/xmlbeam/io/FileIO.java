@@ -68,7 +68,7 @@ public interface FileIO {
      * @return XBAutoMap map for the complete document.
      * @throws IOException
      */
-    <T> XBAutoMap<T> asMapOf(Class<T> valueType) throws IOException;
+    <T> XBAutoMap<T> readAsMapOf(Class<T> valueType) throws IOException;
 
     /**
      * Evaluate given XPath and bind result to a List or Map. Use this method to bind parts of

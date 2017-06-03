@@ -40,7 +40,7 @@ public class EvaluationAPIRefCard {
         List<Integer> entries = projector.io().file("filename.xml").evalXPath("/some/list/entry").asListOf(Integer.class);
 
         // Read xml from url to a map
-        XBAutoMap<String> map = projector.io().url("http://url").asMapOf(String.class);
+        XBAutoMap<String> map = projector.io().url("http://url").readAsMapOf(String.class);
 
         String string = map.get("/some/path"); // returns value at path
         int intValue = map.get("/other/path",Integer.class); // returns other value converted to int.
