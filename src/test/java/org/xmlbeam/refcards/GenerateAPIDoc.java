@@ -15,13 +15,16 @@
  */
 package org.xmlbeam.refcards;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericDeclaration;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import java.lang.reflect.GenericDeclaration;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -45,11 +48,11 @@ public class GenerateAPIDoc {
      * @param class1
      * @param io
      */
-    private void dump(String prefix, Class<?> class1, DocScope scope) {
+    private void dump(final String prefix, final Class<?> class1, final DocScope scope) {
         if (class1 == null) {
             return;
         }
-        for (Method m : class1.getDeclaredMethods()) {
+        for (Method m : allPublicMethods(class1)) {
             Scope annotation = m.getAnnotation(Scope.class);
             if (annotation == null) {
                 continue;
@@ -59,13 +62,16 @@ public class GenerateAPIDoc {
             }
             if (visitedMethods.contains(m)) {
                 continue;
-            }           
+            }
             if (!isAPIClass(m.getReturnType())) {
-                System.out.println(prefix + "." + methodAsString(m));
+
+                System.out.println(prefix + "." + methodAsString(m) + (Void.TYPE.equals(m.getReturnType()) ? "" : " -> " + getTypeName(m.getGenericReturnType())));
                 continue;
             }
-            if (m.getReturnType().equals(class1)) {
-                prefix+="[";
+            boolean methodIsOptional = m.getReturnType().equals(class1);
+            if (methodIsOptional) {
+                //prefix += "[." + methodAsString(m) + "]";
+                continue;
             }
             visitedMethods.add(m);
             dump(prefix + "." + methodAsString(m), m.getReturnType(), scope);
@@ -75,10 +81,27 @@ public class GenerateAPIDoc {
     }
 
     /**
+     * @param class1
+     * @return
+     */
+    private Collection<Method> allPublicMethods(final Class<?> class1) {
+        if (class1 == null) {
+            return Collections.emptyList();
+        }
+        Set<Method> methods = new HashSet<Method>();
+        methods.addAll(Arrays.asList(class1.getDeclaredMethods()));
+        methods.addAll(allPublicMethods(class1.getSuperclass()));
+        for (Class<?> c : class1.getInterfaces()) {
+            methods.addAll(allPublicMethods(c));
+        }
+        return methods;
+    }
+
+    /**
      * @param returnType
      * @return
      */
-    private boolean isAPIClass(Class<?> returnType) {
+    private boolean isAPIClass(final Class<?> returnType) {
         for (Method m : returnType.getDeclaredMethods()) {
             Scope annotation = m.getAnnotation(Scope.class);
             if (annotation != null) {
@@ -91,7 +114,7 @@ public class GenerateAPIDoc {
     /**
      * @param m
      */
-    private String methodAsString(Method m) {
+    private String methodAsString(final Method m) {
         try {
             StringBuffer sb = new StringBuffer();
             sb.append(m.getName() + "(");
@@ -99,8 +122,9 @@ public class GenerateAPIDoc {
             int length = m.isVarArgs() ? params.length - 1 : params.length;
             for (int j = 0; j < length; j++) {
                 sb.append(getTypeName(params[j]));
-                if (j < (params.length - 1))
+                if (j < (params.length - 1)) {
                     sb.append(",");
+                }
             }
             sb.append(")");
             return sb.toString();
@@ -109,7 +133,7 @@ public class GenerateAPIDoc {
         }
     }
 
-    static String getTypeName(Class type) {
+    static String getTypeName(final Class type) {
         if (type.isArray()) {
             try {
                 Class cl = type;
@@ -135,5 +159,12 @@ public class GenerateAPIDoc {
             tps.append(t.getName());
         }
         return type.getSimpleName() + (tps.length() > 0 ? "<" + tps.toString() + ">" : "");
+    }
+
+    static String getTypeName(final Type type) {
+        //  if (type instanceof ParameterizedType) {
+        return type.toString().replaceAll(".*\\.", "");
+        //   }
+        //   return type.toString();
     }
 }

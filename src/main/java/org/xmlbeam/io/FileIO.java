@@ -37,14 +37,14 @@ public interface FileIO {
      * @return a new projection pointing to the content of the file.
      * @throws IOException
      */
-    @Scope(DocScope.IO)
+    @Scope(DocScope.INPUT)
     <T> T read(Class<T> projectionInterface) throws IOException;
 
     /**
      * @param projection
      * @throws IOException
      */
-    @Scope(DocScope.IO)
+    @Scope(DocScope.OUTPUT)
     void write(Object projection) throws IOException;
 
     /**
@@ -55,7 +55,7 @@ public interface FileIO {
      *            optional parameter, default is true.
      * @return this to provide a fluent API.
      */
-    @Scope(DocScope.IO)
+    @Scope(DocScope.OUTPUT)
     FileIO setAppend(boolean... append);
 
     /**
@@ -63,7 +63,7 @@ public interface FileIO {
      * @return evaluator
      * @see org.xmlbeam.evaluation.CanEvaluate#evalXPath(java.lang.String)
      */
-    @Scope(DocScope.IO)
+    @Scope(DocScope.INPUT)
     XPathEvaluator evalXPath(String xpath);
 
     /**
@@ -73,7 +73,7 @@ public interface FileIO {
      * @return XBAutoMap map for the complete document.
      * @throws IOException
      */
-    @Scope(DocScope.IO)
+    @Scope(DocScope.INPUT)
     <T> XBAutoMap<T> asMapOf(Class<T> valueType) throws IOException;
 
     /**
@@ -107,7 +107,7 @@ public interface FileIO {
      *
      * @return this to provide fluent API.
      */
-    @Scope(DocScope.IO)
+    @Scope(DocScope.INPUT)
     FileIO failIfNotExists(boolean... create);
 
 }

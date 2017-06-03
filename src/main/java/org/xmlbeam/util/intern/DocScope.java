@@ -19,5 +19,5 @@ package org.xmlbeam.util.intern;
  *
  */
 public enum DocScope {
-    IO,CONFIG
+    IO, CONFIG, INPUT, OUTPUT
 }

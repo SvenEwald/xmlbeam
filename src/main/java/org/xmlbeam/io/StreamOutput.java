@@ -21,8 +21,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.util.intern.DocScope;
+import org.xmlbeam.util.intern.Scope;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -30,23 +32,24 @@ import org.xmlbeam.XBProjector;
 public class StreamOutput {
 
     private final XBProjector projector;
-    private final  OutputStream os;
+    private final OutputStream os;
 
     /**
      * @param xmlProjector
-     * @param os 
+     * @param os
      */
-    public StreamOutput(XBProjector xmlProjector,OutputStream os) {
+    public StreamOutput(final XBProjector xmlProjector, final OutputStream os) {
         this.projector = xmlProjector;
-        this.os=os;
+        this.os = os;
     }
 
     /**
      * @param projection
      */
-    public void write(Object projection ) {        
+    @Scope(DocScope.IO)
+    public void write(final Object projection) {
         try {
-            projector.config().createTransformer().transform(new DOMSource(((DOMAccess)projection).getDOMNode()), new StreamResult(os));
+            projector.config().createTransformer().transform(new DOMSource(((DOMAccess) projection).getDOMNode()), new StreamResult(os));
         } catch (TransformerException e) {
             throw new RuntimeException(e);
         }

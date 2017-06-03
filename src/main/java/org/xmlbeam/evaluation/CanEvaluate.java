@@ -15,6 +15,9 @@
  */
 package org.xmlbeam.evaluation;
 
+import org.xmlbeam.util.intern.DocScope;
+import org.xmlbeam.util.intern.Scope;
+
 /**
  * @author sven
  */
@@ -25,6 +28,7 @@ public interface CanEvaluate {
      *            to be evaluated on input
      * @return EvaluationBuilder to choose target type
      */
+    @Scope(DocScope.IO)
     XPathEvaluator evalXPath(String xpath);
 
 }

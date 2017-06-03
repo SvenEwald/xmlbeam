@@ -31,7 +31,9 @@ import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
+import org.xmlbeam.util.intern.DocScope;
 import org.xmlbeam.util.intern.ReflectionHelper;
+import org.xmlbeam.util.intern.Scope;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -64,6 +66,7 @@ public class UrlIO implements CanEvaluate {
      * @return a new projection instance.
      * @throws IOException
      */
+    @Scope(DocScope.IO)
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         Class<?> callerClass = null;
         if (IOHelper.isResourceProtocol(url)) {
@@ -81,6 +84,7 @@ public class UrlIO implements CanEvaluate {
      * @throws IOException
      */
     @SuppressWarnings("unchecked")
+    @Scope(DocScope.IO)
     public String write(final Object projection) throws IOException {
         return IOHelper.inputStreamToString(IOHelper.httpPost(url, projection.toString(), requestProperties));
     }
@@ -91,6 +95,7 @@ public class UrlIO implements CanEvaluate {
      * @param params
      * @return this for convenience.
      */
+    @Scope(DocScope.IO)
     public UrlIO addRequestProperties(final Map<String, String> params) {
         requestProperties.putAll(params);
         return this;
@@ -103,6 +108,7 @@ public class UrlIO implements CanEvaluate {
      * @param value
      * @return this for convenience.
      */
+    @Scope(DocScope.IO)
     public UrlIO addRequestProperty(final String name, final String value) {
         requestProperties.put(name, value);
         return this;
@@ -116,6 +122,7 @@ public class UrlIO implements CanEvaluate {
      * @see org.xmlbeam.evaluation.CanEvaluate#evalXPath(java.lang.String)
      */
     @Override
+    @Scope(DocScope.IO)
     public XPathEvaluator evalXPath(final String xpath) {
         return new DefaultXPathEvaluator(projector, new DocumentResolver() {
             @Override
@@ -132,6 +139,7 @@ public class UrlIO implements CanEvaluate {
      * @return Closeable map bound to complete document.
      * @throws IOException
      */
+    @Scope(DocScope.IO)
     public <T> XBAutoMap<T> asMapOf(final Class<T> valueType) throws IOException {
         DefaultXPathBinder.validateEvaluationType(valueType);
         final Class<?> resourceAwareClass = ReflectionHelper.getDirectCallerClass();
