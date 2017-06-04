@@ -44,7 +44,7 @@ import org.xmlbeam.util.IOHelper;
  * @author sven
  */
 @SuppressWarnings("javadoc")
-public class TestAutoStingList {
+public class TestAutoStringList {
 
     private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
     private final static String XML = "<root><list><e>1</e><e>2</e><e>3</e></list></root>";

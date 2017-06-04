@@ -459,6 +459,9 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
      */
     @Override
     public Element getDOMBaseElement() {
+        if (baseNode.getNodeType() == Node.DOCUMENT_NODE) {
+            return ((Document) baseNode).getDocumentElement();
+        }
         return (Element) baseNode;
     }
 
