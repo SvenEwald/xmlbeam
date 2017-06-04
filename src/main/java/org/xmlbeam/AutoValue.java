@@ -42,9 +42,9 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
 
     private final DomChangeTracker domChangeTracker = new DomChangeTracker() {
         @Override
-        void refresh(boolean forWrite) throws XPathExpressionException {
+        void refresh(final boolean forWrite) throws XPathExpressionException {
             final NodeList nodes = (NodeList) invocationContext.getxPathExpression().evaluate(baseNode, XPathConstants.NODESET);;
-            if (nodes.getLength() == 0 && forWrite) {
+            if ((nodes.getLength() == 0) && forWrite) {
                 //  parent = invocationContext.getDuplexExpression().ensureParentExistence(baseNode);
                 dataNode = invocationContext.getDuplexExpression().ensureExistence(baseNode);
                 return;
@@ -59,7 +59,7 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
      * @param baseNode
      * @param invocationContext
      */
-    public AutoValue(Node baseNode, InvocationContext invocationContext) {
+    public AutoValue(final Node baseNode, final InvocationContext invocationContext) {
         this.baseNode = baseNode;
         this.invocationContext = invocationContext;
 
@@ -75,7 +75,7 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
     }
 
     @Override
-    public E set(E element) {
+    public E set(final E element) {
         if (dataNode == null) {
             domChangeTracker.domChanged();
         }
@@ -165,8 +165,9 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
     }
 
     @Override
-    public XBAutoValue<E> rename(String newName) {
-        domChangeTracker.refreshForReadIfNeeded();
+    public XBAutoValue<E> rename(final String newName) {
+        domChangeTracker.domChanged();
+        domChangeTracker.refreshForWriteIfNeeded();
         if (dataNode == null) {
             throw new IllegalStateException("Can not rename when no value is present.");
         }
@@ -188,30 +189,29 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
         domChangeTracker.refreshForReadIfNeeded();
         return dataNode;
     }
-    
+
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (!isPresent()) {
             return false;
         }
         E e = get();
-        if (e==null) {
-            return false;           
+        if (e == null) {
+            return false;
         }
         return e.equals(o);
     }
-    
+
     @Override
-    public
-    int hashCode() {
+    public int hashCode() {
         if (!isPresent()) {
             return 0;
         }
         E e = get();
-        if (e==null) {
-            return 0;           
+        if (e == null) {
+            return 0;
         }
         return get().hashCode();
     }
-    
+
 }

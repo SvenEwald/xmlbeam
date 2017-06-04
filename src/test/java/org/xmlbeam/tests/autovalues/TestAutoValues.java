@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.testutils.DOMDiagnoseHelper;
 import org.xmlbeam.types.XBAutoValue;
 
 /**
@@ -50,7 +51,6 @@ public class TestAutoValues {
         XBAutoValue<String> value();
     }
 
-    
     @Test
     public void testProjecetedAttributes() {
         EntryWithAttributes entry = projector.projectEmptyElement("entry", EntryWithAttributes.class);
@@ -61,14 +61,14 @@ public class TestAutoValues {
         assertEquals("<entry key=\"key\" value=\"value\"/>", entry.toString().trim());
         assertTrue(entry.value().equals("value"));
         assertFalse(entry.value().equals("value2"));
-        assertEquals("value".hashCode(),entry.value().hashCode());
+        assertEquals("value".hashCode(), entry.value().hashCode());
         entry.value().remove();
         assertEquals("<entry key=\"key\"/>", entry.toString().trim());
         assertTrue(entry.key().isPresent());
         entry.key().rename("huhu");
         assertEquals("<entry huhu=\"key\"/>", entry.toString().trim());
         assertFalse(entry.value().isPresent());
-        assertFalse(entry.key().isPresent());      
+        assertFalse(entry.key().isPresent());
     }
 
     @Test
@@ -87,17 +87,27 @@ public class TestAutoValues {
         assertFalse(entry.value().isPresent());
         assertFalse(entry.key().isPresent());
     }
-    
-    @Test public void testIterator() {
+
+    @Test
+    public void testRenameNonexistingAutoValue() {
         EntryWithSubelements entry = projector.projectEmptyElement("entry", EntryWithSubelements.class);
-        for (String s:entry.key()) {
+        XBAutoValue<String> value = entry.value();
+        assertFalse(value.isPresent());
+        value.rename("value2");
+        DOMDiagnoseHelper.assertXMLStringsEquals("<entry><value2/></entry>", projector.asString(entry));
+    }
+
+    @Test
+    public void testIterator() {
+        EntryWithSubelements entry = projector.projectEmptyElement("entry", EntryWithSubelements.class);
+        for (String s : entry.key()) {
             s.toString();
             assertTrue(false);
         }
         Iterator<String> iterator = entry.key().iterator();
         iterator.next();
         assertFalse(iterator.hasNext());
-        
+
     }
 
 }
