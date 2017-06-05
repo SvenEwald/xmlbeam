@@ -250,13 +250,16 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
             return false;
         }
 
-        for (Node item : content) {
+        for (ListIterator<Node> i = content.listIterator(); i.hasNext();) {
+            Node item = i.next();
             if (!asString.equals(item.getTextContent())) {
                 continue;
             }
-            DOMHelper.trim(item.getParentNode());
-            item.getParentNode().removeChild(item);
-            content.remove(item);//TODO: increase performance by using list iterator
+            final Node parentNode = item.getParentNode();
+            assert parentNode != null : "How can child be in list without parent?";
+            parentNode.removeChild(item);
+            DOMHelper.trim(parentNode);
+            i.remove();
             return true;
         }
         return false;

@@ -150,13 +150,21 @@ public class TestAutoStringList {
     }
 
     @Test
-    public void testRemove() {
+    public void testRemoveByIndex() {
         assertEquals("2", projection.projectList().remove(1));
         assertEquals("[1, 3]", projection.reference().toString());
         assertEquals("1", projection.projectList().remove(0));
         assertEquals("[3]", projection.reference().toString());
         assertEquals("3", projection.projectList().remove(0));
         assertTrue(projection.reference().isEmpty());
+    }
+
+    @Test
+    public void testRemoveByValue() {
+        assertFalse(projection.projectList().remove("not there"));
+        assertEquals("[1, 2, 3]", projection.reference().toString());
+        assertTrue(projection.projectList().remove("2"));
+        assertEquals("[1, 3]", projection.reference().toString());
     }
 
     @Test
