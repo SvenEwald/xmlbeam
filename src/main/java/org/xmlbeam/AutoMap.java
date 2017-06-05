@@ -35,7 +35,6 @@ import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.exceptions.XBPathException;
-import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.types.XBAutoList;
 import org.xmlbeam.types.XBAutoMap;
@@ -47,7 +46,7 @@ import org.xmlbeam.util.intern.duplex.ExpressionType;
 /**
  * @author sven
  */
-public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, DOMChangeListener, DOMAccess {
+public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, DOMAccess {
 
     private static final Comparator<Entry<String, ?>> ENTRY_COMPARATOR = new Comparator<Entry<String, ?>>() {
         @Override
@@ -87,7 +86,7 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
     public AutoMap(final Node baseNode, final InvocationContext invocationContext, final Class<?> valueType) {
         this.invocationContext = invocationContext;
         this.baseNode = baseNode;
-        this.invocationContext.getProjector().addDOMChangeListener(this);
+        this.invocationContext.getProjector().addDOMChangeListener(domChangeTracker);
         this.typeConverter = invocationContext.getProjector().config().getTypeConverter();
         this.valueType = valueType;
     }
@@ -325,15 +324,6 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         } catch (XPathExpressionException e) {
             throw new XBPathException(e, xpath);
         }
-    }
-
-    /**
-     * @see org.xmlbeam.intern.DOMChangeListener#domChanged()
-     */
-    @Override
-    public void domChanged() {
-        // TODO Auto-generated method stub
-
     }
 
     /**
