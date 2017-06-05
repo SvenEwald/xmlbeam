@@ -31,9 +31,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.w3c.dom.Node;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.testutils.TestIOUtils;
 import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.CloseableValue;
@@ -114,6 +116,12 @@ public class TestAutoStringList {
         assertEquals(1, projection.projectList().indexOf("2"));
         assertEquals(2, projection.projectList().indexOf("3"));
         assertEquals(-1, projection.projectList().indexOf("X"));
+    }
+
+    @Test
+    public void testIndexOfNode() {
+        assertEquals(-1, projection.projectList().indexOf((Node) null));
+        assertEquals(-1, projection.projectList().indexOf(((DOMAccess) projection).getDOMNode()));
     }
 
     @Test

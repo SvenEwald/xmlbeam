@@ -270,6 +270,7 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
         if (!(o instanceof Node)) {
             return super.indexOf(o);
         }
+        domChangeTracker.refreshForReadIfNeeded();
         Node oNode = (Node) o;
         ListIterator<Node> e = content.listIterator();
         while (e.hasNext()) {
