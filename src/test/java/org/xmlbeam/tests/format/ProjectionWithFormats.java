@@ -70,5 +70,11 @@ public interface ProjectionWithFormats {
     @XBWrite("/foo/bar/date(:using yyyyMMdd:)")
     void setDate2(Date date);
 
+    @XBRead("/foo/bar/int using $000")
+    int getInt();
+
+    @XBWrite("/foo/bar/int using $000")
+    void setInt(int i);
+
 }
 //END SNIPPET: ProjectionWithFormats

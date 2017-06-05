@@ -18,8 +18,9 @@ package org.xmlbeam.tests.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Date;
+
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -60,6 +61,13 @@ public class TestProjectionWithFormats {
     }
 
     @Test
+    public void testVariant3withInt() {
+        projection.setInt(12);
+        assertTrue(projection.toString().contains("<int>$012</int>"));
+        assertEquals(12, projection.getInt());
+    }
+
+    @Test
     public void testFormatInVariable() {
         projection.setBar(date, "foobar");
         assertEquals("<foo date=\"0605\"><bar>foobar</bar></foo>", projection.toString());
@@ -73,7 +81,7 @@ public class TestProjectionWithFormats {
         assertEquals("<foo date=\"0605\"><bar>foobar</bar></foo>", projection.toString());
         assertEquals("foobar", projection.getBar2(date));
     }
-    
+
     @Test
     public void testFormatInVariableVariant3() {
         projection.setBar(date, "foobar");

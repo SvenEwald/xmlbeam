@@ -15,6 +15,12 @@
  */
 package org.xmlbeam.types;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -25,11 +31,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
 
 import org.xmlbeam.util.intern.ReflectionHelper;
 
@@ -367,11 +368,12 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Conversion<T> getConversionForType(final Class<T> type) {
-        assert type != null;
-        return (Conversion<T>) CONVERSIONS.get(type);
-    }
+//    Method may be obsolete
+//    @SuppressWarnings("unchecked")
+//    public <T> Conversion<T> getConversionForType(final Class<T> type) {
+//        assert type != null;
+//        return (Conversion<T>) CONVERSIONS.get(type);
+//    }
 
     public <T> DefaultTypeConverter setConversionForType(final Class<T> type, final Conversion<T> conversion) {
         assert type != null;
@@ -415,11 +417,37 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
             dateFormat.setTimeZone(timezone);
             return dateFormat.format(data);
         }
-        if (Number.class.isAssignableFrom(dataType)) {
+        if (isNumber(dataType)) {
             DecimalFormat clone = (DecimalFormat) decimalFormat.clone();
             clone.applyPattern(optionalFormatPattern[0]);
             return clone.format(data);
         }
         throw new IllegalArgumentException("Type " + data.getClass().getSimpleName() + " can not be formatted using a pattern");
+    }
+
+    /**
+     * @param dataType
+     * @return
+     */
+    private boolean isNumber(final Class<?> dataType) {
+        if (Number.class.isAssignableFrom(dataType)) {
+            return true;
+        }
+        if (Integer.TYPE.equals(dataType)) {
+            return true;
+        }
+        if (Long.TYPE.equals(dataType)) {
+            return true;
+        }
+        if (Short.TYPE.equals(dataType)) {
+            return true;
+        }
+        if (Float.TYPE.equals(dataType)) {
+            return true;
+        }
+        if (Double.TYPE.equals(dataType)) {
+            return true;
+        }
+        return false;
     }
 }
