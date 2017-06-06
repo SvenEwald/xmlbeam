@@ -188,6 +188,7 @@ public class TestAutoStringList {
         list.add("c");
         list.close();
         assertXMLStringsEquals("<root><list><e>a</e><e>b</e><e>c</e></list></root>", TestIOUtils.file2String(file));
+        assertXMLStringsEquals("<list><e>a</e><e>b</e><e>c</e></list>", projector.asString(list));
         assertTrue(file.delete());
     }
 

@@ -580,6 +580,12 @@ public final class DOMHelper {
      * @return rendered XML as String
      */
     public static String toXMLString(final XBProjector projector, final Node domNode) {
+        if (domNode == null) {
+            return "<null>";
+        }
+        if (domNode.getNodeType() == Node.ATTRIBUTE_NODE) {
+            return domNode.toString();
+        }
         try {
             final StringWriter writer = new StringWriter();
             projector.config().createTransformer().transform(new DOMSource(domNode), new StreamResult(writer));

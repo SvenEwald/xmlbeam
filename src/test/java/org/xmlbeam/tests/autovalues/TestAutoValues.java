@@ -56,6 +56,7 @@ public class TestAutoValues {
         EntryWithAttributes entry = projector.projectEmptyElement("entry", EntryWithAttributes.class);
         assertEquals("<entry/>", entry.toString().trim());
         entry.key().set("key");
+        DOMDiagnoseHelper.assertXMLStringsEquals("key=\"key\"", projector.asString(entry.key()));
         assertEquals("<entry key=\"key\"/>", entry.toString().trim());
         entry.value().set("value");
         assertEquals("<entry key=\"key\" value=\"value\"/>", entry.toString().trim());
@@ -69,6 +70,7 @@ public class TestAutoValues {
         assertEquals("<entry huhu=\"key\"/>", entry.toString().trim());
         assertFalse(entry.value().isPresent());
         assertFalse(entry.key().isPresent());
+
     }
 
     @Test
