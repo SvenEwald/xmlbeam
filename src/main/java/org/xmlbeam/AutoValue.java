@@ -26,14 +26,13 @@ import org.w3c.dom.NodeList;
 import org.xmlbeam.dom.DOMAccess;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.InvocationContext;
-import org.xmlbeam.intern.DOMChangeListener;
 import org.xmlbeam.types.XBAutoValue;
 import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  *
  */
-class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
+class AutoValue<E> implements XBAutoValue<E> {
 
     private final InvocationContext invocationContext;
     private Node dataNode;
@@ -62,6 +61,7 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
     public AutoValue(final Node baseNode, final InvocationContext invocationContext) {
         this.baseNode = baseNode;
         this.invocationContext = invocationContext;
+        invocationContext.getProjector().addDOMChangeListener(domChangeTracker);
 
     }
 
@@ -157,11 +157,6 @@ class AutoValue<E> implements XBAutoValue<E>, DOMChangeListener {
                 remove();
             }
         };
-    }
-
-    @Override
-    public void domChanged() {
-        domChangeTracker.domChanged();
     }
 
     @Override

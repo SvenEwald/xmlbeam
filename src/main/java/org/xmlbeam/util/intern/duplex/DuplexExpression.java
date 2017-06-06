@@ -301,10 +301,11 @@ public class DuplexExpression {
         return variableFormatPatterns.get(name);
     }
 
-    /**
-     * @return true if getExpressionFormat is not null.
-     */
-    public boolean hasExpressionFormatPattern() {
-        return expressionFormatPattern != null;
-    }
+// Method may be obsolete
+//    /**
+//     * @return true if getExpressionFormat is not null.
+//     */
+//    public boolean hasExpressionFormatPattern() {
+//        return expressionFormatPattern != null;
+//    }
 }
