@@ -15,7 +15,8 @@
  */
 package org.xmlbeam.tests.autovalues;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDelete;
 import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.types.XBAutoList;
+import org.xmlbeam.types.XBAutoMap;
 
 /**
  *
@@ -33,25 +35,34 @@ import org.xmlbeam.types.XBAutoList;
 @SuppressWarnings("javadoc")
 public class TestAutoListOnEmptyDocuments {
 
-    private final XBProjector projector=new XBProjector(Flags.TO_STRING_RENDERS_XML);
+    private final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
     interface Projection {
         @XBRead("/root/entry")
         XBAutoList<String> mapRootList();
-        
-        @XBDelete("/root/entry[text()='{0}']")    
+
+        @XBDelete("/root/entry[text()='{0}']")
         Projection deleteEntry(String entry);
     }
+
     @Test
     public void testCreateElementsViaProjectedList() {
         Projection projection = projector.projectEmptyDocument(Projection.class);
         List<String> list = projection.mapRootList();
         assertTrue(list.isEmpty());
         list.add("a");
-        list.add(0,"b");       
+        list.add(0, "b");
         projection.deleteEntry("a");
-        list.add(0,"c");
+        list.add(0, "c");
         Collections.sort(list);
-        assertEquals("[b, c]",list.toString());
+        assertEquals("[b, c]", list.toString());
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEmptyList() {
+        XBAutoMap<String> map = projector.autoMapEmptyDocument(String.class);
+        XBAutoList<String> list = map.getList("non/existing/path");
+        assertTrue(list.isEmpty());
+        list.get(0);
     }
 }

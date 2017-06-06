@@ -175,6 +175,9 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
         }
         domChangeTracker.refreshForReadIfNeeded();
         if (boundNode == null) {
+            // Get is a readonly operation, thus
+            // we can not create the context node here.
+            // We can not even return a writeable instance.
             return AutoList.emptyList();
         }
         final Document document = DOMHelper.getOwnerDocumentFor(baseNode);

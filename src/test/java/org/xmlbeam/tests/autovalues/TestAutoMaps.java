@@ -35,10 +35,12 @@ import org.xmlbeam.types.XBAutoMap;
 public class TestAutoMaps {
     XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testMapKeyPresent() {
         XBAutoMap<String> map = projector.onXMLString("<root><value>foo</value></root>").createMapOf(String.class);
         assertTrue(map.containsKey("/root/value"));
+        assertTrue(map.containsKey((Object) "/root/value"));
         assertTrue(map.containsValue("foo"));
         assertFalse(map.containsValue("bar"));
     }
