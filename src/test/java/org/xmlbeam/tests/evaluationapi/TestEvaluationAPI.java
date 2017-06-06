@@ -18,12 +18,13 @@ package org.xmlbeam.tests.evaluationapi;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -101,5 +102,11 @@ public class TestEvaluationAPI {
         int i = new XBProjector().io().url("res://data.xml").evalXPath("//bar").as(Integer.TYPE);
         assertEquals(123, i);
     }
-        
+
+    @Test
+    public void testLoadFromResouceAsMap() throws IOException {
+        int i = new XBProjector().io().url("res://data.xml").readAsMapOf(Integer.TYPE).get("//bar");//.as(Integer.TYPE);
+        assertEquals(123, i);
+    }
+
 }
