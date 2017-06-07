@@ -39,6 +39,7 @@ public class TestAutoMaps {
     @Test
     public void testMapKeyPresent() {
         XBAutoMap<String> map = projector.onXMLString("<root><value>foo</value></root>").createMapOf(String.class);
+        assertFalse(map.containsKey("/root/value/notthere"));
         assertTrue(map.containsKey("/root/value"));
         assertTrue(map.containsKey((Object) "/root/value"));
         assertTrue(map.containsValue("foo"));
