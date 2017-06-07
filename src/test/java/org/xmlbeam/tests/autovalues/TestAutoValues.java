@@ -102,14 +102,14 @@ public class TestAutoValues {
     @Test
     public void testIterator() {
         EntryWithSubelements entry = projector.projectEmptyElement("entry", EntryWithSubelements.class);
-        for (String s : entry.key()) {
-            s.toString();
-            assertTrue(false);
-        }
+        assertFalse(entry.key().iterator().hasNext());
+        entry.key().set("huhu");
+        assertTrue(entry.key().iterator().hasNext());
         Iterator<String> iterator = entry.key().iterator();
         iterator.next();
         assertFalse(iterator.hasNext());
-
+        iterator.remove();
+        assertFalse(entry.key().iterator().hasNext());
     }
 
 }

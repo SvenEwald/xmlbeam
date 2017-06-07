@@ -136,7 +136,7 @@ class AutoValue<E> implements XBAutoValue<E> {
     @Override
     public Iterator<E> iterator() {
         return new Iterator<E>() {
-            boolean read = false;
+            boolean read = !(isPresent());
 
             @Override
             public boolean hasNext() {
@@ -154,6 +154,9 @@ class AutoValue<E> implements XBAutoValue<E> {
 
             @Override
             public void remove() {
+                if ((!read) || (!isPresent())) {
+                    throw new IllegalStateException();
+                }
                 AutoValue.this.remove();
             }
         };
