@@ -44,6 +44,7 @@ public class TestAutoMaps {
         assertTrue(map.containsKey((Object) "/root/value"));
         assertTrue(map.containsValue("foo"));
         assertFalse(map.containsValue("bar"));
+        assertFalse(map.containsValue(null));
     }
 
     @Test
