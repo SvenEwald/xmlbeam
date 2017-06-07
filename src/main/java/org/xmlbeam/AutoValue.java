@@ -154,7 +154,7 @@ class AutoValue<E> implements XBAutoValue<E> {
 
             @Override
             public void remove() {
-                remove();
+                AutoValue.this.remove();
             }
         };
     }
