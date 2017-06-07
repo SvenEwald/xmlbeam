@@ -65,4 +65,12 @@ public class TestAutoListOnEmptyDocuments {
         assertTrue(list.isEmpty());
         list.get(0);
     }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEmptyList2() {
+        XBAutoMap<String> map = projector.onXMLString("<root/>").evalXPath("/foo").asMapOf(String.class);
+        XBAutoList<String> list = map.getList("non/existing/path");
+        assertTrue(list.isEmpty());
+        list.get(0);
+    }
 }
