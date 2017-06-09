@@ -1,0 +1,26 @@
+<edge id="e0" source="n1" target="n0">
+	<data key="d8" />
+	<data key="d9">
+		<y:PolyLineEdge>
+			<y:Path sx="0.0" sy="0.0" tx="-20.0" ty="0.0" />
+			<y:LineStyle color="#000000" type="line" width="1.0" />
+			<y:Arrows source="none" target="standard" />
+			<y:EdgeLabel alignment="center" distance="2.0"
+				fontFamily="Dialog" fontSize="12" fontStyle="plain"
+				hasBackgroundColor="false" hasLineColor="false" hasText="false"
+				height="4.0" modelName="custom" preferredPlacement="anywhere" ratio="0.5"
+				textColor="#000000" visible="true" width="4.0" x="-32.0" y="60.97607421875">
+				<y:LabelModel>
+					<y:SmartEdgeLabelModel autoRotationEnabled="false"
+						defaultAngle="0.0" defaultDistance="10.0" />
+				</y:LabelModel>
+				<y:ModelParameter>
+					<y:SmartEdgeLabelModelParameter
+						angle="0.0" distance="30.0" distanceToCenter="true" position="right"
+						ratio="0.5" segment="0" />
+				</y:ModelParameter>
+			</y:EdgeLabel>
+			<y:BendStyle smoothed="false" />
+		</y:PolyLineEdge>
+	</data>
+</edge>

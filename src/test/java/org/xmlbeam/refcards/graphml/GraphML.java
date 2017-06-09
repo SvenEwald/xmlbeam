@@ -16,7 +16,7 @@
  *    Created on  08.04.2013
  *
  ************************************************************************/
-package org.xmlbeam.tutorial.e13_graphml;
+package org.xmlbeam.refcards.graphml;
 
 import java.util.List;
 
@@ -29,22 +29,22 @@ import org.xmlbeam.annotation.XBWrite;
 @XBDocURL("resource://GraphMLTemplate.xml")
 public interface GraphML {
 
-    @XBWrite("/graphml/graph/node[@id='{0}']")
+    @XBWrite("/g:graphml/g:graph/g:node[@id='{0}']")
     GraphML addNode(String id, @XBValue Node node);
 
-    @XBWrite("/graphml/graph/edge[@id='{0}']")
+    @XBWrite("/g:graphml/g:graph/g:edge[@id='{0}']")
     GraphML addEdge(String id, @XBValue Edge edge);
 
-    @XBRead("//edge[@target='{0}']/@source")
+    @XBRead("//g:edge[@target='{0}']/@source")
     String getParentOf(String node);
 
-    @XBRead(value="//edge[@source='{0}']/@target")
+    @XBRead(value="//g:edge[@source='{0}']/@target")
     List<String> getChildrenOf(String node);
 
-    @XBRead("//node[@id='{0}']")
+    @XBRead("//g:node[@id='{0}']")
     Node getNode(String id);
     
-    @XBRead(value="//node")
+    @XBRead(value="//g:node")
     List<Node> getAllNodes();
     
     @XBRead("{0}")

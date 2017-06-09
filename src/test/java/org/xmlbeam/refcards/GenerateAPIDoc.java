@@ -20,7 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
+import java.util.UUID;
+import java.io.IOException;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -28,6 +29,10 @@ import java.lang.reflect.TypeVariable;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.tutorial.e13_graphml.Edge;
+import org.xmlbeam.tutorial.e13_graphml.GraphML;
+import org.xmlbeam.tutorial.e13_graphml.Node;
 import org.xmlbeam.util.intern.DocScope;
 import org.xmlbeam.util.intern.Scope;
 
@@ -68,16 +73,32 @@ public class GenerateAPIDoc {
                 System.out.println(prefix + "." + methodAsString(m) + (Void.TYPE.equals(m.getReturnType()) ? "" : " -> " + getTypeName(m.getGenericReturnType())));
                 continue;
             }
-            boolean methodIsOptional = m.getReturnType().equals(class1);
+            boolean methodIsOptional = m.getReturnType().equals(m.getDeclaringClass());
             if (methodIsOptional) {
                 //prefix += "[." + methodAsString(m) + "]";
                 continue;
             }
             visitedMethods.add(m);
-            dump(prefix + "." + methodAsString(m), m.getReturnType(), scope);
+            dump(prefix + optionalMethodsAsString(class1, scope) + "." + methodAsString(m), m.getReturnType(), scope);
             visitedMethods.remove(m);
         }
 
+    }
+
+    /**
+     * @param class1
+     * @param scope
+     * @return
+     */
+    private String optionalMethodsAsString(Class<?> class1, DocScope scope) {
+        StringBuilder sb = new StringBuilder();
+        for (Method m : getAllOptionalMethod(class1)) {
+            if (!scope.equals(m.getAnnotation(Scope.class).value())) {
+                continue;
+            }
+            sb.append("[." + methodAsString(m) + "]");
+        }
+        return sb.toString();
     }
 
     /**
@@ -93,6 +114,19 @@ public class GenerateAPIDoc {
         methods.addAll(allPublicMethods(class1.getSuperclass()));
         for (Class<?> c : class1.getInterfaces()) {
             methods.addAll(allPublicMethods(c));
+        }
+        return methods;
+    }
+
+    private Collection<Method> getAllOptionalMethod(final Class<?> class1) {
+        Set<Method> methods = new HashSet<Method>();
+        for (Method m : allPublicMethods(class1)) {
+            if (m.getAnnotation(Scope.class) == null) {
+                continue;
+            }
+            if (m.getDeclaringClass().equals(m.getReturnType())) {
+                methods.add(m);
+            }
         }
         return methods;
     }
@@ -167,4 +201,19 @@ public class GenerateAPIDoc {
         //   }
         //   return type.toString();
     }
+
+//    @Test
+//    public void testGraphCreation() throws IOException {
+//        XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+//        GraphML graph = projector.io().fromURLAnnotation(GraphML.class);
+//   //     Edge edge = projector.io().fromURLAnnotation(Edge.class).rootElement();
+//       Node node = projector.io().fromURLAnnotation(Node.class).rootElement();
+//   //     graph.addEdge("wutz", edge);
+//       node.setID(UUID.randomUUID().toString());
+//       
+//       node.setLabel("huhu2");
+//       graph.addNode("huhu", node);
+//        System.out.println(graph);
+//        projector.io().file("test.graphml").write(graph);
+//    }
 }
