@@ -14,7 +14,6 @@
  *  limitations under the License.
  */
 /**
- * @author se
  *
  */
-package org.xmlbeam.refcards.graphml;
+package org.xmlbeam.refcards.xgml;

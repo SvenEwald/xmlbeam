@@ -15,24 +15,23 @@
  */
 package org.xmlbeam.refcards;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 import java.io.IOException;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
-import org.xmlbeam.tutorial.e13_graphml.Edge;
-import org.xmlbeam.tutorial.e13_graphml.GraphML;
-import org.xmlbeam.tutorial.e13_graphml.Node;
+import org.xmlbeam.refcards.xgml.Section;
+import org.xmlbeam.types.XBAutoList;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.intern.DocScope;
 import org.xmlbeam.util.intern.Scope;
 
@@ -202,18 +201,35 @@ public class GenerateAPIDoc {
         //   return type.toString();
     }
 
-//    @Test
-//    public void testGraphCreation() throws IOException {
-//        XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
-//        GraphML graph = projector.io().fromURLAnnotation(GraphML.class);
-//   //     Edge edge = projector.io().fromURLAnnotation(Edge.class).rootElement();
-//       Node node = projector.io().fromURLAnnotation(Node.class).rootElement();
-//   //     graph.addEdge("wutz", edge);
-//       node.setID(UUID.randomUUID().toString());
-//       
-//       node.setLabel("huhu2");
-//       graph.addNode("huhu", node);
-//        System.out.println(graph);
-//        projector.io().file("test.graphml").write(graph);
-//    }
+    @Test
+    public void testGraphCreation() throws IOException {
+        XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+        XBAutoMap<String> map = projector.autoMapEmptyDocument(String.class);
+        XBAutoList<Section> nodes = map.getList("/section[@name='xgml']/section[@name='graph']/section[@name='node']", Section.class);
+        XBAutoList<Section> edges = map.getList("/section[@name='xgml']/section[@name='graph']/section[@name='edge']", Section.class);
+        {
+            Section node = projector.projectEmptyElement("section", Section.class);
+            node.id().set(99);
+            node.name().set("node");
+            node.label().set("labellabel");
+            nodes.add(node);
+        }
+        {
+            Section node = projector.projectEmptyElement("section", Section.class);
+            node.id().set(11);
+            node.name().set("node");
+            node.label().set("label2");
+            nodes.add(node);
+        }
+        {
+            Section edge = projector.projectEmptyElement("section", Section.class);
+            edge.name().set("edge");
+            edge.source().set(99);
+            edge.target().set(11);
+            edge.graphics().set("standard");
+            edges.add(edge);
+        }
+        System.out.println(projector.asString(map));
+        projector.io().file("test.xgml").write(map);
+    }
 }
