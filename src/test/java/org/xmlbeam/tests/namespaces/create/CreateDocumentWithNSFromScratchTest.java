@@ -36,7 +36,7 @@ public class CreateDocumentWithNSFromScratchTest {
     DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig();
     {
         config.createNameSpaceMapping().add("p1", "http://xmlbeam.org/tests/ns1");
-        config.createNameSpaceMapping().add("p2", "http://xmlbeam.org/tests/ns2");
+        config.createNameSpaceMapping().add("p2", "http://xmlbeam.org/tests/ns2");        
     }
     final private XBProjector projector = new XBProjector(config);
 

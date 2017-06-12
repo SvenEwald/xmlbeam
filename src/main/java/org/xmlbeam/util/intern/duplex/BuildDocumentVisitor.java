@@ -460,7 +460,7 @@ class BuildDocumentVisitor implements XParserVisitor {
         assert childName != null;
         assert data != null;
         Document document = DOMHelper.getOwnerDocumentFor(data);
-        final Element newElement = (childName.contains(":")) ? document.createElementNS(namespaceURI(childName), childName) : document.createElement(childName);
+        final Element newElement = (childName.contains(":")) ? document.createElementNS(namespaceURI(childName), childName.replaceAll("xbdefaultns:", "")) : document.createElement(childName);
         if (data instanceof Document) {
             if (null != ((Document) data).getDocumentElement()) {
                 ((Document) data).removeChild(((Document) data).getDocumentElement());
@@ -504,7 +504,7 @@ class BuildDocumentVisitor implements XParserVisitor {
             if (root == null) {
                 return Collections.emptyList();
             }
-            if (!root.getNodeName().equals(childName)) {
+            if (!root.getNodeName().equals(childName.replaceAll("xbdefaultns:", ""))) {
                 return Collections.emptyList();
             }
             if (predicateList == null) {
@@ -569,7 +569,7 @@ class BuildDocumentVisitor implements XParserVisitor {
             throw new IllegalArgumentException("You tried to find an elment without a name. How did you get this through the parser?");
         }
         if (!needNS(childName)) {
-            return childName.equals(e.getNodeName());
+            return childName.replaceAll("xbdefaultns:", "").equals(e.getNodeName());
         }
         String url = namespaceURI(childName);
         if ((url != null) && (!url.equals(e.getNamespaceURI()))) {
