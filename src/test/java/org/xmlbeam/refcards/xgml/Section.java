@@ -43,6 +43,13 @@ public interface Section {
     
     @XBRead("./section[@name='graphics']/attribute[@key='targetArrow'][@type='String']")
     XBAutoValue<String> graphics();
+    
+    @XBRead("./section[@name='graphics']/attribute[@key='fill'][@type='String']")
+    XBAutoValue<String> fill();
+    
+    @XBRead("./section[@name='graphics']/attribute[@key='w'][@type='double']")
+    XBAutoValue<Double> widh();
+           
 
 }
 

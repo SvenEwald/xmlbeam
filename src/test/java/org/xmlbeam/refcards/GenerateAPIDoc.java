@@ -23,9 +23,12 @@ import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
@@ -41,11 +44,22 @@ import org.xmlbeam.util.intern.Scope;
 @SuppressWarnings("javadoc")
 public class GenerateAPIDoc {
 
-    Set<Method> visitedMethods = new HashSet<Method>();
+    final XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
+    final XBAutoMap<String> map = projector.autoMapEmptyDocument(String.class);
+    final XBAutoList<Section> nodes = map.getList("/section[@name='xgml']/section[@name='graph']/section[@name='node']", Section.class);
+    final XBAutoList<Section> edges = map.getList("/section[@name='xgml']/section[@name='graph']/section[@name='edge']", Section.class);
+
+    final Map<String, Section> nodeMap = new HashMap<String, Section>();
+    final Set<String> createdEdges = new HashSet<String>();
+
+    final Set<Method> visitedMethods = new HashSet<Method>();
+    private int maxID = 0;
 
     @Test
-    public void generateIOAPIDoc() {
+    public void generateIOAPIDoc() throws IOException {
         dump("projector", XBProjector.class, DocScope.IO);
+        System.out.println(projector.asString(map));
+        projector.io().file("test.xgml").write(map);
     }
 
     /**
@@ -69,7 +83,14 @@ public class GenerateAPIDoc {
             }
             if (!isAPIClass(m.getReturnType())) {
 
-                System.out.println(prefix + "." + methodAsString(m) + (Void.TYPE.equals(m.getReturnType()) ? "" : " -> " + getTypeName(m.getGenericReturnType())));
+                // System.out.println(prefix + "." + methodAsString(m) + (Void.TYPE.equals(m.getReturnType()) ? "" : " -> " + getTypeName(m.getGenericReturnType())));
+                System.out.println(prefix + "->" + methodAsString(m));
+                Section from = createNode(prefix);
+                Section to = createNode(methodAsString(m));
+                createEdge(from, to);
+                if (!Void.TYPE.equals(m.getReturnType())) {
+                    createEdge(to, createNode(getTypeName(m.getGenericReturnType())));
+                }
                 continue;
             }
             boolean methodIsOptional = m.getReturnType().equals(m.getDeclaringClass());
@@ -77,11 +98,25 @@ public class GenerateAPIDoc {
                 //prefix += "[." + methodAsString(m) + "]";
                 continue;
             }
+            System.out.println(prefix + "->" + methodAsString(m));
+            createEdge(createNode(prefix), createNode(methodAsString(m)));
             visitedMethods.add(m);
-            dump(prefix + optionalMethodsAsString(class1, scope) + "." + methodAsString(m), m.getReturnType(), scope);
+            //dump(prefix + optionalMethodsAsString(class1, scope) + "." + methodAsString(m), m.getReturnType(), scope);
+            dumpOptionalMethods(class1, prefix, scope);
+            dump(methodAsString(m), m.getReturnType(), scope);
             visitedMethods.remove(m);
         }
+    }
 
+    private void dumpOptionalMethods(Class<?> class1, String prefix, DocScope scope) {
+        for (Method m : getAllOptionalMethod(class1)) {
+            if (!scope.equals(m.getAnnotation(Scope.class).value())) {
+                continue;
+            }
+            //sb.append("[." + methodAsString(m) + "]");
+            createEdge(createNode(prefix), createNode(methodAsString(m)));
+            createEdge(createNode(methodAsString(m)), createNode(prefix));
+        }
     }
 
     /**
@@ -201,35 +236,42 @@ public class GenerateAPIDoc {
         //   return type.toString();
     }
 
-    @Test
+    @Ignore
     public void testGraphCreation() throws IOException {
-        XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
-        XBAutoMap<String> map = projector.autoMapEmptyDocument(String.class);
-        XBAutoList<Section> nodes = map.getList("/section[@name='xgml']/section[@name='graph']/section[@name='node']", Section.class);
-        XBAutoList<Section> edges = map.getList("/section[@name='xgml']/section[@name='graph']/section[@name='edge']", Section.class);
-        {
-            Section node = projector.projectEmptyElement("section", Section.class);
-            node.id().set(99);
-            node.name().set("node");
-            node.label().set("labellabel");
-            nodes.add(node);
-        }
-        {
-            Section node = projector.projectEmptyElement("section", Section.class);
-            node.id().set(11);
-            node.name().set("node");
-            node.label().set("label2");
-            nodes.add(node);
-        }
-        {
-            Section edge = projector.projectEmptyElement("section", Section.class);
-            edge.name().set("edge");
-            edge.source().set(99);
-            edge.target().set(11);
-            edge.graphics().set("standard");
-            edges.add(edge);
-        }
+
+        Section from = createNode("from");
+        Section to = createNode("to");
+        createEdge(from, to);
+
         System.out.println(projector.asString(map));
         projector.io().file("test.xgml").write(map);
+    }
+
+    private void createEdge(Section from, Section to) {
+        if (createdEdges.contains(from + "#" + to)) {
+            return;
+        }
+        Section edge = projector.projectEmptyElement("section", Section.class);
+        edge.name().set("edge");
+        edge.source().set(from.id().get());
+        edge.target().set(to.id().get());
+        edge.graphics().set("standard");
+        edges.add(edge);
+        createdEdges.add(from + "#" + to);
+    }
+
+    private Section createNode(String label) {
+        if (nodeMap.containsKey(label)) {
+            return nodeMap.get(label);
+        }
+        Section node = projector.projectEmptyElement("section", Section.class);
+        node.id().set(++maxID);
+        node.name().set("node");
+        node.label().set(label);
+        node.fill().set("#FEFEFE");
+        node.widh().set(0 + label.length() * 6.5);
+        nodeMap.put(label, node);
+        nodes.add(node);
+        return node;
     }
 }
