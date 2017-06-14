@@ -51,10 +51,12 @@ public class TestGraphMLCreation {
         Edge edge = new XBProjector().io().fromURLAnnotation(Edge.class).rootElement();
         Node node = new XBProjector().io().fromURLAnnotation(Node.class).rootElement();
         graph.addEdge("wutz"   , edge);
-        graph.addNode("huhu", node);
+        graph.addNode("huhu", node);        
     }
 
 }
 
 //END SNIPPET: TestGraphMLCreation
 // END SNIPPET: Tutorial13
+
+  

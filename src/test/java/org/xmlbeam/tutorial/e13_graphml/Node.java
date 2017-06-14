@@ -27,28 +27,28 @@ import org.xmlbeam.annotation.XBWrite;
 //START SNIPPET: Node
 @XBDocURL("resource://NodeTemplate.xml")
 public interface Node {
-    @XBRead("/g:node")
+    @XBRead("/node")
     Node rootElement();
     
     @XBWrite("./@id")
     Node setID(String id);
 
-    @XBWrite("./g:data/y:ShapeNode/y:Geometry/@height")
+    @XBWrite("./data/y:ShapeNode/y:Geometry/@height")
     Node setHeight(float h);
 
-    @XBWrite("./g:data/y:ShapeNode/y:Geometry/@width")
+    @XBWrite("./data/y:ShapeNode/y:Geometry/@width")
     Node setWidth(float w);
 
-    @XBWrite("./g:data/y:ShapeNode/y:Geometry/@x")
+    @XBWrite("./data/y:ShapeNode/y:Geometry/@x")
     Node setX(float x);
 
-    @XBWrite("./g:data/y:ShapeNode/y:Geometry/@y")
+    @XBWrite("./data/y:ShapeNode/y:Geometry/@y")
     Node setY(float y);
 
-    @XBWrite("./g:data/y:ShapeNode/y:NodeLabel")
+    @XBWrite("./data/y:ShapeNode/y:NodeLabel")
     void setLabel(String string);
 
-    @XBRead("./g:data/y:ShapeNode/y:NodeLabel")
+    @XBRead("./data/y:ShapeNode/y:NodeLabel")
     String getLabel();
     
     @XBRead("./@id")

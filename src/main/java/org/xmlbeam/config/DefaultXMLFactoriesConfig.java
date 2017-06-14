@@ -60,6 +60,13 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
          * @return the current mapping for convenience.
          */
         NSMapping add(String prefix, String uri);
+        
+        /**
+         * 
+         * @param uri 
+         * @return the current mapping for convenience.
+         */
+        NSMapping addDefaultNamespace(String uri);
     }
 
     /**
@@ -303,6 +310,13 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
                 USER_DEFINED_MAPPING.put(prefix, uri);
                 return this;
             }
+
+            @Override
+            public NSMapping addDefaultNamespace(String uri) {                
+                return add("xbdefaultns",uri);
+            }
+            
+            
         };
     }
 

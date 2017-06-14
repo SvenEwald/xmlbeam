@@ -27,6 +27,8 @@ import org.xmlbeam.evaluation.CanEvaluate;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.util.intern.DocScope;
+import org.xmlbeam.util.intern.Scope;
 
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
@@ -54,6 +56,7 @@ public class StreamInput implements CanEvaluate {
      * @return a new projection instance pointing to the stream content.
      * @throws IOException
      */
+    @Scope(DocScope.IO)
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         Document document = readDocument();
         return projector.projectDOMNode(document, projectionInterface);
@@ -76,6 +79,7 @@ public class StreamInput implements CanEvaluate {
      * @param systemID
      * @return this for convenience.
      */
+    @Scope(DocScope.IO)
     public StreamInput setSystemID(final String systemID) {
         this.systemID = systemID;
         return this;

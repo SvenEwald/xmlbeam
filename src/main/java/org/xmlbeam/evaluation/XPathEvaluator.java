@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.xmlbeam.types.XBAutoMap;
+import org.xmlbeam.util.intern.DocScope;
+import org.xmlbeam.util.intern.Scope;
 
 /**
  * Interface to build fluent API for the evaluation API.
@@ -30,6 +32,7 @@ public interface XPathEvaluator {
      *
      * @return true when the selected value equals (ignoring case) 'true'
      */
+    @Scope(DocScope.IO)
     boolean asBoolean();
 
     /**
@@ -37,6 +40,7 @@ public interface XPathEvaluator {
      *
      * @return int value of evaluation result.
      */
+    @Scope(DocScope.IO)
     int asInt();
 
     /**
@@ -44,6 +48,7 @@ public interface XPathEvaluator {
      *
      * @return String value of evaluation result.
      */
+    @Scope(DocScope.IO)
     String asString();
 
     /**
@@ -53,6 +58,7 @@ public interface XPathEvaluator {
      *
      * @return Date value of evaluation result.
      */
+    @Scope(DocScope.IO)
     Date asDate();
 
     /**
@@ -63,6 +69,7 @@ public interface XPathEvaluator {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return a value of return type that reflects the evaluation result.
      */
+    @Scope(DocScope.IO)
     <T> T as(Class<T> returnType);
 
     /**
@@ -73,6 +80,7 @@ public interface XPathEvaluator {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return an array of return type that reflects the evaluation result.
      */
+    @Scope(DocScope.IO)
     <T> T[] asArrayOf(Class<T> componentType);
 
     /**
@@ -83,6 +91,7 @@ public interface XPathEvaluator {
      *            class with a String constructor or a String factory method, and org.w3c.Node
      * @return List of return type that reflects the evaluation result.
      */
+    @Scope(DocScope.IO)
     <T> List<T> asListOf(Class<T> componentType);
 
     /**
@@ -91,5 +100,6 @@ public interface XPathEvaluator {
      * @param componentType
      * @return Map bound to the element resolved by xpath.
      */
+    @Scope(DocScope.IO)
     <T> XBAutoMap<T> asMapOf(Class<T> componentType);
 }

@@ -1,5 +1,5 @@
-<g:node xmlns:g="http://graphml.graphdrawing.org/xmlns" xmlns:y="http://www.yworks.com/xml/graphml">
-<g:data key="d3">
+<node xmlns:g="http://graphml.graphdrawing.org/xmlns" xmlns:y="http://www.yworks.com/xml/graphml">
+<data key="d3">
 <y:ShapeNode>
 	<y:Geometry height="30.0" width="210.0"></y:Geometry>
 	<y:Fill hasColor="false" transparent="false"></y:Fill>
@@ -11,5 +11,5 @@
 		y="5.0"></y:NodeLabel>
 	<y:Shape type="rectangle"></y:Shape>
 </y:ShapeNode>
-</g:data>
-</g:node>
+</data>data>
+</node>
