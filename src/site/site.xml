@@ -2,44 +2,52 @@
 <project name="XMLBeam">
 	<publishDate position="right" />
 	<version position="right" />
-	
-  <skin>
-    <groupId>org.apache.maven.skins</groupId>
-    <artifactId>maven-fluido-skin</artifactId>
-    <version>1.3.1</version>
-  </skin>
-	
-<custom>
-    <fluidoSkin>
-    <skipGenerationDate>true</skipGenerationDate>
-      <gitHub>
-        <projectId>SvenEwald/xmlbeam</projectId>
-        <ribbonOrientation>right</ribbonOrientation>
-        <ribbonColor>green</ribbonColor>
-      </gitHub>
-        <twitter>
-        <user>xmlbeam</user>
-        <showUser>false</showUser>
-        <showFollowers>false</showFollowers>
-      </twitter>
-    </fluidoSkin>
-  </custom>
- 
+
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-fluido-skin</artifactId>
+		<version>1.3.1</version>
+	</skin>
+
+	<custom>
+		<fluidoSkin>
+			<skipGenerationDate>true</skipGenerationDate>
+			<gitHub>
+				<projectId>SvenEwald/xmlbeam</projectId>
+				<ribbonOrientation>right</ribbonOrientation>
+				<ribbonColor>green</ribbonColor>
+			</gitHub>
+			<twitter>
+				<user>xmlbeam</user>
+				<showUser>false</showUser>
+				<showFollowers>false</showFollowers>
+			</twitter>
+		</fluidoSkin>
+	</custom>
+
 	<body>
 		<head>
-		    <meta name="description" content="Java XML library providing XPath projections as alternative to data binding." />
-		    <meta name="keywords" content="xml, java,data binding, data projection,glue code"/>
-            <meta name="author" content="Sven Ewald"/>
+			<meta name="description"
+				content="Java XML library providing XPath projections as alternative to data binding." />
+			<meta name="keywords" content="xml, java,data binding, data projection,glue code" />
+			<meta name="author" content="Sven Ewald" />
 		</head>
+
+		<!-- <breadcrumbs> <item name="Doxia" href="http://maven.apache.org/doxia/index.html" 
+			/> <item name="Trunk" href="http://maven.apache.org/doxia/doxia/index.html" 
+			/> </breadcrumbs> -->
+
 		<menu name="XMLBeam">
 			<item name="Welcome" href="index.html" />
 			<item name="Introduction" href="introduction.html" />
 			<item name="Tutorials" href="tutorials.html" />
-			<item name="API Explained" href="refcards.html"/>
-			<item name="Formatting Data" href="formatfeature.html"/>
-			<item name="Auto Types" href="autotypes.html"/>
-			<item name="Evaluation API" href="evaluationapi.html"/>
-			<item name="Javadoc" href="apidocs"/>
+			<item name="API Explained" href="refcards.html" collapse="true">
+				<item name="Javadoc" href="apidocs" />
+				<item name="Formatting Data" href="formatfeature.html" />
+				<item name="Projections" href="projections.html" />
+				<item name="Auto Types" href="autotypes.html" />
+				<item name="Evaluation API" href="evaluationapi.html" />
+			</item>
 			<item name="FAQ" href="faq.html" />
 			<item name="Further Reading" href="links.html" />
 			<item name="Download" href="download.html" />
@@ -47,11 +55,9 @@
 			<item name="Road Map" href="roadmap.html" />
 			<item name="About / License" href="about.html" />
 		</menu>
-       
-		
-		
-<!-- 
-		<menu ref="reports" />
- -->
+
+
+
+		<!-- <menu ref="reports" /> -->
 	</body>
 </project>

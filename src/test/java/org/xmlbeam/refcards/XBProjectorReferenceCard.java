@@ -16,6 +16,7 @@
 package org.xmlbeam.refcards;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
@@ -28,7 +29,9 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBDocURL;
 import org.xmlbeam.annotation.XBRead;
+import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.DefaultTypeConverter;
+import org.xmlbeam.types.XBAutoMap;
 import org.xmlbeam.util.IOHelper;
 
 /**
@@ -49,6 +52,30 @@ public class XBProjectorReferenceCard {
     }
     //END SNIPPET: mainExample
 
+    { try{
+        if (false) {
+    //START SNIPPET: mainExample2    
+{   
+    // Read xml file
+    CloseableMap<String> map = new XBProjector().io().file("example.xml").bindAsMapOf(String.class);
+    
+    // Get content via XPath
+    String content = map.get("/xml/example/content"); // "bar"
+    
+    // Create new attribute "type"
+    map.put("/xml/example/content/@type", "foo");
+    
+    // Apply changes to the file
+    map.close();
+}
+    //END SNIPPET: mainExample2
+        }
+    }catch (IOException e){
+        
+    }
+     }
+
+    
     //START SNIPPET: XBProjectorReferenceCardI
     public interface Projection {
         // Define your projection methods in a public interface.

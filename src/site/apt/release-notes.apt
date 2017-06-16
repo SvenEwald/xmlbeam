@@ -8,7 +8,19 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.11 current release
+* 1.4.12 current release
+ 
+ * New AutoTypes allow now changing XML without projection interfaces.
+ 
+ * New annotation @XBAuto unites setters & getters to one projection method.
+ 
+ * Enhanced evaluation API allows in place changing of files.
+ 
+ * New AutoMap type allows easy creation of documents from scratch. 
+ 
+ * Bug fixed: Default namespaces did not work when writing to the document root. 
+
+* 1.4.11
 
  * Bug fixed: Predicates in writing XPath expressions may contain paths now.
  

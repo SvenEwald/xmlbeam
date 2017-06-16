@@ -121,7 +121,7 @@ public class FAQSnippetsTest {
         @Override
         String asString(); // returns XML String for this projection
     }
-    //END SNIPPET:
+    //END SNIPPET: DOMProjection
 
     //START SNIPPET: MixinOverridingToString
     public interface MixinOverridingToString {

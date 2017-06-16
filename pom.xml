@@ -131,9 +131,8 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<!-- <version>1.7</version> -->
 				<executions>
+<!--
 					<execution>
-						<!-- The github readme file serves as introduction page for the site. 
-							So we copy it to the site sources. -->
 						<id>Copy github readme as site content</id>
 						<phase>pre-site</phase>
 						<configuration>
@@ -145,6 +144,7 @@
 							<goal>run</goal>
 						</goals>
 					</execution>
+ -->					
 					<execution>
 					<id> apply version to src manifest</id>
 						<phase>generate-sources</phase>

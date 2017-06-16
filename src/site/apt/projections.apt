@@ -1,0 +1,29 @@
+Projections:
+
+ Projections are "views" into the XML DOM tree.
+ They are defined by combining an user defined interface with XPath expressions.
+ XPath is used to locate the data in the DOM, the Java return types are used for type conversion.  
+
+----------------------------------------
+ <xml>
+   <example>
+      <content type="foo" >bar</content>
+   </example>
+ </xml>
+----------------------------------------
+
+ Access XML content in an object oriented way:
+ 
+----------------------------------------
+ public interface Example {
+ 
+    @XBRead("/xml/example/content")
+    String getContent();
+ 
+    @XBRead("/xml/example/content/@type")
+    String getType();
+}
+----------------------------------------
+
+ See {{{./refcards.html#Annotations} Annotations}} for more.
+ 

@@ -15,13 +15,14 @@
  */
 package org.xmlbeam.refcards;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import java.io.IOException;
-
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.annotation.XBAuto;
+import org.xmlbeam.annotation.XBRead;
 import org.xmlbeam.types.XBAutoMap;
 
 @SuppressWarnings({ "javadoc", "unused" })
@@ -56,6 +57,33 @@ public class EvaluationAPIRefCard {
             } catch (IOException e) {
                 throw new IllegalStateException("This code is not to be executed");
             }
+        }
+    }
+    
+    //START SNIPPET: EvaluationAPIRefCardExample2
+    interface Projection {
+        @XBRead("./@id")
+        int getID();
+        
+        @XBRead("./entry")
+        List<String> entries();
+    }
+    //END SNIPPET: EvaluationAPIRefCardExample2
+    
+    {
+        if (false) {
+        //START SNIPPET: EvaluationAPIRefCardExample3
+        XBProjector projector =new XBProjector();
+
+        // Read a single String value from file 'filename.xml'
+        List<Projection> list = projector.io().file("filename.xml").evalXPath("/some/path").asListOf(Projection.class);
+        for (Projection p:list) {
+            System.out.println("Entries for ID "+p.getID());
+            for (String entry:p.entries()) {                
+                //...
+            }
+        }
+        //END SNIPPET: EvaluationAPIRefCardExample3
         }
     }
 
