@@ -1,0 +1,21 @@
+About
+
+ This is a Java XML library and a very flexible alternative to data binding. 
+ It works by creating "views" on parts of a XML DOM tree into Java objects and back.
+ These views can be either user defined interfaces, called "projections", or predefined collection types (called auto values).
+  
+Motivation 
+
+ What's wrong with Java XML data binding?
+ 
+ Data binding needs the structure of XML documents being mirrored to Java object structures.
+ That means your Java API is determined by XML. 
+ XMLBeam helps to avoid API changes by utilizing a mapping layer of XPath expressions.
+ Don't worry, you won't need a deep knowledge of XPath.
+
+Usage
+
+ The basic philosophy behind XMLBeam is to use XPath to project parts of a DOM to a Java type. 
+ These types can be {{{./autotypes.html}special collection types}} or {{{./projections.html}user defined interfaces}}.
+ Of course, both ways can be combined.
+ Projection methods can return auto types and auto types can work with projection interfaces.
