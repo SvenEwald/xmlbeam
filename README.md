@@ -15,17 +15,20 @@ About
 Access XML content in an object oriented way:
 ```Java
 public interface Example {
- 
-    @XBRead("/xml/example/content")
-    String getContent();
- 
+    
+    // This is a getter for the attribute "type"
     @XBRead("/xml/example/content/@type")
     String getType();
+    
+    // This is a getter and a setter for the value of the element "content"
+    @XBAuto("/xml/example/content")
+    XBAutoValue<String> content();
 }
 
 Example example = new XBProjector().io().file("example.xml").read(Example.class);
-String content = example.getContent();
-String type = example.getType();
+String type = example.getType(); // "foo"
+String content = example.content().get(); // "bar"
+example.content().set("new value");
 ```
 
 Or, direct access via XPath enabled collection types:
