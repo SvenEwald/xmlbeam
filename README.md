@@ -1,4 +1,4 @@
-About
+XMLBeam
 
  This is a Java XML library with an extraordinary expressive API. 
  By using XPath for read and write operations, many operations take only one line of Java code.   
