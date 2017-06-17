@@ -34,8 +34,9 @@ example.content().set("new value");
 Or, direct access via XPath enabled collection types:
 ```Java
 Map<String,String> map = new XBProjector().io().file("example.xml").readAsMapOf(String.class);
-String content = map.get("/xml/example/content");
 String type = map.get("/xml/example/content/@type");
+String content = map.get("/xml/example/content");
+map.put("/xml/example/content","new value");
 ```
 
 Learn more on [xmlbeam.org](https://xmlbeam.org)
