@@ -20,7 +20,7 @@ import org.xmlbeam.io.ProjectionIO;
 
 /**
  */
-interface ProjectionFactory {
+public interface ProjectionFactory {
 
     /**
      * Create a new projection for an empty document. Use this to create new documents.
