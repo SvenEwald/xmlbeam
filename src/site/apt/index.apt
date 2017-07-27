@@ -36,9 +36,13 @@ Welcome to XMLBeam
 
  [https://codeship.io/projects/346d4460-0dec-0132-bc65-1e51a3033676/status] Codeship Status
 
+** 2017-07-27
+ 
+ * Bugfix release 1.4.13. Revert breaking API change. See {{{./release-notes.html} the release notes}}.
+
 ** 2017-06-17
 
- * New release 1.4.12. with new collection based API. See {{{./release-notes.html} the release notes}}.
+ * New release 1.4.12. with new collection based API. See {{{./release-notes.html} the release notes}}. 
 
 ** 2017-05-20
 
