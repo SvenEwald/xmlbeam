@@ -267,15 +267,15 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
         ReadInvocationHandler(final Node node, final Method method, final String annotationValue, final XBProjector projector, final boolean absentIsEmpty) {
             super(node, method, annotationValue, projector);
             final Class<?> methodReturnType = method.getReturnType();
-            this.wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
-            this.isEvaluateAsProjected = Map.class.equals(methodReturnType)||XBAutoMap.class.equals(methodReturnType) || XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAuto.class) != null);
-            this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : methodReturnType;
-            this.isConvertable = projector.config().getTypeConverter().isConvertable(methodReturnType);
-            this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
             this.isEvaluateAsList = List.class.equals(methodReturnType) || ReflectionHelper.isStreamClass(methodReturnType) || XBAutoList.class.equals(methodReturnType);
             this.isEvaluateAsMap = XBAutoMap.class.equals(methodReturnType) || Map.class.equals(methodReturnType);
-            this.isReturnAsStream = ReflectionHelper.isStreamClass(returnType);
-            this.isEvaluateAsArray = returnType.isArray();
+            this.isReturnAsStream = ReflectionHelper.isStreamClass(methodReturnType);
+            this.isEvaluateAsArray = methodReturnType.isArray();
+            this.wrappedInOptional = ReflectionHelper.isOptional(method.getGenericReturnType());
+            this.isEvaluateAsProjected = Map.class.equals(methodReturnType) || XBAutoMap.class.equals(methodReturnType) || XBAutoValue.class.equals(methodReturnType) || (method.getAnnotation(XBAuto.class) != null);
+            this.returnType = (wrappedInOptional || isEvaluateAsProjected) ? ReflectionHelper.getParameterType(method.getGenericReturnType()) : methodReturnType;
+            this.isConvertable = (!isEvaluateAsList) && (!isEvaluateAsMap) && (!isEvaluateAsArray) && (!isReturnAsStream) && projector.config().getTypeConverter().isConvertable(returnType);
+            this.isReturnAsNode = Node.class.isAssignableFrom(returnType);
             if (wrappedInOptional && (isEvaluateAsArray || isEvaluateAsList || isEvaluateAsProjected)) {
                 throw new IllegalArgumentException("Method " + method + " must not declare an optional return type of AutoValue, List or Array. Lists, and arrays may be empty but will never be null.");
             }
