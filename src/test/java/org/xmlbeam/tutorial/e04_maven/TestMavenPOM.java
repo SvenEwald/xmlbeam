@@ -24,6 +24,8 @@ import org.junit.experimental.categories.Category;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig;
+import org.xmlbeam.config.DefaultXMLFactoriesConfig.NamespacePhilosophy;
 import org.xmlbeam.tutorial.Tutorial;
 import org.xmlbeam.tutorial.TutorialTestCase;
 import org.xmlbeam.tutorial.e04_maven.MavenPOM.Artifact;
@@ -46,7 +48,13 @@ END SNIPPET: TutorialDescription */
     @Test
     public void testProjectNameWriting() throws SAXException, IOException, ParserConfigurationException {
 //START SNIPPET: TestMavenPOM
-MavenPOM pom = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(MavenPOM.class);
+
+DefaultXMLFactoriesConfig config = new DefaultXMLFactoriesConfig();
+config.setNamespacePhilosophy(NamespacePhilosophy.AGNOSTIC);
+// This is needed to suppress the usage of name spaces.
+config.setOmitXMLDeclaration(false);
+
+MavenPOM pom = new XBProjector(config, Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(MavenPOM.class);
 pom.setName("New name");
 for (Artifact artifact:pom.getDependencies()) {
     if (artifact.equals(pom.getProjectId())) {
