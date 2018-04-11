@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,6 +35,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.util.UnionIterator;
 import org.xmlbeam.util.intern.DOMHelper;
 
@@ -48,8 +50,8 @@ import org.xmlbeam.util.intern.DOMHelper;
 public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
-     * A facade to provide user defined namespace mappings. This way a document with namespaces can
-     * be created from scratch.
+     * A facade to provide user defined namespace mappings. This way a document with namespaces can be
+     * created from scratch.
      *
      * @author sven
      */
@@ -60,10 +62,9 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
          * @return the current mapping for convenience.
          */
         NSMapping add(String prefix, String uri);
-        
+
         /**
-         * 
-         * @param uri 
+         * @param uri
          * @return the current mapping for convenience.
          */
         NSMapping addDefaultNamespace(String uri);
@@ -71,34 +72,33 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
      * This configuration can use one of three different ways to configure namespace handling.
-     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings (AGNOSTIC) or
-     * mapped automatically to the document prefixes (HEDONISTIC).
+     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings (AGNOSTIC) or mapped
+     * automatically to the document prefixes (HEDONISTIC).
      */
     public static enum NamespacePhilosophy {
 
         /**
-         * There is no such thing as a namespace. Only elements and attributes without a namespace
-         * will be visible to projections. Using this option prevents getting exceptions when an
-         * XPath expression tries to select a non defined namespace. (You can't get errors if you
-         * deny the existence of errors.) DocumentBuilders are created with namespace awareness set
-         * to false.
+         * There is no such thing as a namespace. Only elements and attributes without a namespace will be
+         * visible to projections. Using this option prevents getting exceptions when an XPath expression
+         * tries to select a non defined namespace. (You can't get errors if you deny the existence of
+         * errors.) DocumentBuilders are created with namespace awareness set to false.
          */
         NIHILISTIC,
 
         /**
-         * Maybe there are namespaces. Maybe not. You have to decide for yourself. Neither the xml
-         * parser, nor the XPath instances bill be modified by this confiruration. Using this option
-         * will require you to subclass this configuration and specify namespace handling yourself.
-         * This way allowes you to control prefix to namespace mapping for the XPath expressions.
-         * The namespace awareness flag of created DocumentBuilders won't be touched.
+         * Maybe there are namespaces. Maybe not. You have to decide for yourself. Neither the xml parser,
+         * nor the XPath instances bill be modified by this confiruration. Using this option will require
+         * you to subclass this configuration and specify namespace handling yourself. This way allowes you
+         * to control prefix to namespace mapping for the XPath expressions. The namespace awareness flag of
+         * created DocumentBuilders won't be touched.
          */
         AGNOSTIC,
 
         /**
-         * Fun without pain. This is the default option in this configuration. If namespaces are
-         * defined in the document, the definition will be applied to your XPath expressions. Thus
-         * you may just use existing namespaces without bothering about prefix mapping.
-         * DocumentBuilders are created with namespace awareness set to false.
+         * Fun without pain. This is the default option in this configuration. If namespaces are defined in
+         * the document, the definition will be applied to your XPath expressions. Thus you may just use
+         * existing namespaces without bothering about prefix mapping. DocumentBuilders are created with
+         * namespace awareness set to false.
          */
         HEDONISTIC
     }
@@ -136,6 +136,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     @Override
     public DocumentBuilderFactory createDocumentBuilderFactory() {
         DocumentBuilderFactory instance = DocumentBuilderFactory.newInstance();
+        instance.setExpandEntityReferences(false);
         if (!NamespacePhilosophy.AGNOSTIC.equals(namespacePhilosophy)) {
             instance.setNamespaceAware(NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy));
         }
@@ -150,7 +151,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         try {
             Transformer transformer = createTransformerFactory().newTransformer();
             if (isPrettyPrinting()) {
-                
+
                 // Enable some pretty printing of the resulting xml.
                 transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -287,8 +288,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     /**
-     * @return A NSMapping that can be used to create documents with namespaces from scratch. Just
-     *         add your prefixes and ns uris.
+     * @return A NSMapping that can be used to create documents with namespaces from scratch. Just add
+     *         your prefixes and ns uris.
      */
     public NSMapping createNameSpaceMapping() {
         if (!NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy)) {
@@ -312,14 +313,12 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
             }
 
             @Override
-            public NSMapping addDefaultNamespace(String uri) {                
-                return add("xbdefaultns",uri);
+            public NSMapping addDefaultNamespace(String uri) {
+                return add("xbdefaultns", uri);
             }
-            
-            
+
         };
     }
-
 
     @Override
     public Map<String, String> getUserDefinedNamespaceMapping() {
