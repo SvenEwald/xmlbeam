@@ -67,6 +67,8 @@ import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.exceptions.XBIOException;
 import org.xmlbeam.externalizer.Externalizer;
 import org.xmlbeam.externalizer.ExternalizerAdapter;
 import org.xmlbeam.intern.DOMChangeListener;
@@ -509,7 +511,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes("utf-8"));
             return new StreamInput(this, inputStream).read(projectionInterface);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException(e);
         }
     }
 
@@ -544,7 +546,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
                 }
             };
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException(e);
         }
     }
 

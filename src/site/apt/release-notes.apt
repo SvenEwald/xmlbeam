@@ -8,6 +8,10 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
+* 1.4.14
+
+ * Bugfix release: Disable entity expansion by default for security reasons. If you use XMLBeam to parse  
+
 * 1.4.13 current release
 
  * Bugfix release: Revert of API breaking change in 1.4.11

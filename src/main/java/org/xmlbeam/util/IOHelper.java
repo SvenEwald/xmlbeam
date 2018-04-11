@@ -34,6 +34,9 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.exceptions.XBDocumentParsingException;
+import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.exceptions.XBIOException;
 
 /**
  * A set of tiny helper methods used in the projection framework and free to use for framework
@@ -74,6 +77,7 @@ public final class IOHelper {
             String base64Binary = DatatypeConverter.printBase64Binary((username + ":" + password).getBytes("US-ASCII"));
             map.put("Authorization", "Basic " + base64Binary);
         } catch (UnsupportedEncodingException e) {
+            // unreachable code
             throw new RuntimeException(e);
         }
         return map;
@@ -173,9 +177,9 @@ public final class IOHelper {
         try {
             return documentBuilder.parse(is, "");
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            throw new XBDocumentParsingException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException("Error during document loading",e);
         }
     }
 
@@ -230,7 +234,7 @@ public final class IOHelper {
             }
             return document;
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            throw new XBDocumentParsingException(e);
         }
     }
 

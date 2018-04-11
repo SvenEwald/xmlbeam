@@ -34,6 +34,7 @@ import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.exceptions.XBDocumentParsingException;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.io.FileIO;
 import org.xmlbeam.io.StreamOutput;
@@ -95,7 +96,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
             Document document = projector.config().createDocumentBuilder().parse(file);
             return projector.projectDOMNode(document, projectionInterface);
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            throw new XBDocumentParsingException(e);
         }
     }
 
@@ -239,7 +240,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
                 }
             }, valueType);
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            throw new XBDocumentParsingException(e);
         }
     }
 
@@ -257,7 +258,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
             InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, projector);
             return new AutoMap<T>(document, invocationContext, valueType);
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            throw new XBDocumentParsingException(e);
         }
     }
 }

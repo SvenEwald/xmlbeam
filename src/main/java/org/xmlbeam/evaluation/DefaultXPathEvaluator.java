@@ -38,6 +38,8 @@ import org.w3c.dom.NodeList;
 import org.xmlbeam.AutoMap;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
+import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.exceptions.XBIOException;
 import org.xmlbeam.exceptions.XBPathException;
 import org.xmlbeam.types.TypeConverter;
 import org.xmlbeam.types.XBAutoMap;
@@ -134,9 +136,9 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
     @SuppressWarnings("unchecked")
     private <T> T evaluateSingeValue(final Class<T> returnType, final Class<?> callerClass) {
         try {
-            Document document = documentProvider.resolve(returnType, callerClass);
+            final Document document = documentProvider.resolve(returnType, callerClass);
 
-            XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
+            final XPathExpression expression = projector.config().createXPath(document).compile(duplexExpression.getExpressionAsStringWithoutFormatPatterns());
 
             if (projector.config().getTypeConverter().isConvertable(returnType)) {
                 String data;
@@ -167,9 +169,9 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
                 return projector.projectDOMNode(node, returnType);
             }
         } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
+            throw new XBPathException(e,duplexExpression.getExpressionAsStringWithoutFormatPatterns());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException(e);
         }
         throw new IllegalPathStateException();
     }
@@ -222,9 +224,9 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
             InvocationContext invocationContext = new InvocationContext(null, null, expression, duplexExpression, null, componentType, projector);
             return (List<T>) evaluateAsList(expression, document, null, invocationContext);
         } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
+            throw new XBPathException(e,duplexExpression.getExpressionAsStringWithoutFormatPatterns());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException(e);
         }
     }
 
@@ -315,7 +317,7 @@ public final class DefaultXPathEvaluator implements XPathEvaluator {
             InvocationContext invocationContext = new InvocationContext(resolvedXPath, xpath, expression, duplexExpression, null, componentType, projector);
             return new AutoMap<T>(document, invocationContext, componentType);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException(e);
         } catch (XPathExpressionException e) {
             throw new XBPathException(e, duplexExpression.getExpressionAsStringWithoutFormatPatterns());
         }
