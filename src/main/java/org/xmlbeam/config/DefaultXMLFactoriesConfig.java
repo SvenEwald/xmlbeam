@@ -104,7 +104,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     private static final String NON_EXISTING_URL = "http://xmlbeam.org/nonexisting_namespace";
-    private static final String[] FEATURE_DEFAULTS = new String[] { "http://apache.org/xml/features/disallow-doctype-decl#true", //
+    private static final String[] FEATURE_DEFAULTS = new String[] { "http://apache.org/xml/features/disallow-doctype-decl#false", //
             "http://xml.org/sax/features/external-general-entities#false", //
             "http://xml.org/sax/features/external-parameter-entities#false", //
             "http://apache.org/xml/features/nonvalidating/load-external-dtd#false" };
@@ -142,14 +142,14 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         DocumentBuilderFactory instance = DocumentBuilderFactory.newInstance();
         instance.setXIncludeAware(false);
         instance.setExpandEntityReferences(false);
-        for (String featureDefault : FEATURE_DEFAULTS) {
-            String[] featureValue = featureDefault.split("#");
-            try {
-                instance.setFeature(featureValue[0], Boolean.valueOf(featureValue[1]));
-            } catch (ParserConfigurationException e) {
-                // No worries if one feature is not supported.
-            }
-        }
+//        for (String featureDefault : FEATURE_DEFAULTS) {
+//            String[] featureValue = featureDefault.split("#");
+//            try {
+//                instance.setFeature(featureValue[0], Boolean.valueOf(featureValue[1]));
+//            } catch (ParserConfigurationException e) {
+//                // No worries if one feature is not supported.
+//            }
+//        }
         if (!NamespacePhilosophy.AGNOSTIC.equals(namespacePhilosophy)) {
             instance.setNamespaceAware(NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy));
         }
