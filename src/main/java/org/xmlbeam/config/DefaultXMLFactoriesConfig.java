@@ -142,14 +142,14 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         DocumentBuilderFactory instance = DocumentBuilderFactory.newInstance();
         instance.setXIncludeAware(false);
         instance.setExpandEntityReferences(false);
-//        for (String featureDefault : FEATURE_DEFAULTS) {
-//            String[] featureValue = featureDefault.split("#");
-//            try {
-//                instance.setFeature(featureValue[0], Boolean.valueOf(featureValue[1]));
-//            } catch (ParserConfigurationException e) {
-//                // No worries if one feature is not supported.
-//            }
-//        }
+        for (String featureDefault : FEATURE_DEFAULTS) {
+            String[] featureValue = featureDefault.split("#");
+            try {
+                instance.setFeature(featureValue[0], Boolean.valueOf(featureValue[1]));
+            } catch (ParserConfigurationException e) {
+                // No worries if one feature is not supported.
+            }
+        }
         if (!NamespacePhilosophy.AGNOSTIC.equals(namespacePhilosophy)) {
             instance.setNamespaceAware(NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy));
         }

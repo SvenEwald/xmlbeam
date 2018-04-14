@@ -410,7 +410,7 @@ final class ProjectionInvocationHandler implements InvocationHandler, Serializab
                 if (valueToSet instanceof Element) {
                     if (!(n instanceof Element)) {
                         throw new IllegalArgumentException("XPath for element update need to select elements only");
-                    }
+                    }                    
                     DOMHelper.replaceElement((Element) n, (Element) ((Element) valueToSet).cloneNode(true));
                     continue;
                 }
