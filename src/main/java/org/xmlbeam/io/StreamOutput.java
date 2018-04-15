@@ -23,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.dom.DOMAccess;
+import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.util.intern.DocScope;
 import org.xmlbeam.util.intern.Scope;
 
@@ -51,7 +52,7 @@ public class StreamOutput {
         try {
             projector.config().createTransformer().transform(new DOMSource(((DOMAccess) projection).getDOMNode()), new StreamResult(os));
         } catch (TransformerException e) {
-            throw new RuntimeException(e);
+            throw new XBException("Error during writing document",e);
         }
     }
 

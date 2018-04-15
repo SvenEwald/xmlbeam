@@ -22,6 +22,9 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
+import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.exceptions.XBIOException;
+
 /**
  * A full working example for an Externalizer implementation. This Externalizer reads the XPaths
  * from a property file instead from the projection annotations.
@@ -72,7 +75,7 @@ public class PropertyFileExternalizer implements Externalizer {
 
     private void updateProps() {
         if (!propertyFile.canRead()) {
-            throw new RuntimeException("Can not read file '" + propertyFile + "'");
+            throw new XBException("Can not read file '" + propertyFile + "'");
         }
         long fileTS = propertyFile.lastModified();
         if (lastReadTS > fileTS) {
@@ -90,14 +93,14 @@ public class PropertyFileExternalizer implements Externalizer {
             InputStreamReader reader = new InputStreamReader(inputStream, encodingName);
             props.load(reader);
         } catch (IOException e) {
-            throw new RuntimeException("Error while reading file '" + propertyFile + "'", e);
+            throw new XBIOException("Error while reading file '" + propertyFile + "'", e);
         } finally {
             lastReadTS = fileTS;
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    throw new RuntimeException("Can not close file '" + propertyFile + "'", e);
+                    throw new XBIOException("Can not close file '" + propertyFile + "'", e);
                 }
             }
         }

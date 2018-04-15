@@ -32,6 +32,7 @@ import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.InvocationContext;
 import org.xmlbeam.evaluation.XPathBinder;
 import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.exceptions.XBIOException;
 import org.xmlbeam.types.CloseableList;
 import org.xmlbeam.types.CloseableMap;
 import org.xmlbeam.types.CloseableValue;
@@ -140,7 +141,7 @@ public final class DefaultXPathBinder implements XPathBinder {
 
             return new DefaultFileValue<T>(document, invocationContext, documentWriter);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException(e);
         } catch (XPathExpressionException e) {
             throw new XBException("Error during binding", e);
         }
@@ -188,7 +189,7 @@ public final class DefaultXPathBinder implements XPathBinder {
 
             return collectionType == CollectionType.LIST ? new DefaultFileList<T>(document, invocationContext, documentWriter) : new DefaultFileMap<T>(document, invocationContext, documentWriter, componentType);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new XBIOException(e);
         } catch (XPathExpressionException e) {
             throw new XBException("Error during evaluation", e);
         }

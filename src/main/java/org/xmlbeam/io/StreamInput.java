@@ -27,6 +27,9 @@ import org.xmlbeam.evaluation.CanEvaluate;
 import org.xmlbeam.evaluation.DefaultXPathEvaluator;
 import org.xmlbeam.evaluation.DocumentResolver;
 import org.xmlbeam.evaluation.XPathEvaluator;
+import org.xmlbeam.exceptions.XBDocumentParsingException;
+import org.xmlbeam.exceptions.XBException;
+import org.xmlbeam.exceptions.XBIOException;
 import org.xmlbeam.util.intern.DocScope;
 import org.xmlbeam.util.intern.Scope;
 
@@ -68,7 +71,7 @@ public class StreamInput implements CanEvaluate {
             Document document = systemID == null ? documentBuilder.parse(is) : documentBuilder.parse(is, systemID);
             return document;
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            throw new XBDocumentParsingException(e);
         }
     }
 
@@ -93,7 +96,7 @@ public class StreamInput implements CanEvaluate {
                 try {
                     return StreamInput.this.readDocument();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new XBIOException(e);
                 }
             }
         }, xpath);

@@ -15,6 +15,8 @@
  */
 package org.xmlbeam.tutorial.e04_maven;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,9 +50,11 @@ END SNIPPET: TutorialDescription */
 //START SNIPPET: TestMavenPOM
 MavenPOM pom = new XBProjector(Flags.TO_STRING_RENDERS_XML).io().fromURLAnnotation(MavenPOM.class);
 pom.setName("New name");
+assertTrue(pom.getDependencies().length>0);
 for (Artifact artifact:pom.getDependencies()) {
     if (artifact.equals(pom.getProjectId())) {
         System.out.println("Hmm... your project depends on itself!");
+        throw new AssertionError();
     }
 }
 //END SNIPPET: TestMavenPOM

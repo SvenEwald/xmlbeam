@@ -15,6 +15,7 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,8 +25,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import java.io.StringWriter;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.TransformerConfigurationException;
@@ -42,6 +41,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xmlbeam.XBProjector;
+import org.xmlbeam.exceptions.XBException;
 
 /**
  * A set of tiny helper methods internally used in the projection framework. This methods are
@@ -592,9 +592,9 @@ public final class DOMHelper {
             final String output = writer.getBuffer().toString();
             return output;
         } catch (TransformerConfigurationException e) {
-            throw new RuntimeException(e);
+            throw new XBException("Error while creating transformer",e);
         } catch (TransformerException e) {
-            throw new RuntimeException(e);
+            throw new XBException("Error while transforming document",e);
         }
 
     }
