@@ -15,6 +15,10 @@
  */
 package org.xmlbeam.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,6 +38,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.util.UnionIterator;
@@ -48,6 +55,39 @@ import org.xmlbeam.util.intern.DOMHelper;
  */
 @SuppressWarnings("serial")
 public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
+
+    /**
+     * This configuration can use one of three different ways to configure namespace handling.
+     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings (AGNOSTIC) or mapped
+     * automatically to the document prefixes (HEDONISTIC).
+     */
+    public static enum NamespacePhilosophy {
+
+        /**
+         * Maybe there are namespaces. Maybe not. You have to decide for yourself. Neither the xml parser,
+         * nor the XPath instances bill be modified by this confiruration. Using this option will require
+         * you to subclass this configuration and specify namespace handling yourself. This way allowes you
+         * to control prefix to namespace mapping for the XPath expressions. The namespace awareness flag of
+         * created DocumentBuilders won't be touched.
+         */
+        AGNOSTIC,
+
+        /**
+         * Fun without pain. This is the default option in this configuration. If namespaces are defined in
+         * the document, the definition will be applied to your XPath expressions. Thus you may just use
+         * existing namespaces without bothering about prefix mapping. DocumentBuilders are created with
+         * namespace awareness set to false.
+         */
+        HEDONISTIC,
+
+        /**
+         * There is no such thing as a namespace. Only elements and attributes without a namespace will be
+         * visible to projections. Using this option prevents getting exceptions when an XPath expression
+         * tries to select a non defined namespace. (You can't get errors if you deny the existence of
+         * errors.) DocumentBuilders are created with namespace awareness set to false.
+         */
+        NIHILISTIC
+    }
 
     /**
      * A facade to provide user defined namespace mappings. This way a document with namespaces can be
@@ -70,50 +110,28 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         NSMapping addDefaultNamespace(String uri);
     }
 
-    /**
-     * This configuration can use one of three different ways to configure namespace handling.
-     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings (AGNOSTIC) or mapped
-     * automatically to the document prefixes (HEDONISTIC).
-     */
-    public static enum NamespacePhilosophy {
-
-        /**
-         * There is no such thing as a namespace. Only elements and attributes without a namespace will be
-         * visible to projections. Using this option prevents getting exceptions when an XPath expression
-         * tries to select a non defined namespace. (You can't get errors if you deny the existence of
-         * errors.) DocumentBuilders are created with namespace awareness set to false.
-         */
-        NIHILISTIC,
-
-        /**
-         * Maybe there are namespaces. Maybe not. You have to decide for yourself. Neither the xml parser,
-         * nor the XPath instances bill be modified by this confiruration. Using this option will require
-         * you to subclass this configuration and specify namespace handling yourself. This way allowes you
-         * to control prefix to namespace mapping for the XPath expressions. The namespace awareness flag of
-         * created DocumentBuilders won't be touched.
-         */
-        AGNOSTIC,
-
-        /**
-         * Fun without pain. This is the default option in this configuration. If namespaces are defined in
-         * the document, the definition will be applied to your XPath expressions. Thus you may just use
-         * existing namespaces without bothering about prefix mapping. DocumentBuilders are created with
-         * namespace awareness set to false.
-         */
-        HEDONISTIC
-    }
-
     private static final String NON_EXISTING_URL = "http://xmlbeam.org/nonexisting_namespace";
-    private static final String[] FEATURE_DEFAULTS = new String[] { "http://apache.org/xml/features/disallow-doctype-decl#false", //
-            "http://xml.org/sax/features/external-general-entities#false", //
-            "http://xml.org/sax/features/external-parameter-entities#false", //
-            "http://apache.org/xml/features/nonvalidating/load-external-dtd#false" };
+
+    private boolean isExpandEntityReferences = false;
+    private boolean isNoEntityResolving = true;
+    private boolean isOmitXMLDeclaration = true;
+    private boolean isPrettyPrinting = true;
+    private boolean isXIncludeAware = false;
+    private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
+    private static final InputSource EMPTY_INPUT_SOURCE = new InputSource(new StringReader(""));
+    private static final EntityResolver NONRESOLVING_RESOLVER = new EntityResolver() {
+
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            return EMPTY_INPUT_SOURCE;
+        }
+    };
+//    private static final String[] FEATURE_DEFAULTS = new String[] { "http://apache.org/xml/features/disallow-doctype-decl#false", //
+//            "http://xml.org/sax/features/external-general-entities#false", //
+//            "http://xml.org/sax/features/external-parameter-entities#false", //
+//            "http://apache.org/xml/features/nonvalidating/load-external-dtd#false" };
 
     private final Map<String, String> USER_DEFINED_MAPPING = new TreeMap<String, String>();
-
-    private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
-    private boolean isPrettyPrinting = true;
-    private boolean isOmitXMLDeclaration = true;
 
     /**
      * Empty default constructor, a Configuration has no state.
@@ -128,9 +146,12 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     public DocumentBuilder createDocumentBuilder() {
         try {
             DocumentBuilder documentBuilder = createDocumentBuilderFactory().newDocumentBuilder();
+            if (isNoEntityResolving) {
+                documentBuilder.setEntityResolver(NONRESOLVING_RESOLVER);
+            }
             return documentBuilder;
         } catch (ParserConfigurationException e) {
-            throw new XBException("Error on creating document builder",e);
+            throw new XBException("Error on creating document builder", e);
         }
     }
 
@@ -140,20 +161,53 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     @Override
     public DocumentBuilderFactory createDocumentBuilderFactory() {
         DocumentBuilderFactory instance = DocumentBuilderFactory.newInstance();
-        instance.setXIncludeAware(false);
-        instance.setExpandEntityReferences(false);
-        for (String featureDefault : FEATURE_DEFAULTS) {
-            String[] featureValue = featureDefault.split("#");
-            try {
-                instance.setFeature(featureValue[0], Boolean.valueOf(featureValue[1]));
-            } catch (ParserConfigurationException e) {
-                // No worries if one feature is not supported.
-            }
-        }
+        instance.setXIncludeAware(this.isXIncludeAware);
+        instance.setExpandEntityReferences(this.isExpandEntityReferences);
+//        for (String featureDefault : FEATURE_DEFAULTS) {
+//            String[] featureValue = featureDefault.split("#");
+//            try {
+//                instance.setFeature(featureValue[0], Boolean.valueOf(featureValue[1]));
+//            } catch (ParserConfigurationException e) {
+//                // No worries if one feature is not supported.
+//            }
+//        }
         if (!NamespacePhilosophy.AGNOSTIC.equals(namespacePhilosophy)) {
             instance.setNamespaceAware(NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy));
         }
         return instance;
+    }
+
+    /**
+     * @return A NSMapping that can be used to create documents with namespaces from scratch. Just add
+     *         your prefixes and ns uris.
+     */
+    public NSMapping createNameSpaceMapping() {
+        if (!NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy)) {
+            throw new IllegalStateException("To use a namespace mapping, you need to use the HEDONISTIC NamespacePhilosophy.");
+        }
+        return new NSMapping() {
+
+            @Override
+            public NSMapping add(final String prefix, final String uri) {
+                if ((prefix == null) || (prefix.isEmpty())) {
+                    throw new IllegalArgumentException("prefix must not be empty");
+                }
+                if ((uri == null) || (uri.isEmpty())) {
+                    throw new IllegalArgumentException("uri must not be empty");
+                }
+                if (USER_DEFINED_MAPPING.containsKey(prefix) && (!uri.equals(USER_DEFINED_MAPPING.get(prefix)))) {
+                    throw new IllegalArgumentException("The prefix '" + prefix + "' is bound to namespace '" + USER_DEFINED_MAPPING.get(prefix) + " already.");
+                }
+                USER_DEFINED_MAPPING.put(prefix, uri);
+                return this;
+            }
+
+            @Override
+            public NSMapping addDefaultNamespace(String uri) {
+                return add("xbdefaultns", uri);
+            }
+
+        };
     }
 
     /**
@@ -174,7 +228,7 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
             }
             return transformer;
         } catch (TransformerConfigurationException e) {
-            throw new XBException("Error on creating transformer",e);
+            throw new XBException("Error on creating transformer", e);
         }
     }
 
@@ -253,6 +307,32 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
         return namespacePhilosophy;
     }
 
+    @Override
+    public Map<String, String> getUserDefinedNamespaceMapping() {
+        return Collections.unmodifiableMap(USER_DEFINED_MAPPING);
+    }
+
+    /**
+     * @return the isExpandEntityReferences
+     */
+    public boolean isExpandEntityReferences() {
+        return isExpandEntityReferences;
+    }
+
+    /**
+     * @return the isNoEntityResolving
+     */
+    public boolean isNoEntityResolving() {
+        return isNoEntityResolving;
+    }
+
+    /**
+     * @return the isOmitXMLDeclaration
+     */
+    public boolean isOmitXMLDeclaration() {
+        return isOmitXMLDeclaration;
+    }
+
     /**
      * Getter for pretty printing option.
      *
@@ -263,11 +343,44 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     /**
+     * @return the isXIncludeAware
+     */
+    public boolean isXIncludeAware() {
+        return isXIncludeAware;
+    }
+
+    /**
+     * @param isExpandEntityReferences
+     *            the isExpandEntityReferences to set
+     */
+    public void setExpandEntityReferences(boolean isExpandEntityReferences) {
+        this.isExpandEntityReferences = isExpandEntityReferences;
+    }
+
+    /**
      * @param namespacePhilosophy
      * @return this for convenience
      */
     public XMLFactoriesConfig setNamespacePhilosophy(final NamespacePhilosophy namespacePhilosophy) {
         this.namespacePhilosophy = namespacePhilosophy;
+        return this;
+    }
+
+    /**
+     * @param isNoEntityResolving
+     *            the isNoEntityResolving to set
+     */
+    public void setNoEntityResolving(boolean isNoEntityResolving) {
+        this.isNoEntityResolving = isNoEntityResolving;
+    }
+
+    /**
+     * @param isOmitXMLDeclaration
+     *            the isOmitXMLDeclaration to set
+     * @return this for convenience
+     */
+    public DefaultXMLFactoriesConfig setOmitXMLDeclaration(final boolean isOmitXMLDeclaration) {
+        this.isOmitXMLDeclaration = isOmitXMLDeclaration;
         return this;
     }
 
@@ -284,58 +397,11 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     /**
-     * @return the isOmitXMLDeclaration
+     * @param isXIncludeAware
+     *            the isXIncludeAware to set
      */
-    public boolean isOmitXMLDeclaration() {
-        return isOmitXMLDeclaration;
-    }
-
-    /**
-     * @param isOmitXMLDeclaration
-     *            the isOmitXMLDeclaration to set
-     * @return this for convenience
-     */
-    public DefaultXMLFactoriesConfig setOmitXMLDeclaration(final boolean isOmitXMLDeclaration) {
-        this.isOmitXMLDeclaration = isOmitXMLDeclaration;
-        return this;
-    }
-
-    /**
-     * @return A NSMapping that can be used to create documents with namespaces from scratch. Just add
-     *         your prefixes and ns uris.
-     */
-    public NSMapping createNameSpaceMapping() {
-        if (!NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy)) {
-            throw new IllegalStateException("To use a namespace mapping, you need to use the HEDONISTIC NamespacePhilosophy.");
-        }
-        return new NSMapping() {
-
-            @Override
-            public NSMapping add(final String prefix, final String uri) {
-                if ((prefix == null) || (prefix.isEmpty())) {
-                    throw new IllegalArgumentException("prefix must not be empty");
-                }
-                if ((uri == null) || (uri.isEmpty())) {
-                    throw new IllegalArgumentException("uri must not be empty");
-                }
-                if (USER_DEFINED_MAPPING.containsKey(prefix) && (!uri.equals(USER_DEFINED_MAPPING.get(prefix)))) {
-                    throw new IllegalArgumentException("The prefix '" + prefix + "' is bound to namespace '" + USER_DEFINED_MAPPING.get(prefix) + " already.");
-                }
-                USER_DEFINED_MAPPING.put(prefix, uri);
-                return this;
-            }
-
-            @Override
-            public NSMapping addDefaultNamespace(String uri) {
-                return add("xbdefaultns", uri);
-            }
-
-        };
-    }
-
-    @Override
-    public Map<String, String> getUserDefinedNamespaceMapping() {
-        return Collections.unmodifiableMap(USER_DEFINED_MAPPING);
+    public void setXIncludeAware(boolean isXIncludeAware) {
+        this.isXIncludeAware = isXIncludeAware;
     }
 
 }

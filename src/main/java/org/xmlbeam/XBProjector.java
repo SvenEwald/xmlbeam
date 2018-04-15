@@ -222,6 +222,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
+        @Deprecated
         public TransformerFactory createTransformerFactory() {
             return XBProjector.this.xMLFactoriesConfig.createTransformerFactory();
         }
@@ -231,6 +232,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          */
 
         @Override
+        @Deprecated
         public DocumentBuilderFactory createDocumentBuilderFactory() {
             return XBProjector.this.xMLFactoriesConfig.createDocumentBuilderFactory();
         }
@@ -239,6 +241,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
+        @Deprecated
         public XPathFactory createXPathFactory() {
             return XBProjector.this.xMLFactoriesConfig.createXPathFactory();
         }
@@ -247,6 +250,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
+        @Deprecated
         public Transformer createTransformer(final Document... document) {
             return XBProjector.this.xMLFactoriesConfig.createTransformer(document);
         }
@@ -255,6 +259,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
+        @Deprecated
         public DocumentBuilder createDocumentBuilder() {
             return XBProjector.this.xMLFactoriesConfig.createDocumentBuilder();
         }
@@ -263,6 +268,7 @@ public class XBProjector implements Serializable, ProjectionFactory {
          * {@inheritDoc}
          */
         @Override
+        @Deprecated
         public XPath createXPath(final Document... document) {
             return XBProjector.this.xMLFactoriesConfig.createXPath(document);
         }
@@ -295,10 +301,10 @@ public class XBProjector implements Serializable, ProjectionFactory {
         }
 
         @Override
+        @Deprecated
         public Map<String, String> getUserDefinedNamespaceMapping() {
             return xMLFactoriesConfig.getUserDefinedNamespaceMapping();
         }
-
     }
 
     /**
