@@ -358,7 +358,7 @@ public final class DOMHelper {
             }
             NamedNodeMap attributes = element.getAttributes();
             for (int i = 0; i < attributes.getLength(); ++i) {
-                newElement.setAttributeNode((Attr) attributes.item(i));
+                newElement.setAttributeNode((Attr) attributes.item(i).cloneNode(true));
             }
             if (parent != null) {
                 parent.replaceChild(newElement, element);
