@@ -358,7 +358,7 @@ public final class DOMHelper {
             }
             NamedNodeMap attributes = element.getAttributes();
             for (int i = 0; i < attributes.getLength(); ++i) {
-                newElement.setAttributeNode((Attr) attributes.item(i));
+                newElement.setAttributeNode((Attr) attributes.item(i).cloneNode(true));
             }
             if (parent != null) {
                 parent.replaceChild(newElement, element);
@@ -604,6 +604,9 @@ public final class DOMHelper {
      * @return Text content of this node, without child content.
      */
     public static String directTextContent(final Node item) {
+        if ((item.getNodeType() == Node.TEXT_NODE)||(item.getNodeType() == Node.CDATA_SECTION_NODE)) {
+            return item.getNodeValue();
+        }
         NodeList childNodes = item.getChildNodes();
         if (childNodes == null) {
             return null;
@@ -611,7 +614,7 @@ public final class DOMHelper {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < childNodes.getLength(); ++i) {
             Node child = childNodes.item(i);
-            if (child.getNodeType() != Node.TEXT_NODE) {
+            if ((child.getNodeType() != Node.TEXT_NODE)&&(child.getNodeType() != Node.CDATA_SECTION_NODE)) {
                 continue;
             }
             sb.append(child.getNodeValue());

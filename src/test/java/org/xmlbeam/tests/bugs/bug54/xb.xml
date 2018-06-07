@@ -1,0 +1,10 @@
+<base id="1">
+	<color>5</color>
+	<foo>
+		<bar>
+			<subs>
+				<subObject id="2">The description</subObject>
+			</subs>
+		</bar>
+	</foo>
+</base>
