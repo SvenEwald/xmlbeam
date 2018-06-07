@@ -36,6 +36,10 @@ Welcome to XMLBeam
 
 [https://codeship.io/projects/346d4460-0dec-0132-bc65-1e51a3033676/status] Codeship Status
 
+** 2018-06-07
+ 
+ * Bugfix release 1.4.16: Fixed reading CDATA nodes and text nodes from XPath function text().
+
 ** 2018-04-15
 
  * Security bugfix release 1.4.15. Suppress unwanted entity expansion by default.
