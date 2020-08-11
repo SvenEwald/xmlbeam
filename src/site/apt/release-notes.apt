@@ -8,7 +8,13 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.16 current release
+* 1.4.17 current release
+ 
+ * Bugfix release: Some documents could be parsed one time only. On second attempt, an IOExcepion (stream closed)
+   was thrown. This happend with Documents containing references to external entities, because a "NullEntitiyResolver"
+   created an InputStream that was reused. Many thanks goes to Heiko Selber for submitting the bug and a unit test. 
+
+* 1.4.16 
  
  * Bugfix release: Fixed reading CDATA nodes and text nodes from XPath function text().
 
