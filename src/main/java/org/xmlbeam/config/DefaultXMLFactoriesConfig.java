@@ -118,12 +118,11 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     private boolean isPrettyPrinting = true;
     private boolean isXIncludeAware = false;
     private NamespacePhilosophy namespacePhilosophy = NamespacePhilosophy.HEDONISTIC;
-    private static final InputSource EMPTY_INPUT_SOURCE = new InputSource(new StringReader(""));
     private static final EntityResolver NONRESOLVING_RESOLVER = new EntityResolver() {
 
         @Override
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-            return EMPTY_INPUT_SOURCE;
+            return new InputSource(new StringReader(""));
         }
     };
 //    private static final String[] FEATURE_DEFAULTS = new String[] { "http://apache.org/xml/features/disallow-doctype-decl#false", //
