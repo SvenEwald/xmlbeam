@@ -122,7 +122,7 @@
 							<Bundle-Version>${project.version}</Bundle-Version>
 							<Bundle-Name>${project.name}</Bundle-Name>
 							<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-							<Export-Package>org.xmlbeam,org.xmlbeam.annotation,org.xmlbeam.config,org.xmlbeam.dom,org.xmlbeam.externalizer,org.xmlbeam.io,org.xmlbeam.types,org.xmlbeam.util,org.xmlbeam.evaluation</Export-Package>
+							<Export-Package>org.xmlbeam,org.xmlbeam.annotation,org.xmlbeam.config,org.xmlbeam.dom,org.xmlbeam.externalizer,org.xmlbeam.io,org.xmlbeam.types,org.xmlbeam.util,org.xmlbeam.evaluation,org.xmlbeam.exceptions</Export-Package>
 						</manifestEntries>
 					</archive>
 				</configuration>
