@@ -36,6 +36,10 @@ Welcome to XMLBeam
 
 [https://codeship.io/projects/346d4460-0dec-0132-bc65-1e51a3033676/status] Codeship Status
 
+** 2020-12-11
+ 
+ * Bugfix release 1.4.18: Fixed exported packages for OSGI. See the {{{./release-notes.html} release notes}}
+
 ** 2020-08-11
  
  * Bugfix release 1.4.17: Fixed XEE handling. See the {{{./release-notes.html} release notes}}
