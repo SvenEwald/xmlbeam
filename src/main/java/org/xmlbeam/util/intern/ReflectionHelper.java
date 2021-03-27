@@ -15,6 +15,13 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,14 +35,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 import org.xmlbeam.exceptions.XBException;
 
@@ -54,6 +53,9 @@ public final class ReflectionHelper {
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
     private final static Method STREAM = findMethodByName(List.class, "stream");
+    public final static Class<?> LOCAL_DATE_CLASS = findClass("java.time.LocalDate");
+    public final static Class<?> LOCAL_DATE_TIME_CLASS = findClass("java.time.LocalDateTime");
+    public final static Class<?> LOCAL_DATE_TIME_FORMATTER_CLASS = findClass("java.time.format.DateTimeFormatter");
 
     private static Class<?> findClass(final String name) {
         try {
@@ -94,28 +96,6 @@ public final class ReflectionHelper {
         return null;
     }
 
-//    /**
-//     * Non exception throwing shortcut to find the first method with a given name and parameter
-//     * types.
-//     *
-//     * @param clazz
-//     * @param name
-//     * @param paramTypes
-//     * @return method with name "name" and parameters or null if it does not exist.
-//     */
-//    public static Method findMethodByNameAndParams(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
-//        for (final Method m : clazz.getMethods()) {
-//            if (!name.equals(m.getName())) {
-//                continue;
-//            }
-//            if (!Arrays.equals(m.getParameterTypes(), paramTypes)) {
-//                continue;
-//            }
-//            return m;
-//        }
-//        return null;
-//    }
-
     /**
      * Returns list of super interfaces,sorted from the top (super) to the bottom (extended).
      *
@@ -135,22 +115,6 @@ public final class ReflectionHelper {
         }
         return list;
     };
-
-//    /**
-//     * @param c
-//     * @return list of all extended classes and implemented interfaces
-//     */
-//    public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
-//        if (c == null) {
-//            return Collections.emptyList();
-//        }
-//        if (c.isInterface()) {
-//            return new LinkedList<Class<?>>(findAllSuperInterfaces(c));
-//        }
-//        LinkedList<Class<?>> superclasses = new LinkedList<Class<?>>(findAllSuperClasses(c.getSuperclass()));
-//        superclasses.addFirst(c);
-//        return superclasses;
-//    }
 
     /**
      * Defensive implemented method to determine if method has a return type.
@@ -178,38 +142,6 @@ public final class ReflectionHelper {
     public static boolean hasParameters(final Method method) {
         return (method != null) && (method.getParameterTypes().length > 0);
     }
-
-//    /**
-//     * @param method
-//     * @param projectionInterface
-//     * @return lowest type in hierarchy that defines the given method
-//     */
-//    public static Class<?> findDeclaringInterface(final Method method, final Class<?> projectionInterface) {
-//        for (final Class<?> interf : findAllSuperInterfaces(projectionInterface)) {
-//            if (declaresMethod(interf, method)) {
-//                return interf;
-//            }
-//        }
-//        return method.getDeclaringClass();
-//    }
-
-//    /**
-//     * @param interf
-//     * @param method
-//     * @return
-//     */
-//    private static boolean declaresMethod(final Class<?> interf, final Method method) {
-//        for (final Method m : interf.getDeclaredMethods()) {
-//            if (!m.getName().equals(method.getName())) {
-//                continue;
-//            }
-//            if (!Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
-//                continue;
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
 
     /**
      * Same as Arrays.asList(...), but does automatically conversion of primitive arrays.
@@ -603,27 +535,59 @@ public final class ReflectionHelper {
         }
     }
 
-//    /**
-//     * @param m
-//     * @return list of methods overridden by given method
-//     */
-//    public static List<Method> findAllOverridenMethods(final Method m) {
-//        List<Method> methods = new LinkedList<Method>();
-//        for (Class<?> c : findAllSuperClasses(m.getDeclaringClass())) {
-//            Method method = classImplementsMethdod(c, m);
-//            if (method != null) {
-//                methods.add(method);
-//            }
-//        }
-//        return methods;
-//    }
-//
-//    /**
-//     * @param c
-//     * @param m
-//     * @return
-//     */
-//    private static Method classImplementsMethdod(final Class<?> c, final Method m) {
-//        return findMethodByNameAndParams(c, m.getName(), m.getParameterTypes());
-//    }
+    /**
+     * @param obj
+     * @param clazz
+     * @param methodName
+     * @param params
+     * @return result
+     */
+    public static Object invokeMethod(Object obj, Class<?> clazz, String methodName, Object... params) {
+       
+        List<Method> methods = new LinkedList<Method>();
+        try {
+            methods:for (Method method : clazz.getMethods())  {
+                if (!methodName.equals(method.getName())) {
+                    continue;
+                }
+                if ((obj == null) && ((method.getModifiers() & Modifier.STATIC) == 0)) {
+                    continue;
+                }
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != params.length) {
+                    continue;
+                }
+                for (int i = 0; i < parameterTypes.length; ++i) {
+                    if (!parameterTypes[i].isAssignableFrom(params[i].getClass())) {
+                        continue methods;
+                    }
+                }
+                methods.add(method);
+            }
+            if (methods.size()!=1) {
+                Class<?>[] paramTypes = new Class<?>[params.length];
+                for (int i = 0; i < params.length; ++i) {
+                    paramTypes[i] = params[i].getClass();
+                }
+                String error= methods.size()==0 ? "Can not find " : "Found multiple ";
+                throw new IllegalArgumentException(error+((obj==null?"static ":""))+ "method(s) for "+clazz.getSimpleName()+"."+methodName+"("+paramTypes+")");
+            }
+            return methods.get(0).invoke(obj, params);
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        }  catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            if (e.getCause()!=null) {
+                Throwable cause = e.getCause();
+                if (cause.getCause()==cause) {
+                }
+                throw new RuntimeException(cause);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -32,6 +32,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
@@ -269,6 +270,40 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
                 }
             }
         });
+        if (ReflectionHelper.LOCAL_DATE_CLASS != null) {
+            CONVERSIONS.put(ReflectionHelper.LOCAL_DATE_CLASS, new Conversion<Object>(null) {
+                /**
+                 * @param data
+                 * @return LocalDateTime
+                 * @see org.xmlbeam.types.DefaultTypeConverter.Conversion#convert(java.lang.String)
+                 */
+                @Override
+                public Object convert(String data) {
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_CLASS, "parse", (CharSequence)data);
+
+                }
+
+                public Object convertWithPattern(final String data, final String pattern) {
+                    Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", (CharSequence)pattern);
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_CLASS, "parse", (CharSequence)data, formatter);
+                }
+
+            });
+
+            CONVERSIONS.put(ReflectionHelper.LOCAL_DATE_TIME_CLASS, new Conversion<Object>(null) {
+
+                @Override
+                public Object convert(String data) {
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "parse", (CharSequence)data);
+                }
+
+                public Object convertWithPattern(final String data, final String pattern) {
+                    Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", (CharSequence)pattern,Locale.getDefault());
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "parse", (CharSequence)data, formatter);
+                }
+
+            });
+        }
 
         CONVERSIONS.put(BigDecimal.class, new Conversion<BigDecimal>(null) {
             @Override
@@ -421,6 +456,14 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
             DecimalFormat clone = (DecimalFormat) decimalFormat.clone();
             clone.applyPattern(optionalFormatPattern[0]);
             return clone.format(data);
+        }
+        if ("java.time.LocalDate".equals(dataType.getCanonicalName())) {
+            Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", optionalFormatPattern[0]);
+            return (String) ReflectionHelper.invokeMethod(data, ReflectionHelper.LOCAL_DATE_CLASS, "format", formatter);
+        }
+        if ("java.time.LocalDateTime".equals(dataType.getCanonicalName())) {
+            Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", optionalFormatPattern[0]);
+            return (String) ReflectionHelper.invokeMethod(data, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "format", formatter);
         }
         throw new IllegalArgumentException("Type " + data.getClass().getSimpleName() + " can not be formatted using a pattern");
     }
