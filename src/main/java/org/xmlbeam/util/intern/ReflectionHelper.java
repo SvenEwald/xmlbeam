@@ -17,6 +17,7 @@ package org.xmlbeam.util.intern;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -56,6 +57,7 @@ public final class ReflectionHelper {
     public final static Class<?> LOCAL_DATE_CLASS = findClass("java.time.LocalDate");
     public final static Class<?> LOCAL_DATE_TIME_CLASS = findClass("java.time.LocalDateTime");
     public final static Class<?> LOCAL_DATE_TIME_FORMATTER_CLASS = findClass("java.time.format.DateTimeFormatter");
+    private static final int JAVA_VERSION = getJavaVersion();
 
     private static Class<?> findClass(final String name) {
         try {
@@ -401,6 +403,51 @@ public final class ReflectionHelper {
      *             (whatever the invoked method throws)
      */
     public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws Throwable {
+        if (JAVA_VERSION<9) {
+            return invokeDefaultMethodJava8(method, args, proxy);
+            }
+        // Java version >9
+        if (JAVA_VERSION<16) 
+        {
+            return invokeDefaultMethodJava9(method, args, proxy);
+        }
+        //Call InvocationHandler.invokeDefault(proxy, method, args);
+        return invokeMethod(null, InvocationHandler.class, "invokeDefault", proxy, method, args);
+    }
+
+    /**
+     * @param method
+     * @param args
+     * @param proxy
+     * @return
+     */
+    private static Object invokeDefaultMethodJava9(Method method, Object[] args, Object proxy) {
+        try {
+        Class<?> MHclass =Class.forName("java.lang.invoke.MethodHandle");
+        Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
+        Object lookup = MHsclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+        Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", method.getReturnType(), method.getParameterTypes());
+        Object findSpecial = invokeMethod(lookup, lookup.getClass()/*.forName("java.lang.invoke.MethodHandles.Lookup")*/, "findSpecial", method.getDeclaringClass(), method.getName(), methodType, proxy.getClass());
+      
+        Object methodHandle = invokeMethod(findSpecial,MHclass, "bindTo", proxy);
+        
+        return invokeMethod(methodHandle,MHclass, "invokeWithArguments",new Object[] {args});
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Object invokeDefaultMethodJava8(final Method method, final Object[] args, final Object proxy) throws Throwable {
         try {
             Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
             Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
@@ -476,12 +523,7 @@ public final class ReflectionHelper {
     }
 
     private static class ClassContextAccess extends SecurityManager {
-        private static final ThreadLocal<ClassContextAccess> classContextAccess = new ThreadLocal<ReflectionHelper.ClassContextAccess>() {
-            @Override
-            protected ClassContextAccess initialValue() {
-                return new ClassContextAccess();
-            }
-        };
+        private static final ThreadLocal<ClassContextAccess> classContextAccess=new ThreadLocal<ReflectionHelper.ClassContextAccess>(){@Override protected ClassContextAccess initialValue(){return new ClassContextAccess();}};
 
         /**
          * @param level
@@ -543,10 +585,10 @@ public final class ReflectionHelper {
      * @return result
      */
     public static Object invokeMethod(Object obj, Class<?> clazz, String methodName, Object... params) {
-       
+        
         List<Method> methods = new LinkedList<Method>();
         try {
-            methods:for (Method method : clazz.getMethods())  {
+            methods: for (Method method : clazz.getMethods()) {
                 if (!methodName.equals(method.getName())) {
                     continue;
                 }
@@ -564,30 +606,34 @@ public final class ReflectionHelper {
                 }
                 methods.add(method);
             }
-            if (methods.size()!=1) {
+            if (methods.size() != 1) {
                 Class<?>[] paramTypes = new Class<?>[params.length];
                 for (int i = 0; i < params.length; ++i) {
                     paramTypes[i] = params[i].getClass();
                 }
-                String error= methods.size()==0 ? "Can not find " : "Found multiple ";
-                throw new IllegalArgumentException(error+((obj==null?"static ":""))+ "method(s) for "+clazz.getSimpleName()+"."+methodName+"("+paramTypes+")");
+                String error = methods.size() == 0 ? "Can not find " : "Found multiple ";
+                throw new IllegalArgumentException(error + ((obj == null ? "static " : "")) + "method(s) for " + clazz.getSimpleName() + "." + methodName + "(" + paramTypes + ")");
             }
             return methods.get(0).invoke(obj, params);
         } catch (SecurityException e) {
             throw new RuntimeException(e);
-        }  catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause()!=null) {
+            if (e.getCause() != null) {
                 Throwable cause = e.getCause();
-                if (cause.getCause()==cause) {
+                if (cause.getCause() == cause) {
                 }
                 throw new RuntimeException(cause);
             }
             throw new RuntimeException(e);
         }
+    }
+
+    private static int getJavaVersion() {
+            return Integer.parseInt(System.getProperty("java.specification.version", "0").replaceAll("^1\\.",""));
     }
 
 }
