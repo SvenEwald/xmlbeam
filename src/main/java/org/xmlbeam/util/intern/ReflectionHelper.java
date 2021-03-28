@@ -412,6 +412,7 @@ public final class ReflectionHelper {
         }
         //Call InvocationHandler.invokeDefault(proxy, method, args);
         return invokeMethod(null, InvocationHandler.class, "invokeDefault", proxy, method, args);
+        
     }
 
     /**
@@ -420,7 +421,7 @@ public final class ReflectionHelper {
      * @param proxy
      * @return
      */
-    private static Object invokeDefaultMethodJava9(Method method, Object[] args, Object proxy) {
+    private static Object invokeDefaultMethodJava9(Method method, Object[] args, Object proxy) throws Throwable {
         try {
             Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandle");
             Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
@@ -432,18 +433,21 @@ public final class ReflectionHelper {
             Object methodHandle = invokeMethod(findSpecial, MHclass, "bindTo", proxy);
 
             return invokeMethod(methodHandle, MHclass, "invokeWithArguments", new Object[] { args });
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+//        } catch (ClassNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } catch (IllegalArgumentException e) {
+//            throw new RuntimeException(e);
+//        } catch (SecurityException e) {
+//            throw new RuntimeException(e);
+//        } catch (IllegalAccessException e) {
+//            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+           if (e.getCause()!=null) {
+               throw e.getCause();
+           }
+           throw e;
+//        } catch (NoSuchMethodException e) {
+//            throw new RuntimeException(e);
         }
     }
 
@@ -469,20 +473,23 @@ public final class ReflectionHelper {
                 }
                 throw e;
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+//        } catch (ClassNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } catch (NoSuchMethodException e) {
+//            throw new RuntimeException(e);
+//        } catch (IllegalArgumentException e) {
+//            throw new RuntimeException(e);
+//        } catch (SecurityException e) {
+//            throw new RuntimeException(e);
+//        } catch (IllegalAccessException e) {
+//            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
+            if (e.getCause()!=null) {
+                throw e.getCause();
+            }
             throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
+//        } catch (InstantiationException e) {
+//            throw new RuntimeException(e);
         }
     }
 
@@ -622,10 +629,11 @@ public final class ReflectionHelper {
                 throw new IllegalArgumentException(error + ((obj == null ? "static " : "")) + "method(s) for " + clazz.getSimpleName() + "." + methodName + "(" + paramTypes + ")");
             }
             return methods.get(0).invoke(obj, params);
-        } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
+//        } catch (SecurityException e) {
+//            throw new RuntimeException(e);
+//        } catch (IllegalArgumentException e) {
+//            //throw new RuntimeException(e);
+//            throw e;
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
