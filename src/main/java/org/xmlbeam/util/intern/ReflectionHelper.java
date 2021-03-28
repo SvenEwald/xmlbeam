@@ -403,12 +403,11 @@ public final class ReflectionHelper {
      *             (whatever the invoked method throws)
      */
     public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws Throwable {
-        if (JAVA_VERSION<9) {
+        if (JAVA_VERSION < 9) {
             return invokeDefaultMethodJava8(method, args, proxy);
-            }
+        }
         // Java version >9
-        if (JAVA_VERSION<16) 
-        {
+        if (JAVA_VERSION < 16) {
             return invokeDefaultMethodJava9(method, args, proxy);
         }
         //Call InvocationHandler.invokeDefault(proxy, method, args);
@@ -423,15 +422,16 @@ public final class ReflectionHelper {
      */
     private static Object invokeDefaultMethodJava9(Method method, Object[] args, Object proxy) {
         try {
-        Class<?> MHclass =Class.forName("java.lang.invoke.MethodHandle");
-        Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
-        Object lookup = MHsclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
-        Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", method.getReturnType(), method.getParameterTypes());
-        Object findSpecial = invokeMethod(lookup, lookup.getClass()/*.forName("java.lang.invoke.MethodHandles.Lookup")*/, "findSpecial", method.getDeclaringClass(), method.getName(), methodType, proxy.getClass());
-      
-        Object methodHandle = invokeMethod(findSpecial,MHclass, "bindTo", proxy);
-        
-        return invokeMethod(methodHandle,MHclass, "invokeWithArguments",new Object[] {args});
+            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandle");
+            Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
+            Object lookup = MHsclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+            Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", method.getReturnType(), method.getParameterTypes());
+            Object findSpecial = invokeMethod(lookup,
+                    lookup.getClass()/* .forName("java.lang.invoke.MethodHandles.Lookup") */, "findSpecial", method.getDeclaringClass(), method.getName(), methodType, proxy.getClass());
+
+            Object methodHandle = invokeMethod(findSpecial, MHclass, "bindTo", proxy);
+
+            return invokeMethod(methodHandle, MHclass, "invokeWithArguments", new Object[] { args });
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
@@ -523,7 +523,12 @@ public final class ReflectionHelper {
     }
 
     private static class ClassContextAccess extends SecurityManager {
-        private static final ThreadLocal<ClassContextAccess> classContextAccess=new ThreadLocal<ReflectionHelper.ClassContextAccess>(){@Override protected ClassContextAccess initialValue(){return new ClassContextAccess();}};
+        private static final ThreadLocal<ClassContextAccess> classContextAccess = new ThreadLocal<ReflectionHelper.ClassContextAccess>() {
+            @Override
+            protected ClassContextAccess initialValue() {
+                return new ClassContextAccess();
+            }
+        };
 
         /**
          * @param level
@@ -585,7 +590,7 @@ public final class ReflectionHelper {
      * @return result
      */
     public static Object invokeMethod(Object obj, Class<?> clazz, String methodName, Object... params) {
-        
+
         List<Method> methods = new LinkedList<Method>();
         try {
             methods: for (Method method : clazz.getMethods()) {
@@ -600,8 +605,10 @@ public final class ReflectionHelper {
                     continue;
                 }
                 for (int i = 0; i < parameterTypes.length; ++i) {
-                    if (!parameterTypes[i].isAssignableFrom(params[i].getClass())) {
-                        continue methods;
+                    if (params[i] != null) {
+                        if (!parameterTypes[i].isAssignableFrom(params[i].getClass())) {
+                            continue methods;
+                        }
                     }
                 }
                 methods.add(method);
@@ -633,7 +640,7 @@ public final class ReflectionHelper {
     }
 
     private static int getJavaVersion() {
-            return Integer.parseInt(System.getProperty("java.specification.version", "0").replaceAll("^1\\.",""));
+        return Integer.parseInt(System.getProperty("java.specification.version", "0").replaceAll("^1\\.", ""));
     }
 
 }
