@@ -588,6 +588,7 @@ public final class DOMHelper {
         }
         try {
             final StringWriter writer = new StringWriter();
+            DOMHelper.trim(domNode);
             projector.config().createTransformer().transform(new DOMSource(domNode), new StreamResult(writer));
             final String output = writer.getBuffer().toString();
             return output;
