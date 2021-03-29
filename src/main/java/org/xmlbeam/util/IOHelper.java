@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.TreeMap;
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.w3c.dom.Document;
@@ -35,7 +34,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.exceptions.XBDocumentParsingException;
-import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.exceptions.XBIOException;
 
 /**
@@ -49,6 +47,8 @@ public final class IOHelper {
 
     private static final String[] RESOURCE_PROTO_NAMES = new String[] { "resource://", "res://" };
 
+   
+    
     /**
      * Copies request properties to a connection.
      *
@@ -74,7 +74,8 @@ public final class IOHelper {
     public static Map<String, String> createBasicAuthenticationProperty(final String username, final String password) {
         Map<String, String> map = new TreeMap<String, String>();
         try {
-            String base64Binary = DatatypeConverter.printBase64Binary((username + ":" + password).getBytes("US-ASCII"));
+          //  String base64Binary = DatatypeConverter.printBase64Binary((username + ":" + password).getBytes("US-ASCII"));
+            String base64Binary = Base64.printBase64Binary((username + ":" + password).getBytes("US-ASCII"));
             map.put("Authorization", "Basic " + base64Binary);
         } catch (UnsupportedEncodingException e) {
             // unreachable code
