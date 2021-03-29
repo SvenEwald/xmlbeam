@@ -524,7 +524,7 @@ public final class ReflectionHelper {
     private static Class<?>[] getClassesOfObjects(final Object... objects) {
         Class<?>[] classes = new Class<?>[objects.length];
         for (int i = 0; i < objects.length; ++i) {
-            classes[i] = objects[i].getClass();
+            classes[i] = objects[i] == null ? null : objects[i].getClass();
         }
         return classes;
     }
@@ -621,12 +621,13 @@ public final class ReflectionHelper {
                 methods.add(method);
             }
             if (methods.size() != 1) {
-                Class<?>[] paramTypes = new Class<?>[params.length];
-                for (int i = 0; i < params.length; ++i) {
-                    paramTypes[i] = params[i].getClass();
-                }
+//                Class<?>[] paramTypes = new Class<?>[params.length];
+//                for (int i = 0; i < params.length; ++i) {
+//                    paramTypes[i] = params[i] ==null ? null :params[i].getClass();
+//                }
+                Class<?>[] paramTypes =getClassesOfObjects(params);
                 String error = methods.size() == 0 ? "Can not find " : "Found multiple ";
-                throw new IllegalArgumentException(error + ((obj == null ? "static " : "")) + "method(s) for " + clazz.getSimpleName() + "." + methodName + "(" + paramTypes + ")");
+                throw new IllegalArgumentException(error + ((obj == null ? "static " : "")) + "method(s) for '" + clazz.getSimpleName() + "." + methodName + "'(" + paramTypes + ")");
             }
             return methods.get(0).invoke(obj, params);
 //        } catch (SecurityException e) {
