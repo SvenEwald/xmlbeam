@@ -22,6 +22,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +46,7 @@ public class TestAutoFileBindings {
     @Before
     public void createFile() throws IOException {
         origEOL = System.getProperty("line.separator");
+        setEOL("\r\n");
         System.setProperty("line.separator", "\r\n");
         File tempFile = File.createTempFile(this.getClass().getSimpleName(), Long.toBinaryString(System.currentTimeMillis()));
         DOMAccess domAccess = projector.projectXMLString("<root><foo><bar>huhu</bar></foo></root>", DOMAccess.class);
@@ -56,6 +58,31 @@ public class TestAutoFileBindings {
     public void deleteFile() {
         file.delete();
         System.setProperty("line.separator", origEOL);
+        setEOL(origEOL);
+    }
+
+    /**
+     * @param origEOL2
+     */
+    private void setEOL(String eol) {
+       try {
+        Field field = System.class.getDeclaredField("lineSeparator");
+        field.setAccessible(true);
+        field.set(null, eol);
+    } catch (NoSuchFieldException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (SecurityException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (IllegalArgumentException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    } catch (IllegalAccessException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+        
     }
 
     @Test
