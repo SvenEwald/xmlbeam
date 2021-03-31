@@ -415,16 +415,25 @@ public final class ReflectionHelper {
      *             (whatever the invoked method throws)
      */
     public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws Throwable {
-        if (JAVA_VERSION < 9) {
-            return invokeDefaultMethodJava8(method, args, proxy);
+        try {
+            if (JAVA_VERSION < 9) {
+                return invokeDefaultMethodJava8(method, args, proxy);
+            }
+            // Java version >9
+            if (JAVA_VERSION < 16) {
+                return invokeDefaultMethodJava9(method, args, proxy);
+            }
+            //Call InvocationHandler.invokeDefault(proxy, method, args);
+            return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class, Method.class, Object[].class), array(proxy, method, args));
+        } catch (RuntimeException e) {
+            if (e.getCause() != null) {
+                throw e.getCause();
+            }
+            if (e.getCause() instanceof InvocationTargetException) {
+                throw (Throwable) invokeMethod(e, InvocationTargetException.class, "getTargetException", (Class[]) array(), array());
+            }
+            throw e;
         }
-        // Java version >9
-        if (JAVA_VERSION < 16) {
-            return invokeDefaultMethodJava9(method, args, proxy);
-        }
-        //Call InvocationHandler.invokeDefault(proxy, method, args);
-        return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class,Method.class,Object[].class),array(proxy, method, args));
-
     }
 
     /**
@@ -434,73 +443,28 @@ public final class ReflectionHelper {
      * @return
      */
     private static Object invokeDefaultMethodJava9(Method method, Object[] args, Object proxy) throws Throwable {
-        try {
-            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandle");
-            Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
-            Object lookup = MHsclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
-            Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", array(Class.class,method.getParameterTypes().getClass()),array(method.getReturnType(), method.getParameterTypes()));
-            Object findSpecial = invokeMethod(lookup,
-                    lookup.getClass()/* .forName("java.lang.invoke.MethodHandles.Lookup") */, "findSpecial",array(Class.class,String.class,Class.forName("java.lang.invoke.MethodType"),Class.class) ,array(method.getDeclaringClass(), method.getName(), methodType, proxy.getClass()));
-            Object methodHandle = invokeMethod(findSpecial, MHclass, "bindTo", array(Object.class),array( proxy));
-            return invokeMethod(methodHandle, MHclass, "invokeWithArguments", array(List.class), array(args==null?Collections.emptyList():Arrays.asList(args)));
-        } catch (InvocationTargetException e) {
-            if (e.getCause() != null) {
-                throw e.getCause();
-            }
-            throw e;
-//        } catch (NoSuchMethodException e) {
-//            throw new RuntimeException(e);
-        } catch (RuntimeException e) {
-            if (e.getCause()!=null) {
-                throw e.getCause();
-            }
-            if (e.getCause() instanceof InvocationTargetException) {
-                throw (Throwable) invokeMethod(e,InvocationTargetException.class,"getTargetException",(Class[])array(),array());
-            }
-            throw e;
-        }
+        Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandle");
+        Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
+        Object lookup = MHsclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+        Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", array(Class.class, method.getParameterTypes().getClass()), array(method.getReturnType(), method.getParameterTypes()));
+        Object findSpecial = invokeMethod(lookup,
+                lookup.getClass()/* .forName("java.lang.invoke.MethodHandles.Lookup") */, "findSpecial", array(Class.class, String.class, Class.forName("java.lang.invoke.MethodType"), Class.class),
+                array(method.getDeclaringClass(), method.getName(), methodType, proxy.getClass()));
+        Object methodHandle = invokeMethod(findSpecial, MHclass, "bindTo", array(Object.class), array(proxy));
+        return invokeMethod(methodHandle, MHclass, "invokeWithArguments", array(List.class), array(args == null ? Collections.emptyList() : Arrays.asList(args)));
     }
 
     private static Object invokeDefaultMethodJava8(final Method method, final Object[] args, final Object proxy) throws Throwable {
-        try {
-            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
-            Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
-
-            Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
-            constructor.setAccessible(true);
-            Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
-
-            Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
-
-            Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
-            Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
-            try {
-                Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
-                return result;
-            } catch (InvocationTargetException e) {
-                if (e.getCause() != null) {
-                    throw e.getCause();
-                }
-                throw e;
-            }
-//        } catch (ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        } catch (NoSuchMethodException e) {
-//            throw new RuntimeException(e);
-//        } catch (IllegalArgumentException e) {
-//            throw new RuntimeException(e);
-//        } catch (SecurityException e) {
-//            throw new RuntimeException(e);
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            if (e.getCause() != null) {
-                throw e.getCause();
-            }
-            throw new RuntimeException(e);
-//        } catch (InstantiationException e) {
-//            throw new RuntimeException(e);
-        }
+        Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
+        Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+        Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
+        constructor.setAccessible(true);
+        Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
+        Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
+        Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
+        Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
+        Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
+        return result;
     }
 
     /**
