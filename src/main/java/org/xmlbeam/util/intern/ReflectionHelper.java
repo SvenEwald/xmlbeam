@@ -416,21 +416,28 @@ public final class ReflectionHelper {
      */
     public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws Throwable {
         try {
-            if (JAVA_VERSION < 9) {
-                return invokeDefaultMethodJava8(method, args, proxy);
+            try {
+                if (JAVA_VERSION < 9) {
+                    return invokeDefaultMethodJava8(method, args, proxy);
+                }
+                // Java version >9
+                if (JAVA_VERSION < 16) {
+                    return invokeDefaultMethodJava9(method, args, proxy);
+                }
+                //Call InvocationHandler.invokeDefault(proxy, method, args);
+                return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class, Method.class, Object[].class), array(proxy, method, args));
+            } catch (RuntimeException e) {
+                if (e.getCause() != null) {
+                    throw e.getCause();
+                }
+//                if (e.getCause() instanceof InvocationTargetException) {
+//                    throw (Throwable) invokeMethod(e.getCause(), InvocationTargetException.class, "getTargetException", (Class[]) array(), array());
+//                }
+                throw e;
             }
-            // Java version >9
-            if (JAVA_VERSION < 16) {
-                return invokeDefaultMethodJava9(method, args, proxy);
-            }
-            //Call InvocationHandler.invokeDefault(proxy, method, args);
-            return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class, Method.class, Object[].class), array(proxy, method, args));
-        } catch (RuntimeException e) {
+        } catch (InvocationTargetException e) {
             if (e.getCause() != null) {
                 throw e.getCause();
-            }
-            if (e.getCause() instanceof InvocationTargetException) {
-                throw (Throwable) invokeMethod(e, InvocationTargetException.class, "getTargetException", (Class[]) array(), array());
             }
             throw e;
         }
