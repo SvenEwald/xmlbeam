@@ -423,7 +423,7 @@ public final class ReflectionHelper {
             return invokeDefaultMethodJava9(method, args, proxy);
         }
         //Call InvocationHandler.invokeDefault(proxy, method, args);
-        return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class,Method.class,args.getClass()),array(proxy, method, args));
+        return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class,Method.class,Object[].class),array(proxy, method, args));
 
     }
 
