@@ -73,8 +73,13 @@ public class TestBug36EmptyLinesAfterChange {
         TestProjection projection = projector.projectXMLString(XML, TestProjection.class);
        // System.out.println(projection.toString());
         List<String> entries = projection.getStringEntries();
+        ensureNoEmptyLine(projection.toString());
         entries.remove(0);
+        projection.setStringEntries(entries);
+        ensureNoEmptyLine(projection.toString());
         entries.add("x");
+        projection.setStringEntries(entries);
+        ensureNoEmptyLine(projection.toString());
         projection.setStringEntries(entries);
        // System.out.println(projection.toString());
         ensureNoEmptyLine(projection.toString());

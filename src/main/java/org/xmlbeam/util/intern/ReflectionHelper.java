@@ -15,6 +15,17 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,14 +39,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 import org.xmlbeam.exceptions.XBException;
 
@@ -54,6 +57,19 @@ public final class ReflectionHelper {
     private final static int PUBLIC_STATIC_MODIFIER = Modifier.STATIC | Modifier.PUBLIC;
     private final static Pattern VALID_FACTORY_METHOD_NAMES = Pattern.compile("valueOf|of|parse|getInstance");
     private final static Method STREAM = findMethodByName(List.class, "stream");
+    public final static Class<?> LOCAL_DATE_CLASS = findClass("java.time.LocalDate");
+    public final static Class<?> LOCAL_DATE_TIME_CLASS = findClass("java.time.LocalDateTime");
+    public final static Class<?> LOCAL_DATE_TIME_FORMATTER_CLASS = findClass("java.time.format.DateTimeFormatter");
+    private static final int JAVA_VERSION = getJavaVersion();
+
+    /**
+     * @param <T>
+     * @param content
+     * @return new array of T
+     */
+    public static <T> T[] array(T... content) {
+        return content;
+    };
 
     private static Class<?> findClass(final String name) {
         try {
@@ -94,28 +110,6 @@ public final class ReflectionHelper {
         return null;
     }
 
-//    /**
-//     * Non exception throwing shortcut to find the first method with a given name and parameter
-//     * types.
-//     *
-//     * @param clazz
-//     * @param name
-//     * @param paramTypes
-//     * @return method with name "name" and parameters or null if it does not exist.
-//     */
-//    public static Method findMethodByNameAndParams(final Class<?> clazz, final String name, final Class<?>[] paramTypes) {
-//        for (final Method m : clazz.getMethods()) {
-//            if (!name.equals(m.getName())) {
-//                continue;
-//            }
-//            if (!Arrays.equals(m.getParameterTypes(), paramTypes)) {
-//                continue;
-//            }
-//            return m;
-//        }
-//        return null;
-//    }
-
     /**
      * Returns list of super interfaces,sorted from the top (super) to the bottom (extended).
      *
@@ -135,22 +129,6 @@ public final class ReflectionHelper {
         }
         return list;
     };
-
-//    /**
-//     * @param c
-//     * @return list of all extended classes and implemented interfaces
-//     */
-//    public static List<Class<?>> findAllSuperClasses(final Class<?> c) {
-//        if (c == null) {
-//            return Collections.emptyList();
-//        }
-//        if (c.isInterface()) {
-//            return new LinkedList<Class<?>>(findAllSuperInterfaces(c));
-//        }
-//        LinkedList<Class<?>> superclasses = new LinkedList<Class<?>>(findAllSuperClasses(c.getSuperclass()));
-//        superclasses.addFirst(c);
-//        return superclasses;
-//    }
 
     /**
      * Defensive implemented method to determine if method has a return type.
@@ -178,38 +156,6 @@ public final class ReflectionHelper {
     public static boolean hasParameters(final Method method) {
         return (method != null) && (method.getParameterTypes().length > 0);
     }
-
-//    /**
-//     * @param method
-//     * @param projectionInterface
-//     * @return lowest type in hierarchy that defines the given method
-//     */
-//    public static Class<?> findDeclaringInterface(final Method method, final Class<?> projectionInterface) {
-//        for (final Class<?> interf : findAllSuperInterfaces(projectionInterface)) {
-//            if (declaresMethod(interf, method)) {
-//                return interf;
-//            }
-//        }
-//        return method.getDeclaringClass();
-//    }
-
-//    /**
-//     * @param interf
-//     * @param method
-//     * @return
-//     */
-//    private static boolean declaresMethod(final Class<?> interf, final Method method) {
-//        for (final Method m : interf.getDeclaredMethods()) {
-//            if (!m.getName().equals(method.getName())) {
-//                continue;
-//            }
-//            if (!Arrays.equals(m.getParameterTypes(), method.getParameterTypes())) {
-//                continue;
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
 
     /**
      * Same as Arrays.asList(...), but does automatically conversion of primitive arrays.
@@ -470,41 +416,62 @@ public final class ReflectionHelper {
      */
     public static Object invokeDefaultMethod(final Method method, final Object[] args, final Object proxy) throws Throwable {
         try {
-            Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
-            Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
-
-            Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
-            constructor.setAccessible(true);
-            Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
-
-            Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
-
-            Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
-            Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
             try {
-                Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
-                return result;
-            } catch (InvocationTargetException e) {
+                if (JAVA_VERSION < 9) {
+                    return invokeDefaultMethodJava8(method, args, proxy);
+                }
+                // Java version >9
+                if (JAVA_VERSION < 16) {
+                    return invokeDefaultMethodJava9(method, args, proxy);
+                }
+                //Call InvocationHandler.invokeDefault(proxy, method, args);
+                return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class, Method.class, Object[].class), array(proxy, method, args));
+            } catch (RuntimeException e) {
                 if (e.getCause() != null) {
                     throw e.getCause();
                 }
+//                if (e.getCause() instanceof InvocationTargetException) {
+//                    throw (Throwable) invokeMethod(e.getCause(), InvocationTargetException.class, "getTargetException", (Class[]) array(), array());
+//                }
                 throw e;
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
+            if (e.getCause() != null) {
+                throw e.getCause();
+            }
+            throw e;
         }
+    }
+
+    /**
+     * @param method
+     * @param args
+     * @param proxy
+     * @return
+     */
+    private static Object invokeDefaultMethodJava9(Method method, Object[] args, Object proxy) throws Throwable {
+        Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandle");
+        Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
+        Object lookup = MHsclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+        Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", array(Class.class, method.getParameterTypes().getClass()), array(method.getReturnType(), method.getParameterTypes()));
+        Object findSpecial = invokeMethod(lookup,
+                lookup.getClass()/* .forName("java.lang.invoke.MethodHandles.Lookup") */, "findSpecial", array(Class.class, String.class, Class.forName("java.lang.invoke.MethodType"), Class.class),
+                array(method.getDeclaringClass(), method.getName(), methodType, proxy.getClass()));
+        Object methodHandle = invokeMethod(findSpecial, MHclass, "bindTo", array(Object.class), array(proxy));
+        return invokeMethod(methodHandle, MHclass, "invokeWithArguments", array(List.class), array(args == null ? Collections.emptyList() : Arrays.asList(args)));
+    }
+
+    private static Object invokeDefaultMethodJava8(final Method method, final Object[] args, final Object proxy) throws Throwable {
+        Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandles");
+        Object lookup = MHclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
+        Constructor<?> constructor = lookup.getClass().getDeclaredConstructor(Class.class);
+        constructor.setAccessible(true);
+        Object newLookupInstance = constructor.newInstance(method.getDeclaringClass());
+        Object in = newLookupInstance.getClass().getMethod("in", new Class<?>[] { Class.class }).invoke(newLookupInstance, method.getDeclaringClass());
+        Object unreflectSpecial = in.getClass().getMethod("unreflectSpecial", new Class<?>[] { Method.class, Class.class }).invoke(in, method, method.getDeclaringClass());
+        Object bindTo = unreflectSpecial.getClass().getMethod("bindTo", Object.class).invoke(unreflectSpecial, proxy);
+        Object result = bindTo.getClass().getMethod("invokeWithArguments", Object[].class).invoke(bindTo, new Object[] { args });
+        return result;
     }
 
     /**
@@ -538,7 +505,7 @@ public final class ReflectionHelper {
     private static Class<?>[] getClassesOfObjects(final Object... objects) {
         Class<?>[] classes = new Class<?>[objects.length];
         for (int i = 0; i < objects.length; ++i) {
-            classes[i] = objects[i].getClass();
+            classes[i] = objects[i] == null ? null : objects[i].getClass();
         }
         return classes;
     }
@@ -603,27 +570,50 @@ public final class ReflectionHelper {
         }
     }
 
-//    /**
-//     * @param m
-//     * @return list of methods overridden by given method
-//     */
-//    public static List<Method> findAllOverridenMethods(final Method m) {
-//        List<Method> methods = new LinkedList<Method>();
-//        for (Class<?> c : findAllSuperClasses(m.getDeclaringClass())) {
-//            Method method = classImplementsMethdod(c, m);
-//            if (method != null) {
-//                methods.add(method);
-//            }
-//        }
-//        return methods;
-//    }
-//
-//    /**
-//     * @param c
-//     * @param m
-//     * @return
-//     */
-//    private static Method classImplementsMethdod(final Class<?> c, final Method m) {
-//        return findMethodByNameAndParams(c, m.getName(), m.getParameterTypes());
-//    }
+    /**
+     * @param obj
+     * @param clazz
+     * @param methodName
+     * @param params
+     * @return result
+     */
+    public static Object invokeMethod(Object obj, Class<?> clazz, String methodName, Class<?>[] parameterTypes, Object[] params) {
+        assert parameterTypes.length == params.length;
+        List<Method> methods = new LinkedList<Method>();
+        try {
+            for (Method method : clazz.getMethods()) {
+                if (!methodName.equals(method.getName())) {
+                    continue;
+                }
+                if ((obj == null) && ((method.getModifiers() & Modifier.STATIC) == 0)) {
+                    continue;
+                }
+                Class<?>[] methodParameterTypes = method.getParameterTypes();
+                if (!Arrays.equals(parameterTypes, methodParameterTypes)) {
+                    continue;
+                }
+                methods.add(method);
+            }
+            if (methods.size() != 1) {
+                String error = methods.size() == 0 ? "Can not find " : "Found multiple ";
+                throw new IllegalArgumentException(error + ((obj == null ? "static " : "")) + "method(s) for '" + clazz.getSimpleName() + "." + methodName + "'(" + parameterTypes + ")");
+            }
+            return methods.get(0).invoke(obj, params);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause.getCause() == cause) {
+                }
+                throw new RuntimeException(cause);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static int getJavaVersion() {
+        return Integer.parseInt(System.getProperty("java.specification.version", "0").replaceAll("^1\\.", ""));
+    }
+
 }

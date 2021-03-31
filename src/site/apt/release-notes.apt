@@ -8,7 +8,12 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.18 current release
+* 1.4.19 current release
+
+ * New support for LocalDate & LocalTime. Use it with formatting patterns if you like.
+ * Support for Java 9 to Java 16. No warning when using default methods any more. 
+
+* 1.4.18 
 
  * Bugfix release: Using the DataNotFoundException was not possible within OSGI.
 
