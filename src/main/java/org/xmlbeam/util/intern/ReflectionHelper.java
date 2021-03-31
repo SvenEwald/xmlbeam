@@ -15,6 +15,9 @@
  */
 package org.xmlbeam.util.intern;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -58,6 +61,15 @@ public final class ReflectionHelper {
     public final static Class<?> LOCAL_DATE_TIME_CLASS = findClass("java.time.LocalDateTime");
     public final static Class<?> LOCAL_DATE_TIME_FORMATTER_CLASS = findClass("java.time.format.DateTimeFormatter");
     private static final int JAVA_VERSION = getJavaVersion();
+
+    /**
+     * @param <T>
+     * @param content
+     * @return new array of T
+     */
+    public static <T> T[] array(T... content) {
+        return content;
+    };
 
     private static Class<?> findClass(final String name) {
         try {
@@ -411,8 +423,8 @@ public final class ReflectionHelper {
             return invokeDefaultMethodJava9(method, args, proxy);
         }
         //Call InvocationHandler.invokeDefault(proxy, method, args);
-        return invokeMethod(null, InvocationHandler.class, "invokeDefault", proxy, method, args);
-        
+        return invokeMethod(null, InvocationHandler.class, "invokeDefault", array(Object.class,Method.class,args.getClass()),array(proxy, method, args));
+
     }
 
     /**
@@ -426,28 +438,26 @@ public final class ReflectionHelper {
             Class<?> MHclass = Class.forName("java.lang.invoke.MethodHandle");
             Class<?> MHsclass = Class.forName("java.lang.invoke.MethodHandles");
             Object lookup = MHsclass.getMethod("lookup", (Class<?>[]) null).invoke(null, (Object[]) null);
-            Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", method.getReturnType(), method.getParameterTypes());
+            Object methodType = invokeMethod(null, Class.forName("java.lang.invoke.MethodType"), "methodType", array(Class.class,method.getParameterTypes().getClass()),array(method.getReturnType(), method.getParameterTypes()));
             Object findSpecial = invokeMethod(lookup,
-                    lookup.getClass()/* .forName("java.lang.invoke.MethodHandles.Lookup") */, "findSpecial", method.getDeclaringClass(), method.getName(), methodType, proxy.getClass());
-
-            Object methodHandle = invokeMethod(findSpecial, MHclass, "bindTo", proxy);
-
-            return invokeMethod(methodHandle, MHclass, "invokeWithArguments", new Object[] { args });
-//        } catch (ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        } catch (IllegalArgumentException e) {
-//            throw new RuntimeException(e);
-//        } catch (SecurityException e) {
-//            throw new RuntimeException(e);
-//        } catch (IllegalAccessException e) {
-//            throw new RuntimeException(e);
+                    lookup.getClass()/* .forName("java.lang.invoke.MethodHandles.Lookup") */, "findSpecial",array(Class.class,String.class,Class.forName("java.lang.invoke.MethodType"),Class.class) ,array(method.getDeclaringClass(), method.getName(), methodType, proxy.getClass()));
+            Object methodHandle = invokeMethod(findSpecial, MHclass, "bindTo", array(Object.class),array( proxy));
+            return invokeMethod(methodHandle, MHclass, "invokeWithArguments", array(List.class), array(args==null?Collections.emptyList():Arrays.asList(args)));
         } catch (InvocationTargetException e) {
-           if (e.getCause()!=null) {
-               throw e.getCause();
-           }
-           throw e;
+            if (e.getCause() != null) {
+                throw e.getCause();
+            }
+            throw e;
 //        } catch (NoSuchMethodException e) {
 //            throw new RuntimeException(e);
+        } catch (RuntimeException e) {
+            if (e.getCause()!=null) {
+                throw e.getCause();
+            }
+            if (e.getCause() instanceof InvocationTargetException) {
+                throw (Throwable) invokeMethod(e,InvocationTargetException.class,"getTargetException",(Class[])array(),array());
+            }
+            throw e;
         }
     }
 
@@ -484,7 +494,7 @@ public final class ReflectionHelper {
 //        } catch (IllegalAccessException e) {
 //            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause()!=null) {
+            if (e.getCause() != null) {
                 throw e.getCause();
             }
             throw new RuntimeException(e);
@@ -596,45 +606,28 @@ public final class ReflectionHelper {
      * @param params
      * @return result
      */
-    public static Object invokeMethod(Object obj, Class<?> clazz, String methodName, Object... params) {
-
+    public static Object invokeMethod(Object obj, Class<?> clazz, String methodName, Class<?>[] parameterTypes, Object[] params) {
+        assert parameterTypes.length == params.length;
         List<Method> methods = new LinkedList<Method>();
         try {
-            methods: for (Method method : clazz.getMethods()) {
+            for (Method method : clazz.getMethods()) {
                 if (!methodName.equals(method.getName())) {
                     continue;
                 }
                 if ((obj == null) && ((method.getModifiers() & Modifier.STATIC) == 0)) {
                     continue;
                 }
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                if (parameterTypes.length != params.length) {
+                Class<?>[] methodParameterTypes = method.getParameterTypes();
+                if (!Arrays.equals(parameterTypes, methodParameterTypes)) {
                     continue;
-                }
-                for (int i = 0; i < parameterTypes.length; ++i) {
-                    if (params[i] != null) {
-                        if (!parameterTypes[i].isAssignableFrom(params[i].getClass())) {
-                            continue methods;
-                        }
-                    }
                 }
                 methods.add(method);
             }
             if (methods.size() != 1) {
-//                Class<?>[] paramTypes = new Class<?>[params.length];
-//                for (int i = 0; i < params.length; ++i) {
-//                    paramTypes[i] = params[i] ==null ? null :params[i].getClass();
-//                }
-                Class<?>[] paramTypes =getClassesOfObjects(params);
                 String error = methods.size() == 0 ? "Can not find " : "Found multiple ";
-                throw new IllegalArgumentException(error + ((obj == null ? "static " : "")) + "method(s) for '" + clazz.getSimpleName() + "." + methodName + "'(" + paramTypes + ")");
+                throw new IllegalArgumentException(error + ((obj == null ? "static " : "")) + "method(s) for '" + clazz.getSimpleName() + "." + methodName + "'(" + parameterTypes + ")");
             }
             return methods.get(0).invoke(obj, params);
-//        } catch (SecurityException e) {
-//            throw new RuntimeException(e);
-//        } catch (IllegalArgumentException e) {
-//            //throw new RuntimeException(e);
-//            throw e;
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {

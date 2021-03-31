@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 
 import org.xmlbeam.types.DefaultTypeConverter.Conversion;
 import org.xmlbeam.util.intern.ReflectionHelper;
-
+import static org.xmlbeam.util.intern.ReflectionHelper.array;
 /**
  * @author <a href="https://github.com/SvenEwald">Sven Ewald</a>
  */
@@ -279,13 +279,13 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
                  */
                 @Override
                 public Object convert(String data) {
-                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_CLASS, "parse", (CharSequence)data);
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_CLASS, "parse", array(CharSequence.class),array(data));
 
                 }
 
                 public Object convertWithPattern(final String data, final String pattern) {
-                    Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", (CharSequence)pattern);
-                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_CLASS, "parse", (CharSequence)data, formatter);
+                    Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", array(CharSequence.class),array(pattern));
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_CLASS, "parse",array(CharSequence.class,ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS),array(data, formatter));
                 }
 
             });
@@ -294,12 +294,12 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
 
                 @Override
                 public Object convert(String data) {
-                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "parse", (CharSequence)data);
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "parse",array(CharSequence.class),array(data) );
                 }
 
                 public Object convertWithPattern(final String data, final String pattern) {
-                    Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", (CharSequence)pattern,Locale.getDefault());
-                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "parse", (CharSequence)data, formatter);
+                    Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", array(CharSequence.class,Locale.class),array(pattern,Locale.getDefault()));
+                    return ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "parse", array(CharSequence.class,ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS),array(data, formatter));
                 }
 
             });
@@ -458,12 +458,12 @@ public class DefaultTypeConverter implements TypeConverter, StringRenderer {
             return clone.format(data);
         }
         if ("java.time.LocalDate".equals(dataType.getCanonicalName())) {
-            Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", optionalFormatPattern[0]);
-            return (String) ReflectionHelper.invokeMethod(data, ReflectionHelper.LOCAL_DATE_CLASS, "format", formatter);
+            Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern",array(CharSequence.class),array( optionalFormatPattern[0]));
+            return (String) ReflectionHelper.invokeMethod(data, ReflectionHelper.LOCAL_DATE_CLASS, "format",array(ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS),array( formatter));
         }
         if ("java.time.LocalDateTime".equals(dataType.getCanonicalName())) {
-            Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", optionalFormatPattern[0]);
-            return (String) ReflectionHelper.invokeMethod(data, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "format", formatter);
+            Object formatter = ReflectionHelper.invokeMethod(null, ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS, "ofPattern", array(CharSequence.class),array(optionalFormatPattern[0]));
+            return (String) ReflectionHelper.invokeMethod(data, ReflectionHelper.LOCAL_DATE_TIME_CLASS, "format",array(ReflectionHelper.LOCAL_DATE_TIME_FORMATTER_CLASS),array( formatter));
         }
         throw new IllegalArgumentException("Type " + data.getClass().getSimpleName() + " can not be formatted using a pattern");
     }
