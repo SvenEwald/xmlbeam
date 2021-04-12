@@ -212,4 +212,14 @@ class AutoValue<E> implements XBAutoValue<E> {
         return get().hashCode();
     }
 
+    /**
+     * @param defaultValue
+     * @return isPresent() ? get() : defaultValue
+     * @see org.xmlbeam.types.XBAutoValue#getOrDefault(java.lang.Object)
+     */
+    @Override
+    public E getOrDefault(E defaultValue) {
+        return isPresent() ? get() : defaultValue;
+    }
+
 }

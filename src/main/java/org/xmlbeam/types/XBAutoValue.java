@@ -51,6 +51,13 @@ public interface XBAutoValue<E> extends Iterable<E> {
      * @return value
      */
     E get();
+    
+    /**
+     * Getter for value of bound element. If element is not present,
+     * the given default is returned
+     * @param defaultValue
+     */
+    E getOrDefault(E defaultValue);
 
     /**
      * Setter for value of bound
