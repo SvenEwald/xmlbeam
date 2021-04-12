@@ -29,7 +29,6 @@ import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.jcp.xml.dsig.internal.dom.DOMUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
