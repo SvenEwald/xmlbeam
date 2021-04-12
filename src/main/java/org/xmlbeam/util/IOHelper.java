@@ -29,12 +29,14 @@ import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 
+import org.jcp.xml.dsig.internal.dom.DOMUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.exceptions.XBDocumentParsingException;
 import org.xmlbeam.exceptions.XBIOException;
+import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * A set of tiny helper methods used in the projection framework and free to use for framework
@@ -223,7 +225,9 @@ public final class IOHelper {
                     }
                     InputSource source = new InputSource(is);
                     // source.setEncoding("MacRoman");
-                    return documentBuilder.parse(source);
+                    Document document = documentBuilder.parse(source);
+                    DOMHelper.trim(document.getDocumentElement());
+                    return document;
                 }
             }
             if (url.startsWith("http:") || url.startsWith("https:")) {

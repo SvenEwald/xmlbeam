@@ -70,8 +70,7 @@ public class TestAutoFileBindings {
         field.setAccessible(true);
         field.set(null, eol);
     } catch (NoSuchFieldException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        // Ignore, wrong JDK
     } catch (SecurityException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

@@ -94,6 +94,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
     public <T> T read(final Class<T> projectionInterface) throws IOException {
         try {
             Document document = projector.config().createDocumentBuilder().parse(file);
+            DOMHelper.trim(document.getDocumentElement());
             return projector.projectDOMNode(document, projectionInterface);
         } catch (SAXException e) {
             throw new XBDocumentParsingException(e);
@@ -219,6 +220,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
         try {
             if (file.exists()) {
                 document[0] = projector.config().createDocumentBuilder().parse(file);
+                DOMHelper.trim(document[0].getDocumentElement());
             } else {
                 document[0] = projector.config().createDocumentBuilder().newDocument();
             }
@@ -255,6 +257,7 @@ class DefaultFileIO implements CanEvaluate, FileIO {
         DefaultXPathBinder.validateEvaluationType(valueType);
         try {
             Document document = projector.config().createDocumentBuilder().parse(file);
+            DOMHelper.trim(document.getDocumentElement());
             InvocationContext invocationContext = new InvocationContext(null, null, null, null, null, valueType, projector);
             return new AutoMap<T>(document, invocationContext, valueType);
         } catch (SAXException e) {
