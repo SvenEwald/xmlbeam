@@ -23,6 +23,7 @@ import java.util.ListIterator;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -36,7 +37,7 @@ import org.xmlbeam.util.intern.DOMHelper;
 /**
  *
  */
-class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeListener {
+class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeListener,DOMAccess {
 
     static class EmptyAutoList<F> extends AbstractList<F> implements XBAutoList<F> {
 
@@ -300,6 +301,63 @@ class AutoList<E> extends AbstractList<E> implements XBAutoList<E>, DOMChangeLis
     @SuppressWarnings("unchecked")
     public static <E> XBAutoList<E> emptyList() {
         return EMPTY;
+    }
+
+    /**
+     * @return XBAutolist.class
+     * @see org.xmlbeam.dom.DOMAccess#getProjectionInterface()
+     */
+    @Override
+    public Class<?> getProjectionInterface() {
+        return XBAutoList.class;
+    }
+
+    /**
+     * @return root that contains list elements
+     * @see org.xmlbeam.dom.DOMAccess#getDOMNode()
+     */
+    @Override
+    public Node getDOMNode() {
+        return getNode();
+    }
+
+    /**
+     * @return document
+     * @see org.xmlbeam.dom.DOMAccess#getDOMOwnerDocument()
+     */
+    @Override
+    public Document getDOMOwnerDocument() {
+     return getNode().getOwnerDocument();
+    }
+
+    /**
+     * @return root element of document
+     * @see org.xmlbeam.dom.DOMAccess#getDOMBaseElement()
+     */
+    @Override
+    public Element getDOMBaseElement() {
+        return getDOMOwnerDocument().getDocumentElement();
+    }
+
+    /**
+     * @return XML String
+     * @see org.xmlbeam.dom.DOMAccess#asString()
+     */
+    @Override
+    public String asString() {
+        return DOMHelper.toXMLString(invocationContext.getProjector(),getDOMNode());
+    }
+
+    /**
+     * Throws UnsupportedOperationException
+     * @param path
+     * @param value
+     * @return nothing
+     * @see org.xmlbeam.dom.DOMAccess#create(java.lang.String, java.lang.Object)
+     */
+    @Override
+    public DOMAccess create(String path, Object value) {
+        throw new UnsupportedOperationException();
     }
 
 }

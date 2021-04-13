@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -150,4 +152,15 @@ public class TestAutoIntegerList {
         assertTrue(projection.reference().isEmpty());
     }
     
+    /**
+     *  Tests if AutoLists can be written and that the result equals the string representation. 
+     */
+    @Test
+    public void testDomAccessOfAutoList() {
+      String xml = projector.asString(projection.projectList());
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      projector.io().stream(byteArrayOutputStream).write(projection.projectList());
+      String xml2 = new String(byteArrayOutputStream.toByteArray(),StandardCharsets.UTF_8);
+      assertEquals(xml,xml2);
+    }
 }
