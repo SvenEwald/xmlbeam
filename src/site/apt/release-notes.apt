@@ -8,7 +8,14 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.19 current release
+
+* 1.4.20 current release
+
+ * Removing empty lines in created XML files with JDKs beyond 8.
+ 
+ * New convenience mehtod getOrDefault for XBAutoValue
+
+* 1.4.19 
 
  * New support for LocalDate & LocalTime. Use it with formatting patterns if you like.
  * Support for Java 6 to Java 16. No warning when using default methods any more. 
