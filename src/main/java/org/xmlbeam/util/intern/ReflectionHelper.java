@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
+import javax.management.RuntimeErrorException;
+
 import org.xmlbeam.exceptions.XBException;
 
 /**
@@ -613,7 +615,15 @@ public final class ReflectionHelper {
     }
 
     private static int getJavaVersion() {
-        return Integer.parseInt(System.getProperty("java.specification.version", "0").replaceAll("^1\\.", ""));
+        String specVersion = System.getProperty("java.specification.version", "0");
+        if ("0.9".equals(specVersion)) {
+            return 6; // Dalvik Core Library
+        }
+        try {
+        return Integer.parseInt(specVersion.replaceAll("^1\\.", ""));
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Unknown Java Specification Version",e);
+        }
     }
 
 }

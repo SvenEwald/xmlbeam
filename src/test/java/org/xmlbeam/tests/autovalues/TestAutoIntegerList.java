@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -160,7 +161,7 @@ public class TestAutoIntegerList {
       String xml = projector.asString(projection.projectList());
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       projector.io().stream(byteArrayOutputStream).write(projection.projectList());
-      String xml2 = new String(byteArrayOutputStream.toByteArray(),StandardCharsets.UTF_8);
+      String xml2 = new String(byteArrayOutputStream.toByteArray(),Charset.forName("UTF-8"));
       assertEquals(xml,xml2);
     }
 }
