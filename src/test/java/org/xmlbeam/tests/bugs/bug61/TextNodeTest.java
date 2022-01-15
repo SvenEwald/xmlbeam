@@ -17,13 +17,10 @@ package org.xmlbeam.tests.bugs.bug61;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jcp.xml.dsig.internal.dom.DOMUtils;
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.XBProjector.Flags;
 import org.xmlbeam.annotation.XBRead;
-import org.xmlbeam.dom.DOMAccess;
-import org.xmlbeam.util.intern.DOMHelper;
 
 public class TextNodeTest {
 
