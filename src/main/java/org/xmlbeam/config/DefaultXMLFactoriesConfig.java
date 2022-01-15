@@ -34,6 +34,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
@@ -45,6 +46,7 @@ import org.xmlbeam.XBProjector;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.util.UnionIterator;
 import org.xmlbeam.util.intern.DOMHelper;
+import org.xmlbeam.util.intern.ReflectionHelper;
 
 /**
  * Default configuration for {@link XBProjector} which uses Java default factories to create
@@ -212,15 +214,22 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("resource")
     @Override
     public Transformer createTransformer(final Document... document) {
         try {
-            Transformer transformer = createTransformerFactory().newTransformer();
+            TransformerFactory transformerFactory = createTransformerFactory();
+            transformerFactory.setAttribute("indent-number", new Integer(2));
+            Transformer transformer = isPrettyPrinting && (ReflectionHelper.JAVA_VERSION > 8)? transformerFactory.newTransformer(new StreamSource(getClass().getResourceAsStream("prettyprint.xslt"))) : transformerFactory.newTransformer();
+           
             if (isPrettyPrinting()) {
-
                 // Enable some pretty printing of the resulting xml.
-                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                if (ReflectionHelper.JAVA_VERSION > 8) {
+                    transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
+                } 
+                    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                
             }
             if (isOmitXMLDeclaration()) {
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");

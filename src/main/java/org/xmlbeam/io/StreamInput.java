@@ -30,7 +30,6 @@ import org.xmlbeam.evaluation.XPathEvaluator;
 import org.xmlbeam.exceptions.XBDocumentParsingException;
 import org.xmlbeam.exceptions.XBException;
 import org.xmlbeam.exceptions.XBIOException;
-import org.xmlbeam.util.intern.DOMHelper;
 import org.xmlbeam.util.intern.DocScope;
 import org.xmlbeam.util.intern.Scope;
 
@@ -70,7 +69,6 @@ public class StreamInput implements CanEvaluate {
         try {
             DocumentBuilder documentBuilder = projector.config().createDocumentBuilder();
             Document document = systemID == null ? documentBuilder.parse(is) : documentBuilder.parse(is, systemID);
-            DOMHelper.trim(document.getDocumentElement());
             return document;
         } catch (SAXException e) {
             throw new XBDocumentParsingException(e);

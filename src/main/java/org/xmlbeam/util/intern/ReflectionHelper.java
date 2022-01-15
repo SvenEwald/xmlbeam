@@ -62,7 +62,7 @@ public final class ReflectionHelper {
     public final static Class<?> LOCAL_DATE_CLASS = findClass("java.time.LocalDate");
     public final static Class<?> LOCAL_DATE_TIME_CLASS = findClass("java.time.LocalDateTime");
     public final static Class<?> LOCAL_DATE_TIME_FORMATTER_CLASS = findClass("java.time.format.DateTimeFormatter");
-    private static final int JAVA_VERSION = getJavaVersion();
+    public static final int JAVA_VERSION = getJavaVersion();
 
     /**
      * @param <T>

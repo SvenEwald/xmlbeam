@@ -35,7 +35,6 @@ import org.xml.sax.SAXException;
 import org.xmlbeam.XBProjector;
 import org.xmlbeam.exceptions.XBDocumentParsingException;
 import org.xmlbeam.exceptions.XBIOException;
-import org.xmlbeam.util.intern.DOMHelper;
 
 /**
  * A set of tiny helper methods used in the projection framework and free to use for framework
@@ -224,9 +223,7 @@ public final class IOHelper {
                     }
                     InputSource source = new InputSource(is);
                     // source.setEncoding("MacRoman");
-                    Document document = documentBuilder.parse(source);
-                    DOMHelper.trim(document.getDocumentElement());
-                    return document;
+                    return documentBuilder.parse(source);
                 }
             }
             if (url.startsWith("http:") || url.startsWith("https:")) {
