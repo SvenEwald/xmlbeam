@@ -33,11 +33,13 @@ Welcome to XMLBeam
  {{{./introduction.html} Learn more}}.
  
 ** 2022-01-18
+
  * New release 1.4.22: Fix compatibility with Xalan when using Java 8. Support for Java 17. See the {{{./release-notes.html} release notes}}
 
 ** 2022-01-15
  
  * New release 1.4.21: Bugfix for handling elements containing whitespace only. Enhanced support for Android JVMs. See the {{{./release-notes.html} release notes}}
+
  * Java 17 breaks unit tests that depend on refelection in jdk classes.
  
 ** 2021-04-12
