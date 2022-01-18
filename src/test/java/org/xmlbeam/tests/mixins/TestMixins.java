@@ -16,9 +16,12 @@
 package org.xmlbeam.tests.mixins;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Before;
+
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 import org.xmlbeam.XBProjector;
@@ -41,14 +44,19 @@ public class TestMixins {
         
     }
 
-    final Mixin verifyMixin = mock(Mixin.class);
+    boolean verifyMixin = false;
+    @Before
+    public void resetVerifyFlag() {
+        verifyMixin=false;
+    }
+    
     final Mixin mixin = new Mixin() {
         private Projection me;
 
         @Override
         public void doSomething() {
             assertNotNull(me);
-            verifyMixin.doSomething();
+            verifyMixin=true;
         }
     };
 
@@ -62,8 +70,9 @@ public class TestMixins {
     @Test
     public void testMixinIsCalled() {
         Projection projection = new XBProjector().mixins().addProjectionMixin(Projection.class, mixin).projectEmptyDocument(Projection.class);
+        assertFalse(verifyMixin);
         projection.doSomething();
-        verify(verifyMixin).doSomething();
+        assertTrue(verifyMixin);
     }
     
     @Test
@@ -75,6 +84,8 @@ public class TestMixins {
     @Test(expected = IllegalArgumentException.class)
     public void testCallWithoutMixin() {
         Mixin mixin = new XBProjector().projectEmptyDocument(Mixin.class);
+        assertFalse(verifyMixin);
         mixin.doSomething();
+        assertFalse(verifyMixin);
     }
 }

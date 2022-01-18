@@ -17,7 +17,7 @@ package org.xmlbeam.tests.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
+import static java.lang.System.lineSeparator;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,13 +41,9 @@ import org.xmlbeam.types.XBAutoMap;
 public class TestAutoFileBindings {
     XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
     File file;
-    private String origEOL;
 
     @Before
     public void createFile() throws IOException {
-        origEOL = System.getProperty("line.separator");
-        setEOL("\r\n");
-        System.setProperty("line.separator", "\r\n");
         File tempFile = File.createTempFile(this.getClass().getSimpleName(), Long.toBinaryString(System.currentTimeMillis()));
         DOMAccess domAccess = projector.projectXMLString("<root><foo><bar>huhu</bar></foo></root>", DOMAccess.class);
         projector.io().file(tempFile).write(domAccess);
@@ -57,51 +53,26 @@ public class TestAutoFileBindings {
     @After
     public void deleteFile() {
         file.delete();
-        System.setProperty("line.separator", origEOL);
-        setEOL(origEOL);
-    }
-
-    /**
-     * @param origEOL2
-     */
-    private void setEOL(String eol) {
-       try {
-        Field field = System.class.getDeclaredField("lineSeparator");
-        field.setAccessible(true);
-        field.set(null, eol);
-    } catch (NoSuchFieldException e) {
-        // Ignore, wrong JDK
-    } catch (SecurityException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (IllegalArgumentException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    } catch (IllegalAccessException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }
-        
     }
 
     @Test
     public void testMapExistingFile() throws IOException {
-        assertEquals(57, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 57 : 52, file.length());
         CloseableMap<String> map = projector.io().file(file).bindAsMapOf(String.class);
         assertEquals("huhu", map.get("root/foo/bar"));
         map.put("root/foo2/bar2", "huhu2");
         map.close();
-        assertEquals(102, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 102 : 94, file.length());
     }
 
     @Test
     public void testMapExistingFileWithXpath() throws IOException {
-        assertEquals(57, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 57 : 52, file.length());
         CloseableMap<String> map = projector.io().file(file).bindXPath("root").asMapOf(String.class);
         assertEquals("huhu", map.get("foo/bar"));
         map.put("foo2/bar2", "huhu2");
         map.close();
-        assertEquals(102, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 102 : 94, file.length());
     }
 
     @Test
@@ -113,7 +84,7 @@ public class TestAutoFileBindings {
         assertTrue(map.isEmpty());
         map.put("root/foo2/bar2", "huhu2");
         map.close();
-        assertEquals(62, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 62 : 57, file.length());
         file.delete();
     }
 
@@ -124,40 +95,40 @@ public class TestAutoFileBindings {
 
     @Test
     public void testListExistingFile() throws IOException {
-        assertEquals(57, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 57 : 52, file.length());
         CloseableList<String> list = projector.io().file(file).bindXPath("/root/foo/bar").asListOf(String.class);
         assertEquals(1, list.size());
         assertEquals("huhu", list.get(0));
         list.add("huhu2");
         list.close();
-        assertEquals(79, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 79 : 73, file.length());
     }
 
     @Test
     public void testMapExistingFileReadOnly() throws IOException {
-        assertEquals(57, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 57 : 52, file.length());
         XBAutoMap<String> map = projector.io().file(file).readAsMapOf(String.class);
         assertEquals("huhu", map.get("root/foo/bar"));
         map.put("root/foo2/bar2", "huhu2");
         if (map instanceof Closeable) {
             ((Closeable) map).close();
         }
-        assertEquals(57, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 57 : 52, file.length());
     }
 
     @Test
     public void testvalueBindToFile() throws IOException {
-        assertEquals(57, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 57 : 52, file.length());
         CloseableValue<String> value = projector.io().file(file).bindXPath("/root/foo/bar").as(String.class);
         assertEquals("huhu", value.get());
         value.set("huhu2");
         value.close();
-        assertEquals(58, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 58 : 53, file.length());
     }
 
     @Test
     public void testMapExistingFileReadOnlyThenToList() throws IOException {
-        assertEquals(57, file.length());
+        assertEquals(lineSeparator().length() == 2 ? 57 : 52, file.length());
         XBAutoMap<String> map = projector.io().file(file).readAsMapOf(String.class);
         assertEquals("huhu", map.get("root/foo/bar"));
         XBAutoList<String> list = map.getList("root/foo/bar");
