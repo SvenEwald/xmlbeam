@@ -32,13 +32,15 @@ Welcome to XMLBeam
   
  {{{./introduction.html} Learn more}}.
  
-* Project status
 
-[https://codeship.io/projects/346d4460-0dec-0132-bc65-1e51a3033676/status] Codeship Status
-
+** 2022-01-15
+ 
+ * New release 1.4.21: Bugfix for handling elements containing whitespace only. Enhanced support for Android JVMs. See the {{{./release-notes.html} release notes}}
+ * Java 17 breaks unit tests that depend on refelection in jdk classes.
+ 
 ** 2021-04-12
 
- * New release 1.4.19: Minor fixes for JDKS 9-16. See the {{{./release-notes.html} release notes}}
+ * New release 1.4.20: Minor fixes for JDKS 9-16. See the {{{./release-notes.html} release notes}}
 
 ** 2021-03-31
  

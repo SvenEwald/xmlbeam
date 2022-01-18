@@ -60,40 +60,41 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
 
     /**
      * This configuration can use one of three different ways to configure namespace handling.
-     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings (AGNOSTIC) or mapped
-     * automatically to the document prefixes (HEDONISTIC).
+     * Namespaces may be ignored (NIHILISTIC), handled user defined prefix mappings (AGNOSTIC) or
+     * mapped automatically to the document prefixes (HEDONISTIC).
      */
     public static enum NamespacePhilosophy {
 
         /**
-         * Maybe there are namespaces. Maybe not. You have to decide for yourself. Neither the xml parser,
-         * nor the XPath instances bill be modified by this confiruration. Using this option will require
-         * you to subclass this configuration and specify namespace handling yourself. This way allowes you
-         * to control prefix to namespace mapping for the XPath expressions. The namespace awareness flag of
-         * created DocumentBuilders won't be touched.
+         * Maybe there are namespaces. Maybe not. You have to decide for yourself. Neither the xml
+         * parser, nor the XPath instances bill be modified by this confiruration. Using this option
+         * will require you to subclass this configuration and specify namespace handling yourself.
+         * This way allowes you to control prefix to namespace mapping for the XPath expressions.
+         * The namespace awareness flag of created DocumentBuilders won't be touched.
          */
         AGNOSTIC,
 
         /**
-         * Fun without pain. This is the default option in this configuration. If namespaces are defined in
-         * the document, the definition will be applied to your XPath expressions. Thus you may just use
-         * existing namespaces without bothering about prefix mapping. DocumentBuilders are created with
-         * namespace awareness set to false.
+         * Fun without pain. This is the default option in this configuration. If namespaces are
+         * defined in the document, the definition will be applied to your XPath expressions. Thus
+         * you may just use existing namespaces without bothering about prefix mapping.
+         * DocumentBuilders are created with namespace awareness set to false.
          */
         HEDONISTIC,
 
         /**
-         * There is no such thing as a namespace. Only elements and attributes without a namespace will be
-         * visible to projections. Using this option prevents getting exceptions when an XPath expression
-         * tries to select a non defined namespace. (You can't get errors if you deny the existence of
-         * errors.) DocumentBuilders are created with namespace awareness set to false.
+         * There is no such thing as a namespace. Only elements and attributes without a namespace
+         * will be visible to projections. Using this option prevents getting exceptions when an
+         * XPath expression tries to select a non defined namespace. (You can't get errors if you
+         * deny the existence of errors.) DocumentBuilders are created with namespace awareness set
+         * to false.
          */
         NIHILISTIC
     }
 
     /**
-     * A facade to provide user defined namespace mappings. This way a document with namespaces can be
-     * created from scratch.
+     * A facade to provide user defined namespace mappings. This way a document with namespaces can
+     * be created from scratch.
      *
      * @author sven
      */
@@ -179,8 +180,8 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     }
 
     /**
-     * @return A NSMapping that can be used to create documents with namespaces from scratch. Just add
-     *         your prefixes and ns uris.
+     * @return A NSMapping that can be used to create documents with namespaces from scratch. Just
+     *         add your prefixes and ns uris.
      */
     public NSMapping createNameSpaceMapping() {
         if (!NamespacePhilosophy.HEDONISTIC.equals(namespacePhilosophy)) {
@@ -219,17 +220,19 @@ public class DefaultXMLFactoriesConfig implements XMLFactoriesConfig {
     public Transformer createTransformer(final Document... document) {
         try {
             TransformerFactory transformerFactory = createTransformerFactory();
-            transformerFactory.setAttribute("indent-number", new Integer(2));
-            Transformer transformer = isPrettyPrinting && (ReflectionHelper.JAVA_VERSION > 8)? transformerFactory.newTransformer(new StreamSource(getClass().getResourceAsStream("prettyprint.xslt"))) : transformerFactory.newTransformer();
-           
+            if (isPrettyPrinting && (ReflectionHelper.JAVA_VERSION > 8)) {
+                transformerFactory.setAttribute("indent-number", new Integer(2));
+            }
+            Transformer transformer = isPrettyPrinting && (ReflectionHelper.JAVA_VERSION > 8) ? transformerFactory.newTransformer(new StreamSource(getClass().getResourceAsStream("prettyprint.xslt"))) : transformerFactory.newTransformer();
+
             if (isPrettyPrinting()) {
                 // Enable some pretty printing of the resulting xml.
                 if (ReflectionHelper.JAVA_VERSION > 8) {
                     transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
-                } 
-                    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-                    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                
+                }
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
             }
             if (isOmitXMLDeclaration()) {
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
