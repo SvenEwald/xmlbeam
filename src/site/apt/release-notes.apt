@@ -8,8 +8,20 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.21 current release
 
+
+
+* 1.4.22 current release
+ 
+ * Fixed compatibility with Xalan when using Java 8
+
+ * Fixed unit tests to support Java 17 
+
+* 1.4.21
+
+ * Reimplemented XML formatting for Java >=9. The old Transformer based implementation broke handling of elements containing whitespace only.
+
+ * Enhanced determination of used Java version to support Android VMs.
 
 * 1.4.20 
 
