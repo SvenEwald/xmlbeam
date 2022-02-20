@@ -17,11 +17,6 @@
 				<ribbonOrientation>right</ribbonOrientation>
 				<ribbonColor>green</ribbonColor>
 			</gitHub>
-			<twitter>
-				<user>xmlbeam</user>
-				<showUser>false</showUser>
-				<showFollowers>false</showFollowers>
-			</twitter>
 		</fluidoSkin>
 	</custom>
 
