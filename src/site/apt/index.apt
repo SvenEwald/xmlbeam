@@ -32,6 +32,10 @@ Welcome to XMLBeam
   
  {{{./introduction.html} Learn more}}.
  
+** 2022-04-17
+ 
+ * New bugfix relaese 1.4.23: Thanks to Adrien Zaffran who found a bug in the packaging can result to a NPE.
+
 ** 2022-01-18
 
  * New release 1.4.22: Fix compatibility with Xalan when using Java 8. Support for Java 17. See the {{{./release-notes.html} release notes}}

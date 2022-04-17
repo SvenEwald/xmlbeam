@@ -9,9 +9,11 @@ Release Notes
  The introduction of the update annotation is an example for this.
 
 
+* 1.4.23 current release
 
+ * Bugfix release: Under some circumstances, NPE occured while pretty printing.
 
-* 1.4.22 current release
+* 1.4.22 
  
  * Fixed compatibility with Xalan when using Java 8
 
