@@ -1,0 +1,7 @@
+<msg:Envelope xmlns:msg="http://message/url" xmlns:test="http://test/url">
+<msg:Body>
+<test:Attribute>
+<test:Code>0</test:Code>
+</test:Attribute>
+</msg:Body>
+</msg:Envelope>
