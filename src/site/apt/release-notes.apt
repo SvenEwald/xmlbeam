@@ -8,8 +8,11 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
+* 1.4.24 current release
 
-* 1.4.23 current release
+ * Fix tutorial after discontinued MSN weather service.
+
+* 1.4.23 
 
  * Bugfix release: Under some circumstances, NPE occured while pretty printing.
 
