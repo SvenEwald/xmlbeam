@@ -64,10 +64,12 @@ END SNIPPET: TutorialDescription */
 // START SNIPPET: WeatherDataCode
 private void printWeatherData(String location) throws IOException {
     
-    final String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
+    // The weather service was discontinued. Changed to read from file.
+    //final String BaseURL = "http://weather.service.msn.com/find.aspx?outputview=search&weasearchstr=";
+    final String fileURL = "resource://WeatherData.xml";
     
     // We let the projector fetch the data for us
-    WeatherData weatherData = new XBProjector().io().url(BaseURL + location).read(WeatherData.class);
+    WeatherData weatherData = new XBProjector().io().url(fileURL).read(WeatherData.class);
     
     // Print some values
     System.out.println("The weather in " + weatherData.getLocation() + ":");
