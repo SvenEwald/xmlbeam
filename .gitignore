@@ -12,3 +12,7 @@ target
 /bin
 /target-eclipse
 /target/
+
+.settings
+.project
+.classpath

@@ -15,7 +15,8 @@
  */
 package org.xmlbeam.tests.bugs.bug62;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -33,35 +34,34 @@ import org.xmlbeam.util.intern.ReflectionHelper;
 @SuppressWarnings({ "javadoc", "resource" })
 public class TestBug62 {
 
-    interface Test62 {
-    };
+	interface Test62 {}
 
-    @BeforeClass
-    public static void info() {
-        System.out.println(ReflectionHelper.JAVA_VERSION);
-    }
+	@BeforeClass
+	public static void info() {
+		System.out.println(ReflectionHelper.JAVA_VERSION);
+	}
 
-    @Test
-    public void test() throws IOException {
+	@Test
+	public void test() throws IOException {
         XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
-        projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(false);
+		projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(false);
         Test62 xml = projector.io().url("resource://xmlwithns.xml").read(Test62.class);
-        System.out.println(xml.toString());
+		System.out.println(xml.toString());
 
         String orig = new Scanner(TestBug62.class.getResourceAsStream("xmlwithns.xml")).useDelimiter("\\Z").next();
-        assertEquals(orig, xml.toString());
-    }
+		assertEquals(orig, xml.toString());
+	}
 
-    @Test
-    public void testPretty() throws IOException {
+	@Test
+	public void testPretty() throws IOException {
         XBProjector projector = new XBProjector(Flags.TO_STRING_RENDERS_XML);
-        projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(true);
+		projector.config().as(DefaultXMLFactoriesConfig.class).setPrettyPrinting(true);
         Test62 xml = projector.io().url("resource://xmlwithns.xml").read(Test62.class);
-        System.out.println(xml.toString());
+		System.out.println(xml.toString());
 
         String orig = new Scanner(TestBug62.class.getResourceAsStream("xmlwithns.xml")).useDelimiter("\\Z").next();
-        assertNotEquals(orig, xml.toString());
-        assertEquals(orig, xml.toString().replaceAll("(?s)(  +)|(\n\\Z)", ""));
-    }
+		assertNotEquals(orig, xml.toString());
+        assertEquals(orig, xml.toString().replaceAll("(?s)(  +)|(\n\\Z)", "").trim());
+	}
 
 }
