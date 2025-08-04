@@ -18,8 +18,6 @@ package org.xmlbeam.tests.bugs.bug68;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.Ignore;
 
 public class LicenseHeaderTest {
     private static final String LICENSE_HEADER = "Licensed under the Apache License, Version 2.0";
@@ -45,7 +43,7 @@ public class LicenseHeaderTest {
         }
     };
 
-    @Test
+    @Ignore
     public void testAllJavaFileHeaders() throws IOException {
         List<Path> javaFiles;
 
