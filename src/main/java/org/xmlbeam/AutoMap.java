@@ -26,6 +26,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -322,7 +323,12 @@ public class AutoMap<T> extends AbstractMap<String, T> implements XBAutoMap<T>, 
                 return null;
             }
             final T value = DefaultXPathEvaluator.convertToComponentType(invocationContext, prevNode, invocationContext.getTargetComponentType());
-            duplexExpression.deleteAllMatchingChildren(prevNode.getParentNode());
+
+            if (prevNode.getNodeType() == Node.ATTRIBUTE_NODE) {
+                DOMHelper.removeAttribute((Attr) prevNode);
+            } else {
+                duplexExpression.deleteAllMatchingChildren(prevNode.getParentNode());
+            }
             return value;
         } catch (XPathExpressionException e) {
             throw new XBPathException(e, xpath);
