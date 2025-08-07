@@ -29,7 +29,7 @@ import org.xmlbeam.types.XBAutoMap;
 public class NPEInMapTest {
    
     /**
-     * Deletion of attribues via AutoMap was broken
+     * Deletion of attributes via AutoMap was broken
      * @throws IOException
      */
     @Test
