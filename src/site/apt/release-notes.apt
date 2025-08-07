@@ -8,7 +8,11 @@ Release Notes
  The patch level is increased on every backwards-compatible release even it is a new feature.
  The introduction of the update annotation is an example for this.
 
-* 1.4.25 current release
+* 1.4.26 current release
+
+ * Bugfix release: fix NPE when removing attributes via AutoMap
+ 
+* 1.4.25
 
  * Fix wrong license headers
 

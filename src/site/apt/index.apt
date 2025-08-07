@@ -32,17 +32,21 @@ Welcome to XMLBeam
   
  {{{./introduction.html} Learn more}}.
 
+** 2025-08-07
+
+ * New Bugfix release: fix NPE when removing attributes via AutoMap.
+
 ** 2025-08-05
 
- * New bugfix relaese 1.4.25: Fix java license headers. Due to reuse of the IDE for different clients, wrong headers slipped into the project.
+ * New bugfix release 1.4.25: Fix java license headers. Due to reuse of the IDE for different clients, wrong headers slipped into the project.
 
 ** 2022-09-04
 
- * New bugfix relaese 1.4.24: Fix tutorial after discontinued MSN weather service.
+ * New bugfix release 1.4.24: Fix tutorial after discontinued MSN weather service.
  
 ** 2022-04-17
  
- * New bugfix relaese 1.4.23: Thanks to Adrien Zaffran who found a bug in the packaging can result to a NPE.
+ * New bugfix release 1.4.23: Thanks to Adrien Zaffran who found a bug in the packaging can result to a NPE.
 
 ** 2022-01-18
 
