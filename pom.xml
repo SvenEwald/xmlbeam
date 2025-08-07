@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.xmlbeam</groupId>
 	<artifactId>xmlprojector</artifactId>
-	<version>1.4.26</version>
+	<version>1.4.27</version>
 	<name>XMLBeam Data Projector</name>
 	<description>The coolest XML library for Java around. Define typesafe views (projections) to xml. Use XPath to read and write XML. Bind XML to Java collections. Requires at least Java6, supports Java8 features and has no further runtime dependencies.</description>
 	<inceptionYear>2012-12-21</inceptionYear>
